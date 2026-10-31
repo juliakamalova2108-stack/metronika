@@ -1,10 +1,10 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=4';
-import * as S from './store.js?v=4';
-import { CHANNELS } from './seed.js?v=4';
-import { esc } from './ui.js?v=4';
+import { actions, rerender, go } from './core.js?v=5';
+import * as S from './store.js?v=5';
+import { CHANNELS } from './seed.js?v=5';
+import { esc } from './ui.js?v=5';
 
 const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -55,7 +55,11 @@ function selectField(key, label, value, options, locked) {
 function channelPlate(d) {
   const c = d.channel;
   const locked = !d.editing;
-  const statusHtml = d.dirty ? '<span class="f-status f-status--bad"><i></i>не сохранено</span>' : d.saved ? '<span class="f-status f-status--ok"><i></i>сохранено</span>' : '';
+  // Правка после сохранения: статус «редактирование» (тип «Внимание»), кнопка «Редактировать» горит.
+  const reEdit = d.saved && d.editing;
+  const statusHtml = d.dirty ? '<span class="f-status f-status--bad"><i></i>не сохранено</span>'
+    : reEdit ? '<span class="f-status f-status--warn"><i></i>редактирование</span>'
+      : d.saved ? '<span class="f-status f-status--ok"><i></i>сохранено</span>' : '';
   return `<section class="f-plate" aria-label="Канал">
     ${selectField('source', 'Источник заявки', c.source, SOURCES.map((s) => ({ value: s, label: s })), locked)}
     ${selectField('partner', 'Партнёр', partnerName(c.partner), [{ value: 'self', label: 'Самостоятельно' }, ...partners().map((p) => ({ value: p.id, label: p.name }))], locked)}
@@ -64,8 +68,8 @@ function channelPlate(d) {
     <label class="f-field" for="f-pct"><span class="f-field__label">Вознаграждение</span>
       <span class="f-input"><input id="f-pct" inputmode="decimal" value="${esc(String(c.pct).replace('.', ','))} %" ${locked ? 'readonly' : ''} data-live="f-pct"/></span></label>
     <div class="f-btn-row">
-      <button type="button" class="f-btn${d.saved && !d.dirty ? ' f-btn--saved' : ''}" data-action="f-save">${d.saved && !d.dirty ? 'Сохранено' : 'Сохранить'}</button>
-      <button type="button" class="f-btn" data-action="f-edit">Редактировать</button>
+      <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="f-save">${locked ? 'Сохранено' : 'Сохранить'}</button>
+      <button type="button" class="f-btn${reEdit ? ' f-btn--lit' : ''}" data-action="f-edit" aria-pressed="${reEdit}">Редактировать</button>
     </div>
     ${statusHtml}
   </section>`;
@@ -118,7 +122,7 @@ actions['f-save'] = () => {
   d.saved = true; d.dirty = false; d.editing = false; open = '';
   S.save(); rerender();
 };
-actions['f-edit'] = () => { const d = draft(); d.editing = true; S.save(); rerender(); };
+actions['f-edit'] = () => { const d = draft(); if (!d.saved) return; d.editing = true; S.save(); rerender(); };
 
 export function onLiveOformit(el) {
   const k = el.dataset.live;
