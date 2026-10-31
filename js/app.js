@@ -1,14 +1,16 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, setRenderer, rerender, route, go } from './core.js';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js';
 import * as S from './store.js';
 import { esc, ICONS, sheet, closeSheet, toast } from './ui.js';
 import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js';
-import { renderSettlements, renderProfile } from './shared.js';
-import { renderNewOrder, renderAgentOrders, renderAgentOrder, onSegAgent, onLive } from './agent.js';
-import { renderProOrders, renderProOrder, renderCurrentOrder, onSegPro, incomingCount } from './pro.js';
+import { renderSettlements } from './shared.js';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js';
 
-const VERSION = 'прототип 0.1';
+const VERSION = 'прототип 1.0';
 
 function roleOf(u) {
   if (S.hasRole(u, 'agent')) return 'agent';
@@ -21,26 +23,34 @@ const SCREENS = {
   agent: {
     start: 'new',
     nav: [['menu', 'Меню', 'menu'], ['new', 'Новая заявка', 'plus'], ['mine', 'Мои заявки', 'list'], ['money', 'Начисления', 'wallet']],
-    menu: [['new', 'Новая заявка'], ['mine', 'Мои заявки'], ['money', 'Начисления'], ['profile', 'Профиль']],
+    menu: [['new', 'Новая заявка'], ['mine', 'Мои заявки'], ['calls', 'Звонки клиентам'], ['for-client', 'Для клиента'], ['money', 'Начисления'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['profile', 'Профиль'], ['settings', 'Настройки']],
   },
   master: {
     start: 'orders',
     nav: [['menu', 'Меню', 'menu'], ['current', 'Текущий заказ', 'briefcase'], ['orders', 'Заказы', 'inbox'], ['money', 'Начисления', 'wallet']],
-    menu: [['current', 'Текущий заказ'], ['orders', 'Заказы'], ['money', 'Начисления'], ['profile', 'Профиль']],
+    menu: [['current', 'Текущий заказ'], ['orders', 'Заказы'], ['own-new', 'Новый заказ'], ['money', 'Начисления'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['profile', 'Профиль'], ['settings', 'Настройки']],
   },
 };
-SCREENS.dispatcher = SCREENS.master;
+SCREENS.dispatcher = { ...SCREENS.master, menu: [...SCREENS.master.menu.slice(0, 3), ['team', 'Команда'], ...SCREENS.master.menu.slice(3)] };
 
 function screenFor(name, role) {
   if (name === 'money') return renderSettlements();
   if (name === 'profile') return renderProfile();
+  if (name === 'settings') return renderSettings();
+  if (name === 'stats') return renderStats();
+  if (name === 'brand' || name.startsWith('brand-')) return brandRoute(name);
   if (role === 'agent') {
     if (name === 'new') return renderNewOrder();
     if (name === 'mine') return renderAgentOrders();
-    if (name.startsWith('a-order-')) return renderAgentOrder(name.slice(8));
+    if (name === 'calls') return renderCalls();
+    if (name === 'for-client') return renderForClient();
+    if (name.startsWith('a-order-')) return renderOrder(name.slice(8));
   } else {
     if (name === 'orders') return renderProOrders();
     if (name === 'current') return renderCurrentOrder();
+    if (name === 'trash') return renderTrash();
+    if (name === 'own-new') return renderOwnNew();
+    if (name === 'team' && role === 'dispatcher') return renderTeam();
     if (name.startsWith('p-order-')) return renderProOrder(name.slice(8));
   }
   return null;
@@ -50,7 +60,7 @@ function tabbar(role, current) {
   const cfg = SCREENS[role];
   const badge = role === 'agent' ? 0 : incomingCount();
   return cfg.nav.map(([key, label, icon]) => {
-    const active = key === current || (key === 'mine' && current.startsWith('a-order-')) || (key === 'orders' && current.startsWith('p-order-'));
+    const active = key === current || (key === 'mine' && current.startsWith('a-order-')) || (key === 'orders' && (current.startsWith('p-order-') || current === 'trash' || current === 'own-new'));
     const b = key === 'orders' && badge ? `<span class="tabbar__badge">${badge}</span>` : '';
     const act = key === 'menu' ? 'data-action="menu-open"' : `data-action="go" data-to="${key}"`;
     return `<button type="button" class="tabbar__item${active ? ' is-active' : ''}" ${act} ${active ? 'aria-current="page"' : ''}><span class="tabbar__icon">${ICONS[icon]}${b}</span>${esc(label)}</button>`;
@@ -69,7 +79,7 @@ function drawer(role) {
         <button type="button" class="btn btn--ghost" data-action="switch-user">Сменить пользователя</button>
         <button type="button" class="btn btn--ghost" data-action="reset-ask">Сбросить демо-данные</button>
         <span>Метроника · ${VERSION}</span>
-        <span>Ещё не собрано: график комнат, материал, смета, чат, задачи, финансы заказа, команда диспетчера, статистика, настройки.</span>
+        <span>Данные хранятся только в этом браузере. Рулетка, сканер и геоотметка в демо имитируются.</span>
       </div>
     </nav>`;
 }
@@ -89,6 +99,7 @@ function render() {
   }
   document.body.classList.remove('is-auth');
   const role = roleOf(me);
+  S.autoFailOverdue();
   let name = route();
   let html = name ? screenFor(name, role) : null;
   if (html == null) {
@@ -135,19 +146,37 @@ actions['reset-do'] = () => { closeSheet(); S.resetDemo(); logout(); location.ha
 actions['seg'] = (el) => {
   const { seg, value } = el.dataset;
   if (onSegAuth(seg, value)) return;
+  if (onSegSheet(seg, value)) return;
   if (onSegAgent(seg, value)) return;
+  if (onSegOrder(seg, value)) return;
+  if (onSegMore(seg, value)) return;
   onSegPro(seg, value);
 };
 
 // ---------- события ----------
+// Поле с data-change сохраняется при уходе из него. Если уход случился из-за нажатия кнопки,
+// перерисовку откладываем до самого нажатия — иначе кнопка исчезнет из-под пальца.
+let pressing = false;
+let pendingRender = false;
+document.addEventListener('pointerdown', () => { pressing = true; }, true);
+document.addEventListener('pointerup', () => { setTimeout(() => { pressing = false; if (pendingRender) { pendingRender = false; rerender(); } }, 0); }, true);
+document.addEventListener('change', (ev) => {
+  const el = ev.target;
+  const fn = el.dataset && el.dataset.change && changes[el.dataset.change];
+  if (!fn) return;
+  fn(el);
+  if (pressing) pendingRender = true; else rerender();
+});
 document.addEventListener('click', (ev) => {
   const el = ev.target.closest('[data-action]');
   if (!el || el.disabled) return;
   const fn = actions[el.dataset.action];
-  if (fn) { ev.preventDefault(); fn(el, ev); }
+  if (fn) { ev.preventDefault(); pendingRender = false; fn(el, ev); }
 });
 document.addEventListener('input', (ev) => {
-  if (ev.target.dataset && ev.target.dataset.live) onLive(ev.target);
+  if (!ev.target.dataset || !ev.target.dataset.live) return;
+  if (onLivePro(ev.target)) return;
+  onLive(ev.target);
 });
 document.addEventListener('submit', (ev) => { ev.preventDefault(); submitForm(ev.target); });
 document.addEventListener('keydown', (ev) => {

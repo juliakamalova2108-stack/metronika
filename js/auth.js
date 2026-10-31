@@ -97,6 +97,8 @@ export function renderAuth() {
           <button type="button" class="chip-btn" data-action="demo-phone" data-phone="9001111111">Алина<small>агент · продавец</small></button>
           <button type="button" class="chip-btn" data-action="demo-phone" data-phone="9002222222">Сергей<small>мастер</small></button>
           <button type="button" class="chip-btn" data-action="demo-phone" data-phone="9003333333">Иван<small>диспетчер и мастер</small></button>
+          <button type="button" class="chip-btn" data-action="demo-phone" data-phone="9004444444">Андрей<small>мастер у Ивана</small></button>
+          <button type="button" class="chip-btn" data-action="demo-phone" data-phone="9005555555">Олег<small>мастер у Ивана</small></button>
         </div>
       </div>
     </form></div>`;

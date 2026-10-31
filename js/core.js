@@ -3,6 +3,8 @@
 
 export const actions = Object.create(null);
 export const inputs = Object.create(null);
+// Обработчики изменения полей (data-change): сохраняют значение сразу, без кнопки.
+export const changes = Object.create(null);
 
 let renderFn = () => {};
 export function setRenderer(fn) { renderFn = fn; }

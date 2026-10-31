@@ -79,3 +79,38 @@ export function penalty(prelimCommission, todayISO, arrivalISO) {
 
 // Фиксированная неустойка диспетчера, если агент сам нашёл замену после срыва.
 export const REPLACEMENT_FOUND_FEE = 700;
+
+// ---------- смета ----------
+export const SHIFT_HOURS = 8;
+
+// Срок работ по норме выработки (м² или пог. м в час): «2 смены 1 ч».
+export function hoursFor(qty, normPerHour) {
+  if (!normPerHour || !qty) return 0;
+  return Math.ceil(qty / normPerHour);
+}
+export function shiftsText(hours) {
+  if (!hours) return '0 ч';
+  const s = Math.floor(hours / SHIFT_HOURS);
+  const h = hours % SHIFT_HOURS;
+  const sw = (n) => (n % 10 === 1 && n % 100 !== 11 ? 'смена' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'смены' : 'смен');
+  return [s ? `${s} ${sw(s)}` : '', h ? `${h} ч` : ''].filter(Boolean).join(' ');
+}
+
+// Площадь одной стены за вычетом проёмов.
+export function wallArea(wall) {
+  const gross = (Number(wall.len) || 0) * (Number(wall.height) || 0);
+  const holes = (wall.openings || []).reduce((s, o) => s + (Number(o.w) || 0) * (Number(o.h) || 0), 0);
+  return round2(Math.max(0, gross - holes));
+}
+
+// Объём услуги по стенам: м² — сумма площадей стен с этой услугой, пог. м — сумма длин.
+export function serviceQtyFromWalls(walls, serviceId, unit) {
+  return round2(walls
+    .filter((w) => (w.services || []).includes(serviceId))
+    .reduce((s, w) => s + (unit === 'm' ? Number(w.len) || 0 : wallArea(w)), 0));
+}
+
+// Итоговая база комиссии звена: работы из предварительной оценки по факту, не меньше оценки.
+export function finalCommissionBase(prelimBase, factOfPrelimWorks) {
+  return Math.max(prelimBase || 0, factOfPrelimWorks || 0);
+}

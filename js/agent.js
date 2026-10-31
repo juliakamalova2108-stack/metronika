@@ -177,7 +177,7 @@ function stepPartner() {
       const firstFree = S.freeDates(pt).find((x) => !x.busy);
       return `<button type="button" class="well partner${pt.id === d.partnerId ? ' is-active' : ''}" data-action="pick-partner" data-id="${pt.id}" aria-pressed="${pt.id === d.partnerId}">
         <span class="partner__name">${esc(pt.name)}</span><span class="partner__price">${rub(prelimCost(c.mid, pp))}</span>
-        <span class="small">${S.hasRole(pt, 'dispatcher') ? `Диспетчер · команда ${(pt.team || []).length + 1} чел.` : 'Мастер'} · ${(pt.rating || 0).toLocaleString('ru-RU')} м²</span><span class="small">${pp} ₽/м²</span>
+        <span class="small">${S.hasRole(pt, 'dispatcher') ? `Диспетчер · команда ${S.teamOf(pt.id).length + 1} чел.` : 'Мастер'} · ${S.ratingOf(pt.id).toLocaleString('ru-RU')} м²</span><span class="small">${pp} ₽/м²</span>
         <span class="small" style="grid-column:1/-1">Ближайшая свободная дата: ${firstFree ? dateRu(firstFree.iso) : 'нет в ближайшие 2 недели'}</span>
       </button>`;
     }).join('') || '<p class="empty">У вас пока нет партнёров. Добавьте мастера или диспетчера в профиле.</p>'}
@@ -429,7 +429,7 @@ export function renderAgentOrders() {
   const list = S.get().orders.filter((o) => o.createdBy === me.id).slice().reverse();
   return `${topbar('Мои заявки')}
     <div class="list">${list.length ? list.map((o) => {
-      const l = S.activeLink(o.id) || S.linksOf(o.id).slice(-1)[0];
+      const l = S.linksOf(o.id).filter((x) => x.fromId === me.id).slice(-1)[0];
       const est = l ? S.settlementsOfLink(l.id).find((s) => s.type === 'commission') : null;
       return `<button type="button" class="plate card-btn order-card" data-action="go" data-to="a-order-${o.id}">
         <div class="order-card__top"><span class="order-card__no">№ ${o.no} · ${esc(o.client.name)}</span>${orderStatus(o)}</div>
@@ -438,31 +438,6 @@ export function renderAgentOrders() {
         ${kv('Комиссия', est && est.status !== 'cancelled' ? `${rub(est.amount)} · ${est.status === 'estimate' ? 'ориентировочно' : 'к выплате'}` : '—')}
       </button>`;
     }).join('') : `<section class="plate"><p class="empty">Заявок пока нет</p>${btnRow([{ label: 'Создать заявку', action: 'go', data: 'data-to="new"', primary: true }])}</section>`}</div>`;
-}
-
-export function renderAgentOrder(id) {
-  const me = S.me();
-  const o = S.order(id);
-  if (!o || o.createdBy !== me.id) return `${topbar('Заказ', { back: 'mine' })}<section class="plate"><p class="empty">Заказ не найден</p></section>`;
-  const links = S.linksOf(o.id);
-  const linkRows = links.map((l) => {
-    const st = { proposed: ['idle', 'ждёт ответа'], accepted: ['ok', 'принял'], declined: ['bad', 'отклонил'], refused: ['bad', 'отказался'] }[l.status] || ['idle', l.status];
-    return `<div class="well">
-      <div class="order-card__top"><b>${esc(S.user(l.toId).name)}</b>${status(st[0], st[1])}</div>
-      ${kv('Приезд', esc(dateTimeRu(l.arrival)))}
-      ${kv('Процент', `${num(l.pct)}%`)}
-      ${S.settlementsOfLink(l.id).filter((s) => s.status !== 'cancelled').map((s) => kv(s.type === 'penalty' ? 'Неустойка вам' : 'Комиссия', `${rub(s.amount)}`)).join('')}
-    </div>`;
-  }).join('');
-  const canResend = ['declined', 'failed'].includes(o.status);
-  return `${topbar(`Заказ № ${o.no}`, { back: 'mine', right: orderStatus(o) })}
-    ${o.duplicateOf ? `<section class="plate"><div class="plate__head"><b>Дубль заказа № ${S.order(o.duplicateOf).no}</b>${status('warn', 'без комиссии')}</div><p class="small">Клиент был передан раньше. Комиссия достаётся тому, кто отправил первым.</p></section>` : ''}
-    <section class="plate"><h2 class="plate__title">Исполнители</h2>${linkRows}
-      ${canResend ? btnRow([{ label: 'Передать другому исполнителю', action: 'resend-open', data: `data-id="${o.id}"`, primary: true }]) : ''}
-    </section>
-    ${prelimBlock(o, me)}
-    ${clientBlock(o)}
-    ${historyBlock(o, me)}`;
 }
 
 actions['resend-open'] = (el) => {

@@ -16,7 +16,12 @@ export const typeName = (id) => (WALLPAPER_TYPES.find((t) => t.id === id) || { n
 
 export const ORDER_STATUS = {
   offered: ['idle', 'Предложен'],
-  accepted: ['ok', 'Принят'],
+  measure: ['ok', 'Замер'],
+  approval: ['warn', 'Согласование'],
+  queue: ['ok', 'Очередь'],
+  work: ['ok', 'В работе'],
+  done: ['ok', 'Выполнен'],
+  closed: ['idle', 'Закрыт'],
   declined: ['bad', 'Отклонён'],
   failed: ['bad', 'Сорван'],
   cancelled: ['idle', 'Отменён'],
@@ -61,7 +66,7 @@ export function clientBlock(o) {
     ${kv('Телефон', esc(phoneRu(c.phone)))}
     ${kv('Адрес', esc(addr))}
     ${c.comment ? kv('Комментарий', esc(c.comment)) : ''}
-    ${kv('Канал', o.channel === 'card' ? 'Визитка агента (промокод)' : 'Торговая точка')}
+    ${kv('Канал', esc([o.channel.source, o.channel.detail].filter(Boolean).join(' · ')))}
   </section>`;
 }
 
@@ -150,54 +155,25 @@ export function renderSettlements() {
 actions['settle-paid'] = (el) => { S.markPaid(el.dataset.id); toast('Отмечено. Ждём подтверждения получателя'); rerender(); };
 actions['settle-received'] = (el) => { S.markReceived(el.dataset.id); toast('Получение подтверждено'); rerender(); };
 
-// ---------- профиль ----------
-export function renderProfile() {
-  const me = S.me();
-  const isAgent = S.hasRole(me, 'agent');
-  const roles = me.roles.map((r) => S.ROLE_NAMES[r]).join(' и ');
-  let body = '';
-  if (isAgent) {
-    const partners = S.partnersOf(me.id);
-    const limit = S.partnerLimit(me);
-    body = `<section class="plate">
-      <h2 class="plate__title">Агент</h2>
-      ${kv('Кто', esc(me.agent.kind))}
-      ${kv('Торговая точка', esc(me.agent.shop || '—'))}
-      ${kv('Промокод для визиток', esc(me.agent.promo || '—'))}
-      ${kv('Тариф', me.agent.plan === 'sub' ? 'Подписка: до 3 партнёров' : 'Бесплатный: 1 мастер')}
-    </section>
-    <section class="plate">
-      <div class="plate__head"><h2 class="plate__title">Мои партнёры</h2><span class="small">${partners.length} из ${limit}</span></div>
-      ${partners.length ? partners.map((p) => `<div class="well">
-        <div class="order-card__top"><b>${esc(p.name)}</b><span class="chip">${S.hasRole(p, 'dispatcher') ? 'Диспетчер' : 'Мастер'}</span></div>
-        ${kv('Рейтинг', `${(p.rating || 0).toLocaleString('ru-RU')} м²`)}
-        ${kv('Флизелин / винил / бумага', `${p.price.flizelin} / ${p.price.vinyl} / ${p.price.paper} ₽/м²`)}
-      </div>`).join('') : '<p class="empty">Партнёров пока нет. Без партнёра предварительная стоимость считается по прайсу системы.</p>'}
-    </section>`;
-  } else {
-    const types = WALLPAPER_TYPES;
-    body = `<section class="plate">
-      <div class="plate__head"><h2 class="plate__title">Рейтинг</h2><span class="big-num">${(me.rating || 0).toLocaleString('ru-RU')} м²</span></div>
-      <p class="small">Подтверждённые метры: заказ заполнен, есть геоотметки, замер с прибора, смета из замера, заказ закрыт.</p>
-    </section>
-    <section class="plate">
-      <h2 class="plate__title">${S.hasRole(me, 'dispatcher') ? 'Прайс диспетчера' : 'Мой прайс'}, ₽ за м² поклейки</h2>
-      ${types.map((t) => kv(t.name, String(me.price ? me.price[t.id] : '—'))).join('')}
-      <p class="small">Цены фиксируются в заказе в момент принятия и потом не меняются.</p>
-    </section>
-    ${S.hasRole(me, 'dispatcher') ? `<section class="plate"><h2 class="plate__title">Команда</h2>
-      ${(me.team || []).map((id) => S.user(id)).filter(Boolean).map((u) => `<div class="well">${kv(esc(u.name), `${(u.rating || 0).toLocaleString('ru-RU')} м²`)}</div>`).join('') || '<p class="empty">В команде пока никого</p>'}
-      <p class="small">Распределение заказов по мастерам и комнатам собирается в этапе 4.</p></section>` : ''}`;
-  }
-  return `${topbar('Профиль')}
-    <section class="plate">
-      <div class="plate__head"><h2 class="plate__title">${esc(me.name)}</h2><span class="chip">${esc(roles)}</span></div>
-      ${kv('Телефон', esc(phoneRu(me.phone)))}
-    </section>
-    ${body}
-    ${btnRow([{ label: 'Выйти из аккаунта', action: 'logout' }])}`;
-}
-
 actions['go'] = (el) => go(el.dataset.to);
 actions['sheet-close'] = () => closeSheet();
 actions['hint'] = (el) => sheet({ title: 'Подсказка', body: `<p>${esc(el.dataset.hint)}</p>`, buttons: [{ label: 'Понятно', action: 'sheet-close', primary: true }] });
+
+// Копирование текста: в артефакте нельзя скачивать файлы, поэтому документы для клиента отдаём текстом.
+actions['copy'] = (el) => {
+  const src = document.getElementById(el.dataset.src);
+  if (!src) return;
+  const text = src.value != null ? src.value : src.textContent;
+  const fallback = () => {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+      toast('Текст скопирован');
+    } catch (e) { toast('Не удалось скопировать — выделите текст вручную'); }
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => toast('Текст скопирован'), fallback);
+    else fallback();
+  } catch (e) { fallback(); }
+};
