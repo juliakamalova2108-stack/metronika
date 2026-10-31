@@ -1,15 +1,15 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=2';
-import * as S from './store.js?v=2';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=2';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=2';
-import { renderSettlements } from './shared.js?v=2';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=2';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=2';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=2';
-import { renderOformit, onLiveOformit } from './oformit.js?v=2';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=2';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=3';
+import * as S from './store.js?v=3';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=3';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=3';
+import { renderSettlements } from './shared.js?v=3';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=3';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=3';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=3';
+import { renderOformit, onLiveOformit } from './oformit.js?v=3';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=3';
 
 const VERSION = 'прототип 1.0';
 
@@ -91,7 +91,9 @@ function render() {
   const bar = document.getElementById('tabbar');
   const drawerEl = document.getElementById('drawer');
   const me = S.me();
-  if (!me || !isUnlocked()) {
+  // Вход временно убран: сразу открываем кабинет (по умолчанию — мастер Сергей).
+  if (!me) { S.setSession('u-sergey'); rerender(); return; }
+  if (false) {
     document.body.classList.add('is-auth');
     document.body.classList.remove('fig');
     bar.hidden = true;
@@ -138,8 +140,19 @@ actions['menu-open'] = () => {
 };
 actions['menu-close'] = () => document.getElementById('drawer').classList.remove('is-on');
 actions['menu-go'] = (el) => { actions['menu-close'](); go(el.dataset.to); };
-actions['switch-user'] = () => { actions['menu-close'](); logout(); location.hash = ''; rerender(); };
-actions['logout'] = () => { logout(); location.hash = ''; rerender(); };
+// Смена пользователя без входа: выбор из демо-аккаунтов.
+const pickUser = () => {
+  actions['menu-close']();
+  const cur = S.me();
+  sheet({
+    title: 'Кем войти',
+    body: `<div class="list">${S.get().users.map((u) => `<button type="button" class="btn${cur && cur.id === u.id ? ' btn--primary' : ''}" data-action="user-pick" data-id="${u.id}">${esc(u.name)} · ${esc(u.roles.map((r) => S.ROLE_NAMES[r]).join(' и '))}</button>`).join('')}</div>`,
+    buttons: [{ label: 'Закрыть', action: 'sheet-close' }],
+  });
+};
+actions['switch-user'] = pickUser;
+actions['logout'] = pickUser;
+actions['user-pick'] = (el) => { closeSheet(); S.setSession(el.dataset.id); location.hash = ''; rerender(); };
 actions['reset-ask'] = () => {
   actions['menu-close']();
   sheet({
@@ -148,7 +161,7 @@ actions['reset-ask'] = () => {
     buttons: [{ label: 'Отмена', action: 'sheet-close' }, { label: 'Сбросить', action: 'reset-do', primary: true }],
   });
 };
-actions['reset-do'] = () => { closeSheet(); S.resetDemo(); logout(); location.hash = ''; rerender(); toast('Демо-данные сброшены'); };
+actions['reset-do'] = () => { closeSheet(); S.resetDemo(); location.hash = ''; rerender(); toast('Демо-данные сброшены'); };
 
 actions['seg'] = (el) => {
   const { seg, value } = el.dataset;
