@@ -1,10 +1,11 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=6';
-import * as S from './store.js?v=6';
-import { CHANNELS } from './seed.js?v=6';
-import { esc } from './ui.js?v=6';
+import { actions, rerender, go } from './core.js?v=7';
+import * as S from './store.js?v=7';
+import { CHANNELS } from './seed.js?v=7';
+import { esc } from './ui.js?v=7';
+import { renderEstimate, estimateDirty, onLiveEstimate } from './ocenka.js?v=7';
 
 const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -55,11 +56,10 @@ function selectField(key, label, value, options, locked) {
 function channelPlate(d) {
   const c = d.channel;
   const locked = !d.editing;
-  // Правка после сохранения: статус «редактирование» (тип «Внимание»), кнопка «Редактировать» горит.
-  const reEdit = d.saved && d.editing;
-  const statusHtml = d.dirty ? '<span class="f-status f-status--bad"><i></i>не сохранено</span>'
-    : reEdit ? '<span class="f-status f-status--warn"><i></i>редактирование</span>'
-      : d.saved ? '<span class="f-status f-status--ok"><i></i>сохранено</span>' : '';
+  // Пока форма правится и не сохранена — один статус «редактирование» (жёлтый), без «не сохранено».
+  const reEdit = d.dirty || (d.saved && d.editing);
+  const statusHtml = reEdit ? '<span class="f-status f-status--warn"><i></i>редактирование</span>'
+    : d.saved ? '<span class="f-status f-status--ok"><i></i>сохранено</span>' : '';
   return `<section class="f-plate" aria-label="Канал">
     ${selectField('source', 'Источник заявки', c.source, SOURCES.map((s) => ({ value: s, label: s })), locked)}
     ${selectField('partner', 'Партнёр', partnerName(c.partner), [{ value: 'self', label: 'Самостоятельно' }, ...partners().map((p) => ({ value: p.id, label: p.name }))], locked)}
@@ -84,12 +84,17 @@ function nav() {
   </nav>`;
 }
 
+export function setOformitTab(t) { tab = t; }
+export { draft as oformitDraft };
+
 export function renderOformit() {
   const d = draft();
   const body = tab === 'channel' ? channelPlate(d)
-    : `<section class="f-plate"><p class="f-field__label" style="font-size:14px;line-height:20px">Раздел «${tab === 'estimate' ? 'Оценка' : 'График'}» переношу из «Выездов» следующим — после вашего «да» по «Каналу».</p></section>`;
+    : tab === 'estimate' ? renderEstimate(d)
+      : `<section class="f-plate"><p class="f-field__label" style="font-size:14px;line-height:20px">Раздел «График» собираю следующим.</p></section>`;
+  const dot = (k) => (k === 'channel' && d.dirty) || (k === 'estimate' && estimateDirty(d));
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
-    <div class="f-topnav"><div class="f-topnav__track" role="tablist">${TABS.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="f-tab${k === tab ? ' is-active' : ''}" data-action="f-tab" data-tab="${k}">${t}${k === 'channel' && d.dirty ? '<i class="f-tab__dot" aria-label="не сохранено"></i>' : ''}</button>`).join('')}</div></div>
+    <div class="f-topnav"><div class="f-topnav__track" role="tablist">${TABS.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="f-tab${k === tab ? ' is-active' : ''}" data-action="f-tab" data-tab="${k}">${t}${dot(k) ? '<i class="f-tab__dot" aria-label="редактирование"></i>' : ''}</button>`).join('')}</div></div>
     ${body}
     ${nav()}`;
 }
@@ -125,6 +130,7 @@ actions['f-save'] = () => {
 actions['f-edit'] = () => { const d = draft(); if (!d.saved) return; d.editing = true; S.save(); rerender(); };
 
 export function onLiveOformit(el) {
+  if (onLiveEstimate(el)) return true;
   const k = el.dataset.live;
   if (k !== 'f-url' && k !== 'f-pct') return false;
   const d = draft();
