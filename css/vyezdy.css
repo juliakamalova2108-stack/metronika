@@ -454,3 +454,5 @@ body.fig .view { padding-bottom: 170px; }
 .z-wsvc { max-height: 320px; }
 .z-odlg .o-card { gap: 12px; }
 .z-tog-btn { display: block; } .z-tog-btn .o-tog { display: block; }
+
+.o-head { touch-action: pan-y; user-select: none; -webkit-user-select: none; }

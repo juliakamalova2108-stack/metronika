@@ -1,14 +1,14 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=10';
-import * as S from './store.js?v=10';
-import { CHANNELS } from './seed.js?v=10';
-import { esc } from './ui.js?v=10';
-import { logEvent } from './zlog.js?v=10';
+import { actions, rerender, go } from './core.js?v=11';
+import * as S from './store.js?v=11';
+import { CHANNELS } from './seed.js?v=11';
+import { esc } from './ui.js?v=11';
+import { logEvent } from './zlog.js?v=11';
 export { logEvent };
-import { renderEstimate, estimateDirty, onLiveEstimate } from './ocenka.js?v=10';
-import { renderSchedule, scheduleDirty } from './grafik.js?v=10';
+import { renderEstimate, estimateDirty, onLiveEstimate } from './ocenka.js?v=11';
+import { renderSchedule, scheduleDirty } from './grafik.js?v=11';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -101,7 +101,7 @@ export function registerSection(key, render, dirty) { sections[key] = { render, 
 
 export function renderOformit(mode = 'oformit') {
   const d = draft();
-  const tabs = mode === 'current' ? ALL_TABS : TABS;
+  const tabs = ALL_TABS; // «Оформить заказ» и «Текущий заказ» — все разделы «Выездов»
   if (!tabs.some(([k]) => k === tab)) tab = 'channel';
   const body = tab === 'channel' ? channelPlate(d)
     : tab === 'estimate' ? renderEstimate(d)
@@ -181,3 +181,20 @@ document.addEventListener('scroll', (ev) => {
 // «%» дописывается к числу: при фокусе убираем, при уходе возвращаем.
 document.addEventListener('focusin', (ev) => { if (ev.target.id === 'f-pct' && !ev.target.readOnly) ev.target.value = ev.target.value.replace(/\s*%$/, ''); });
 document.addEventListener('focusout', (ev) => { if (ev.target.id === 'f-pct') ev.target.value = `${ev.target.value.replace(/\s*%$/, '') || '0'} %`; });
+
+// Карусель комнат листается свайпом: один свайп — одна комната.
+let swipe = null;
+document.addEventListener('pointerdown', (ev) => {
+  const head = ev.target.closest && ev.target.closest('.o-head');
+  swipe = head ? { head, x: ev.clientX, y: ev.clientY } : null;
+}, true);
+document.addEventListener('pointerup', (ev) => {
+  if (!swipe) return;
+  const dx = ev.clientX - swipe.x; const dy = ev.clientY - swipe.y;
+  const head = swipe.head; swipe = null;
+  if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+  const btn = head.querySelector(dx < 0 ? 'button.o-back--r' : 'button.o-back--l');
+  if (btn) { ev.preventDefault(); suppressClick = true; btn.click(); setTimeout(() => { suppressClick = false; }, 350); }
+}, true);
+let suppressClick = false;
+document.addEventListener('click', (ev) => { if (suppressClick && !ev.isTrusted) return; if (suppressClick) { suppressClick = false; ev.stopPropagation(); ev.preventDefault(); } }, true);
