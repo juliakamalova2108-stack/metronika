@@ -123,3 +123,6 @@ body.fig .view { position: relative; z-index: 1; padding: 16px 16px 100px; displ
   font: 500 10px/12px var(--font-body); color: #a8bab2; text-align: center; }
 .f-nav__tab svg { width: 24px; height: 24px; flex: none; }
 .f-nav__tab.is-active { color: #edf0e7; }
+
+/* Индикатор «Редактирование»: как «Сохранено», только жёлтый (цвет статуса «Внимание»). */
+.f-btn--editing::after { bottom: 0; height: 3px; border-radius: 1.5px; background: #ffc247; box-shadow: 0 0 3px rgba(255, 194, 71, 0.9), 0 0 7px rgba(255, 194, 71, 0.5); }
