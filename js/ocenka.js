@@ -1,11 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=8';
-import * as S from './store.js?v=8';
-import { SYSTEM_PRICE } from './seed.js?v=8';
-import { shiftsText, hoursFor } from './calc.js?v=8';
-import { esc } from './ui.js?v=8';
+import { actions, rerender } from './core.js?v=10';
+import * as S from './store.js?v=10';
+import { SYSTEM_PRICE } from './seed.js?v=10';
+import { shiftsText, hoursFor } from './calc.js?v=10';
+import { esc } from './ui.js?v=10';
+import { logEvent } from './zlog.js?v=10';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -31,6 +32,7 @@ const SVC = [
   { id: 'paste-photo', name: 'Поклейка фотообоев', type: 'photo', norm: 2.4 },
   { id: 'paintwp', name: 'Окраска обоев', price: 250, norm: 6 },
 ];
+export const SVC_LIST = SVC;
 // Цена и норма — из прайса мастера (Настройки), иначе рекомендованные значения из макета.
 export function svcInfo(id) {
   const s = SVC.find((x) => x.id === id);
@@ -289,6 +291,7 @@ actions['o-ok'] = () => {
   const e = D(); const r = roomOf(e, e.view);
   if (r.status === 'saved') return;
   r.status = 'saved';
+  { const t = roomTotals(r); logEvent(S.get().oformit[S.me().id], 'Сохранена оценка комнаты', `${r.name}: ${fmt(t.total)} ₽ · ${shiftsText(t.hours)}`); }
   // ОК → следующая комната; после последней — Итог.
   const i = e.rooms.indexOf(r);
   const nextNew = e.rooms.slice(i + 1).find((x) => x.status !== 'saved') || e.rooms.find((x) => x.status !== 'saved');

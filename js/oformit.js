@@ -1,20 +1,26 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=8';
-import * as S from './store.js?v=8';
-import { CHANNELS } from './seed.js?v=8';
-import { esc } from './ui.js?v=8';
-import { renderEstimate, estimateDirty, onLiveEstimate } from './ocenka.js?v=8';
-import { renderSchedule, scheduleDirty } from './grafik.js?v=8';
+import { actions, rerender, go } from './core.js?v=10';
+import * as S from './store.js?v=10';
+import { CHANNELS } from './seed.js?v=10';
+import { esc } from './ui.js?v=10';
+import { logEvent } from './zlog.js?v=10';
+export { logEvent };
+import { renderEstimate, estimateDirty, onLiveEstimate } from './ocenka.js?v=10';
+import { renderSchedule, scheduleDirty } from './grafik.js?v=10';
 
-const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const ICON_BRIEFCASE = (c) => `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><g transform="translate(2.1 3.1)"><path d="M16.9 3.9H2.9C1.8 3.9.9 4.8.9 5.9v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-10c0-1.1-.9-2-2-2Z" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.9 3.9V.9h8v3M.9 8.9h18M7.9 8.9v3h4v-3" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
 
 // Источники заявки: 9 вариантов, в окне видно 4 («Прокрутка · 4 из 9»).
 const SOURCES = CHANNELS.filter((c) => c !== 'Самостоятельно');
 const TABS = [['channel', 'Канал'], ['estimate', 'Оценка'], ['schedule', 'График']];
+// «Текущий заказ» — все вкладки секции «Выезды».
+const ALL_TABS = [['channel', 'Канал'], ['client', 'Клиент'], ['estimate', 'Оценка'], ['schedule', 'График'], ['material', 'Материал'], ['smeta', 'Смета'], ['chat', 'Чат'], ['tasks', 'Задачи'], ['finance', 'Финансы'], ['history', 'История']];
+export const pickers = Object.create(null);
+export const toggles = Object.create(null);
 
 let tab = 'channel';
 let open = '';
@@ -36,7 +42,7 @@ function partners() {
 }
 const partnerName = (id) => (id === 'self' ? 'Самостоятельно' : (S.user(id) || {}).name || 'Самостоятельно');
 
-function selectField(key, label, value, options, locked) {
+export function selectField(key, label, value, options, locked) {
   if (open === key && !locked) {
     const n = options.length;
     const thumb = n > 4 ? `<span class="f-scroll"><i style="height:${(188 * 4) / n}px;top:0" data-thumb="${key}"></i></span>` : '';
@@ -86,16 +92,24 @@ function nav() {
 }
 
 export function setOformitTab(t) { tab = t; }
+export const getOpen = () => open;
+export function setOpen(v) { open = v; }
 export { draft as oformitDraft };
 
-export function renderOformit() {
+const sections = Object.create(null);
+export function registerSection(key, render, dirty) { sections[key] = { render, dirty }; }
+
+export function renderOformit(mode = 'oformit') {
   const d = draft();
+  const tabs = mode === 'current' ? ALL_TABS : TABS;
+  if (!tabs.some(([k]) => k === tab)) tab = 'channel';
   const body = tab === 'channel' ? channelPlate(d)
     : tab === 'estimate' ? renderEstimate(d)
-      : renderSchedule(d);
-  const dot = (k) => (k === 'channel' && d.dirty) || (k === 'estimate' && estimateDirty(d)) || (k === 'schedule' && scheduleDirty(d));
+      : tab === 'schedule' ? renderSchedule(d)
+        : sections[tab].render(d);
+  const dot = (k) => (k === 'channel' && d.dirty) || (k === 'estimate' && estimateDirty(d)) || (k === 'schedule' && scheduleDirty(d)) || (!!sections[k] && !!sections[k].dirty && sections[k].dirty(d));
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
-    <div class="f-topnav"><div class="f-topnav__track" role="tablist">${TABS.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="f-tab${k === tab ? ' is-active' : ''}" data-action="f-tab" data-tab="${k}">${t}${dot(k) ? '<i class="f-tab__dot" aria-label="редактирование"></i>' : ''}</button>`).join('')}</div></div>
+    <div class="f-topnav"><div class="f-topnav__track" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="f-tab${k === tab ? ' is-active' : ''}" data-action="f-tab" data-tab="${k}">${t}${dot(k) ? '<i class="f-tab__dot" aria-label="редактирование"></i>' : ''}</button>`).join('')}</div></div>
     ${body}
     ${nav()}`;
 }
@@ -111,12 +125,15 @@ actions['f-toggle'] = (el) => {
   const d = draft();
   open = open === el.dataset.key ? '' : el.dataset.key;
   // По макету «01 · источник раскрыт»: начали править — форма уже «не сохранено».
-  if (open) { d.dirty = true; S.save(); }
+  const key = el.dataset.key;
+  if (open && (key === 'source' || key === 'partner')) { d.dirty = true; S.save(); }
+  if (open && toggles[key]) toggles[key](d);
   rerender();
 };
 actions['f-pick'] = (el) => {
   const d = draft();
   const k = el.dataset.key === 'source' ? 'source' : 'partner';
+  if (pickers[el.dataset.key]) { open = ''; pickers[el.dataset.key](el.dataset.value, d); S.save(); rerender(); return; }
   if (d.channel[k] !== el.dataset.value) { d.channel[k] = el.dataset.value; d.dirty = true; }
   open = '';
   S.save();
@@ -126,6 +143,7 @@ actions['f-save'] = () => {
   const d = draft();
   if (!d.editing && !d.dirty) return;
   d.saved = true; d.dirty = false; d.editing = false; open = '';
+  logEvent(d, 'Сохранён канал', `${d.channel.source}${d.channel.partner !== 'self' ? ' · ' + partnerName(d.channel.partner) + ' · ' + d.channel.pct + ' %' : ''}`);
   S.save(); rerender();
 };
 actions['f-edit'] = () => { const d = draft(); if (!d.saved) return; d.editing = true; S.save(); rerender(); };

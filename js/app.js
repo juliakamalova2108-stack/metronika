@@ -1,15 +1,16 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=8';
-import * as S from './store.js?v=8';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=8';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=8';
-import { renderSettlements } from './shared.js?v=8';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=8';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=8';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=8';
-import { renderOformit, onLiveOformit } from './oformit.js?v=8';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=8';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=10';
+import * as S from './store.js?v=10';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=10';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=10';
+import { renderSettlements } from './shared.js?v=10';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=10';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=10';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=10';
+import { renderOformit, onLiveOformit } from './oformit.js?v=10';
+import { onLiveZakaz } from './zakaz.js?v=10';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=10';
 
 const VERSION = 'прототип 1.0';
 
@@ -48,8 +49,8 @@ function screenFor(name, role) {
     if (name.startsWith('a-order-')) return renderOrder(name.slice(8));
   } else {
     if (name === 'orders') return renderProOrders();
-    if (name === 'current') return renderCurrentOrder();
-    if (name === 'oformit') return renderOformit();
+    if (name === 'current') return renderOformit('current');
+    if (name === 'oformit') return renderOformit('oformit');
     if (name === 'trash') return renderTrash();
     if (name === 'own-new') return renderOwnNew();
     if (name === 'team' && role === 'dispatcher') return renderTeam();
@@ -114,9 +115,12 @@ function render() {
   }
   view.innerHTML = html;
   // Экраны, перенесённые из Figma один в один, рисуют свою нижнюю навигацию.
-  const fig = name === 'oformit';
+  const fig = name === 'oformit' || (name === 'current' && role !== 'agent');
   document.body.classList.toggle('fig', fig);
-  if (fig) { bar.hidden = true; if (!drawerEl.classList.contains('is-on')) drawerEl.innerHTML = drawer(role); document.title = 'Метроника'; return; }
+  if (fig) {
+    const ft = view.querySelector('.f-tab.is-active');
+    if (ft) { const tr = ft.parentElement; tr.scrollLeft = ft.offsetLeft - (tr.clientWidth - ft.offsetWidth) / 2; }
+    bar.hidden = true; if (!drawerEl.classList.contains('is-on')) drawerEl.innerHTML = drawer(role); document.title = 'Метроника'; return; }
   bar.hidden = false;
   bar.innerHTML = tabbar(role, name);
   if (!drawerEl.classList.contains('is-on')) drawerEl.innerHTML = drawer(role);
@@ -195,6 +199,7 @@ document.addEventListener('click', (ev) => {
 });
 document.addEventListener('input', (ev) => {
   if (!ev.target.dataset || !ev.target.dataset.live) return;
+  if (onLiveZakaz(ev.target)) return;
   if (onLiveOformit(ev.target)) return;
   if (onLivePro(ev.target)) return;
   onLive(ev.target);
