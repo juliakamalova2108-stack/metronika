@@ -9,7 +9,6 @@ import { esc } from './ui.js';
 const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const ICON_BRIEFCASE = (c) => `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><g transform="translate(2.1 3.1)"><path d="M16.9 3.9H2.9C1.8 3.9.9 4.8.9 5.9v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-10c0-1.1-.9-2-2-2Z" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.9 3.9V.9h8v3M.9 8.9h18M7.9 8.9v3h4v-3" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
-const ICON_PLUS = (c) => `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" stroke="${c}" stroke-width="1.8"/><path d="M12 8v8M8 12h8" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/></svg>`;
 
 // Источники заявки: 9 вариантов, в окне видно 4 («Прокрутка · 4 из 9»).
 const SOURCES = CHANNELS.filter((c) => c !== 'Самостоятельно');
@@ -73,12 +72,11 @@ function channelPlate(d) {
 }
 
 function nav() {
-  const cur = 'oformit';
+  const cur = 'current'; // как в макете: «Текущий заказ» светлая, «Оформить заказ» открывается из бокового меню
   const tabBtn = (key, label, icon, action) => `<button type="button" class="f-nav__tab${key === cur ? ' is-active' : ''}" ${action}>${icon}<span>${label}</span></button>`;
   return `<nav class="f-nav" aria-label="Нижнее меню">
     ${tabBtn('menu', 'Меню', ICON_MENU, 'data-action="menu-open"')}
-    ${tabBtn('current', 'Текущий<br>заказ', ICON_BRIEFCASE('#A8BAB2'), 'data-action="go" data-to="current"')}
-    ${tabBtn('oformit', 'Оформить<br>заказ', ICON_PLUS('#EDF0E7'), 'data-action="go" data-to="oformit"')}
+    ${tabBtn('current', 'Текущий<br>заказ', ICON_BRIEFCASE('#EDF0E7'), 'data-action="go" data-to="current"')}
   </nav>`;
 }
 
