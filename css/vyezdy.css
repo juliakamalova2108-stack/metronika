@@ -275,3 +275,59 @@ body.fig .view { position: relative; z-index: 1; padding: 16px 16px 100px; displ
   .f-plate, .o-card { break-inside: avoid; }
 }
 [hidden] { display: none !important; }
+
+/* ================= График (секция «Выезды · 03 · График») ================= */
+.g-mode { height: 50px; }
+.g-todo {
+  display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 12px;
+  border: 0.9px solid rgba(5, 13, 15, 0.75); background: linear-gradient(180deg, #182829, #203030);
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.16), inset 0 1.5px 2px rgba(1, 6, 9, 0.55), inset 0 4px 10px rgba(1, 8, 10, 0.7);
+}
+.g-todo__t { margin: 0; font: 500 16px/24px 'Inter', var(--font-body); color: #edf0f4; }
+.g-todo__x { margin: -6px 0 0; font: 400 12px/16px 'Inter', var(--font-body); color: #edf0f4; }
+.g-tray {
+  display: flex; gap: 8px; min-height: 68px; padding: 6px; overflow-x: auto; border-radius: 6px; scrollbar-width: none;
+  border: 0.9px solid rgba(5, 13, 15, 0.75); background: linear-gradient(180deg, #182829, #203030);
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.16), inset 0 1.5px 2px rgba(1, 6, 9, 0.55), inset 0 4px 10px rgba(1, 8, 10, 0.7);
+}
+.g-tray::-webkit-scrollbar { display: none; }
+.g-chip {
+  position: relative; flex: none; width: 52.86px; height: 54px; padding: 4px 1px; border-radius: 6px; overflow: hidden; cursor: pointer;
+  border: 0.5px solid #465061; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font: 400 10px/12px var(--font-body); color: #edf0e7; text-align: center;
+}
+.g-chip span { position: relative; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.g-chip__fill { position: absolute; left: -0.5px; top: -0.5px; bottom: -0.5px; }
+.g-chip.is-sel, .g-cell.is-sel { border: 1.5px solid #ebf5d6; box-shadow: 0 4px 6px rgba(0, 8, 10, 0.6); }
+.g-chip--measure {
+  border: 0.9px solid rgba(6, 18, 20, 0.78); background: linear-gradient(180deg, #687b7a 0%, #6d807e 28%, #738582 100%);
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.58), inset 0 4px 7px rgba(1, 9, 11, 0.66); color: #edf2e8;
+}
+.g-chip--measure.is-sel { border: 1.5px solid #ebf5d6; box-shadow: 0 4px 6px rgba(0, 8, 10, 0.6), inset 0 4px 7px rgba(1, 9, 11, 0.66); }
+.g-plate { margin: 0 -8px; padding: 12px 8px; gap: 12px; }
+.g-plate__t { margin: 0 8px; font: 500 16px/22px var(--font-body); color: #edf0e7; }
+.g-status { top: 15px; right: 12px; }
+.g-month {
+  display: flex; align-items: center; justify-content: space-between; height: 50px; padding: 0 4px; border-radius: 6px;
+  border: 0.9px solid rgba(6, 18, 20, 0.78); background: linear-gradient(180deg, #687b7a 0%, #6d807e 28%, #738582 100%);
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.58), inset 0 4px 7px rgba(1, 9, 11, 0.66);
+  font: 400 16px/20px var(--font-body); color: #edf2e8;
+}
+.g-prev svg { transform: rotate(90deg); } .g-next svg { transform: rotate(-90deg); }
+.g-dow, .g-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.g-dow { margin-top: -8px; font: 400 12px/16px var(--font-body); color: #edf0e7; text-align: center; }
+.g-grid { margin-top: -8px; }
+.g-cell {
+  position: relative; height: 50px; padding: 4px 1px; border-radius: 8px; overflow: hidden; cursor: pointer; min-width: 0;
+  border: 0.9px solid rgba(5, 13, 15, 0.75); background: linear-gradient(180deg, #182829, #203030);
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.16), inset 0 1.5px 2px rgba(1, 6, 9, 0.55), inset 0 4px 10px rgba(1, 8, 10, 0.7);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; color: #edf0f4;
+}
+.g-cell b { position: relative; font: 400 14px/18px 'Inter', var(--font-body); }
+.g-cell:not(.g-cell--work) { justify-content: flex-start; padding-top: 7px; }
+.g-cell--work b { font: 500 18px/20px var(--font-body); }
+.g-cell--void { visibility: hidden; }
+.g-cell--work { border-radius: 6px; border: 0.5px solid #465061; box-shadow: none; }
+.g-cell--work span { position: relative; font: 400 10px/12px var(--font-body); color: #edf0e7; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.g-badge { position: absolute; top: 3px; right: 3px; min-width: 14px; height: 14px; padding: 0 3px; border-radius: 4px; background: #fa5454; font: 700 10px/14px var(--font-body); font-style: normal; color: #fff; }
+.f-btn[disabled] { opacity: 0.4; }
