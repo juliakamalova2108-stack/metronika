@@ -8,6 +8,7 @@ import { renderSettlements } from './shared.js';
 import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js';
 import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js';
 import { renderOrder, onSegOrder, onSegSheet } from './order.js';
+import { renderOformit, onLiveOformit } from './oformit.js';
 import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js';
 
 const VERSION = 'прототип 1.0';
@@ -28,7 +29,7 @@ const SCREENS = {
   master: {
     start: 'orders',
     nav: [['menu', 'Меню', 'menu'], ['current', 'Текущий заказ', 'briefcase'], ['orders', 'Заказы', 'inbox'], ['money', 'Начисления', 'wallet']],
-    menu: [['current', 'Текущий заказ'], ['orders', 'Заказы'], ['own-new', 'Новый заказ'], ['money', 'Начисления'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['profile', 'Профиль'], ['settings', 'Настройки']],
+    menu: [['current', 'Текущий заказ'], ['oformit', 'Оформить заказ'], ['orders', 'Заказы'], ['own-new', 'Новый заказ'], ['money', 'Начисления'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['profile', 'Профиль'], ['settings', 'Настройки']],
   },
 };
 SCREENS.dispatcher = { ...SCREENS.master, menu: [...SCREENS.master.menu.slice(0, 3), ['team', 'Команда'], ...SCREENS.master.menu.slice(3)] };
@@ -48,6 +49,7 @@ function screenFor(name, role) {
   } else {
     if (name === 'orders') return renderProOrders();
     if (name === 'current') return renderCurrentOrder();
+    if (name === 'oformit') return renderOformit();
     if (name === 'trash') return renderTrash();
     if (name === 'own-new') return renderOwnNew();
     if (name === 'team' && role === 'dispatcher') return renderTeam();
@@ -91,6 +93,7 @@ function render() {
   const me = S.me();
   if (!me || !isUnlocked()) {
     document.body.classList.add('is-auth');
+    document.body.classList.remove('fig');
     bar.hidden = true;
     drawerEl.innerHTML = '';
     view.innerHTML = renderAuth();
@@ -108,6 +111,10 @@ function render() {
     html = screenFor(name, role);
   }
   view.innerHTML = html;
+  // Экраны, перенесённые из Figma один в один, рисуют свою нижнюю навигацию.
+  const fig = name === 'oformit';
+  document.body.classList.toggle('fig', fig);
+  if (fig) { bar.hidden = true; if (!drawerEl.classList.contains('is-on')) drawerEl.innerHTML = drawer(role); document.title = 'Метроника'; return; }
   bar.hidden = false;
   bar.innerHTML = tabbar(role, name);
   if (!drawerEl.classList.contains('is-on')) drawerEl.innerHTML = drawer(role);
@@ -175,6 +182,7 @@ document.addEventListener('click', (ev) => {
 });
 document.addEventListener('input', (ev) => {
   if (!ev.target.dataset || !ev.target.dataset.live) return;
+  if (onLiveOformit(ev.target)) return;
   if (onLivePro(ev.target)) return;
   onLive(ev.target);
 });

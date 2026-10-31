@@ -1,0 +1,124 @@
+/* Компоненты секции «Выезды» (Figma, METRONICA MASTER). Значения сняты с макета один в один.
+   Применяются к экранам с классом .fig на <body>. */
+
+body.fig {
+  background: linear-gradient(90deg, #162c33 0%, #2a3c43 48%, #203c3b 100%) fixed, #162c33;
+}
+body.fig .app { position: relative; }
+/* Мягкие слои под матовым стеклом */
+.fig-blobs { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.fig-blobs i { position: absolute; border-radius: 50%; filter: blur(70px); }
+.fig-blobs i:nth-child(1) { left: -230px; top: 120px; width: 510px; height: 540px; background: rgba(118, 155, 139, 0.28); }
+.fig-blobs i:nth-child(2) { left: 180px; top: 530px; width: 430px; height: 620px; background: rgba(142, 127, 113, 0.13); }
+body.fig .view { position: relative; z-index: 1; padding: 16px 16px 100px; display: flex; flex-direction: column; gap: 12px; }
+
+/* Верхняя навигация · цельный блок */
+.f-topnav {
+  position: relative; height: 56px; border-radius: 10px; border: 0.8px solid rgba(219, 232, 212, 0.34);
+  background: linear-gradient(180deg, rgba(110, 130, 122, 0.48) 0%, rgba(77, 102, 99, 0.36) 34%, rgba(46, 74, 77, 0.5) 100%);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 5px 7.5px rgba(4, 13, 15, 0.18), inset 0 -1px 2px rgba(8, 28, 31, 0.18), inset 0 1px 1.2px rgba(242, 250, 229, 0.15);
+  flex: none;
+}
+.f-topnav__track { position: absolute; left: 11.2px; right: 11.2px; top: 3.2px; height: 50px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; display: flex; gap: 24px; align-items: center; }
+.f-topnav__track::-webkit-scrollbar { display: none; }
+.f-tab {
+  position: relative; flex: none; height: 44px; padding: 0 0 6px; border: 0; background: none; cursor: pointer;
+  font: 500 15px/22px var(--font-body); color: #a8bdb2; white-space: nowrap;
+}
+.f-tab.is-active { font-weight: 700; color: #edf2e5; }
+.f-tab.is-active::after { content: ''; position: absolute; left: 0; right: 0; top: 41px; height: 2px; border-radius: 1px; background: #d6e5c2; }
+.f-tab__dot { position: absolute; right: -8px; top: 9px; width: 6px; height: 6px; border-radius: 50%; background: #fa5454; box-shadow: 0 0 4px rgba(250, 84, 84, 0.6); }
+
+/* Пластина */
+.f-plate {
+  position: relative; border-radius: 20px; border: 1px solid rgba(255, 249, 235, 0.34); padding: 16px;
+  display: flex; flex-direction: column; gap: 16px;
+  background: linear-gradient(90deg, rgba(220, 228, 223, 0.2), rgba(123, 149, 144, 0.12));
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 3px 7px rgba(7, 27, 32, 0.18), 0 16px 28px rgba(6, 18, 22, 0.4), inset 0 -1px 2px rgba(5, 22, 27, 0.16), inset 0 1px 1.5px rgba(255, 250, 237, 0.14);
+}
+
+/* Статус · Готово / Внимание / Ошибка */
+.f-status { position: absolute; right: 16px; top: 16px; display: flex; align-items: center; gap: 6px; font: 500 12px/16px var(--font-body); }
+.f-status i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 4px currentColor; }
+.f-status--ok { color: #38ff73; }
+.f-status--warn { color: #ffc247; }
+.f-status--bad { color: #fa5454; }
+
+/* Поле */
+.f-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.f-field__label { font: 400 12px/16px var(--font-body); color: #edf0e7; }
+.f-input {
+  position: relative; height: 50px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 6px;
+  border: 0.9px solid rgba(6, 18, 20, 0.78);
+  background: linear-gradient(180deg, #687b7a 0%, #6d807e 28%, #738582 100%);
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.58), inset 0 4px 7px rgba(1, 9, 11, 0.66);
+}
+.f-input--list { padding-right: 4px; cursor: pointer; }
+.f-input input, .f-input__value {
+  flex: 1; min-width: 0; border: 0; background: none; outline: none; padding: 0;
+  font: 400 16px/20px var(--font-body); color: #edf0e7; text-align: left;
+}
+.f-input input::placeholder { color: rgba(237, 240, 231, 0.45); }
+.f-input input:read-only { cursor: default; }
+
+/* Иконочная кнопка 42×42 */
+.f-icon-btn {
+  position: relative; flex: none; width: 42px; height: 42px; border-radius: 4px; display: grid; place-items: center; cursor: pointer;
+  border: 1px solid rgba(204, 222, 209, 0.55); background: #213839; padding: 0;
+  box-shadow: 0 4px 7px rgba(4, 13, 15, 0.24), 0 2px 2.5px rgba(1, 6, 9, 0.42), inset 0 -2px 2px rgba(6, 18, 20, 0.34), inset 0 1px 1px rgba(224, 242, 227, 0.36);
+}
+.f-icon-btn svg { width: 16px; height: 16px; }
+.f-icon-btn.is-up svg { transform: rotate(180deg); }
+
+/* Поле · список раскрыт */
+.f-select { position: relative; border-radius: 6px; border: 0.8px solid rgba(6, 18, 20, 0.78); overflow: hidden;
+  background: linear-gradient(180deg, #687b7a 0%, #6d807e 28%, #738582 100%);
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.58), inset 0 4px 7px rgba(1, 9, 11, 0.66); }
+.f-select__head { height: 48.4px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px 0 14px; width: 100%; border: 0; background: none; cursor: pointer; }
+.f-select__head > span:first-child { flex: 1; min-width: 0; text-align: left; font: 400 16px/20px var(--font-body); color: #edf2e8; }
+.f-select__list {
+  position: relative; display: flex; gap: 6px; padding: 4px; border-radius: 0 0 6px 6px;
+  background: linear-gradient(180deg, rgba(24, 43, 46, 0.98), rgba(33, 54, 55, 0.98));
+  box-shadow: inset 0 -1px 1px rgba(191, 217, 199, 0.11), inset 0 3px 6px rgba(1, 6, 8, 0.58);
+}
+.f-select__win { flex: 1; min-width: 0; max-height: 188px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; scrollbar-width: none; }
+.f-select__win::-webkit-scrollbar { display: none; }
+.f-option {
+  position: relative; flex: none; height: 44px; display: flex; align-items: center; padding: 0 16px; border: 0;
+  border-bottom: 0.5px solid rgba(191, 214, 204, 0.12); background: none; cursor: pointer; text-align: left;
+  font: 400 16px/20px var(--font-body); color: #edf0e7;
+}
+.f-option.is-on::before { content: ''; position: absolute; left: 5px; top: 13px; width: 2px; height: 18px; border-radius: 1px; background: #d4deb8; }
+.f-scroll { position: relative; flex: none; width: 6px; height: 188px; }
+.f-scroll::before { content: ''; position: absolute; left: 1px; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: rgba(11, 26, 28, 0.72); box-shadow: inset 1px 0 1px rgba(0, 5, 6, 0.5); }
+.f-scroll i { position: absolute; left: 1px; width: 4px; border-radius: 2px; background: linear-gradient(90deg, rgba(171, 194, 173, 0.7), rgba(122, 153, 135, 0.7)); }
+
+/* Строка кнопок + Кнопка */
+.f-btn-row {
+  display: flex; gap: 5px; height: 50px; padding: 4px 5px; border-radius: 6px; border: 0.9px solid rgba(6, 18, 20, 0.78);
+  background: linear-gradient(180deg, #accbc9 0%, #b4d3d0 28%, #bedcd6 100%);
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.44), inset 0 4px 7px rgba(1, 9, 11, 0.5);
+}
+.f-btn {
+  position: relative; flex: 1 0 0; min-width: 0; height: 42px; padding: 0 16px; border-radius: 6px; cursor: pointer;
+  border: 1px solid rgba(204, 222, 209, 0.55); background: #213839;
+  font: 500 14px/16px var(--font-body); color: #edf0e7; white-space: nowrap;
+  box-shadow: 0 4px 7px rgba(4, 13, 15, 0.16), 0 2px 2.5px rgba(1, 6, 9, 0.27), inset 0 -2px 2px rgba(6, 18, 20, 0.34), inset 0 1px 1px rgba(224, 242, 227, 0.36);
+}
+.f-btn::after { content: ''; position: absolute; left: 5px; right: 5px; bottom: -1px; height: 2.2px; border-radius: 1.1px; background: rgba(9, 18, 19, 0.9); }
+.f-btn--lit::after { background: linear-gradient(90deg, #9eb57d, #e6f2cc 40%, #deedc2 60%, #b0c78c); box-shadow: inset 0 0.3px 0.5px rgba(250, 255, 230, 0.38); }
+.f-btn--saved::after { height: 3px; background: #38ff73; box-shadow: 0 0 6px rgba(51, 255, 115, 0.9), 0 0 14px rgba(51, 255, 115, 0.5); }
+.f-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* Нижняя навигация */
+.f-nav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; height: 84px; display: flex; align-items: center; padding: 12px 16px 22px;
+  background: rgba(168, 185, 174, 0.08); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+.f-nav__tab { width: 92.5px; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 0; background: none; cursor: pointer; padding: 0;
+  font: 500 10px/12px var(--font-body); color: #a8bab2; text-align: center; }
+.f-nav__tab svg { width: 24px; height: 24px; flex: none; }
+.f-nav__tab.is-active { color: #edf0e7; }
