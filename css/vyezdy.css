@@ -109,7 +109,8 @@ body.fig .view { position: relative; z-index: 1; padding: 16px 16px 100px; displ
 }
 .f-btn::after { content: ''; position: absolute; left: 5px; right: 5px; bottom: -1px; height: 2.2px; border-radius: 1.1px; background: rgba(9, 18, 19, 0.9); }
 .f-btn--lit::after { background: linear-gradient(90deg, #9eb57d, #e6f2cc 40%, #deedc2 60%, #b0c78c); box-shadow: inset 0 0.3px 0.5px rgba(250, 255, 230, 0.38); }
-.f-btn--saved::after { height: 3px; background: #38ff73; box-shadow: 0 0 6px rgba(51, 255, 115, 0.9), 0 0 14px rgba(51, 255, 115, 0.5); }
+/* Индикатор «Сохранено»: x=6, y=38,5, 149×3 внутри кнопки 42 — не выходит за край. */
+.f-btn--saved::after { bottom: 0; height: 3px; border-radius: 1.5px; background: #38ff73; box-shadow: 0 0 3px rgba(51, 255, 115, 0.9), 0 0 7px rgba(51, 255, 115, 0.5); }
 .f-btn:disabled { opacity: 0.4; cursor: default; }
 
 /* Нижняя навигация */
