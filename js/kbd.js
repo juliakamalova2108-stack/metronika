@@ -1,4 +1,9 @@
-import { afterRender } from './core.js?v=35';
+import { afterRender } from './core.js?v=36';
+
+// Подсказки над клавишами: поле с data-suggest="имя" получает список из suggesters[имя](текст).
+// Выбор подсказки шлёт полю событие kb-pick с выбранным пунктом.
+export const suggesters = Object.create(null);
+let sugList = [];
 
 // Своя клавиатура для экранов «Оформить заказ» и «Текущий заказ».
 // Системная клавиатура телефона не открывается (inputmode="none"); вместо неё прямо под полем
@@ -59,6 +64,14 @@ function keyHtml(k) {
   return `<button type="button" class="kb__k" data-k="${k}">${ch}</button>`;
 }
 
+function sugHtml(el) {
+  const fn = el.dataset.suggest && suggesters[el.dataset.suggest];
+  sugList = fn ? fn(el.value) : [];
+  if (!fn) return '';
+  if (!sugList.length) return `<div class="kb__sug"><p class="kb__sug-empty">${el.value.trim().length < 2 ? 'Начните вводить улицу — появятся подсказки' : 'Ничего не найдено — можно ввести вручную'}</p></div>`;
+  return `<div class="kb__sug">${sugList.map((x, i) => `<button type="button" class="kb__sug-item" data-k="sug" data-i="${i}">${x.label.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</button>`).join('')}</div>`;
+}
+
 function build(el) {
   if (el.dataset.kb === 'num') {
     const x = extraKey(el);
@@ -71,7 +84,7 @@ function build(el) {
   }
   const rows = layer === 'sym' ? SYM : layer === 'en' ? EN : RU;
   const third = layer === 'sym' ? rows[2].split('').map(keyHtml).join('') + keyHtml('bs') : keyHtml('sh') + rows[2].split('').map(keyHtml).join('') + keyHtml('bs');
-  return `<div class="kb__row">${rows[0].split('').map(keyHtml).join('')}</div>
+  return `${sugHtml(el)}<div class="kb__row">${rows[0].split('').map(keyHtml).join('')}</div>
     <div class="kb__row">${rows[1].split('').map(keyHtml).join('')}</div>
     <div class="kb__row">${third}</div>
     <div class="kb__row kb__row--bottom">
@@ -192,6 +205,15 @@ function onKey(ev) {
   if (!el) return close();
   if (k === 'ok') return ok();
   if (k === 'bs') { type(null); autoShift(cur() || el); return draw(); }
+  if (k === 'sug') {
+    const item = sugList[Number(b.dataset.i)];
+    if (!item) return;
+    close();
+    el.dispatchEvent(new CustomEvent('kb-pick', { bubbles: true, detail: item }));
+    const again = document.getElementById(el.id);
+    if (again) again.blur();
+    return;
+  }
   if (k === 'paste') {
     if (!navigator.clipboard || !navigator.clipboard.readText) return;
     navigator.clipboard.readText().then((t) => { if (t) { type(t.trim()); draw(); } }).catch(() => {});

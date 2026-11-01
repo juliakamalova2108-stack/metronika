@@ -2,14 +2,16 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=35';
-import * as S from './store.js?v=35';
-import { WALLPAPER_TYPES } from './seed.js?v=35';
-import { esc, toast } from './ui.js?v=35';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=35';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=35';
-import { country } from './phonecodes.js?v=35';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=35';
+import { actions, changes, rerender } from './core.js?v=36';
+import * as S from './store.js?v=36';
+import { WALLPAPER_TYPES } from './seed.js?v=36';
+import { esc, toast } from './ui.js?v=36';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=36';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=36';
+import { country } from './phonecodes.js?v=36';
+import { suggestAddress } from './address.js?v=36';
+import { suggesters } from './kbd.js?v=36';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=36';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -96,7 +98,7 @@ function renderClient(d) {
   return `<i class="f-one" hidden></i><section class="f-plate z-client f-fill" aria-label="Клиент"><p class="z-title">Клиент</p>${st}
     ${input('z-cl-name', 'Имя', c.name, o('name', { ph: 'Имя клиента' }))}
     ${phoneField(c, ro, e)}
-    ${input('z-cl-street', 'Улица', c.street, o('street', { ph: 'Улица' }))}
+    ${input('z-cl-street', 'Адрес', c.street, o('street', { ph: 'Улица, можно сразу с домом' })).replace('<input ', '<input data-suggest="addr" ')}
     <div class="z-grid4">${input('z-cl-house', 'Дом', c.house, o('house', { mode: 'numeric' }))}${input('z-cl-entrance', 'Подъезд', c.entrance, o('entrance', { mode: 'numeric' }))}${input('z-cl-flat', 'Кв', c.flat, o('flat', { mode: 'numeric' }))}${input('z-cl-floor', 'Этаж', c.floor, o('floor', { mode: 'numeric' }))}</div>
     <div class="f-field"><span class="f-field__label">Время приезда</span>
       <div class="z-time">${selectField('cl-h', 'Часы', c.hour || '—', HOURS.map((h) => ({ value: h, label: h })), ro, { changed: clCh(c, 'hour') })}<b>:</b>${selectField('cl-m', 'Минуты', c.min || '—', MINS.map((m) => ({ value: m, label: m })), ro, { changed: clCh(c, 'min') })}</div></div>
@@ -116,7 +118,7 @@ actions['z-cl-save'] = () => {
   const dd = phoneDigits(c.phone);
   if (dd.length < 10) e.phone = dd ? 'Не хватает цифр: нужно 10 после +7' : 'Введите телефон';
   else if (codeInfo(dd).bad) e.phone = `Кода ${dd.slice(0, 3)} нет — проверьте номер`;
-  if (!c.street.trim()) e.street = 'Введите улицу';
+  if (!c.street.trim()) e.street = 'Введите адрес';
   if (!c.house.trim()) e.house = 'Дом';
   c.err = e;
   if (Object.keys(e).length) { save(); showErrors(); return; }
@@ -538,3 +540,16 @@ registerSection('finance', renderFinance);
 registerSection('history', renderHistory);
 
 
+
+// Адрес: подсказки на клавиатуре. Выбрали «г Уфа, ул Айская, д 35/1» — в «Адрес» пишется город и улица,
+// а номер дома сразу встаёт в поле «Дом». Если в подсказке дома нет, «Дом» вписывается вручную.
+suggesters.addr = (text) => suggestAddress(text);
+document.addEventListener('kb-pick', (ev) => {
+  if (ev.target.id !== 'z-cl-street') return;
+  const c = cl(D()); const x = ev.detail;
+  c.street = x.address;
+  if (x.house) c.house = x.house;
+  c.dirty = true;
+  if (c.err) { delete c.err.street; if (x.house) delete c.err.house; }
+  save();
+});

@@ -598,3 +598,9 @@ body.fig .view:has(.o-head) * { touch-action: pan-y; }
 .z-cc { flex: none; font: 500 16px/20px var(--font-body); color: #edf0e7; }
 .z-op { flex: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 400 13px/16px var(--font-body); color: rgba(237, 240, 231, 0.6); }
 .z-op.is-bad { color: #ff8a8a; }
+/* Подсказки адреса — верхняя часть клавиатуры. */
+.kb__sug { display: flex; flex-direction: column; gap: 3px; }
+.kb__sug-item { height: 36px; padding: 0 12px; border-radius: 5px; border: 1px solid rgba(204, 222, 209, 0.4); background: #2a4243; color: #edf0e7;
+  font: 400 14px/16px var(--font-body); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.kb__sug-item:active { background: #36504f; }
+.kb__sug-empty { margin: 0; padding: 6px 6px 2px; font: 400 13px/16px var(--font-body); color: #233a3b; }

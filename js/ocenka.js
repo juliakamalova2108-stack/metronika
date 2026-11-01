@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=35';
-import * as S from './store.js?v=35';
-import { SYSTEM_PRICE } from './seed.js?v=35';
-import { shiftsText, hoursFor } from './calc.js?v=35';
-import { esc } from './ui.js?v=35';
-import { logEvent } from './zlog.js?v=35';
+import { actions, rerender } from './core.js?v=36';
+import * as S from './store.js?v=36';
+import { SYSTEM_PRICE } from './seed.js?v=36';
+import { shiftsText, hoursFor } from './calc.js?v=36';
+import { esc } from './ui.js?v=36';
+import { logEvent } from './zlog.js?v=36';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
