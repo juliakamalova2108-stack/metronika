@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=58';
-import * as S from './store.js?v=58';
-import { CHANNELS } from './seed.js?v=58';
-import { esc } from './ui.js?v=58';
-import { logEvent } from './zlog.js?v=58';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=58';
+import { actions, rerender, go } from './core.js?v=60';
+import * as S from './store.js?v=60';
+import { CHANNELS } from './seed.js?v=60';
+import { esc } from './ui.js?v=60';
+import { logEvent } from './zlog.js?v=60';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=60';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=58';
-import { renderSchedule, scheduleState } from './grafik.js?v=58';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=60';
+import { renderSchedule, scheduleState } from './grafik.js?v=60';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -88,12 +88,11 @@ function channelPlate(d) {
   </section>`;
 }
 
-function nav() {
-  const cur = 'current'; // как в макете: «Текущий заказ» светлая, «Оформить заказ» открывается из бокового меню
-  const tabBtn = (key, label, icon, action) => `<button type="button" class="f-nav__tab${key === cur ? ' is-active' : ''}" ${action}>${icon}<span>${label}</span></button>`;
-  return `<nav class="f-nav" aria-label="Нижнее меню">
-    ${tabBtn('menu', 'Меню', ICON_MENU, 'data-action="menu-open"')}
-    ${tabBtn('current', 'Текущий<br>заказ', ICON_BRIEFCASE('#EDF0E7'), 'data-action="go" data-to="current"')}
+// Нижняя навигация «Оформить заказ» / «Текущий заказ»: «Меню» и вкладки разделов (листаются вбок, если не влезают).
+function nav(tabsHtml, many) {
+  return `<nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">
+    <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>
+    <div class="f-topnav f-botnav${many ? ' f-botnav--many' : ''}"><div class="f-topnav__track" role="tablist">${tabsHtml}</div></div>
   </nav>`;
 }
 
@@ -120,10 +119,10 @@ export function renderOformit(mode = 'oformit') {
     if (k === 'schedule') return scheduleState(d);
     return sections[k] && sections[k].state ? sections[k].state(d) : '';
   };
+  const tabsHtml = tabs.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="f-tab${k === tab ? ' is-active' : ''}" data-action="f-tab" data-tab="${k}">${t}${((st) => (st ? `<i class="f-tab__dot${st === 'ok' ? ' f-tab__dot--ok' : ''}" aria-label="${st === 'ok' ? 'сохранено' : 'редактирование'}"></i>` : ''))(stateOf(k))}</button>`).join('');
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
-    <div class="f-topnav"><div class="f-topnav__track" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="f-tab${k === tab ? ' is-active' : ''}" data-action="f-tab" data-tab="${k}">${t}${((st) => (st ? `<i class="f-tab__dot${st === 'ok' ? ' f-tab__dot--ok' : ''}" aria-label="${st === 'ok' ? 'сохранено' : 'редактирование'}"></i>` : ''))(stateOf(k))}</button>`).join('')}</div></div>
     ${body}
-    ${nav()}`;
+    ${nav(tabsHtml, tabs.length > 4)}`;
 }
 
 function markDirty(d) {

@@ -718,3 +718,13 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 /* Отмеченная комната — цветом самой комнаты: рамка, свечение, подкраска, номер порядка. */
 .g-train.is-sel { border: 2px solid var(--rc); background: var(--rcA); box-shadow: 0 0 0 1px var(--rcG), 0 0 12px var(--rcG), 0 4px 6px rgba(0, 8, 10, 0.6); }
 .g-train.is-sel .g-train__n { background: var(--rc); color: #fff; top: -2px; right: -2px; }
+
+/* Вкладки разделов — в нижней навигации: «Меню» слева, вкладки листаются вбок. */
+.f-nav--tabs { gap: 8px; padding: 10px 12px 22px; }
+.f-nav--tabs .f-nav__menu { flex: none; width: 52px; }
+.f-botnav { flex: 1 1 auto; min-width: 0; height: 50px; }
+.f-botnav .f-topnav__track { top: 0; height: 50px; left: 14px; right: 14px; gap: 22px; }
+.f-botnav .f-tab { height: 50px; padding: 0 0 4px; }
+.f-botnav .f-tab.is-active::after { top: 40px; }
+/* Вкладок больше, чем влезает, — у краёв затухание: видно, что строку можно листать. */
+.f-botnav--many .f-topnav__track { left: 6px; right: 6px; padding: 0 14px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%); }
