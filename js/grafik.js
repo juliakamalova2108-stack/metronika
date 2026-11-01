@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=36';
-import * as S from './store.js?v=36';
-import { SHIFT_HOURS } from './calc.js?v=36';
-import { esc } from './ui.js?v=36';
-import { logEvent } from './zlog.js?v=36';
-import { estimateRooms, roomTotals } from './ocenka.js?v=36';
+import { actions, rerender } from './core.js?v=37';
+import * as S from './store.js?v=37';
+import { SHIFT_HOURS } from './calc.js?v=37';
+import { esc } from './ui.js?v=37';
+import { logEvent } from './zlog.js?v=37';
+import { estimateRooms, roomTotals } from './ocenka.js?v=37';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -119,7 +119,7 @@ export function renderSchedule(d) {
     <section class="f-plate g-plate"><p class="g-plate__t">Запланированы</p>${status}${calendar(s, rooms, lay, locked)}</section>
     <div class="f-btn-row">
       <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="g-ok" ${!locked && !s.dirty && s.status !== 'editing' ? 'disabled' : ''}>ОК</button>
-      ${s.status !== 'new' ? `<button type="button" class="f-btn${s.status === 'editing' ? ' f-btn--editing' : ''}" data-action="g-edit">Редактировать</button>` : ''}
+      ${s.status !== 'new' ? `<button type="button" class="f-btn${s.status === 'editing' ? ' f-btn--editing' : ''}" data-action="g-edit">${s.status === 'editing' ? 'Редактирование' : 'Редактировать'}</button>` : ''}
     </div></div>`;
 }
 

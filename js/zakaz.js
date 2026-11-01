@@ -2,16 +2,16 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=36';
-import * as S from './store.js?v=36';
-import { WALLPAPER_TYPES } from './seed.js?v=36';
-import { esc, toast } from './ui.js?v=36';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=36';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=36';
-import { country } from './phonecodes.js?v=36';
-import { suggestAddress } from './address.js?v=36';
-import { suggesters } from './kbd.js?v=36';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=36';
+import { actions, changes, rerender } from './core.js?v=37';
+import * as S from './store.js?v=37';
+import { WALLPAPER_TYPES } from './seed.js?v=37';
+import { esc, toast } from './ui.js?v=37';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=37';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=37';
+import { country } from './phonecodes.js?v=37';
+import { suggestAddress } from './address.js?v=37';
+import { suggesters } from './kbd.js?v=37';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=37';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -103,7 +103,7 @@ function renderClient(d) {
     <div class="f-field"><span class="f-field__label">Время приезда</span>
       <div class="z-time">${selectField('cl-h', 'Часы', c.hour || '—', HOURS.map((h) => ({ value: h, label: h })), ro, { changed: clCh(c, 'hour') })}<b>:</b>${selectField('cl-m', 'Минуты', c.min || '—', MINS.map((m) => ({ value: m, label: m })), ro, { changed: clCh(c, 'min') })}</div></div>
     ${area('z-cl-comment', 'Комментарий', c.comment, o('comment'))}
-    ${row(btn(ro ? 'Сохранено' : 'Сохранить', 'z-cl-save', { cls: ro ? 'f-btn--saved' : '' }), btn('Редактировать', 'z-cl-edit', { cls: edit ? 'f-btn--editing' : '' }))}
+    ${row(btn(ro ? 'Сохранено' : 'Сохранить', 'z-cl-save', { cls: ro ? 'f-btn--saved' : '' }), btn(edit ? 'Редактирование' : 'Редактировать', 'z-cl-edit', { cls: edit ? 'f-btn--editing' : '' }))}
   </section>`;
 }
 pickers['cl-h'] = (v, d) => { const c = cl(d); c.hour = v; c.dirty = true; };

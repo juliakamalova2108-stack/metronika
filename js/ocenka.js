@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=36';
-import * as S from './store.js?v=36';
-import { SYSTEM_PRICE } from './seed.js?v=36';
-import { shiftsText, hoursFor } from './calc.js?v=36';
-import { esc } from './ui.js?v=36';
-import { logEvent } from './zlog.js?v=36';
+import { actions, rerender } from './core.js?v=37';
+import * as S from './store.js?v=37';
+import { SYSTEM_PRICE } from './seed.js?v=37';
+import { shiftsText, hoursFor } from './calc.js?v=37';
+import { esc } from './ui.js?v=37';
+import { logEvent } from './zlog.js?v=37';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -167,7 +167,7 @@ function volumesView(e, r) {
     </section>
     <div class="f-btn-row" id="o-room-ok" ${filled ? '' : 'hidden'}>
       <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="o-ok">ОК</button>
-      ${r.status !== 'new' ? `<button type="button" class="f-btn${r.status === 'editing' ? ' f-btn--editing' : ''}" data-action="o-edit">Редактировать</button>` : ''}
+      ${r.status !== 'new' ? `<button type="button" class="f-btn${r.status === 'editing' ? ' f-btn--editing' : ''}" data-action="o-edit">${r.status === 'editing' ? 'Редактирование' : 'Редактировать'}</button>` : ''}
     </div>`;
 }
 
