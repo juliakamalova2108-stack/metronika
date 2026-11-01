@@ -3,13 +3,13 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=86';
-import * as S from './store.js?v=86';
-import { renderOformit, oformitDraft } from './oformit.js?v=86';
-import { roomTotals, svcInfo } from './ocenka.js?v=86';
-import { smetaTotals } from './zakaz.js?v=86';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=86';
-import { esc, toast } from './ui.js?v=86';
+import { actions, rerender, go } from './core.js?v=88';
+import * as S from './store.js?v=88';
+import { renderOformit, oformitDraft } from './oformit.js?v=88';
+import { roomTotals, svcInfo } from './ocenka.js?v=88';
+import { smetaTotals } from './zakaz.js?v=88';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=88';
+import { esc, toast } from './ui.js?v=88';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -101,6 +101,8 @@ const DEMO = {
     rooms: [['Гостиная', '#f59e0b', 3, [['strip', 10], ['prime', 40], ['paste-flizelin', 38]]]], days: [7] },
 };
 const CL = { '004': P, '007': A, '011': I, '014': H };
+// Участники заказа (кроме мастера): кто передал заказ, кто ещё работает по нему.
+const PARTS = { '004': [['u-agent', 'Алина Смирнова', 'Агент']], '007': [['shop', 'Продавец «Обои+»', 'Передал материал']], '011': [], '014': [] };
 function seedOrder(no) {
   const st = S.get(); st.oformit = st.oformit || {};
   const key = 'ord-' + no;
@@ -121,7 +123,7 @@ function seedOrder(no) {
   const o = st.oformit[key];
   if (no === '007') o.mat = { view: '', scans: 1, rooms: { [rooms[0].key]: { items: [], panel: '', tab: 'added', res: null, note: 'Передал продавец магазина «Обои+»', added: { brand: 'Erismann', type: 'Обои флиз. 106 см' } } } };
   if (no === '014') o.sm = { view: '', rooms: { [rooms[0].key]: { sameH: true, h: 2.7, sameSvc: true, dlg: null, walls: [4.2, 3.6, 4.2, 3.6].map((len, i) => ({ len, h: 2.7, opens: i === 1 ? [{ name: 'Окно', area: 2.1 }] : i === 3 ? [{ name: 'Дверь', area: 1.8 }] : [], svcs: ['prime', 'paste-flizelin'] })) } } };
-  if (no === '004') { o.fin = { pays: [{ kind: 'Аванс', amount: 5000, date: iso(-2), method: 'Перевод' }], exps: [] }; o.chat = [{ who: 'u-agent', text: 'Клиент просил начать в 9:30 — будет дома с 9:20.', at: new Date().toISOString() }]; }
+  if (no === '004') { o.fin = { pays: [{ kind: 'Аванс', amount: 5000, date: iso(-2), method: 'Перевод' }], exps: [] }; o.chat = [{ who: 'u-agent', text: 'Клиент просил начать в 9:30 — будет дома с 9:20.', at: new Date(Date.now() - 36e5).toISOString() }, { who: S.me().id, text: 'Хорошо, приеду к 9:30.', at: new Date(Date.now() - 30e5).toISOString(), read: true }]; }
   S.save();
 }
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -215,6 +217,7 @@ function beginEdit(d, t) {
 }
 export function renderBoardEdit(no, t) {
   if (!DEMO[no] || !TAB_T[t]) return null;
+  if (t === 'chat') return renderBoardChat(no);
   seedOrder(no);
   S.setDraftKey('ord-' + no);
   if (startEdit === t) { startEdit = ''; beginEdit(oformitDraft(), t); }
@@ -228,7 +231,7 @@ export function renderBoardEdit(no, t) {
   return html.replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
 }
 actions['bd-edit'] = (el) => { startEdit = el.dataset.tab; go(`bd-edit-${el.dataset.no}-${el.dataset.tab}`); };
-actions['bd-to-order'] = (el) => go('bd-order-' + el.dataset.no);
+actions['bd-to-order'] = (el) => { showParts = false; go('bd-order-' + el.dataset.no); };
 actions['bd-room'] = (el) => { const k = el.dataset.key; if (openRooms.has(k)) openRooms.delete(k); else openRooms.add(k); rerender(); };
 actions['bd-back'] = () => go('orders');
 export function onLiveBoard(el) {
@@ -275,3 +278,42 @@ function bigNote(text) {
   el.classList.remove('is-in'); void el.offsetWidth; el.classList.add('is-in');
 }
 function hideBig() { const el = document.getElementById('o-note-big'); if (el) el.remove(); }
+
+// ================= Чат заказа (по кадрам Figma «06 · Чат») =================
+const SEND = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12l16-8-6 16-2.6-6.4z" fill="#162c33"/></svg>';
+const CLIP = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17.5 11.5l-6.4 6.4a4 4 0 0 1-5.7-5.7l7-7a2.7 2.7 0 0 1 3.8 3.8l-7 7a1.3 1.3 0 0 1-1.9-1.9l6.4-6.4" stroke="#edf0e7" stroke-width="1.7" stroke-linecap="round"/></svg>';
+let showParts = false;
+const hhmm = (iso) => new Date(iso).toTimeString().slice(0, 5);
+function renderBoardChat(no) {
+  seedOrder(no);
+  S.setDraftKey('ord-' + no);
+  const d = oformitDraft(); d.chat = d.chat || [];
+  d.chat.forEach((m) => { m.read = true; }); S.save();
+  const c = CL[no]; const me = S.me();
+  const parts = PARTS[no] || [];
+  const tile = (n, r) => `<span class="ch-part"><b>${esc(n)}</b><small>${esc(r)}</small></span>`;
+  const mid = `<div class="bd-ohead bd-ohead--nav"><button type="button" class="f-icon-btn bd-back" data-action="bd-to-order" data-no="${no}" aria-label="К заказу">${BACK}</button><span><b>${esc(c.n)}</b><small>Заказ №${no} · Очередь</small></span></div>`;
+  const nav = `<nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${mid}<span class="f-nav__chat"></span></nav>`;
+  if (showParts) {
+    return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><section class="f-plate ch-head"><p class="ch-t">Участники заказа</p>
+      <p class="ch-x">${parts.length ? 'Все участники заказа доступны в этом чате.' : 'Заказ вы ведёте один — других участников нет.'}</p>
+      <div class="ch-list">${tile('Вы', 'Мастер · ответственный за заказ')}${parts.map(([, n, r]) => tile(n, r)).join('')}</div></section>
+      <div class="ch-close"><button type="button" class="f-btn" data-action="ch-parts">Закрыть</button></div>${nav}`;
+  }
+  const who = (m) => (m.who === me.id ? 'Вы' : ((parts.find((x) => x[0] === m.who) || [])[1] || (S.user(m.who) || {}).name || 'Участник'));
+  const role = (m) => (m.who === me.id ? '' : ((parts.find((x) => x[0] === m.who) || [])[2] || ''));
+  const msgs = d.chat.map((m) => `<div class="ch-msg${m.who === me.id ? ' is-me' : ''}"><div class="ch-msg__hd"><span>${esc(who(m))}${role(m) ? ' · ' + esc(role(m)) : ''}</span><span>${hhmm(m.at)}</span></div><p>${esc(m.text)}</p>${m.who === me.id ? '<small>Доставлено</small>' : ''}</div>`).join('');
+  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
+    <section class="f-plate ch-head"><div class="ch-head__row"><p class="ch-t">Чат заказа</p><button type="button" class="ch-pbtn" data-action="ch-parts">Участники · ${parts.length + 1}</button></div>
+      ${parts.length ? `<div class="ch-tiles">${tile('Вы', 'Мастер')}${parts.map(([, n, r]) => tile(n.split(' ')[0], r)).join('')}</div>` : '<p class="ch-x">Заказ вы ведёте один — других участников нет. Сообщения увидите только вы.</p>'}</section>
+    <div class="ch-feed">${msgs || '<p class="ch-empty">Сообщений пока нет</p>'}</div>
+    <div class="ch-input"><button type="button" class="ch-clip" aria-label="Прикрепить">${CLIP}</button><span class="f-input ch-field"><textarea id="ch-text" rows="1" placeholder="Сообщение"></textarea></span><button type="button" class="ch-send" data-action="ch-send" data-no="${no}" aria-label="Отправить">${SEND}</button></div>
+    ${nav}`;
+}
+actions['ch-parts'] = () => { showParts = !showParts; rerender(); };
+actions['ch-send'] = () => {
+  const el = document.getElementById('ch-text'); const t = el ? el.value.trim() : '';
+  if (!t) return;
+  const d = oformitDraft(); d.chat = d.chat || []; d.chat.push({ who: S.me().id, text: t, at: new Date().toISOString(), read: true }); S.save(); rerender();
+  requestAnimationFrame(() => window.scrollTo(0, document.body.scrollHeight));
+};

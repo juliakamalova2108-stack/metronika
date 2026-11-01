@@ -830,3 +830,34 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .bd-ohead--nav .f-icon-btn { width: 40px; height: 40px; }
 .bd-ohead--nav b { font-size: 15px; line-height: 19px; }
 .bd-ohead--nav small { font-size: 11px; line-height: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ================= Чат заказа (Figma «06 · Чат») ================= */
+.ch-head { gap: 12px; padding: 14px 16px 16px; }
+.ch-head__row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.ch-t { margin: 0; font: 500 16px/22px var(--font-body); color: #edf0e7; }
+.ch-x { margin: 0; font: 400 14px/19px var(--font-body); color: rgba(237, 240, 231, 0.85); }
+.ch-pbtn { height: 40px; padding: 0 16px; border-radius: 6px; cursor: pointer; border: 0.9px solid rgba(6, 18, 20, 0.78); color: #edf0e7; font: 400 14px/18px var(--font-body);
+  background: linear-gradient(180deg, #687b7a, #738582); box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 0 4px 7px rgba(1, 9, 11, 0.5); }
+.ch-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ch-list { display: flex; flex-direction: column; gap: 10px; }
+.ch-part { display: flex; flex-direction: column; padding: 6px 10px; border-radius: 4px; border: 0.7px solid rgba(204, 219, 207, 0.3); background: rgba(255, 255, 255, 0.06); min-width: 0; }
+.ch-part b { font: 400 16px/20px var(--font-body); color: #edf0e7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-part small { font: 400 11px/14px var(--font-body); color: rgba(237, 240, 231, 0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-feed { display: flex; flex-direction: column; gap: 10px; padding-bottom: 70px; }
+.ch-empty { margin: 30px 0; text-align: center; font: 400 14px/20px var(--font-body); color: rgba(237, 242, 232, 0.55); }
+.ch-msg { max-width: 82%; align-self: flex-start; padding: 12px 16px; border-radius: 16px 16px 16px 4px; border: 0.7px solid rgba(204, 219, 207, 0.3);
+  background: linear-gradient(90deg, rgba(220, 228, 223, 0.18), rgba(123, 149, 144, 0.1)); box-shadow: 0 6px 12px rgba(6, 18, 22, 0.3); }
+.ch-msg.is-me { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: linear-gradient(90deg, rgba(76, 112, 98, 0.55), rgba(52, 84, 76, 0.5)); }
+.ch-msg__hd { display: flex; justify-content: space-between; gap: 16px; font: 400 12px/16px var(--font-body); color: rgba(237, 240, 231, 0.75); }
+.ch-msg p { margin: 4px 0 0; font: 400 16px/21px var(--font-body); color: #edf0e7; white-space: pre-wrap; }
+.ch-msg small { display: block; margin-top: 4px; text-align: right; font: 400 11px/14px var(--font-body); color: rgba(230, 242, 204, 0.75); }
+.ch-input { position: fixed; z-index: 21; left: 0; right: 0; bottom: 84px; display: flex; align-items: flex-end; gap: 8px; padding: 8px 16px; background: linear-gradient(180deg, rgba(22, 40, 42, 0), rgba(22, 40, 42, 0.95) 30%); }
+.ch-clip { flex: none; width: 44px; height: 44px; border-radius: 22px; display: grid; place-items: center; border: 1px solid rgba(204, 222, 209, 0.45); background: #213839; cursor: pointer; }
+.ch-clip svg { width: 22px; height: 22px; }
+.ch-field { flex: 1; min-width: 0; height: auto; min-height: 44px; border-radius: 22px; padding: 0 16px; }
+.ch-field textarea { width: 100%; border: 0; background: none; outline: none; resize: none; padding: 11px 0; font: 400 16px/22px var(--font-body); color: #edf0e7; max-height: 110px; }
+.ch-field textarea::placeholder { color: rgba(237, 240, 231, 0.5); }
+.ch-send { flex: none; width: 44px; height: 44px; border-radius: 22px; display: grid; place-items: center; border: 0; background: #e6f2cc; cursor: pointer; box-shadow: 0 2px 6px rgba(1, 6, 9, 0.4); }
+.ch-send svg { width: 22px; height: 22px; margin-left: 2px; }
+.ch-close { position: fixed; z-index: 21; left: 16px; right: 16px; bottom: 96px; }
+.ch-close .f-btn { width: 100%; }
