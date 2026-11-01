@@ -3,13 +3,13 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=85';
-import * as S from './store.js?v=85';
-import { renderOformit, oformitDraft } from './oformit.js?v=85';
-import { roomTotals, svcInfo } from './ocenka.js?v=85';
-import { smetaTotals } from './zakaz.js?v=85';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=85';
-import { esc, toast } from './ui.js?v=85';
+import { actions, rerender, go } from './core.js?v=86';
+import * as S from './store.js?v=86';
+import { renderOformit, oformitDraft } from './oformit.js?v=86';
+import { roomTotals, svcInfo } from './ocenka.js?v=86';
+import { smetaTotals } from './zakaz.js?v=86';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=86';
+import { esc, toast } from './ui.js?v=86';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -194,7 +194,19 @@ const chatBtn = (no, d) => { const n = unread(d); return `<button type="button" 
 const TAB_T = { client: 'Клиент', estimate: 'Оценка', schedule: 'График', channel: 'Канал', material: 'Материал', smeta: 'Смета', chat: 'Чат', tasks: 'Задачи', finance: 'Финансы', history: 'История' };
 // «Изменить» сразу включает правку раздела — «Редактировать» нажимать не нужно.
 let startEdit = '';
+// Снимок раздела до правки: «Отмена» возвращает его, «Сохранить» без изменений — «Без изменений».
+let editSnap = null;
+const PART = { channel: ['channel', 'saved', 'editing', 'dirty', 'chSnap', 'chErr'], client: ['cl'], schedule: ['sched'], estimate: ['est'] };
+const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
+function essence(d, t) {
+  if (t === 'channel') return JSON.stringify(d.channel);
+  if (t === 'client') { const c = d.cl || {}; return JSON.stringify(['name', 'phone', 'street', 'house', 'entrance', 'flat', 'floor', 'hour', 'min', 'comment'].map((k) => c[k] || '')); }
+  if (t === 'schedule') return JSON.stringify([(d.sched || {}).place, (d.sched || {}).measure]);
+  if (t === 'estimate') return JSON.stringify(((d.est || {}).rooms || []).map((r) => [r.key, r.name, r.floor, r.svcs.map((x) => [x.id, Number(x.qty)])]));
+  return '';
+}
 function beginEdit(d, t) {
+  editSnap = PART[t] ? { t, data: Object.fromEntries(PART[t].map((k) => [k, clone(d[k])])), essence: essence(d, t) } : null;
   if (t === 'channel' && d.saved) d.editing = true;
   if (t === 'client' && d.cl && d.cl.saved) d.cl.editing = true;
   if (t === 'schedule' && d.sched && d.sched.status === 'saved') d.sched.status = 'editing';
@@ -211,7 +223,9 @@ export function renderBoardEdit(no, t) {
   const navHtml = ''; // шапка (назад, раздел, клиент) — в нижней навигации между «Меню» и «Чатом»
   const dd = oformitDraft();
   if (t === 'chat') { (dd.chat || []).forEach((m) => { m.read = true; }); S.save(); }
-  return renderOformit('order', { only: t, navHtml, navRight: mid + (t === 'chat' ? '<span class="f-nav__chat"></span>' : chatBtn(no, dd)) });
+  const html = renderOformit('order', { only: t, navHtml, navRight: mid + (t === 'chat' ? '<span class="f-nav__chat"></span>' : chatBtn(no, dd)) });
+  // Вместо «Редактировать / Редактирование» — «Отмена»: правка уже включена.
+  return html.replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
 }
 actions['bd-edit'] = (el) => { startEdit = el.dataset.tab; go(`bd-edit-${el.dataset.no}-${el.dataset.tab}`); };
 actions['bd-to-order'] = (el) => go('bd-order-' + el.dataset.no);
@@ -238,12 +252,20 @@ document.addEventListener('section-saved', (ev) => {
     rooms.forEach((r) => { if (r.status === 'editing' && r.snap && r.svcs.every((x) => Number(r.snap[x.id]) === Number(x.qty)) && Object.keys(r.snap).length === r.svcs.length) r.status = 'saved'; });
     S.save();
     if (rooms.some((r) => r.status !== 'saved')) { rerender(); return; }
-    setTimeout(() => go('bd-order-' + m[1]), 1000); // «✓ Комната сохранена» уже показана
-    return;
   }
-  bigNote('✓ Сохранено');
-  setTimeout(() => { go('bd-order-' + m[1]); setTimeout(hideBig, 400); }, 600);
+  const same = editSnap && editSnap.t === ev.detail && essence(d, ev.detail) === editSnap.essence;
+  if (same) { Object.assign(d, clone(editSnap.data)); S.save(); }
+  editSnap = null;
+  setTimeout(() => bigNote(same ? 'Без изменений' : '✓ Сохранено'), ev.detail === 'estimate' ? 30 : 0);
+  setTimeout(() => { go('bd-order-' + m[1]); setTimeout(hideBig, 400); }, 650);
 });
+actions['bd-cancel'] = (el) => {
+  const d = oformitDraft();
+  if (editSnap) { Object.assign(d, clone(editSnap.data)); S.save(); }
+  editSnap = null;
+  bigNote('Отменено');
+  setTimeout(() => { go('bd-order-' + el.dataset.no); setTimeout(hideBig, 400); }, 650);
+};
 
 // Крупное сообщение по центру экрана (как «Комната сохранена» в «Оценке»).
 function bigNote(text) {
