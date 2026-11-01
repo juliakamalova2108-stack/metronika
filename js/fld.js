@@ -1,6 +1,6 @@
 // Подсветка полей: жёлтая кромка — изменено и не сохранено, красная с подсказкой — ошибка.
 // Сохранённые поля не подсвечиваются: зелёным горит статус карточки и точка у вкладки.
-import { toast } from './ui.js?v=90';
+import { toast } from './ui.js?v=91';
 
 const escH = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 export const fcls = (changed, err) => (err ? ' is-error' : changed ? ' is-changed' : '');

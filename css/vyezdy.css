@@ -874,3 +874,10 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .ch-st svg { height: 12px; width: auto; }
 .ch-st--read { color: #6cc8ff; }
 .ch-msg.is-me p { margin-top: 0; }
+/* Строка ввода: всё одной высоты с нашими полями (50px). Поле растёт вверх, кнопки остаются внизу. */
+.ch-input { align-items: flex-end; }
+.ch-clip, .ch-send { width: 50px; height: 50px; flex: 0 0 50px; }
+.ch-field { height: auto; min-height: 50px; align-items: stretch; padding: 0 14px; }
+.ch-field textarea { display: block; height: 50px; max-height: none; padding: 14px 0; box-sizing: border-box; overflow-y: hidden; }
+.ch-field { box-sizing: border-box; }
+.ch-field textarea { height: 48px; padding: 13px 0; }
