@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=57';
-import * as S from './store.js?v=57';
-import { CHANNELS } from './seed.js?v=57';
-import { esc } from './ui.js?v=57';
-import { logEvent } from './zlog.js?v=57';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=57';
+import { actions, rerender, go } from './core.js?v=58';
+import * as S from './store.js?v=58';
+import { CHANNELS } from './seed.js?v=58';
+import { esc } from './ui.js?v=58';
+import { logEvent } from './zlog.js?v=58';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=58';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=57';
-import { renderSchedule, scheduleState } from './grafik.js?v=57';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=58';
+import { renderSchedule, scheduleState } from './grafik.js?v=58';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -17,7 +17,8 @@ const ICON_BRIEFCASE = (c) => `<svg viewBox="0 0 24 24" fill="none" aria-hidden=
 
 // Источники заявки: 9 вариантов, в окне видно 4 («Прокрутка · 4 из 9»).
 const SOURCES = CHANNELS.filter((c) => c !== 'Самостоятельно');
-const TABS = [['channel', 'Канал'], ['estimate', 'Оценка'], ['schedule', 'График']];
+// «Оформить заказ» (мастер сам себе): только начальный этап — канал, клиент, оценка, график.
+const TABS = [['channel', 'Канал'], ['client', 'Клиент'], ['estimate', 'Оценка'], ['schedule', 'График']];
 // «Текущий заказ» — все вкладки секции «Выезды».
 const ALL_TABS = [['channel', 'Канал'], ['client', 'Клиент'], ['estimate', 'Оценка'], ['schedule', 'График'], ['material', 'Материал'], ['smeta', 'Смета'], ['chat', 'Чат'], ['tasks', 'Задачи'], ['finance', 'Финансы'], ['history', 'История']];
 export const pickers = Object.create(null);
@@ -106,7 +107,7 @@ export function registerSection(key, render, state) { sections[key] = { render, 
 
 export function renderOformit(mode = 'oformit') {
   const d = draft();
-  const tabs = ALL_TABS; // «Оформить заказ» и «Текущий заказ» — все разделы «Выездов»
+  const tabs = mode === 'oformit' ? TABS : ALL_TABS; // «Оформить заказ» — 4 вкладки, «Текущий заказ» — все разделы «Выездов»
   if (!tabs.some(([k]) => k === tab)) tab = 'channel';
   const body = tab === 'channel' ? channelPlate(d)
     : tab === 'estimate' ? renderEstimate(d)
