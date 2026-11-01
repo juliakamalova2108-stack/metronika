@@ -868,3 +868,9 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .ch-field { border-radius: 6px; min-height: 46px; padding: 0 14px; }
 .f-nav__chat.is-active svg path { stroke: #edf0e7; }
 .f-nav__chat.is-active { color: #edf0e7; }
+/* Время и статус внутри пузыря, справа внизу — как в мессенджерах. */
+.ch-meta { float: right; display: inline-flex; align-items: center; gap: 3px; margin: 8px 0 -4px 12px; font: 400 11px/14px var(--font-body); color: rgba(237, 240, 231, 0.6); white-space: nowrap; }
+.ch-st { display: inline-flex; color: rgba(237, 240, 231, 0.6); font-style: normal; }
+.ch-st svg { height: 12px; width: auto; }
+.ch-st--read { color: #6cc8ff; }
+.ch-msg.is-me p { margin-top: 0; }

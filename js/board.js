@@ -3,13 +3,13 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=89';
-import * as S from './store.js?v=89';
-import { renderOformit, oformitDraft } from './oformit.js?v=89';
-import { roomTotals, svcInfo } from './ocenka.js?v=89';
-import { smetaTotals } from './zakaz.js?v=89';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=89';
-import { esc, toast } from './ui.js?v=89';
+import { actions, rerender, go } from './core.js?v=90';
+import * as S from './store.js?v=90';
+import { renderOformit, oformitDraft } from './oformit.js?v=90';
+import { roomTotals, svcInfo } from './ocenka.js?v=90';
+import { smetaTotals } from './zakaz.js?v=90';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=90';
+import { esc, toast } from './ui.js?v=90';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -280,6 +280,15 @@ function bigNote(text) {
 function hideBig() { const el = document.getElementById('o-note-big'); if (el) el.remove(); }
 
 // ================= Чат заказа (по кадрам Figma «06 · Чат») =================
+const ST_T = { wait: 'Отправляется', sent: 'Отправлено', delivered: 'Доставлено', read: 'Прочитано' };
+const T1 = '<path d="M1.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>';
+const T2 = '<path d="M5.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>';
+const ST_I = {
+  wait: '<svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6 3.5V6l1.8 1.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  sent: `<svg viewBox="0 0 12 12">${T1}</svg>`,
+  delivered: `<svg viewBox="0 0 16 12">${T1}${T2}</svg>`,
+  read: `<svg viewBox="0 0 16 12">${T1}${T2}</svg>`,
+};
 const SEND = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 11.5l15-7-5.6 15-2.6-5.8z" stroke="#edf0e7" stroke-width="1.7" stroke-linejoin="round"/><path d="M11.3 13.7l3.4-3.4" stroke="#edf0e7" stroke-width="1.7" stroke-linecap="round"/></svg>';
 const CLIP = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17.5 11.5l-6.4 6.4a4 4 0 0 1-5.7-5.7l7-7a2.7 2.7 0 0 1 3.8 3.8l-7 7a1.3 1.3 0 0 1-1.9-1.9l6.4-6.4" stroke="#edf0e7" stroke-width="1.7" stroke-linecap="round"/></svg>';
 let showParts = false;
@@ -302,7 +311,11 @@ function renderBoardChat(no) {
   }
   const who = (m) => (m.who === me.id ? 'Вы' : ((parts.find((x) => x[0] === m.who) || [])[1] || (S.user(m.who) || {}).name || 'Участник'));
   const role = (m) => (m.who === me.id ? '' : ((parts.find((x) => x[0] === m.who) || [])[2] || ''));
-  const msgs = d.chat.map((m) => `<div class="ch-msg${m.who === me.id ? ' is-me' : ''}"><div class="ch-msg__hd"><span>${esc(who(m))}${role(m) ? ' · ' + esc(role(m)) : ''}</span><span>${hhmm(m.at)}</span></div><p>${esc(m.text)}</p>${m.who === me.id ? '<small>Доставлено</small>' : ''}</div>`).join('');
+  // Статусы, как в мессенджерах: часы — отправляется, одна галочка — отправлено,
+  // две серые — доставлено, две голубые — прочитано.
+  const tick = (st) => `<i class="ch-st ch-st--${st}" aria-label="${ST_T[st]}">${ST_I[st]}</i>`;
+  const msgs = d.chat.map((m) => { const mine = m.who === me.id;
+    return `<div class="ch-msg${mine ? ' is-me' : ''}">${mine ? '' : `<div class="ch-msg__hd"><span>${esc(who(m))}${role(m) ? ' · ' + esc(role(m)) : ''}</span></div>`}<p>${esc(m.text)}<span class="ch-meta">${hhmm(m.at)}${mine ? tick(m.st || 'read') : ''}</span></p></div>`; }).join('');
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     <section class="f-plate ch-head"><div class="ch-head__row"><p class="ch-t">Чат заказа</p><button type="button" class="ch-pbtn" data-action="ch-parts">Участники · ${parts.length + 1}</button></div>
       ${parts.length ? `<div class="ch-tiles">${tile('Вы', 'Мастер')}${parts.map(([, n, r]) => tile(n.split(' ')[0], r)).join('')}</div>` : '<p class="ch-x">Заказ вы ведёте один — других участников нет. Сообщения увидите только вы.</p>'}</section>
@@ -311,9 +324,14 @@ function renderBoardChat(no) {
     ${nav}`;
 }
 actions['ch-parts'] = () => { showParts = !showParts; rerender(); };
-actions['ch-send'] = () => {
+actions['ch-send'] = (btn) => {
   const el = document.getElementById('ch-text'); const t = el ? el.value.trim() : '';
   if (!t) return;
-  const d = oformitDraft(); d.chat = d.chat || []; d.chat.push({ who: S.me().id, text: t, at: new Date().toISOString(), read: true }); S.save(); rerender();
+  const d = oformitDraft(); d.chat = d.chat || [];
+  const m = { who: S.me().id, text: t, at: new Date().toISOString(), st: 'wait' }; d.chat.push(m); S.save(); rerender();
   requestAnimationFrame(() => window.scrollTo(0, document.body.scrollHeight));
+  // Прототип: статус меняется сам. Если участников нет — дальше «доставлено» не идёт.
+  const solo = !(PARTS[btn.dataset.no] || []).length;
+  const step = (st, ms) => setTimeout(() => { const dd = oformitDraft(); const x = (dd.chat || []).find((y) => y.at === m.at && y.text === m.text); if (!x) return; x.st = st; S.save(); if (location.hash.endsWith('-chat')) rerender(); }, ms);
+  step('sent', 500); step('delivered', 1500); if (!solo) step('read', 3500);
 };
