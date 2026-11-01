@@ -531,3 +531,7 @@ body.fig .view:has(.g-screen) { padding-bottom: 112px; }
 .g-screen > .g-plate > * { flex: none; }
 .g-screen .g-grid { flex: 1 1 auto; min-height: 0; grid-template-rows: repeat(var(--weeks), minmax(26px, 1fr)); max-height: calc(var(--weeks) * 58px); }
 .g-screen .f-btn-row { margin-bottom: 0; }
+
+/* Строка «Без даты» всегда одной высоты; календарь не обрезается по бокам. */
+.g-screen .g-tray { height: 56px; flex: none; }
+.g-screen.f-fill { overflow: visible; }

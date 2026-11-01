@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=18';
-import * as S from './store.js?v=18';
-import { SHIFT_HOURS } from './calc.js?v=18';
-import { esc } from './ui.js?v=18';
-import { logEvent } from './zlog.js?v=18';
-import { estimateRooms, roomTotals } from './ocenka.js?v=18';
+import { actions, rerender } from './core.js?v=19';
+import * as S from './store.js?v=19';
+import { SHIFT_HOURS } from './calc.js?v=19';
+import { esc } from './ui.js?v=19';
+import { logEvent } from './zlog.js?v=19';
+import { estimateRooms, roomTotals } from './ocenka.js?v=19';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -105,9 +105,9 @@ export function renderSchedule(d) {
       : `<div class="g-tray"><button type="button" class="g-chip g-chip--measure${s.sel === 'measure' ? ' is-sel' : ''}" data-action="g-pick" data-key="measure"><span>Замер</span><span>2 часа</span></button></div>`;
     todo = `<section class="g-todo"><p class="g-todo__t">Без даты</p><p class="g-todo__x">Выберите замер и нажмите на любую свободную дату</p>${todo}</section>`;
   } else if (!rooms.length) {
-    todo = '<section class="g-todo"><p class="g-todo__t">Без даты</p><p class="g-todo__x">Сначала заполните «Оценку»: дни работ считаются по объёмам комнат</p></section>';
+    todo = '<section class="g-todo"><p class="g-todo__t">Без даты</p><p class="g-todo__x">Сначала заполните «Оценку»: дни работ считаются по объёмам комнат</p><div class="g-tray"></div></section>';
   } else if (!pending.length) {
-    todo = '<section class="g-todo g-todo--done"><p class="g-todo__t">Все комнаты запланированы</p></section>';
+    todo = '<section class="g-todo g-todo--done"><p class="g-todo__t">Все комнаты запланированы</p><p class="g-todo__x" aria-hidden="true" style="visibility:hidden">Выберите комнату и нажмите на любую свободную дату</p><div class="g-tray"></div></section>';
   } else {
     todo = `<section class="g-todo"><p class="g-todo__t">Без даты</p><p class="g-todo__x">Выберите комнату и нажмите на любую свободную дату</p>
       <div class="g-tray">${pending.map((r) => roomDays(r).map((x) => chip(r, x, s.sel === r.key, `data-action="g-pick" data-key="${r.key}"`)).join('')).join('')}</div></section>`;
