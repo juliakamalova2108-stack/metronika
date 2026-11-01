@@ -2,12 +2,13 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=25';
-import * as S from './store.js?v=25';
-import { WALLPAPER_TYPES } from './seed.js?v=25';
-import { esc, toast } from './ui.js?v=25';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=25';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=25';
+import { actions, changes, rerender } from './core.js?v=28';
+import * as S from './store.js?v=28';
+import { WALLPAPER_TYPES } from './seed.js?v=28';
+import { esc, toast } from './ui.js?v=28';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=28';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=28';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=28';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -32,10 +33,10 @@ function hm(qty, norm) {
 const status = (kind, text, cls = '') => `<span class="f-status f-status--${kind}${cls ? ' ' + cls : ''}"><i></i>${esc(text)}</span>`;
 const btn = (label, action, { cls = '', data = '', disabled = false } = {}) => `<button type="button" class="f-btn${cls ? ' ' + cls : ''}" data-action="${action}" ${data} ${disabled ? 'disabled' : ''}>${label}</button>`;
 const row = (...b) => `<div class="f-btn-row">${b.join('')}</div>`;
-const input = (id, label, value, { ph = '', live = '', mode = '', ro = false, type = 'text' } = {}) => `<label class="f-field" for="${id}"><span class="f-field__label">${esc(label)}</span>
-  <span class="f-input"><input id="${id}" type="${type}" ${mode ? `inputmode="${mode}"` : ''} placeholder="${esc(ph)}" value="${esc(value)}" ${ro ? 'readonly' : ''} ${live ? `data-live="${live}"` : ''}/></span></label>`;
-const area = (id, label, value, { ph = '', live = '', ro = false } = {}) => `<label class="f-field" for="${id}">${label ? `<span class="f-field__label">${esc(label)}</span>` : ''}
-  <span class="f-input z-area"><textarea id="${id}" placeholder="${esc(ph)}" ${ro ? 'readonly' : ''} ${live ? `data-live="${live}"` : ''}>${esc(value)}</textarea></span></label>`;
+const input = (id, label, value, { ph = '', live = '', mode = '', ro = false, type = 'text', changed = false, err = '' } = {}) => `<label class="f-field" for="${id}"><span class="f-field__label">${esc(label)}</span>
+  <span class="f-input${fcls(changed, err)}"><input id="${id}" type="${type}" ${mode ? `inputmode="${mode}"` : ''} placeholder="${esc(ph)}" value="${esc(value)}" ${ro ? 'readonly' : ''} ${live ? `data-live="${live}"` : ''}/></span>${ferr(err)}</label>`;
+const area = (id, label, value, { ph = '', live = '', ro = false, changed = false, err = '' } = {}) => `<label class="f-field" for="${id}">${label ? `<span class="f-field__label">${esc(label)}</span>` : ''}
+  <span class="f-input z-area${fcls(changed, err)}"><textarea id="${id}" placeholder="${esc(ph)}" ${ro ? 'readonly' : ''} ${live ? `data-live="${live}"` : ''}>${esc(value)}</textarea></span>${ferr(err)}</label>`;
 const seg = (key, items, cur) => `<div class="z-seg" role="tablist">${items.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === cur}" class="f-btn${k === cur ? ' f-btn--lit' : ''}" data-action="z-seg" data-key="${key}" data-v="${k}">${t}</button>`).join('')}</div>`;
 const dock = (html) => `<div class="z-dock">${html}</div>`;
 const dialog = (title, text, buttons) => `<div class="o-overlay"></div><div class="f-plate o-dialog" role="alertdialog"><p class="o-dialog__t">${esc(title)}</p>${text ? `<p class="o-dialog__x">${text}</p>` : ''}${buttons}</div>`;
@@ -61,19 +62,24 @@ const noRooms = (what) => `<section class="f-plate"><p class="z-muted">${what}: 
 function cl(d) { if (!d.cl) d.cl = { name: '', phone: '', street: '', house: '', entrance: '', flat: '', floor: '', hour: '', min: '', comment: '', saved: false, editing: true, dirty: false }; return d.cl; }
 const HOURS = Array.from({ length: 15 }, (_, i) => String(7 + i).padStart(2, '0'));
 const MINS = ['00', '15', '30', '45'];
+const CL_FIELDS = ['name', 'phone', 'street', 'house', 'entrance', 'flat', 'floor', 'hour', 'min', 'comment'];
+const clSnap = (c) => c.snap || {};
+const clCh = (c, k) => c.editing && String(c[k] || '') !== String(clSnap(c)[k] || '');
 function renderClient(d) {
   const c = cl(d);
   const ro = !c.editing;
+  const e = c.err || {};
   const edit = c.dirty || (c.saved && c.editing);
   const st = edit ? status('warn', 'редактирование') : c.saved ? status('ok', 'сохранено') : '';
+  const o = (k, extra = {}) => ({ live: `z-cl:${k}`, ro, changed: clCh(c, k), err: e[k], ...extra });
   return `<i class="f-one" hidden></i><section class="f-plate z-client f-fill" aria-label="Клиент"><p class="z-title">Клиент</p>${st}
-    ${input('z-cl-name', 'Имя', c.name, { ph: 'Имя клиента', live: 'z-cl:name', ro })}
-    ${input('z-cl-phone', 'Телефон', c.phone, { ph: '+7 (___) ___-__-__', live: 'z-cl:phone', mode: 'tel', ro, type: 'tel' })}
-    ${input('z-cl-street', 'Улица', c.street, { ph: 'Улица', live: 'z-cl:street', ro })}
-    <div class="z-grid4">${input('z-cl-house', 'Дом', c.house, { live: 'z-cl:house', ro })}${input('z-cl-entrance', 'Подъезд', c.entrance, { live: 'z-cl:entrance', mode: 'numeric', ro })}${input('z-cl-flat', 'Кв', c.flat, { live: 'z-cl:flat', mode: 'numeric', ro })}${input('z-cl-floor', 'Этаж', c.floor, { live: 'z-cl:floor', mode: 'numeric', ro })}</div>
+    ${input('z-cl-name', 'Имя', c.name, o('name', { ph: 'Имя клиента' }))}
+    ${input('z-cl-phone', 'Телефон', c.phone, o('phone', { ph: '+7 (___) ___-__-__', mode: 'tel', type: 'tel' }))}
+    ${input('z-cl-street', 'Улица', c.street, o('street', { ph: 'Улица' }))}
+    <div class="z-grid4">${input('z-cl-house', 'Дом', c.house, o('house'))}${input('z-cl-entrance', 'Подъезд', c.entrance, o('entrance', { mode: 'numeric' }))}${input('z-cl-flat', 'Кв', c.flat, o('flat', { mode: 'numeric' }))}${input('z-cl-floor', 'Этаж', c.floor, o('floor', { mode: 'numeric' }))}</div>
     <div class="f-field"><span class="f-field__label">Время приезда</span>
-      <div class="z-time">${selectField('cl-h', 'Часы', c.hour || '—', HOURS.map((h) => ({ value: h, label: h })), ro)}<b>:</b>${selectField('cl-m', 'Минуты', c.min || '—', MINS.map((m) => ({ value: m, label: m })), ro)}</div></div>
-    ${area('z-cl-comment', 'Комментарий', c.comment, { live: 'z-cl:comment', ro })}
+      <div class="z-time">${selectField('cl-h', 'Часы', c.hour || '—', HOURS.map((h) => ({ value: h, label: h })), ro, { changed: clCh(c, 'hour') })}<b>:</b>${selectField('cl-m', 'Минуты', c.min || '—', MINS.map((m) => ({ value: m, label: m })), ro, { changed: clCh(c, 'min') })}</div></div>
+    ${area('z-cl-comment', 'Комментарий', c.comment, o('comment'))}
     ${row(btn(ro ? 'Сохранено' : 'Сохранить', 'z-cl-save', { cls: ro ? 'f-btn--saved' : '' }), btn('Редактировать', 'z-cl-edit', { cls: edit ? 'f-btn--editing' : '' }))}
   </section>`;
 }
@@ -83,7 +89,15 @@ toggles['cl-h'] = toggles['cl-m'] = (d) => { cl(d).dirty = true; };
 actions['z-cl-save'] = () => {
   const d = D(); const c = cl(d);
   if (!c.editing) return;
-  if (c.name.length < 2 || c.phone.replace(/\D/g, '').length < 10 || !c.street || !c.house) { toast('Заполните имя, телефон, улицу и дом'); return; }
+  if (c.phone) c.phone = phoneFormat(c.phone);
+  const e = {};
+  if (c.name.trim().length < 2) e.name = 'Введите имя';
+  if (phoneDigits(c.phone).length < 10) e.phone = c.phone ? 'Не хватает цифр: нужно 10 после +7' : 'Введите телефон';
+  if (!c.street.trim()) e.street = 'Введите улицу';
+  if (!c.house.trim()) e.house = 'Дом';
+  c.err = e;
+  if (Object.keys(e).length) { save(); showErrors(); return; }
+  c.snap = Object.fromEntries(CL_FIELDS.map((k) => [k, c[k]]));
   c.saved = true; c.editing = false; c.dirty = false;
   logEvent(d, 'Сохранены данные клиента', 'Контакты и адрес заказа');
   save();
@@ -322,7 +336,7 @@ function renderTasks(d) {
     const f = ui.task;
     const people = [S.me(), ...((d.channel && d.channel.partner !== 'self' && S.user(d.channel.partner)) ? [S.user(d.channel.partner)] : [])];
     return `<section class="f-plate"><p class="z-title">Новая задача</p>
-      ${input('z-t-text', 'Что нужно сделать', f.text, { ph: 'Купить клей для обоев', live: 'z-t:text' })}
+      ${input('z-t-text', 'Что нужно сделать', f.text, { ph: 'Купить клей для обоев', live: 'z-t:text', changed: !!f.text, err: (ui.err || {}).text })}
       ${selectField('z-t-who', 'Ответственный', (S.user(f.who) || S.me()).name.split(' ')[0], people.map((u) => ({ value: u.id, label: u.name.split(' ')[0] })), false)}
       <label class="f-field" for="z-t-due"><span class="f-field__label">Срок</span><span class="f-input"><input id="z-t-due" type="date" value="${f.due}" data-live="z-t:due"/></span></label>
     </section>
@@ -342,7 +356,7 @@ pickers['z-t-who'] = (v, d) => { d.ui.task.who = v; };
 actions['z-form-close'] = () => { D().ui = {}; save(); };
 actions['z-task-add'] = () => {
   const d = D(); const f = d.ui.task;
-  if (f.text.trim().length < 2) { toast('Опишите задачу'); return; }
+  if (f.text.trim().length < 2) { d.ui.err = { text: 'Опишите задачу' }; save(); showErrors(); return; }
   d.tasks.push({ id: 't' + Date.now(), text: f.text.trim(), who: f.who, due: f.due, done: false });
   logEvent(d, 'Добавлена задача', f.text.trim()); d.ui = {}; segState.tasks = 'open'; save();
 };
@@ -378,7 +392,7 @@ function renderFinance(d) {
     const p = ui.pay;
     return `${head}<section class="f-plate"><p class="z-title">Добавить оплату</p>${status('warn', 'редактирование')}
       <div class="z-kind">${['Аванс', 'Оплата'].map((k) => `<button type="button" class="${p.kind === k ? 'is-on' : ''}" data-action="z-pay-kind" data-v="${k}">${k}</button>`).join('')}</div>
-      ${input('z-p-sum', 'Сумма', p.sum, { ph: '0 ₽', mode: 'numeric', live: 'z-p:sum' })}
+      ${input('z-p-sum', 'Сумма', p.sum, { ph: '0 ₽', mode: 'numeric', live: 'z-p:sum', changed: !!p.sum, err: (ui.err || {}).sum })}
       <label class="f-field" for="z-p-date"><span class="f-field__label">Дата</span><span class="f-input"><input id="z-p-date" type="date" value="${p.date}" data-live="z-p:date"/></span></label>
       ${selectField('z-p-method', 'Способ оплаты', p.method, ['Перевод', 'Наличные', 'Карта'].map((x) => ({ value: x, label: x })), false)}
       ${row(btn('Прикрепить подтверждение', 'z-attach'))}</section>
@@ -387,9 +401,9 @@ function renderFinance(d) {
   if (ui.form === 'exp') {
     const e = ui.exp;
     return `${head}<section class="f-plate"><p class="z-title">Новый расход</p>${status('warn', 'редактирование')}
-      ${input('z-e-name', 'Название расхода', e.name, { ph: 'Клей для обоев', live: 'z-e:name' })}
-      ${input('z-e-sum', 'Сумма', e.sum, { ph: '0 ₽', mode: 'numeric', live: 'z-e:sum' })}
-      ${input('z-e-com', 'Комментарий', e.comment, { ph: 'Покупка материала', live: 'z-e:comment' })}
+      ${input('z-e-name', 'Название расхода', e.name, { ph: 'Клей для обоев', live: 'z-e:name', changed: !!e.name, err: (ui.err || {}).name })}
+      ${input('z-e-sum', 'Сумма', e.sum, { ph: '0 ₽', mode: 'numeric', live: 'z-e:sum', changed: !!e.sum, err: (ui.err || {}).sum })}
+      ${input('z-e-com', 'Комментарий', e.comment, { ph: 'Покупка материала', live: 'z-e:comment', changed: !!e.comment })}
       ${row(btn('Прикрепить чек', 'z-attach'))}</section>
       ${dock(row(btn('Отмена', 'z-form-close'), btn('Сохранить', 'z-exp-save')))}`;
   }
@@ -421,14 +435,14 @@ actions['z-pay-kind'] = (el) => { D().ui.pay.kind = el.dataset.v; save(); };
 pickers['z-p-method'] = (v, d) => { d.ui.pay.method = v; };
 actions['z-pay-save'] = () => {
   const d = D(); const p = d.ui.pay; const a = Math.round(parse(p.sum));
-  if (!(a > 0)) { toast('Введите сумму'); return; }
+  if (!(a > 0)) { d.ui.err = { sum: 'Введите сумму' }; save(); showErrors(); return; }
   d.fin.pays.push({ kind: p.kind, amount: a, date: p.date || todayISO(), method: p.method });
   logEvent(d, p.kind === 'Аванс' ? 'Получен аванс' : 'Получена оплата', `${fmt(a)} ₽ · ${p.method}`); d.ui = {}; save();
 };
 actions['z-exp-new'] = () => { D().ui = { form: 'exp', exp: { name: '', sum: '', comment: '' } }; save(); };
 actions['z-exp-save'] = () => {
   const d = D(); const e = d.ui.exp; const a = Math.round(parse(e.sum) * 100) / 100;
-  if (!e.name.trim() || !(a > 0)) { toast('Нужны название и сумма'); return; }
+  if (!e.name.trim() || !(a > 0)) { d.ui.err = { ...(!e.name.trim() ? { name: 'Введите название' } : {}), ...(!(a > 0) ? { sum: 'Введите сумму' } : {}) }; save(); showErrors(); return; }
   d.fin.exps.push({ name: e.name.trim(), amount: a, comment: e.comment.trim() });
   logEvent(d, 'Добавлен расход', `${e.name.trim()} · ${fmt(a)} ₽`); d.ui = {}; save();
 };
@@ -454,13 +468,21 @@ function renderHistory(d) {
 export function onLiveZakaz(el) {
   const [k, f] = (el.dataset.live || '').split(':');
   const d = D();
-  if (k === 'z-cl') { const c = cl(d); c[f] = el.value; if (!c.dirty) { c.dirty = true; S.save(); refocus(el); } else S.save(); return true; }
+  if (k === 'z-cl') {
+    const c = cl(d); c[f] = el.value;
+    if (c.err) delete c.err[f];
+    if (!c.dirty) { c.dirty = true; S.save(); refocus(el); } else { S.save(); liveMark(el, clCh(c, f)); }
+    return true;
+  }
   if (k === 'z-m') { const m = mat(d); const r = matRoom(m, m.view); r.res[f] = el.value.trim(); S.save(); return true; }
   if (k === 'z-mnote') { const m = mat(d); matRoom(m, m.view).items[Number(f)].note = el.value; S.save(); return true; }
   if (k === 'z-oarea') { SR().dlg.area = el.value; return true; }
-  if (k === 'z-t') { d.ui.task[f] = el.value; return true; }
-  if (k === 'z-p') { d.ui.pay[f] = el.value; return true; }
-  if (k === 'z-e') { d.ui.exp[f] = el.value; return true; }
+  if (k === 'z-t' || k === 'z-p' || k === 'z-e') {
+    d.ui[{ 'z-t': 'task', 'z-p': 'pay', 'z-e': 'exp' }[k]][f] = el.value;
+    if (d.ui.err) delete d.ui.err[f];
+    liveMark(el, !!el.value);
+    return true;
+  }
   return false;
 }
 function refocus(el) {
@@ -477,3 +499,11 @@ registerSection('chat', renderChat);
 registerSection('tasks', renderTasks);
 registerSection('finance', renderFinance);
 registerSection('history', renderHistory);
+
+// Телефон приводится к виду +7 (999) 123-45-67 при выходе из поля: «+7» набирать не нужно.
+document.addEventListener('focusout', (ev) => {
+  if (ev.target.id !== 'z-cl-phone' || ev.target.readOnly) return;
+  const c = cl(D());
+  const f = phoneFormat(ev.target.value);
+  if (f && f !== ev.target.value) { ev.target.value = f; c.phone = f; S.save(); liveMark(ev.target, clCh(c, 'phone')); }
+});

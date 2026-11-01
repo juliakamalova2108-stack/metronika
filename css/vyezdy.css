@@ -550,3 +550,8 @@ body.fig .view:has(.o-head) * { touch-action: pan-y; }
 .o-ear { height: 48px; padding-top: 16px; }
 .o-ear--calc { padding-top: 12px; }
 .o-head--tabs { height: 107px; }
+
+/* ================= Подсветка полей ================= */
+.f-input.is-changed, .o-qty.is-changed { border-color: rgba(255, 194, 71, 0.95); box-shadow: 0 0 0 1px rgba(255, 194, 71, 0.55), 0 0 6px rgba(255, 194, 71, 0.25), inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.58), inset 0 4px 7px rgba(1, 9, 11, 0.66); }
+.f-input.is-error, .o-qty.is-error { border-color: #fa5454; box-shadow: 0 0 0 1px rgba(250, 84, 84, 0.7), 0 0 6px rgba(250, 84, 84, 0.3), inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.58), inset 0 4px 7px rgba(1, 9, 11, 0.66); }
+.f-field__err { margin-top: -2px; font: 500 12px/16px var(--font-body); color: #fa5454; }

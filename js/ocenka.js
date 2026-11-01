@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=25';
-import * as S from './store.js?v=25';
-import { SYSTEM_PRICE } from './seed.js?v=25';
-import { shiftsText, hoursFor } from './calc.js?v=25';
-import { esc } from './ui.js?v=25';
-import { logEvent } from './zlog.js?v=25';
+import { actions, rerender } from './core.js?v=28';
+import * as S from './store.js?v=28';
+import { SYSTEM_PRICE } from './seed.js?v=28';
+import { shiftsText, hoursFor } from './calc.js?v=28';
+import { esc } from './ui.js?v=28';
+import { logEvent } from './zlog.js?v=28';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -57,6 +57,8 @@ function est(d) {
 }
 const roomOf = (e, key) => e.rooms.find((r) => r.key === key);
 
+// Объём изменён и не сохранён «ОК» — жёлтая кромка у поля.
+const qtyChanged = (r, id) => r.status !== 'saved' && (r.svcs.find((x) => x.id === id) || {}).qty !== ((r.snap || {})[id] ?? 0);
 export function roomTotals(r) {
   const lines = r.svcs.map((x) => {
     const s = svcInfo(x.id);
@@ -138,11 +140,11 @@ function servicesView(e, r) {
     </section>`;
 }
 
-function svcCard(l, locked) {
+function svcCard(l, locked, changed = false) {
   return `<div class="o-card">
     <div class="o-card__head"><span>${esc(l.name)}</span><small data-o-hours="${l.id}">${l.qty ? shiftsText(l.hours) : ''}</small></div>
     <div class="o-card__row">
-      <label class="o-qty${locked ? ' is-locked' : ''}"><input inputmode="decimal" value="${l.qty ? esc(numTxt(l.qty)) : ''}" placeholder="—" ${locked ? 'readonly' : ''} data-live="o-qty" data-id="${l.id}" aria-label="${esc(l.name)}, м²"/><span>м²</span></label>
+      <label class="o-qty${locked ? ' is-locked' : ''}${changed ? ' is-changed' : ''}"><input inputmode="decimal" value="${l.qty ? esc(numTxt(l.qty)) : ''}" placeholder="—" ${locked ? 'readonly' : ''} data-live="o-qty" data-id="${l.id}" aria-label="${esc(l.name)}, м²"/><span>м²</span></label>
       <span class="o-x">×</span><span class="o-price">${fmt(l.price)} ₽/м²</span>
       <b class="o-sum" data-o-sum="${l.id}">${l.qty ? `= ${fmt(l.sum)} ₽` : ''}</b>
     </div>
@@ -157,7 +159,7 @@ function volumesView(e, r) {
   return `${carousel(e, roomTabs(r))}
     <section class="f-plate o-room f-fill">
       <div class="o-room__bar">${status}</div>
-      ${t.lines.map((l) => svcCard(l, locked)).join('')}
+      ${t.lines.map((l) => svcCard(l, locked, qtyChanged(r, l.id))).join('')}
     </section>
     <section class="o-card o-total" id="o-room-total" ${filled ? '' : 'hidden'}>
       <div class="o-card__head"><span>Итог комнаты</span></div>
@@ -280,6 +282,7 @@ export function onLiveEstimate(el) {
   const v = parseFloat(String(el.value).replace(',', '.').replace(/\s/g, ''));
   x.qty = Number.isFinite(v) && v > 0 ? Math.round(v * 100) / 100 : 0;
   S.save();
+  const qbox = el.closest('.o-qty'); if (qbox) qbox.classList.toggle('is-changed', qtyChanged(r, x.id));
   const t = roomTotals(r);
   t.lines.forEach((l) => {
     const sum = document.querySelector(`[data-o-sum="${l.id}"]`); if (sum) sum.textContent = l.qty ? `= ${fmt(l.sum)} ₽` : '';
@@ -296,6 +299,7 @@ actions['o-ok'] = () => {
   const e = D(); const r = roomOf(e, e.view);
   if (r.status === 'saved') return;
   r.status = 'saved';
+  r.snap = Object.fromEntries(r.svcs.map((x) => [x.id, x.qty]));
   { const t = roomTotals(r); logEvent(S.get().oformit[S.me().id], 'Сохранена оценка комнаты', `${r.name}: ${fmt(t.total)} ₽ · ${shiftsText(t.hours)}`); }
   // ОК → следующая комната; после последней — Итог.
   const i = e.rooms.indexOf(r);

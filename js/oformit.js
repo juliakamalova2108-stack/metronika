@@ -1,14 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=25';
-import * as S from './store.js?v=25';
-import { CHANNELS } from './seed.js?v=25';
-import { esc } from './ui.js?v=25';
-import { logEvent } from './zlog.js?v=25';
+import { actions, rerender, go } from './core.js?v=28';
+import * as S from './store.js?v=28';
+import { CHANNELS } from './seed.js?v=28';
+import { esc } from './ui.js?v=28';
+import { logEvent } from './zlog.js?v=28';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=28';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=25';
-import { renderSchedule, scheduleState } from './grafik.js?v=25';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=28';
+import { renderSchedule, scheduleState } from './grafik.js?v=28';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -42,12 +43,12 @@ function partners() {
 }
 const partnerName = (id) => (id === 'self' ? 'Самостоятельно' : (S.user(id) || {}).name || 'Самостоятельно');
 
-export function selectField(key, label, value, options, locked) {
+export function selectField(key, label, value, options, locked, st = {}) {
   if (open === key && !locked) {
     const n = options.length;
     const thumb = n > 4 ? `<span class="f-scroll"><i style="height:${(188 * 4) / n}px;top:0" data-thumb="${key}"></i></span>` : '';
     return `<div class="f-field"><span class="f-field__label">${esc(label)}</span>
-      <div class="f-select">
+      <div class="f-select${fcls(st.changed, st.err)}">
         <button type="button" class="f-select__head" data-action="f-toggle" data-key="${key}" aria-expanded="true"><span>${esc(value)}</span><span class="f-icon-btn is-up">${CHEVRON}</span></button>
         <div class="f-select__list"><div class="f-select__win" data-scroll="${key}" role="listbox" aria-label="${esc(label)}">
           ${options.map((o) => `<button type="button" class="f-option${o.label === value ? ' is-on' : ''}" role="option" aria-selected="${o.label === value}" data-action="f-pick" data-key="${key}" data-value="${esc(o.value)}">${esc(o.label)}</button>`).join('')}
@@ -55,25 +56,29 @@ export function selectField(key, label, value, options, locked) {
       </div></div>`;
   }
   return `<div class="f-field"><span class="f-field__label">${esc(label)}</span>
-    <div class="f-input f-input--list" data-action="${locked ? '' : 'f-toggle'}" data-key="${key}" role="button" aria-haspopup="listbox" aria-expanded="false" tabindex="0">
+    <div class="f-input f-input--list${fcls(st.changed, st.err)}" data-action="${locked ? '' : 'f-toggle'}" data-key="${key}" role="button" aria-haspopup="listbox" aria-expanded="false" tabindex="0">
       <span class="f-input__value">${esc(value)}</span><span class="f-icon-btn">${CHEVRON}</span>
-    </div></div>`;
+    </div>${ferr(st.err)}</div>`;
 }
 
+const CH_DEFAULT = { source: 'Авито', partner: 'self', url: '', pct: 0 };
+const chSnap = (d) => d.chSnap || CH_DEFAULT;
+const chChanged = (d, k) => d.editing && String(d.channel[k]) !== String(chSnap(d)[k]);
 function channelPlate(d) {
   const c = d.channel;
+  const err = d.chErr || {};
   const locked = !d.editing;
   // Пока форма правится и не сохранена — один статус «редактирование» (жёлтый), без «не сохранено».
   const reEdit = d.dirty || (d.saved && d.editing);
   const statusHtml = reEdit ? '<span class="f-status f-status--warn"><i></i>редактирование</span>'
     : d.saved ? '<span class="f-status f-status--ok"><i></i>сохранено</span>' : '';
   return `<i class="f-one" hidden></i><section class="f-plate f-fill" aria-label="Канал">
-    ${selectField('source', 'Источник заявки', c.source, SOURCES.map((s) => ({ value: s, label: s })), locked)}
-    ${selectField('partner', 'Партнёр', partnerName(c.partner), [{ value: 'self', label: 'Самостоятельно' }, ...partners().map((p) => ({ value: p.id, label: p.name }))], locked)}
+    ${selectField('source', 'Источник заявки', c.source, SOURCES.map((s) => ({ value: s, label: s })), locked, { changed: chChanged(d, 'source') })}
+    ${selectField('partner', 'Партнёр', partnerName(c.partner), [{ value: 'self', label: 'Самостоятельно' }, ...partners().map((p) => ({ value: p.id, label: p.name }))], locked, { changed: chChanged(d, 'partner') })}
     <label class="f-field" for="f-url"><span class="f-field__label">Ссылка</span>
-      <span class="f-input"><input id="f-url" type="url" inputmode="url" placeholder="Вставьте ссылку" value="${esc(c.url)}" ${locked ? 'readonly' : ''} data-live="f-url"/></span></label>
+      <span class="f-input${fcls(chChanged(d, 'url'), err.url)}"><input id="f-url" type="url" inputmode="url" placeholder="Вставьте ссылку" value="${esc(c.url)}" ${locked ? 'readonly' : ''} data-live="f-url"/></span>${ferr(err.url)}</label>
     <label class="f-field" for="f-pct"><span class="f-field__label">Вознаграждение</span>
-      <span class="f-input"><input id="f-pct" inputmode="decimal" value="${esc(String(c.pct).replace('.', ','))} %" ${locked ? 'readonly' : ''} data-live="f-pct"/></span></label>
+      <span class="f-input${fcls(chChanged(d, 'pct'), err.pct)}"><input id="f-pct" inputmode="decimal" value="${esc(String(c.pct).replace('.', ','))} %" ${locked ? 'readonly' : ''} data-live="f-pct"/></span>${ferr(err.pct)}</label>
     <div class="f-btn-row">
       <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="f-save">${locked ? 'Сохранено' : 'Сохранить'}</button>
       <button type="button" class="f-btn${reEdit ? ' f-btn--editing' : ''}" data-action="f-edit" aria-pressed="${reEdit}">Редактировать</button>
@@ -141,6 +146,7 @@ actions['f-pick'] = (el) => {
   const k = el.dataset.key === 'source' ? 'source' : 'partner';
   if (pickers[el.dataset.key]) { open = ''; pickers[el.dataset.key](el.dataset.value, d); S.save(); rerender(); return; }
   if (d.channel[k] !== el.dataset.value) { d.channel[k] = el.dataset.value; d.dirty = true; }
+  if (k === 'partner' && d.chErr) delete d.chErr.pct;
   open = '';
   S.save();
   rerender();
@@ -148,6 +154,12 @@ actions['f-pick'] = (el) => {
 actions['f-save'] = () => {
   const d = draft();
   if (!d.editing && !d.dirty) return;
+  const c = d.channel; const err = {};
+  if (c.url && !/^(https?:\/\/)?[^\s.]+\.[^\s]{2,}/i.test(c.url)) err.url = 'Похоже, это не ссылка';
+  if (c.partner !== 'self' && !(c.pct > 0)) err.pct = 'Укажите процент партнёру';
+  d.chErr = err;
+  if (Object.keys(err).length) { open = ''; S.save(); rerender(); showErrors(); return; }
+  d.chSnap = { ...c };
   d.saved = true; d.dirty = false; d.editing = false; open = '';
   logEvent(d, 'Сохранён канал', `${d.channel.source}${d.channel.partner !== 'self' ? ' · ' + partnerName(d.channel.partner) + ' · ' + d.channel.pct + ' %' : ''}`);
   S.save(); rerender();
@@ -165,6 +177,9 @@ export function onLiveOformit(el) {
     const v = parseFloat(raw);
     d.channel.pct = Number.isFinite(v) ? Math.min(100, v) : 0;
   }
+  const field = k === 'f-url' ? 'url' : 'pct';
+  if (d.chErr) delete d.chErr[field];
+  liveMark(el, chChanged(d, field));
   const pos = el.selectionStart;
   if (markDirty(d)) {
     const again = document.getElementById(el.id);
@@ -185,7 +200,7 @@ document.addEventListener('scroll', (ev) => {
 }, true);
 
 // «%» дописывается к числу: при фокусе убираем, при уходе возвращаем.
-document.addEventListener('focusin', (ev) => { if (ev.target.id === 'f-pct' && !ev.target.readOnly) ev.target.value = ev.target.value.replace(/\s*%$/, ''); });
+document.addEventListener('focusin', (ev) => { if (ev.target.id !== 'f-pct' || ev.target.readOnly) return; ev.target.value = ev.target.value.replace(/\s*%$/, ''); if (ev.target.value === '0') ev.target.value = ''; });
 document.addEventListener('focusout', (ev) => { if (ev.target.id === 'f-pct') ev.target.value = `${ev.target.value.replace(/\s*%$/, '') || '0'} %`; });
 
 // Карусель комнат листается свайпом по всему экрану (кроме верхней и нижней навигации):
