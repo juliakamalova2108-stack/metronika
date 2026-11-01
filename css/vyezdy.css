@@ -766,3 +766,5 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .bd-steps i.on { width: 62px; height: 18px; border-radius: 9px; background: rgba(237, 242, 232, 0.14); border: 1px solid rgba(237, 242, 232, 0.55); display: grid; place-items: center; font: 600 10px/1 var(--font-body); color: #edf2e8; }
 .bd-steps b { flex: 1; height: 1px; background: rgba(255, 255, 255, 0.12); } .bd-steps b.past { background: rgba(237, 242, 232, 0.35); } .bd-steps b.bd-gap { background: none; }
 .bd-empty { margin: 20px 0; text-align: center; font: 400 14px/20px var(--font-body); color: rgba(237, 242, 232, 0.6); }
+/* Нижняя навигация плотная: светлые элементы (листки дат) под ней не просвечивают. */
+.f-nav { background: linear-gradient(180deg, rgba(30, 48, 50, 0.97), rgba(20, 36, 38, 0.99)); }
