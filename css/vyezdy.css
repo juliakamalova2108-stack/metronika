@@ -810,3 +810,6 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .bd-more__i { display: flex; justify-content: space-between; align-items: center; height: 44px; padding: 0 4px; border: 0; border-top: 0.5px solid rgba(191, 214, 204, 0.16); background: none; color: #edf2e8; font: 500 15px/20px var(--font-body); cursor: pointer; }
 .bd-more__i:first-child { border-top: 0; }
 .bd-more__i svg { width: 14px; height: 14px; transform: rotate(-90deg); opacity: 0.7; }
+.bd-line--sum { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: baseline; }
+.bd-line--sum small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bd-line--sum em { font-style: normal; font: 700 14px/18px var(--font-num); color: #edf2e8; }

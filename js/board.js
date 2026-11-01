@@ -3,12 +3,13 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=76';
-import * as S from './store.js?v=76';
-import { renderOformit, oformitDraft } from './oformit.js?v=76';
-import { roomTotals, svcInfo } from './ocenka.js?v=76';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=76';
-import { esc, toast } from './ui.js?v=76';
+import { actions, rerender, go } from './core.js?v=77';
+import * as S from './store.js?v=77';
+import { renderOformit, oformitDraft } from './oformit.js?v=77';
+import { roomTotals, svcInfo } from './ocenka.js?v=77';
+import { smetaTotals } from './zakaz.js?v=77';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=77';
+import { esc, toast } from './ui.js?v=77';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -116,6 +117,11 @@ function seedOrder(no) {
     cl, est: { rooms, view: rooms[0].key, floor: 1, confirm: null },
     sched: { mode: 'rooms', sel: '', picks: [], place, measure: '', month: `${d0.getFullYear()}-${pad(d0.getMonth() + 1)}`, status: 'saved', dirty: false },
   };
+  // Что ещё есть в примерных заказах (показывается в сводке только то, что заполнено).
+  const o = st.oformit[key];
+  if (no === '007') o.mat = { view: '', scans: 1, rooms: { [rooms[0].key]: { items: [], panel: '', tab: 'added', res: null, note: 'Передал продавец магазина «Обои+»', added: { brand: 'Erismann', type: 'Обои флиз. 106 см' } } } };
+  if (no === '014') o.sm = { view: '', rooms: { [rooms[0].key]: { sameH: true, h: 2.7, sameSvc: true, dlg: null, walls: [4.2, 3.6, 4.2, 3.6].map((len, i) => ({ len, h: 2.7, opens: i === 1 ? [{ name: 'Окно', area: 2.1 }] : i === 3 ? [{ name: 'Дверь', area: 1.8 }] : [], svcs: ['prime', 'paste-flizelin'] })) } } };
+  if (no === '004') { o.fin = { pays: [{ kind: 'Аванс', amount: 5000, date: iso(-2), method: 'Перевод' }], exps: [] }; o.chat = [{ who: 'client', text: 'Можно начать в 9:30? Буду дома с 9:20.', at: new Date().toISOString() }]; }
   S.save();
 }
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -163,7 +169,19 @@ export function renderBoardOrder(no) {
   const sched = block('Дни работ', no, 'schedule', days.length ? `<div class="bd-days">${days.map((x, i) => `<div class="bd-day"><span class="bd-day__d"><b>${x.date.getDate()}</b><small>${WD[x.date.getDay()]}</small></span><span class="bd-day__r">${x.parts.map((p) => `<span class="bd-room" style="--c:${p.r.color}">${esc(p.r.name)}${p.h < SHIFT_HOURS - 1e-6 ? `<small>${Math.round(p.h)} ч</small>` : ''}</span>`).join('')}</span><span class="bd-day__n">${i + 1}-й день</span></div>`).join('')}</div>` : '<p class="bd-note">Даты не назначены</p>');
   const sum = block('Итог', no, '', `<div class="bd-total"><div><small>Стоимость</small><b>${fmt(tot.sum)} ₽</b></div><div><small>Срок</small><b>${shiftsText(tot.h)}</b></div></div><p class="bd-range">${range}</p>`);
   const chan = block('Откуда заказ', no, 'channel', `<p class="bd-line"><b>${esc(d.channel ? d.channel.source : '')}</b><small>${d.channel && d.channel.partner !== 'self' ? 'через партнёра' : 'самостоятельно'}</small></p>`);
-  const more = `<section class="f-plate bd-block"><div class="bd-block__hd"><span>Ещё по заказу</span></div><div class="bd-more">${[['material', 'Материал'], ['smeta', 'Смета'], ['chat', 'Чат'], ['tasks', 'Задачи'], ['finance', 'Финансы'], ['history', 'История']].map(([k, t]) => `<button type="button" class="bd-more__i" data-action="bd-edit" data-no="${no}" data-tab="${k}"><span>${t}</span>${CHEV}</button>`).join('')}</div></section>`;
+  // Остальные разделы — только если в них что-то есть (материал от продавца, смета с замера, оплаты, чат, задачи).
+  const extra = [];
+  const matRooms = d.mat ? Object.entries(d.mat.rooms || {}).filter(([, r]) => r.added) : [];
+  if (matRooms.length) extra.push(block('Материал', no, 'material', matRooms.map(([k, r]) => { const room = rooms.find((x) => x.key === k); return `<p class="bd-line"><b>${esc(r.added.brand)}</b><small>${esc(r.added.type)}${room ? ' · ' + esc(room.name) : ''}</small></p>${r.note ? `<p class="bd-note">${esc(r.note)}</p>` : ''}`; }).join('')));
+  const smt = d.sm ? smetaTotals(d) : null;
+  if (smt && smt.total) extra.push(block('Смета', no, 'smeta', `${smt.rooms.filter((x) => x.total).map((x) => `<p class="bd-line bd-line--sum"><b>${esc(x.room.name)}</b><small>${x.lines.map((l) => `${esc(l.name.split(' ')[0])} ${String(Math.round(l.qty * 10) / 10).replace('.', ',')} м²`).join(' · ')}</small><em>${fmt(x.total)} ₽</em></p>`).join('')}<p class="bd-range">Итого по смете: ${fmt(smt.total)} ₽</p>`));
+  const pays = d.fin ? d.fin.pays.reduce((a, x) => a + x.amount, 0) : 0;
+  const exps = d.fin ? d.fin.exps.reduce((a, x) => a + x.amount, 0) : 0;
+  if (pays || exps) extra.push(block('Финансы', no, 'finance', `<div class="bd-total"><div><small>Получено</small><b>${fmt(pays)} ₽</b></div><div><small>Остаток</small><b>${fmt(Math.max(0, tot.sum - pays))} ₽</b></div></div>${exps ? `<p class="bd-range">Расходы: ${fmt(exps)} ₽</p>` : ''}`));
+  const openTasks = (d.tasks || []).filter((t) => !t.done);
+  if (openTasks.length) extra.push(block('Задачи', no, 'tasks', openTasks.slice(0, 3).map((t) => `<p class="bd-line"><b>${esc(t.text)}</b>${t.due ? `<small>до ${esc(t.due)}</small>` : ''}</p>`).join('')));
+  if ((d.chat || []).length) { const m = d.chat[d.chat.length - 1]; extra.push(block('Чат', no, 'chat', `<p class="bd-note">«${esc(m.text)}»</p><p class="bd-range">${d.chat.length} ${d.chat.length === 1 ? 'сообщение' : 'сообщения'}</p>`)); }
+  const more = extra.join('');
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${head}${client}${est}${sched}${sum}${chan}${more}
     <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button><div class="f-topnav f-botnav"><div class="f-topnav__track" role="tablist"><button type="button" class="f-tab" data-action="bd-back">← Заказы</button><button type="button" class="f-tab is-active">Заказ №${no}</button></div></div></nav>`;
 }
