@@ -1,14 +1,14 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=11';
-import * as S from './store.js?v=11';
-import { CHANNELS } from './seed.js?v=11';
-import { esc } from './ui.js?v=11';
-import { logEvent } from './zlog.js?v=11';
+import { actions, rerender, go } from './core.js?v=12';
+import * as S from './store.js?v=12';
+import { CHANNELS } from './seed.js?v=12';
+import { esc } from './ui.js?v=12';
+import { logEvent } from './zlog.js?v=12';
 export { logEvent };
-import { renderEstimate, estimateDirty, onLiveEstimate } from './ocenka.js?v=11';
-import { renderSchedule, scheduleDirty } from './grafik.js?v=11';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=12';
+import { renderSchedule, scheduleState } from './grafik.js?v=12';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -97,7 +97,7 @@ export function setOpen(v) { open = v; }
 export { draft as oformitDraft };
 
 const sections = Object.create(null);
-export function registerSection(key, render, dirty) { sections[key] = { render, dirty }; }
+export function registerSection(key, render, state) { sections[key] = { render, state }; }
 
 export function renderOformit(mode = 'oformit') {
   const d = draft();
@@ -107,9 +107,15 @@ export function renderOformit(mode = 'oformit') {
     : tab === 'estimate' ? renderEstimate(d)
       : tab === 'schedule' ? renderSchedule(d)
         : sections[tab].render(d);
-  const dot = (k) => (k === 'channel' && d.dirty) || (k === 'estimate' && estimateDirty(d)) || (k === 'schedule' && scheduleDirty(d)) || (!!sections[k] && !!sections[k].dirty && sections[k].dirty(d));
+  // Точка у вкладки — как статус в карточке: жёлтая «редактирование», зелёная «сохранено».
+  const stateOf = (k) => {
+    if (k === 'channel') return d.dirty || (d.saved && d.editing) ? 'warn' : d.saved ? 'ok' : '';
+    if (k === 'estimate') return estimateState(d);
+    if (k === 'schedule') return scheduleState(d);
+    return sections[k] && sections[k].state ? sections[k].state(d) : '';
+  };
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
-    <div class="f-topnav"><div class="f-topnav__track" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="f-tab${k === tab ? ' is-active' : ''}" data-action="f-tab" data-tab="${k}">${t}${dot(k) ? '<i class="f-tab__dot" aria-label="редактирование"></i>' : ''}</button>`).join('')}</div></div>
+    <div class="f-topnav"><div class="f-topnav__track" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="f-tab${k === tab ? ' is-active' : ''}" data-action="f-tab" data-tab="${k}">${t}${((st) => (st ? `<i class="f-tab__dot${st === 'ok' ? ' f-tab__dot--ok' : ''}" aria-label="${st === 'ok' ? 'сохранено' : 'редактирование'}"></i>` : ''))(stateOf(k))}</button>`).join('')}</div></div>
     ${body}
     ${nav()}`;
 }

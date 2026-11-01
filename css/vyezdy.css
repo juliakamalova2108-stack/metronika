@@ -29,6 +29,7 @@ body.fig .view { position: relative; z-index: 1; padding: 16px 16px 100px; displ
 .f-tab.is-active { font-weight: 700; color: #edf2e5; }
 .f-tab.is-active::after { content: ''; position: absolute; left: 0; right: 0; top: 41px; height: 2px; border-radius: 1px; background: #d6e5c2; }
 .f-tab__dot { position: absolute; right: -8px; top: 9px; width: 6px; height: 6px; border-radius: 50%; background: #ffc247; box-shadow: 0 0 4px rgba(255, 194, 71, 0.6); }
+.f-tab__dot--ok { background: #38ff73; box-shadow: 0 0 4px rgba(56, 255, 115, 0.6); }
 
 /* Пластина */
 .f-plate {
@@ -107,10 +108,12 @@ body.fig .view { position: relative; z-index: 1; padding: 16px 16px 100px; displ
   font: 500 14px/16px var(--font-body); color: #edf0e7; white-space: nowrap;
   box-shadow: 0 4px 7px rgba(4, 13, 15, 0.16), 0 2px 2.5px rgba(1, 6, 9, 0.27), inset 0 -2px 2px rgba(6, 18, 20, 0.34), inset 0 1px 1px rgba(224, 242, 227, 0.36);
 }
-.f-btn::after { content: ''; position: absolute; left: 5px; right: 5px; bottom: -1px; height: 2.2px; border-radius: 1.1px; background: rgba(9, 18, 19, 0.9); }
+.f-btn { overflow: hidden; }
+/* Индикатор кнопки: тонкая полоска внутри кнопки, не выходит за её края. */
+.f-btn::after { content: ''; position: absolute; left: 8px; right: 8px; bottom: 3px; height: 1.5px; border-radius: 1px; background: rgba(9, 18, 19, 0.9); }
 .f-btn--lit::after { background: linear-gradient(90deg, #9eb57d, #e6f2cc 40%, #deedc2 60%, #b0c78c); box-shadow: inset 0 0.3px 0.5px rgba(250, 255, 230, 0.38); }
 /* Индикатор «Сохранено»: x=6, y=38,5, 149×3 внутри кнопки 42 — не выходит за край. */
-.f-btn--saved::after { bottom: 0; height: 3px; border-radius: 1.5px; background: #38ff73; box-shadow: 0 0 3px rgba(51, 255, 115, 0.9), 0 0 7px rgba(51, 255, 115, 0.5); }
+.f-btn--saved::after { background: #38ff73; box-shadow: 0 0 2px rgba(51, 255, 115, 0.55); }
 .f-btn:disabled { opacity: 0.4; cursor: default; }
 
 /* Нижняя навигация */
@@ -125,7 +128,7 @@ body.fig .view { position: relative; z-index: 1; padding: 16px 16px 100px; displ
 .f-nav__tab.is-active { color: #edf0e7; }
 
 /* Индикатор «Редактирование»: как «Сохранено», только жёлтый (цвет статуса «Внимание»). */
-.f-btn--editing::after { bottom: 0; height: 3px; border-radius: 1.5px; background: #ffc247; box-shadow: 0 0 3px rgba(255, 194, 71, 0.9), 0 0 7px rgba(255, 194, 71, 0.5); }
+.f-btn--editing::after { background: #ffc247; box-shadow: 0 0 2px rgba(255, 194, 71, 0.55); }
 
 /* ================= Оценка (секция «Выезды · 02 · Оценка») ================= */
 .o-wrap { display: flex; flex-direction: column; gap: 12px; }

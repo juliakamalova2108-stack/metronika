@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=11';
-import * as S from './store.js?v=11';
-import { SHIFT_HOURS } from './calc.js?v=11';
-import { esc } from './ui.js?v=11';
-import { logEvent } from './zlog.js?v=11';
-import { estimateRooms, roomTotals } from './ocenka.js?v=11';
+import { actions, rerender } from './core.js?v=12';
+import * as S from './store.js?v=12';
+import { SHIFT_HOURS } from './calc.js?v=12';
+import { esc } from './ui.js?v=12';
+import { logEvent } from './zlog.js?v=12';
+import { estimateRooms, roomTotals } from './ocenka.js?v=12';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -21,6 +21,7 @@ function sch(d) {
   if (!d.sched) { const t = new Date(); d.sched = { mode: 'rooms', sel: '', place: {}, measure: '', month: `${t.getFullYear()}-${p2(t.getMonth() + 1)}`, status: 'new', dirty: false }; }
   return d.sched;
 }
+export function scheduleState(d) { if (!d.sched) return ''; return scheduleDirty(d) ? 'warn' : d.sched.status === 'saved' ? 'ok' : ''; }
 export function scheduleDirty(d) { return !!d.sched && (d.sched.dirty || d.sched.status === 'editing'); }
 
 // Дни работы комнаты: полные смены и остаток; стоимость дня — доля от стоимости комнаты.

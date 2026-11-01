@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=11';
-import * as S from './store.js?v=11';
-import { SYSTEM_PRICE } from './seed.js?v=11';
-import { shiftsText, hoursFor } from './calc.js?v=11';
-import { esc } from './ui.js?v=11';
-import { logEvent } from './zlog.js?v=11';
+import { actions, rerender } from './core.js?v=12';
+import * as S from './store.js?v=12';
+import { SYSTEM_PRICE } from './seed.js?v=12';
+import { shiftsText, hoursFor } from './calc.js?v=12';
+import { esc } from './ui.js?v=12';
+import { logEvent } from './zlog.js?v=12';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -64,6 +64,11 @@ export function roomTotals(r) {
     return { ...s, qty: x.qty || 0, sum, hours: hoursFor(x.qty || 0, s.norm) };
   });
   return { lines, total: lines.reduce((a, l) => a + l.sum, 0), hours: lines.reduce((a, l) => a + l.hours, 0) };
+}
+export function estimateState(d) {
+  const e = d.est; if (!e || !e.rooms.length) return '';
+  if (estimateDirty(d)) return 'warn';
+  return e.rooms.every((r) => r.status === 'saved') ? 'ok' : '';
 }
 export function estimateDirty(d) { const e = d.est; return !!e && e.rooms.some((r) => r.status === 'editing' || (r.status === 'new' && r.svcs.length)); }
 export function estimateRooms(d) { return (d.est && d.est.rooms) || []; }
