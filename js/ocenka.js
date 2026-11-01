@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=75';
-import * as S from './store.js?v=75';
-import { SYSTEM_PRICE } from './seed.js?v=75';
-import { shiftsText, hoursFor } from './calc.js?v=75';
-import { esc, toast } from './ui.js?v=75';
-import { logEvent } from './zlog.js?v=75';
+import { actions, rerender } from './core.js?v=76';
+import * as S from './store.js?v=76';
+import { SYSTEM_PRICE } from './seed.js?v=76';
+import { shiftsText, hoursFor } from './calc.js?v=76';
+import { esc, toast } from './ui.js?v=76';
+import { logEvent } from './zlog.js?v=76';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -391,6 +391,7 @@ actions['o-ok'] = () => {
   // ни на следующую комнату, ни в «Итог»: мастер листает сам.
   showNote(`<b class="o-note-big__ok">✓ ${esc(r.name)} сохранена</b>`);
   save();
+  document.dispatchEvent(new CustomEvent('section-saved', { detail: 'estimate' }));
   setTimeout(hideNote, 1000);
 };
 actions['o-edit'] = () => { const e = D(); const r = roomOf(e, e.view); if (r.status === 'saved') { r.status = 'editing'; save(); } };

@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=75';
-import * as S from './store.js?v=75';
-import { CHANNELS } from './seed.js?v=75';
-import { esc } from './ui.js?v=75';
-import { logEvent } from './zlog.js?v=75';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=75';
+import { actions, rerender, go } from './core.js?v=76';
+import * as S from './store.js?v=76';
+import { CHANNELS } from './seed.js?v=76';
+import { esc } from './ui.js?v=76';
+import { logEvent } from './zlog.js?v=76';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=76';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=75';
-import { renderSchedule, scheduleState } from './grafik.js?v=75';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=76';
+import { renderSchedule, scheduleState } from './grafik.js?v=76';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -166,6 +166,7 @@ actions['f-save'] = () => {
   if (Object.keys(err).length) { open = ''; S.save(); rerender(); showErrors(); return; }
   d.chSnap = { ...c };
   d.saved = true; d.dirty = false; d.editing = false; open = '';
+  setTimeout(() => document.dispatchEvent(new CustomEvent('section-saved', { detail: 'channel' })), 0);
   logEvent(d, 'Сохранён канал', `${d.channel.source}${d.channel.partner !== 'self' ? ' · ' + partnerName(d.channel.partner) + ' · ' + d.channel.pct + ' %' : ''}`);
   S.save(); rerender();
 };

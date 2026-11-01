@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=75';
-import * as S from './store.js?v=75';
-import { SHIFT_HOURS } from './calc.js?v=75';
-import { esc, toast } from './ui.js?v=75';
-import { logEvent } from './zlog.js?v=75';
-import { estimateRooms, roomTotals } from './ocenka.js?v=75';
+import { actions, rerender } from './core.js?v=76';
+import * as S from './store.js?v=76';
+import { SHIFT_HOURS } from './calc.js?v=76';
+import { esc, toast } from './ui.js?v=76';
+import { logEvent } from './zlog.js?v=76';
+import { estimateRooms, roomTotals } from './ocenka.js?v=76';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -237,5 +237,6 @@ actions['g-ok'] = () => {
   const rooms = estimateRooms(d).filter((r) => s.place[r.key]).map((r) => `${r.name} с ${Number(s.place[r.key].slice(8))}.${s.place[r.key].slice(5, 7)}`);
   logEvent(d, 'Изменён график', [...rooms, s.measure ? `замер ${Number(s.measure.slice(8))}.${s.measure.slice(5, 7)}` : ''].filter(Boolean).join(', '));
   s.status = 'saved'; s.dirty = false; s.sel = ''; s.picks = []; save();
+  document.dispatchEvent(new CustomEvent('section-saved', { detail: 'schedule' }));
 };
 actions['g-edit'] = () => { const s = D(); if (s.status === 'saved') { s.status = 'editing'; save(); } };

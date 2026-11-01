@@ -2,16 +2,16 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=75';
-import * as S from './store.js?v=75';
-import { WALLPAPER_TYPES } from './seed.js?v=75';
-import { esc, toast } from './ui.js?v=75';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=75';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=75';
-import { country } from './phonecodes.js?v=75';
-import { suggestAddress } from './address.js?v=75';
-import { suggesters } from './kbd.js?v=75';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=75';
+import { actions, changes, rerender } from './core.js?v=76';
+import * as S from './store.js?v=76';
+import { WALLPAPER_TYPES } from './seed.js?v=76';
+import { esc, toast } from './ui.js?v=76';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=76';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=76';
+import { country } from './phonecodes.js?v=76';
+import { suggestAddress } from './address.js?v=76';
+import { suggesters } from './kbd.js?v=76';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=76';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -126,6 +126,7 @@ actions['z-cl-save'] = () => {
   c.saved = true; c.editing = false; c.dirty = false;
   logEvent(d, 'Сохранены данные клиента', 'Контакты и адрес заказа');
   save();
+  document.dispatchEvent(new CustomEvent('section-saved', { detail: 'client' }));
 };
 actions['z-cl-edit'] = () => { const c = cl(D()); if (!c.saved) return; c.editing = true; save(); };
 
