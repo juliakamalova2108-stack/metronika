@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=52';
-import * as S from './store.js?v=52';
-import { SYSTEM_PRICE } from './seed.js?v=52';
-import { shiftsText, hoursFor } from './calc.js?v=52';
-import { esc, toast } from './ui.js?v=52';
-import { logEvent } from './zlog.js?v=52';
+import { actions, rerender } from './core.js?v=53';
+import * as S from './store.js?v=53';
+import { SYSTEM_PRICE } from './seed.js?v=53';
+import { shiftsText, hoursFor } from './calc.js?v=53';
+import { esc, toast } from './ui.js?v=53';
+import { logEvent } from './zlog.js?v=53';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -179,7 +179,7 @@ function volumesView(e, r) {
       <div class="o-tiles"><div class="o-tile"><small>Стоимость</small><b id="o-room-sum">${fmt(t.total)} ₽</b></div><div class="o-tile"><small>Срок</small><b id="o-room-time">${shiftsText(t.hours)}</b></div></div>
     </section>
     <div class="f-btn-row" id="o-room-ok">
-      <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="o-ok">ОК</button>
+      <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="o-ok">${locked ? 'Сохранено' : 'Сохранить'}</button>
       ${r.status !== 'new' ? `<button type="button" class="f-btn${r.status === 'editing' ? ' f-btn--editing' : ''}" data-action="o-edit">${r.status === 'editing' ? 'Редактирование' : 'Редактировать'}</button>` : ''}
     </div>`;
 }
@@ -387,18 +387,14 @@ actions['o-ok'] = () => {
   r.status = 'saved';
   r.snap = Object.fromEntries(r.svcs.map((x) => [x.id, x.qty]));
   { const t = roomTotals(r); logEvent(S.get().oformit[S.me().id], 'Сохранена оценка комнаты', `${r.name}: ${fmt(t.total)} ₽ · ${shiftsText(t.hours)}`); }
-  // ОК → переход с сообщением (2 секунды, нажатия в это время не принимаются):
-  // 1 с — содержимое скрыто, по центру «✓ Спальня сохранена · Дальше — Гостиная»;
-  // затем шапка переезжает на следующую комнату, по центру её название — ещё 1 с; потом комната открывается.
-  const n = nextAfter(e, r);
-  transit = 1;
-  showNote(`<b class="o-note-big__ok">✓ ${esc(r.name)} сохранена</b><span>Дальше — ${esc(n.name)}</span>`);
+  // «Сохранить» → короткое сообщение «✓ Спальня сохранена» на 1 секунду, остаёмся в комнате — дальше мастер листает сам.
+  // Если сохранена последняя несохранённая комната — через эту секунду открывается «Итог».
+  const allDone = e.rooms.every((x) => x.status === 'saved');
+  showNote(`<b class="o-note-big__ok">✓ ${esc(r.name)} сохранена</b>`);
   save();
   setTimeout(() => {
-    const e2 = D(); goView(e2, n.key); transit = 2;
-    showNote(`<b>${esc(n.name)}</b>`);
-    save(); window.scrollTo(0, 0);
-    setTimeout(() => { transit = 0; reveal = true; hideNote(); rerender(); }, 1000);
+    hideNote();
+    if (allDone) { const e2 = D(); if (e2.rooms.every((x) => x.status === 'saved')) { goView(e2, 'total'); save(); window.scrollTo(0, 0); } }
   }, 1000);
 };
 actions['o-edit'] = () => { const e = D(); const r = roomOf(e, e.view); if (r.status === 'saved') { r.status = 'editing'; save(); } };

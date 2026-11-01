@@ -694,3 +694,6 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .o-same .o-tog.is-on { background: #3f8f5c; }
 .o-same.is-off .o-qty { opacity: 0.45; }
 .o-same__tog { display: flex; align-items: center; } .o-same__tog .o-tog { display: block; }
+/* Короткое сообщение «Комната сохранена» — небольшое, не мешает нажатиям. */
+.o-note-big { pointer-events: none; }
+.o-note-big__plate { min-width: 0; padding: 14px 22px; }
