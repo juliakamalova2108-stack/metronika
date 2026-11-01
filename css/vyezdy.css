@@ -638,3 +638,6 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 @keyframes oNoteIn { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
 @keyframes oFadeIn { from { opacity: 0; } to { opacity: 1; } }
 .o-reveal > :not(.o-head) { animation: oFadeIn 0.3s ease-out both; }
+/* До первого сохранения «Редактировать» нет: одиночная «Сохранить»/«ОК» — стандартной ширины (как в ряду из двух), по центру. */
+.f-btn-row:has(> .f-btn:only-child:is([data-action="o-ok"], [data-action="g-ok"], [data-action="f-save"], [data-action="z-cl-save"])) { justify-content: center; }
+.f-btn-row > .f-btn:only-child:is([data-action="o-ok"], [data-action="g-ok"], [data-action="f-save"], [data-action="z-cl-save"]) { flex: 0 0 calc(50% - 2.5px); }
