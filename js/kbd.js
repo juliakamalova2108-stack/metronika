@@ -1,4 +1,4 @@
-import { afterRender } from './core.js?v=91';
+import { afterRender } from './core.js?v=92';
 
 // Подсказки над клавишами: поле с data-suggest="имя" получает список из suggesters[имя](текст).
 // Выбор подсказки шлёт полю событие kb-pick с выбранным пунктом.
@@ -16,6 +16,10 @@ const SYM = ['1234567890', '-/:;()№"@', 'ъё?!\'+%'];
 const ICON_BS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h10a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 18H9l-5.5-6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M11.5 9.5l5 5m0-5l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 const ICON_SH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l7.5 8H15v7H9v-7H4.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
 
+const ICON_NL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6v5a3 3 0 0 1-3 3H6m0 0l4-4m-4 4l4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_HIDE = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7 8h1m3 0h1m3 0h1M8 11.5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M9 18l3 2.5 3-2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// Поле с data-kb-dock (чат): клавиатура как на телефоне — на всю ширину, прижата к низу экрана.
+const dock = (el) => !!(el && el.dataset.kbDock);
 const NUM_MODES = new Set(['tel', 'numeric', 'decimal']);
 let kb = null;        // элемент клавиатуры
 let field = null;     // id поля, которое сейчас редактируется
@@ -103,7 +107,7 @@ function build(el) {
       ${el.dataset.kbMode === 'url' ? '<button type="button" class="kb__k kb__k--fn kb__w" data-k="paste">Вставить</button>' : '<button type="button" class="kb__k" data-k=",">,</button>'}
       <button type="button" class="kb__k kb__space" data-k=" " aria-label="Пробел"></button>
       <button type="button" class="kb__k" data-k=".">.</button>
-      <button type="button" class="kb__k kb__ok kb__w" data-k="ok">ОК</button>
+      ${dock(el) ? `<button type="button" class="kb__k kb__k--fn" data-k="nl" aria-label="Новая строка">${ICON_NL}</button><button type="button" class="kb__k kb__k--fn kb__w" data-k="ok" aria-label="Скрыть клавиатуру">${ICON_HIDE}</button>` : '<button type="button" class="kb__k kb__ok kb__w" data-k="ok">ОК</button>'}
     </div>`;
 }
 
@@ -122,6 +126,8 @@ function draw() {
     document.body.appendChild(kb);
   }
   kb.classList.toggle('kb--num', el.dataset.kb === 'num');
+  kb.classList.toggle('kb--dock', dock(el));
+  document.body.classList.toggle('kb-docked', dock(el));
   kb.innerHTML = build(el);
   place();
 }
@@ -130,6 +136,14 @@ function draw() {
 function place() {
   const el = cur();
   if (!kb || !el) return;
+  if (dock(el)) {
+    kb.style.left = '0px'; kb.style.width = '100%';
+    const vh0 = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    kb.style.top = `${vh0 - kb.offsetHeight}px`;
+    document.body.style.setProperty('--kbh', `${kb.offsetHeight}px`);
+    document.dispatchEvent(new Event('kb-dock'));
+    return;
+  }
   const box = (el.closest('.f-input') || el).getBoundingClientRect();
   const plate = (el.closest('.f-plate, .o-card, section') || el).getBoundingClientRect();
   const vw = window.innerWidth; const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
@@ -161,7 +175,7 @@ function open(el) {
     // Набор всегда идёт с конца поля (куда бы ни ткнули пальцем): «стереть» убирает последнюю цифру.
     try { const n = el.value.length; el.setSelectionRange(n, n); } catch (e) { /* поле без выделения */ }
     autoShift(el);
-  }
+  } else if (!el.value) autoShift(el); // поле очистили (сообщение отправлено) — снова с заглавной
   setActive(true);
   draw();
 }
@@ -170,13 +184,14 @@ function close() {
   field = null;
   setActive(false);
   if (kb) { kb.remove(); kb = null; }
+  if (document.body.classList.contains('kb-docked')) { document.body.classList.remove('kb-docked'); document.dispatchEvent(new Event('kb-dock')); }
 }
 
 // Имя, улица, комментарий начинаются с заглавной.
 function autoShift(el) {
   if (el.dataset.kb !== 'ru' || layer !== 'ru') return;
   const before = el.value.slice(0, el.selectionStart ?? el.value.length);
-  shift = before.trim() === '' || /[.!?]\s$/.test(before);
+  shift = before.trim() === '' || /[.!?]\s$/.test(before) || /\n$/.test(before);
 }
 
 function type(text) {
@@ -218,6 +233,7 @@ function onKey(ev) {
   const el = cur();
   if (!el) return close();
   if (k === 'ok') return ok();
+  if (k === 'nl') { type('\n'); shift = false; autoShift(cur() || el); return draw(); }
   if (k === 'bs') { type(null); autoShift(cur() || el); return draw(); }
   if (k === 'sug') {
     const item = sugList[Number(b.dataset.i)];

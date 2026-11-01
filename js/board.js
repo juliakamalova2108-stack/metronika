@@ -3,13 +3,13 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=91';
-import * as S from './store.js?v=91';
-import { renderOformit, oformitDraft } from './oformit.js?v=91';
-import { roomTotals, svcInfo } from './ocenka.js?v=91';
-import { smetaTotals } from './zakaz.js?v=91';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=91';
-import { esc, toast } from './ui.js?v=91';
+import { actions, rerender, go } from './core.js?v=92';
+import * as S from './store.js?v=92';
+import { renderOformit, oformitDraft } from './oformit.js?v=92';
+import { roomTotals, svcInfo } from './ocenka.js?v=92';
+import { smetaTotals } from './zakaz.js?v=92';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=92';
+import { esc, toast } from './ui.js?v=92';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -320,7 +320,7 @@ function renderBoardChat(no) {
     <section class="f-plate ch-head"><div class="ch-head__row"><p class="ch-t">Чат заказа</p><button type="button" class="ch-pbtn" data-action="ch-parts">Участники · ${parts.length + 1}</button></div>
       ${parts.length ? `<div class="ch-tiles">${tile('Вы', 'Мастер')}${parts.map(([, n, r]) => tile(n.split(' ')[0], r)).join('')}</div>` : '<p class="ch-x">Заказ вы ведёте один — других участников нет. Сообщения увидите только вы.</p>'}</section>
     <div class="ch-feed">${msgs || '<p class="ch-empty">Сообщений пока нет</p>'}</div>
-    <div class="ch-input"><button type="button" class="f-icon-btn ch-clip" aria-label="Прикрепить">${CLIP}</button><span class="f-input ch-field"><textarea id="ch-text" rows="1" placeholder="Сообщение"></textarea></span><button type="button" class="f-icon-btn ch-send" data-action="ch-send" data-no="${no}" aria-label="Отправить">${SEND}</button></div>
+    <div class="ch-input"><button type="button" class="f-icon-btn ch-clip" aria-label="Прикрепить">${CLIP}</button><span class="f-input ch-field"><textarea id="ch-text" rows="1" placeholder="Сообщение" data-kb-dock="1"></textarea></span><button type="button" class="f-icon-btn ch-send" data-action="ch-send" data-no="${no}" aria-label="Отправить">${SEND}</button></div>
     ${nav}`;
 }
 // Поле сообщения растёт вместе с текстом (до 6 строк, дальше прокрутка внутри), как в Telegram.
@@ -328,15 +328,22 @@ function chGrow(t) {
   t.style.height = 'auto'; t.style.height = Math.max(48, Math.min(t.scrollHeight, 6 * 22 + 26)) + 'px';
   t.style.overflowY = t.scrollHeight > 6 * 22 + 26 ? 'auto' : 'hidden';
   const bar = document.querySelector('.ch-input'); const feed = document.querySelector('.ch-feed');
-  if (bar && feed) feed.style.paddingBottom = (bar.offsetHeight + 8) + 'px';
+  if (bar && feed) feed.style.paddingBottom = (window.innerHeight - bar.getBoundingClientRect().top + 8) + 'px';
 }
+// Клавиатура открылась или закрылась: участники свёрнуты на время набора, лента прокручена к последнему сообщению.
+document.addEventListener('kb-dock', () => { const t = document.getElementById('ch-text'); if (!t) return; chGrow(t); if (document.body.classList.contains('kb-docked')) window.scrollTo(0, document.body.scrollHeight); });
+// Кнопки строки ввода не забирают фокус у поля: после «Отправить» клавиатура остаётся открытой.
+document.addEventListener('pointerdown', (e) => { if (e.target.closest && e.target.closest('.ch-input button') && document.body.classList.contains('kb-docked')) e.preventDefault(); }, true);
+document.addEventListener('mousedown', (e) => { if (e.target.closest && e.target.closest('.ch-input button') && document.body.classList.contains('kb-docked')) e.preventDefault(); }, true);
 document.addEventListener('input', (e) => { if (e.target && e.target.id === 'ch-text') { const atEnd = window.innerHeight + window.scrollY >= document.body.scrollHeight - 4; chGrow(e.target); if (atEnd) window.scrollTo(0, document.body.scrollHeight); } });
 actions['ch-parts'] = () => { showParts = !showParts; rerender(); };
 actions['ch-send'] = (btn) => {
   const el = document.getElementById('ch-text'); const t = el ? el.value.trim() : '';
   if (!t) return;
   const d = oformitDraft(); d.chat = d.chat || [];
+  const keep = document.body.classList.contains('kb-docked');
   const m = { who: S.me().id, text: t, at: new Date().toISOString(), st: 'wait' }; d.chat.push(m); S.save(); rerender();
+  if (keep) { const nt = document.getElementById('ch-text'); if (nt) nt.focus({ preventScroll: true }); }
   requestAnimationFrame(() => window.scrollTo(0, document.body.scrollHeight));
   // Прототип: статус меняется сам. Если участников нет — дальше «доставлено» не идёт.
   const solo = !(PARTS[btn.dataset.no] || []).length;

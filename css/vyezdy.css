@@ -881,3 +881,15 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .ch-field textarea { display: block; height: 50px; max-height: none; padding: 14px 0; box-sizing: border-box; overflow-y: hidden; }
 .ch-field { box-sizing: border-box; }
 .ch-field textarea { height: 48px; padding: 13px 0; }
+/* ===== Клавиатура чата — как на телефоне: на всю ширину, прижата к низу ===== */
+.kb--dock { border-radius: 14px 14px 0 0; padding: 10px 4px calc(10px + env(safe-area-inset-bottom)); gap: 10px; border-bottom: 0;
+  box-shadow: 0 -8px 24px rgba(1, 9, 11, 0.5), inset 0 1px 1px rgba(232, 246, 236, 0.5); }
+.kb--dock .kb__row { gap: 5px; }
+.kb--dock .kb__k { height: 50px; font-size: 21px; border-radius: 6px; }
+.kb--dock .kb__k--fn { font-size: 15px; }
+.kb--dock .kb__k svg { width: 24px; height: 24px; }
+/* Пока клавиатура открыта: нижняя панель прячется, строка ввода стоит над клавиатурой, участники свёрнуты. */
+body.kb-docked .f-nav { display: none; }
+body.kb-docked .ch-input { bottom: var(--kbh, 0px); background: linear-gradient(180deg, rgba(22, 40, 42, 0), rgba(22, 40, 42, 0.97) 25%); }
+body.kb-docked .ch-tiles, body.kb-docked .ch-head .ch-x { display: none; }
+body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
