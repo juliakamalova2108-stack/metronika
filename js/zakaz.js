@@ -2,13 +2,14 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=33';
-import * as S from './store.js?v=33';
-import { WALLPAPER_TYPES } from './seed.js?v=33';
-import { esc, toast } from './ui.js?v=33';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=33';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=33';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=33';
+import { actions, changes, rerender } from './core.js?v=34';
+import * as S from './store.js?v=34';
+import { WALLPAPER_TYPES } from './seed.js?v=34';
+import { esc, toast } from './ui.js?v=34';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=34';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=34';
+import { country } from './phonecodes.js?v=34';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=34';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -65,6 +66,26 @@ const MINS = ['00', '15', '30', '45'];
 const CL_FIELDS = ['name', 'phone', 'street', 'house', 'entrance', 'flat', 'floor', 'hour', 'min', 'comment'];
 const clSnap = (c) => c.snap || {};
 const clCh = (c, k) => c.editing && String(c[k] || '') !== String(clSnap(c)[k] || '');
+// Телефон: код оператора выбирается из списка (по стране из настроек), остальные 7 цифр — вручную.
+const myCountry = () => country((S.me() && S.me().settings && S.me().settings.country) || 'RU');
+const restFmt = (r) => [r.slice(0, 3), r.slice(3, 5), r.slice(5, 7)].filter(Boolean).join('-');
+function phoneParts(c) {
+  if (c.pcode === undefined) { const dd = phoneDigits(c.phone); c.pcode = dd.slice(0, 3); c.prest = dd.slice(3); }
+  return { code: c.pcode || '', rest: c.prest || '' };
+}
+const phoneCompose = (c) => { c.phone = c.pcode ? phoneFormat(c.pcode + (c.prest || '')) : ''; };
+function phoneField(c, ro, e) {
+  const cn = myCountry();
+  const { code, rest } = phoneParts(c);
+  const changed = clCh(c, 'phone');
+  const opts = cn.codes.map(([k, op]) => ({ value: k, label: `${k} · ${op}` }));
+  const head = code ? `+${cn.cc} ${code}` : `+${cn.cc} код`;
+  return `<div class="f-field"><span class="f-field__label">Телефон</span>
+    <div class="z-phone">${selectField('cl-code', 'Код оператора', head, opts, ro, { changed, err: e.pcode })}
+      <span class="f-input${fcls(changed, e.phone)}"><input id="z-cl-phone" type="tel" inputmode="tel" placeholder="___-__-__" value="${esc(restFmt(rest))}" ${ro ? 'readonly' : ''} data-live="z-cl:prest"/></span></div>${ferr(e.pcode || e.phone)}</div>`;
+}
+pickers['cl-code'] = (v, d) => { const c = cl(d); phoneParts(c); c.pcode = v; phoneCompose(c); c.dirty = true; if (c.err) { delete c.err.pcode; delete c.err.phone; } };
+toggles['cl-code'] = (d) => { cl(d).dirty = true; };
 function renderClient(d) {
   const c = cl(d);
   const ro = !c.editing;
@@ -74,7 +95,7 @@ function renderClient(d) {
   const o = (k, extra = {}) => ({ live: `z-cl:${k}`, ro, changed: clCh(c, k), err: e[k], ...extra });
   return `<i class="f-one" hidden></i><section class="f-plate z-client f-fill" aria-label="Клиент"><p class="z-title">Клиент</p>${st}
     ${input('z-cl-name', 'Имя', c.name, o('name', { ph: 'Имя клиента' }))}
-    ${input('z-cl-phone', 'Телефон', c.phone, o('phone', { ph: '+7 (___) ___-__-__', mode: 'tel', type: 'tel' }))}
+    ${phoneField(c, ro, e)}
     ${input('z-cl-street', 'Улица', c.street, o('street', { ph: 'Улица' }))}
     <div class="z-grid4">${input('z-cl-house', 'Дом', c.house, o('house', { mode: 'numeric' }))}${input('z-cl-entrance', 'Подъезд', c.entrance, o('entrance', { mode: 'numeric' }))}${input('z-cl-flat', 'Кв', c.flat, o('flat', { mode: 'numeric' }))}${input('z-cl-floor', 'Этаж', c.floor, o('floor', { mode: 'numeric' }))}</div>
     <div class="f-field"><span class="f-field__label">Время приезда</span>
@@ -89,10 +110,11 @@ toggles['cl-h'] = toggles['cl-m'] = (d) => { cl(d).dirty = true; };
 actions['z-cl-save'] = () => {
   const d = D(); const c = cl(d);
   if (!c.editing) return;
-  if (c.phone) c.phone = phoneFormat(c.phone);
+  phoneParts(c); phoneCompose(c);
   const e = {};
   if (c.name.trim().length < 2) e.name = 'Введите имя';
-  if (phoneDigits(c.phone).length < 10) e.phone = c.phone ? 'Не хватает цифр: нужно 10 после +7' : 'Введите телефон';
+  if (!c.pcode) e.pcode = 'Выберите код оператора';
+  else if ((c.prest || '').length < 7) e.phone = c.prest ? 'Не хватает цифр: нужно 7 после кода' : 'Введите номер';
   if (!c.street.trim()) e.street = 'Введите улицу';
   if (!c.house.trim()) e.house = 'Дом';
   c.err = e;
@@ -468,6 +490,17 @@ function renderHistory(d) {
 export function onLiveZakaz(el) {
   const [k, f] = (el.dataset.live || '').split(':');
   const d = D();
+  if (k === 'z-cl' && f === 'prest') {
+    const c = cl(d); phoneParts(c);
+    let dd = el.value.replace(/\D/g, '');
+    // Вставили номер целиком (+7 917 123-45-67) — раскладываем на код и остальное.
+    if (dd.length >= 10) { const full = phoneDigits(el.value); c.pcode = full.slice(0, 3); dd = full.slice(3); }
+    c.prest = dd.slice(0, 7); phoneCompose(c);
+    if (c.err) { delete c.err.phone; if (c.pcode) delete c.err.pcode; }
+    el.value = restFmt(c.prest);
+    if (!c.dirty || dd.length >= 10) { c.dirty = true; S.save(); refocus(el); } else { S.save(); liveMark(el, clCh(c, 'phone')); }
+    return true;
+  }
   if (k === 'z-cl') {
     const c = cl(d); c[f] = el.value;
     if (c.err) delete c.err[f];
@@ -500,10 +533,4 @@ registerSection('tasks', renderTasks);
 registerSection('finance', renderFinance);
 registerSection('history', renderHistory);
 
-// Телефон приводится к виду +7 (999) 123-45-67 при выходе из поля: «+7» набирать не нужно.
-document.addEventListener('focusout', (ev) => {
-  if (ev.target.id !== 'z-cl-phone' || ev.target.readOnly) return;
-  const c = cl(D());
-  const f = phoneFormat(ev.target.value);
-  if (f && f !== ev.target.value) { ev.target.value = f; c.phone = f; S.save(); liveMark(ev.target, clCh(c, 'phone')); }
-});
+

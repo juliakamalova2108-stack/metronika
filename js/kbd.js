@@ -1,4 +1,4 @@
-import { afterRender } from './core.js?v=33';
+import { afterRender } from './core.js?v=34';
 
 // Своя клавиатура для экранов «Оформить заказ» и «Текущий заказ».
 // Системная клавиатура телефона не открывается (inputmode="none"); вместо неё прямо под полем
@@ -47,7 +47,7 @@ const cur = () => (field ? document.getElementById(field) : null);
 function extraKey(el) {
   const m = el.dataset.kbMode;
   if (m === 'decimal') return ',';
-  if (m === 'tel') return '+';
+  if (m === 'tel' && el.id !== 'z-cl-phone') return '+';
   if (el.id === 'z-cl-house') return '/';
   return '';
 }

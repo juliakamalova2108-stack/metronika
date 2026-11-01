@@ -1,10 +1,11 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=33';
-import * as S from './store.js?v=33';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=33';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=33';
-import { topbar, typeName } from './shared.js?v=33';
+import { actions, changes, rerender, go, val } from './core.js?v=34';
+import * as S from './store.js?v=34';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=34';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=34';
+import { topbar, typeName } from './shared.js?v=34';
+import { COUNTRIES, SOON } from './phonecodes.js?v=34';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -70,6 +71,11 @@ export function renderSettings() {
       <h2 class="plate__title">Профиль</h2>
       ${field({ id: 'set-name', label: 'Имя и фамилия', value: me.name, attrs: 'data-change="set-name"' })}
       ${kv('Телефон', esc(phoneRu(me.phone)))}<p class="small">Телефон — это логин. Сменить его можно через поддержку.</p>
+    </section>
+    <section class="plate">
+      <h2 class="plate__title">Страна</h2>
+      ${select({ id: 'set-country', label: 'Страна работы', value: st.country || 'RU', options: [...Object.entries(COUNTRIES).map(([k, c]) => ({ value: k, label: c.name })), ...SOON.map((n) => ({ value: 'soon:' + n, label: n + ' — скоро' }))], attrs: 'data-change="set-country"' })}
+      <p class="small">По стране в поле «Телефон» клиента появляется список кодов операторов. Сейчас собраны коды России.</p>
     </section>
     <section class="plate">
       <h2 class="plate__title">Уведомления</h2>
@@ -146,6 +152,10 @@ export function renderSettings() {
     ${body}`;
 }
 
+changes['set-country'] = (el) => {
+  if (el.value.startsWith('soon:')) { toast(`${el.value.slice(5)}: коды пока не собраны`); return; }
+  S.updateSettings({ country: el.value }); toast('Страна сохранена');
+};
 changes['set-name'] = (el) => { if (el.value.trim().length >= 2) { S.updateProfile({ name: el.value.trim() }); toast('Имя сохранено'); } };
 changes['set-notify'] = (el) => { S.updateSettings({ notify: { ...S.me().settings.notify, on: el.checked } }); toast(el.checked ? 'Уведомления включены' : 'Уведомления выключены'); };
 changes['set-remind'] = (el) => { S.updateSettings({ notify: { ...S.me().settings.notify, remind: el.value } }); };
