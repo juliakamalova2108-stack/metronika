@@ -477,16 +477,12 @@ body.fig .view:has(.g-screen) { padding-bottom: 0; }
 .g-screen .g-month .f-icon-btn { width: 36px; height: 36px; }
 .g-screen .g-dow { margin-top: -2px; }
 .g-screen .g-grid { margin-top: -2px; gap: 3px; }
-.g-screen .g-cell { --cell: clamp(26px, calc((100vh - 590px) / var(--weeks) - 3px), 50px); --cell: clamp(26px, calc((100svh - 590px) / var(--weeks) - 3px), 50px); height: var(--cell); padding: 2px 1px; }
+.g-screen .g-cell { height: auto; min-height: 26px; padding: 2px 1px; }
 .g-screen .g-cell:not(.g-cell--work) { padding-top: 4px; }
 .g-screen .g-cell--work b { font-size: 15px; line-height: 16px; }
 .g-screen .g-cell--work span { font-size: 9px; line-height: 10px; }
 .g-screen .f-btn-row { margin-bottom: 12px; }
-@media (max-height: 760px) {
-  .g-screen .g-cell--work span:last-of-type { display: none; }
-  .g-screen .g-cell b { font-size: 13px; line-height: 14px; }
-  .g-screen .g-todo__x { display: none; }
-}
+@media (max-height: 760px) { .g-screen .g-todo__x { display: none; } }
 @media (max-height: 680px) { .g-screen .g-cell--work span { display: none; } }
 
 /* Один экран без прокрутки страницы (Канал, Клиент, Оценка, График): длинное содержимое
@@ -526,3 +522,12 @@ body.fig .app:has(.f-one) { padding-bottom: 0; min-height: 0; }
   .z-client .f-btn-row { height: 46px; } .z-client .f-btn { height: 38px; }
 }
 @media (max-height: 720px) { .o-key { height: 36px; } .o-calc__keys { gap: 6px; } .o-calc__screen { padding: 8px 14px; } }
+
+/* График: календарь растягивается на всё свободное место, кнопки — с небольшим зазором над меню. */
+body.fig .view:has(.g-screen) { padding-bottom: 112px; }
+.g-screen.f-fill { flex: 1 1 auto !important; display: flex; flex-direction: column; overflow: hidden; }
+.g-screen > * { flex: none; }
+.g-screen > .g-plate { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.g-screen > .g-plate > * { flex: none; }
+.g-screen .g-grid { flex: 1 1 auto; min-height: 0; grid-template-rows: repeat(var(--weeks), minmax(26px, 1fr)); max-height: calc(var(--weeks) * 58px); }
+.g-screen .f-btn-row { margin-bottom: 0; }
