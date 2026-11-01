@@ -608,3 +608,17 @@ body.fig .view:has(.o-head) * { touch-action: pan-y; }
 .g-cell--multi span { font-size: 8.5px !important; line-height: 10px !important; }
 /* Оценка внутри комнаты: списки не прокручиваются внутри блока — прокручивается вся страница. */
 body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; }
+
+/* Оценка: переход между комнатами. Новая комната выезжает со стороны листания, её плашка вспыхивает. */
+@keyframes oInNext { from { transform: translateX(60px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes oInPrev { from { transform: translateX(-60px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes oFlash { 0%, 100% { box-shadow: 0 12px 20px rgba(4, 10, 11, 0.24), 0 3px 6px rgba(4, 10, 11, 0.32); border-color: rgba(204, 219, 207, 0.28); }
+  25% { box-shadow: 0 0 0 2px rgba(230, 242, 204, 0.85), 0 0 18px rgba(222, 237, 194, 0.55); border-color: #e6f2cc; } }
+.o-anim--next > .o-head .o-cur, .o-anim--next > .o-head .o-back { animation: oInNext 0.35s cubic-bezier(.2, .8, .2, 1) both; }
+.o-anim--prev > .o-head .o-cur, .o-anim--prev > .o-head .o-back { animation: oInPrev 0.35s cubic-bezier(.2, .8, .2, 1) both; }
+.o-anim--next > :not(.o-head) { animation: oInNext 0.4s 0.05s cubic-bezier(.2, .8, .2, 1) both; }
+.o-anim--prev > :not(.o-head) { animation: oInPrev 0.4s 0.05s cubic-bezier(.2, .8, .2, 1) both; }
+.o-anim--next > .o-head .o-cur, .o-anim--prev > .o-head .o-cur { animation-name: oInNext, oFlash; animation-duration: 0.35s, 1.4s; animation-timing-function: cubic-bezier(.2, .8, .2, 1), ease-out; }
+.o-anim--prev > .o-head .o-cur { animation-name: oInPrev, oFlash; }
+.o-next { margin-top: -4px; }
+@media (prefers-reduced-motion: reduce) { .o-wrap[class*="o-anim"] * { animation: none !important; } }
