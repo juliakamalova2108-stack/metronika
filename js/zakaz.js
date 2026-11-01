@@ -2,16 +2,16 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=69';
-import * as S from './store.js?v=69';
-import { WALLPAPER_TYPES } from './seed.js?v=69';
-import { esc, toast } from './ui.js?v=69';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=69';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=69';
-import { country } from './phonecodes.js?v=69';
-import { suggestAddress } from './address.js?v=69';
-import { suggesters } from './kbd.js?v=69';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=69';
+import { actions, changes, rerender } from './core.js?v=70';
+import * as S from './store.js?v=70';
+import { WALLPAPER_TYPES } from './seed.js?v=70';
+import { esc, toast } from './ui.js?v=70';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=70';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=70';
+import { country } from './phonecodes.js?v=70';
+import { suggestAddress } from './address.js?v=70';
+import { suggesters } from './kbd.js?v=70';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=70';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -30,7 +30,7 @@ function hm(qty, norm) {
   let m = Math.round((qty / norm) * 60);
   const sh = Math.floor(m / 480); m -= sh * 480;
   const h = Math.floor(m / 60); m -= h * 60;
-  const sw = (n) => (n % 10 === 1 && n % 100 !== 11 ? 'смена' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'смены' : 'смен');
+  const sw = (n) => (n % 10 === 1 && n % 100 !== 11 ? 'день' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'дня' : 'дней');
   return [sh ? `${sh} ${sw(sh)}` : '', h ? `${h} ч` : '', m ? `${m} мин` : ''].filter(Boolean).join(' ') || '0 мин';
 }
 const status = (kind, text, cls = '') => `<span class="f-status f-status--${kind}${cls ? ' ' + cls : ''}"><i></i>${esc(text)}</span>`;

@@ -83,7 +83,7 @@ export const REPLACEMENT_FOUND_FEE = 700;
 // ---------- смета ----------
 export const SHIFT_HOURS = 8;
 
-// Срок работ по норме выработки (м² или пог. м в час): «2 смены 1 ч».
+// Срок работ по норме выработки (м² или пог. м в час): «2 дня 1 ч».
 export function hoursFor(qty, normPerHour) {
   if (!normPerHour || !qty) return 0;
   return Math.ceil(qty / normPerHour);
@@ -92,7 +92,7 @@ export function shiftsText(hours) {
   if (!hours) return '0 ч';
   const s = Math.floor(hours / SHIFT_HOURS);
   const h = hours % SHIFT_HOURS;
-  const sw = (n) => (n % 10 === 1 && n % 100 !== 11 ? 'смена' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'смены' : 'смен');
+  const sw = (n) => (n % 10 === 1 && n % 100 !== 11 ? 'день' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'дня' : 'дней');
   return [s ? `${s} ${sw(s)}` : '', h ? `${h} ч` : ''].filter(Boolean).join(' ');
 }
 

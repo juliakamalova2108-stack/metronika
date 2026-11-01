@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=69';
-import * as S from './store.js?v=69';
-import { SHIFT_HOURS } from './calc.js?v=69';
-import { esc, toast } from './ui.js?v=69';
-import { logEvent } from './zlog.js?v=69';
-import { estimateRooms, roomTotals } from './ocenka.js?v=69';
+import { actions, rerender } from './core.js?v=70';
+import * as S from './store.js?v=70';
+import { SHIFT_HOURS } from './calc.js?v=70';
+import { esc, toast } from './ui.js?v=70';
+import { logEvent } from './zlog.js?v=70';
+import { estimateRooms, roomTotals } from './ocenka.js?v=70';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -85,7 +85,7 @@ function trainChip(r, n) {
     ${n ? `<b class="g-train__n">${n}</b>` : ''}<span class="g-train__hd"><span>${esc(r.name)}</span><span>${fmt(t.total)} ₽</span></span>
     <span class="g-train__cars">${cars}</span><span class="g-train__ft">${shiftsTxt(t.hours)}</span></button>`;
 }
-const shiftsTxt = (h) => { const d = Math.floor(h / SHIFT_HOURS + 1e-6); const r = Math.round(h - d * SHIFT_HOURS); return [d ? `${d} ${d === 1 ? 'смена' : d < 5 ? 'смены' : 'смен'}` : '', r ? `${r} ч` : ''].filter(Boolean).join(' ') || '0 ч'; };
+const shiftsTxt = (h) => { const d = Math.floor(h / SHIFT_HOURS + 1e-6); const r = Math.round(h - d * SHIFT_HOURS); return [d ? `${d} ${d === 1 ? 'день' : d < 5 ? 'дня' : 'дней'}` : '', r ? `${r} ч` : ''].filter(Boolean).join(' ') || '0 ч'; };
 function chip(r, x, selected, extraAttrs = '') {
   const frac = x.hours / SHIFT_HOURS;
   const style = frac >= 1 ? `background:${r.color}` : `background:${hexA(r.color, 0.18)}`;

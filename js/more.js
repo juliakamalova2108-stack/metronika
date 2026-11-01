@@ -1,11 +1,11 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=69';
-import * as S from './store.js?v=69';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=69';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=69';
-import { topbar, typeName } from './shared.js?v=69';
-import { COUNTRIES, SOON } from './phonecodes.js?v=69';
+import { actions, changes, rerender, go, val } from './core.js?v=70';
+import * as S from './store.js?v=70';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=70';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=70';
+import { topbar, typeName } from './shared.js?v=70';
+import { COUNTRIES, SOON } from './phonecodes.js?v=70';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -96,7 +96,7 @@ export function renderSettings() {
   } else if (setTab === 'services') {
     body = `<section class="plate">
       <h2 class="plate__title">Услуги: цена и норма выработки</h2>
-      <p class="small">Норма — сколько успеваете за час. Из неё считается срок в сменах по 8 часов.</p>
+      <p class="small">Норма — сколько успеваете за час. Из неё считается срок в рабочих днях по 8 часов.</p>
       ${SERVICES.filter((s) => s.id !== 'paste').map((s) => { const v = st.services[s.id]; return `<div class="well"><b>${esc(s.name)}</b><div class="grid-2">
         ${field({ id: `sv-p-${s.id}`, label: `Цена, ₽/${UNIT[s.unit]}`, value: String(v.price), inputmode: 'numeric', attrs: `data-change="set-svc" data-svc="${s.id}" data-k="price"` })}
         ${field({ id: `sv-n-${s.id}`, label: `${UNIT[s.unit]} в час`, value: num(v.norm), inputmode: 'decimal', attrs: `data-change="set-svc" data-svc="${s.id}" data-k="norm"` })}</div></div>`; }).join('')}
