@@ -191,9 +191,9 @@ body.fig .view { position: relative; z-index: 1; padding: 16px 16px 100px; displ
 .o-floor { flex: 1; height: 42px; border: 1px solid transparent; border-radius: 6px; background: none; cursor: pointer; font: 500 14px/16px var(--font-body); color: rgba(237, 240, 231, 0.8); }
 .o-floor.is-on { border-radius: 7px; border-color: rgba(204, 222, 209, 0.55); background: #213839; color: #edf0e7; font-weight: 600;
   box-shadow: 0 4px 7px rgba(4, 13, 15, 0.16), 0 2px 2.5px rgba(1, 6, 9, 0.27), inset 0 -2px 2px rgba(6, 18, 20, 0.34), inset 0 1px 1px rgba(224, 242, 227, 0.36); }
-.o-list { display: flex; flex-direction: column; gap: 8px; max-height: max(120px, min(430px, calc(100vh - 412px))); max-height: max(120px, min(430px, calc(100dvh - 412px))); overflow-y: auto; scrollbar-width: none; }
+.o-list { display: flex; flex-direction: column; gap: 8px; max-height: max(120px, min(430px, calc(100vh - 440px))); max-height: max(120px, min(430px, calc(100svh - 440px))); overflow-y: auto; scrollbar-width: none; }
 .o-list::-webkit-scrollbar { display: none; }
-.o-list--svc { max-height: max(150px, min(466px, calc(100vh - 380px))); max-height: max(150px, min(466px, calc(100dvh - 380px))); }
+.o-list--svc { max-height: max(150px, min(466px, calc(100vh - 408px))); max-height: max(150px, min(466px, calc(100svh - 408px))); }
 .o-row {
   flex: none; height: 50px; display: flex; align-items: center; gap: 16px; padding: 0 16px; border-radius: 12px; cursor: pointer; text-align: left;
   border: 0.9px solid rgba(5, 13, 15, 0.75); background: linear-gradient(180deg, #182829, #203030);
