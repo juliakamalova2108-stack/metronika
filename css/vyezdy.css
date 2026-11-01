@@ -813,3 +813,6 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .bd-line--sum { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: baseline; }
 .bd-line--sum small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bd-line--sum em { font-style: normal; font: 700 14px/18px var(--font-num); color: #edf2e8; }
+/* Сообщение «Сохранено» — крупно по центру экрана. */
+.o-note-big__plate { padding: 22px 34px; }
+.o-note-big__plate b.o-note-big__ok { font-size: 26px; line-height: 32px; }

@@ -3,13 +3,13 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=77';
-import * as S from './store.js?v=77';
-import { renderOformit, oformitDraft } from './oformit.js?v=77';
-import { roomTotals, svcInfo } from './ocenka.js?v=77';
-import { smetaTotals } from './zakaz.js?v=77';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=77';
-import { esc, toast } from './ui.js?v=77';
+import { actions, rerender, go } from './core.js?v=78';
+import * as S from './store.js?v=78';
+import { renderOformit, oformitDraft } from './oformit.js?v=78';
+import { roomTotals, svcInfo } from './ocenka.js?v=78';
+import { smetaTotals } from './zakaz.js?v=78';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=78';
+import { esc, toast } from './ui.js?v=78';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -235,6 +235,15 @@ document.addEventListener('section-saved', (ev) => {
     setTimeout(() => go('bd-order-' + m[1]), 1000); // «✓ Комната сохранена» уже показана
     return;
   }
-  toast('Сохранено');
-  setTimeout(() => go('bd-order-' + m[1]), 500);
+  bigNote('✓ Сохранено');
+  setTimeout(() => { go('bd-order-' + m[1]); setTimeout(hideBig, 400); }, 600);
 });
+
+// Крупное сообщение по центру экрана (как «Комната сохранена» в «Оценке»).
+function bigNote(text) {
+  let el = document.getElementById('o-note-big');
+  if (!el) { el = document.createElement('div'); el.id = 'o-note-big'; el.className = 'o-note-big'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.innerHTML = `<div class="o-note-big__plate"><b class="o-note-big__ok">${text}</b></div>`;
+  el.classList.remove('is-in'); void el.offsetWidth; el.classList.add('is-in');
+}
+function hideBig() { const el = document.getElementById('o-note-big'); if (el) el.remove(); }
