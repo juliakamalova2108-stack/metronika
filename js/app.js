@@ -1,18 +1,18 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=84';
-import * as S from './store.js?v=84';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=84';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=84';
-import { renderSettlements } from './shared.js?v=84';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=84';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=84';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=84';
-import { renderOformit, onLiveOformit } from './oformit.js?v=84';
-import { onLiveZakaz } from './zakaz.js?v=84';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit } from './board.js?v=84';
-import './kbd.js?v=84';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=84';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=85';
+import * as S from './store.js?v=85';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=85';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=85';
+import { renderSettlements } from './shared.js?v=85';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=85';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=85';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=85';
+import { renderOformit, onLiveOformit } from './oformit.js?v=85';
+import { onLiveZakaz } from './zakaz.js?v=85';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit } from './board.js?v=85';
+import './kbd.js?v=85';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=85';
 
 const VERSION = 'прототип 1.0';
 
