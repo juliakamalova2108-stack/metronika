@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=37';
-import * as S from './store.js?v=37';
-import { SHIFT_HOURS } from './calc.js?v=37';
-import { esc } from './ui.js?v=37';
-import { logEvent } from './zlog.js?v=37';
-import { estimateRooms, roomTotals } from './ocenka.js?v=37';
+import { actions, rerender } from './core.js?v=38';
+import * as S from './store.js?v=38';
+import { SHIFT_HOURS } from './calc.js?v=38';
+import { esc } from './ui.js?v=38';
+import { logEvent } from './zlog.js?v=38';
+import { estimateRooms, roomTotals } from './ocenka.js?v=38';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -34,21 +34,36 @@ function roomDays(r) {
   return out;
 }
 
-// Где лежат дни комнат: дата начала → дни подряд, занятые другими комнатами даты пропускаются.
+// Где лежат дни комнат. В дне — смена (8 ч). Комната начинается с выбранной даты и занимает свободные часы
+// дней подряд. Если в дне остались часы после другой комнаты этого заказа, следующая комната встаёт
+// туда же — во вторую часть дня, сразу за первой; комнаты друг на друга не накладываются.
+// Комнаты раскладываются по порядку дат начала (при равных — в порядке, в котором их ставили).
+const EPS = 1e-6;
 function layout(s, rooms) {
   const byDate = {};
-  rooms.forEach((r) => {
-    const start = s.place[r.key];
-    if (!start) return;
-    let day = start;
-    roomDays(r).forEach((x, i) => {
-      while (byDate[day]) day = addDays(day, 1);
-      byDate[day] = { room: r, ...x, i };
-      day = addDays(day, 1);
-    });
+  const keys = Object.keys(s.place || {});
+  const order = rooms.filter((r) => s.place[r.key])
+    .sort((a, b) => (s.place[a.key] < s.place[b.key] ? -1 : s.place[a.key] > s.place[b.key] ? 1 : keys.indexOf(a.key) - keys.indexOf(b.key)));
+  order.forEach((r) => {
+    const t = roomTotals(r);
+    let left = t.hours;
+    let day = s.place[r.key];
+    let i = 0;
+    while (left > EPS && i < 400) {
+      const segs = byDate[day] || [];
+      const used = segs.reduce((a, x) => a + x.hours, 0);
+      const free = SHIFT_HOURS - used;
+      if (free > EPS) {
+        const h = Math.min(free, left);
+        byDate[day] = [...segs, { room: r, hours: h, from: used, cost: Math.round((t.total * h) / t.hours) }];
+        left -= h;
+      }
+      day = addDays(day, 1); i += 1;
+    }
   });
   return byDate;
 }
+const usedOn = (segs) => (segs || []).reduce((a, x) => a + x.hours, 0);
 
 function chip(r, x, selected, extraAttrs = '') {
   const frac = x.hours / SHIFT_HOURS;
@@ -76,12 +91,15 @@ function calendar(s, rooms, lay, locked) {
     const date = iso(Y, M - 1, dd);
     const act = locked ? '' : `data-action="g-day" data-date="${date}"`;
     if (s.mode === 'rooms' && lay[date]) {
-      const x = lay[date];
-      const frac = x.hours / SHIFT_HOURS;
-      const style = frac >= 1 ? `background:${x.room.color}` : `background:${hexA(x.room.color, 0.18)}`;
-      cells.push(`<button type="button" class="g-cell g-cell--work${s.sel === x.room.key ? ' is-sel' : ''}" style="${style}" ${act} aria-label="${dd}, ${esc(x.room.name)}">
-        ${frac < 1 ? `<i class="g-chip__fill" style="background:${x.room.color};width:${(frac * 100).toFixed(1)}%"></i>` : ''}
-        <b>${dd}</b><span>${esc(x.room.name)}</span><span>${fmt(x.cost)}</span></button>`);
+      const segs = lay[date];
+      const sel = segs.some((x) => s.sel === x.room.key);
+      const one = segs.length === 1 && segs[0].hours >= SHIFT_HOURS - EPS;
+      // Доля дня каждой комнаты — полоса своего цвета; свободный остаток дня — бледный.
+      const bars = one ? '' : segs.map((x) => `<i class="g-chip__fill" style="background:${x.room.color};left:${((x.from / SHIFT_HOURS) * 100).toFixed(1)}%;width:${((x.hours / SHIFT_HOURS) * 100).toFixed(1)}%"></i>`).join('');
+      const style = one ? `background:${segs[0].room.color}` : `background:${hexA(segs[segs.length - 1].room.color, 0.18)}`;
+      const text = segs.length === 1 ? `<span>${esc(segs[0].room.name)}</span><span>${fmt(segs[0].cost)}</span>` : segs.map((x) => `<span>${esc(x.room.name)}</span>`).join('');
+      cells.push(`<button type="button" class="g-cell g-cell--work${sel ? ' is-sel' : ''}${segs.length > 1 ? ' g-cell--multi' : ''}" style="${style}" ${act} aria-label="${dd}, ${esc(segs.map((x) => x.room.name).join(' и '))}">
+        ${bars}<b>${dd}</b>${text}</button>`);
     } else {
       const meas = s.mode === 'measure' ? measuresOn(date) + (s.measure === date ? 1 : 0) : 0;
       cells.push(`<button type="button" class="g-cell" ${act} aria-label="${dd}"><b>${dd}</b>${meas ? `<i class="g-badge">${meas}</i>` : ''}</button>`);
@@ -144,12 +162,16 @@ actions['g-day'] = (el) => {
     return;
   }
   const rooms = estimateRooms(d).filter((r) => roomTotals(r).hours > 0);
-  const here = layout(s, rooms)[date];
-  if (here && !s.sel) { s.sel = here.room.key; save(); return; } // выбрали комнату в календаре — дальше дата переноса
-  if (here && s.sel === here.room.key) { delete s.place[here.room.key]; s.sel = ''; s.dirty = true; save(); return; } // снять с даты
+  const segs = layout(s, rooms)[date] || [];
+  const mine = segs.find((x) => x.room.key === s.sel);
+  // Нажали на день с комнатами без выбора — выбирается последняя комната дня (её можно перенести или снять).
+  if (segs.length && !s.sel) { s.sel = segs[segs.length - 1].room.key; save(); return; }
+  if (mine) { delete s.place[mine.room.key]; s.sel = ''; s.dirty = true; save(); return; } // снять с даты
   if (s.sel && s.sel !== 'measure') {
     const others = { ...s.place }; delete others[s.sel];
-    if (layout({ place: others }, rooms)[date]) { s.sel = here ? here.room.key : s.sel; save(); return; }
+    // В дне не осталось свободных часов — ставить нельзя, выбираем то, что там стоит.
+    if (usedOn(layout({ place: others }, rooms)[date]) >= SHIFT_HOURS - EPS) { s.sel = segs.length ? segs[segs.length - 1].room.key : s.sel; save(); return; }
+    delete s.place[s.sel]; // ставим заново — комната встаёт после уже стоящих в этот день
     s.place[s.sel] = date; s.sel = ''; s.dirty = true; save();
   }
 };

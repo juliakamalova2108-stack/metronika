@@ -604,3 +604,5 @@ body.fig .view:has(.o-head) * { touch-action: pan-y; }
   font: 400 14px/16px var(--font-body); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
 .kb__sug-item:active { background: #36504f; }
 .kb__sug-empty { margin: 0; padding: 6px 6px 2px; font: 400 13px/16px var(--font-body); color: #233a3b; }
+/* График: в одном дне две комнаты заказа — полосы по долям дня, под числом оба названия. */
+.g-cell--multi span { font-size: 8.5px !important; line-height: 10px !important; }
