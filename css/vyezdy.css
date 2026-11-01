@@ -933,3 +933,8 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .ch-box .ch-clip svg, .ch-box .ch-send svg { width: 24px; height: 24px; margin: 0; }
 .ch-box .ch-send { opacity: 0.5; transition: opacity .15s; }
 .ch-box.has-text .ch-send { opacity: 1; }
+/* Значки в форме ввода — тёмные, контрастные к светло-серой форме. */
+.ch-box .ch-clip, .ch-box .ch-send { color: #13292b; }
+.ch-box .ch-clip svg path, .ch-box .ch-send svg path { stroke-width: 1.9; }
+.ch-box .ch-send { opacity: 0.4; }
+.ch-box.has-text .ch-send { opacity: 1; }
