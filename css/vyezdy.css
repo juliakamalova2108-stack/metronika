@@ -820,3 +820,6 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .f-nav__chat { position: relative; flex: none; width: 52px; }
 .f-nav__chat svg { width: 24px; height: 24px; }
 .f-nav__badge { position: absolute; top: 2px; right: 6px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: #fa5454; color: #fff; font: 700 10px/16px var(--font-body); text-align: center; }
+/* «Сохранено» ещё крупнее (+50 %). */
+.o-note-big__plate { padding: 33px 51px; border-radius: 12px; }
+.o-note-big__plate b.o-note-big__ok { font-size: 39px; line-height: 46px; }
