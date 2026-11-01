@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=39';
-import * as S from './store.js?v=39';
-import { SHIFT_HOURS } from './calc.js?v=39';
-import { esc } from './ui.js?v=39';
-import { logEvent } from './zlog.js?v=39';
-import { estimateRooms, roomTotals } from './ocenka.js?v=39';
+import { actions, rerender } from './core.js?v=40';
+import * as S from './store.js?v=40';
+import { SHIFT_HOURS } from './calc.js?v=40';
+import { esc, toast } from './ui.js?v=40';
+import { logEvent } from './zlog.js?v=40';
+import { estimateRooms, roomTotals } from './ocenka.js?v=40';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -34,16 +34,14 @@ function roomDays(r) {
   return out;
 }
 
-// Где лежат дни комнат. В дне — смена (8 ч). Комната начинается с выбранной даты и занимает свободные часы
-// дней подряд. Если в дне остались часы после другой комнаты этого заказа, следующая комната встаёт
-// туда же — во вторую часть дня, сразу за первой; комнаты друг на друга не накладываются.
-// Комнаты раскладываются по порядку дат начала (при равных — в порядке, в котором их ставили).
+// Где лежат дни комнат. В дне — смена (8 ч). Комнаты раскладываются в том порядке, в котором их ставили:
+// уже поставленные никогда не сдвигаются. Новая комната начинается с выбранной даты сразу после того,
+// что уже стоит в этом дне, и идёт дальше по дням подряд — поэтому её ставят, только если ей хватает места (fits).
 const EPS = 1e-6;
 function layout(s, rooms) {
   const byDate = {};
   const keys = Object.keys(s.place || {});
-  const order = rooms.filter((r) => s.place[r.key])
-    .sort((a, b) => (s.place[a.key] < s.place[b.key] ? -1 : s.place[a.key] > s.place[b.key] ? 1 : keys.indexOf(a.key) - keys.indexOf(b.key)));
+  const order = keys.map((k) => rooms.find((r) => r.key === k)).filter(Boolean);
   order.forEach((r) => {
     const t = roomTotals(r);
     let left = t.hours;
@@ -63,6 +61,20 @@ function layout(s, rooms) {
   });
   return byDate;
 }
+// Хватает ли комнате места с этой даты: остаток выбранного дня и дальше целые свободные дни подряд,
+// пока не наберутся её часы. Упёрлись в день, где уже стоит другая комната, — не помещается.
+function fits(lay, hours, date) {
+  let left = hours; let day = date; let avail = 0;
+  const first = SHIFT_HOURS - usedOn(lay[date]);
+  if (first <= EPS) return { ok: false, avail: 0 };
+  avail = first; left -= first; day = addDays(day, 1);
+  while (left > EPS) {
+    if ((lay[day] || []).length) return { ok: false, avail };
+    avail += SHIFT_HOURS; left -= SHIFT_HOURS; day = addDays(day, 1);
+  }
+  return { ok: true, avail };
+}
+const hTxt = (h) => { const d = Math.floor(h / SHIFT_HOURS + EPS); const r = Math.round(h - d * SHIFT_HOURS); return [d ? `${d} дн` : '', r ? `${r} ч` : ''].filter(Boolean).join(' ') || '0 ч'; };
 const usedOn = (segs) => (segs || []).reduce((a, x) => a + x.hours, 0);
 
 function chip(r, x, selected, extraAttrs = '') {
@@ -169,8 +181,13 @@ actions['g-day'] = (el) => {
   if (mine) { delete s.place[mine.room.key]; s.sel = ''; s.dirty = true; save(); return; } // снять с даты
   if (s.sel && s.sel !== 'measure') {
     const others = { ...s.place }; delete others[s.sel];
+    const lay0 = layout({ place: others }, rooms);
     // В дне не осталось свободных часов — ставить нельзя, выбираем то, что там стоит.
-    if (usedOn(layout({ place: others }, rooms)[date]) >= SHIFT_HOURS - EPS) { s.sel = segs.length ? segs[segs.length - 1].room.key : s.sel; save(); return; }
+    if (usedOn(lay0[date]) >= SHIFT_HOURS - EPS) { s.sel = segs.length ? segs[segs.length - 1].room.key : s.sel; save(); return; }
+    const room = rooms.find((r) => r.key === s.sel);
+    const need = room ? roomTotals(room).hours : 0;
+    const f = fits(lay0, need, date);
+    if (!f.ok) { toast(`«${room.name}» не помещается: с ${Number(date.slice(8))}-го свободно ${hTxt(f.avail)}, а нужно ${hTxt(need)}`); return; }
     delete s.place[s.sel]; // ставим заново — комната встаёт после уже стоящих в этот день
     s.place[s.sel] = date; s.sel = ''; s.dirty = true; save();
   }
