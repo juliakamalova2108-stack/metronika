@@ -1,14 +1,14 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=21';
-import * as S from './store.js?v=21';
-import { CHANNELS } from './seed.js?v=21';
-import { esc } from './ui.js?v=21';
-import { logEvent } from './zlog.js?v=21';
+import { actions, rerender, go } from './core.js?v=22';
+import * as S from './store.js?v=22';
+import { CHANNELS } from './seed.js?v=22';
+import { esc } from './ui.js?v=22';
+import { logEvent } from './zlog.js?v=22';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=21';
-import { renderSchedule, scheduleState } from './grafik.js?v=21';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=22';
+import { renderSchedule, scheduleState } from './grafik.js?v=22';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -194,7 +194,7 @@ let swipe = null;
 let suppressClick = false;
 const NO_SWIPE = '.f-topnav, .f-nav, input, textarea, select, .g-tray, .f-select__win, .o-overlay, .o-dialog, .drawer, .sheet';
 document.addEventListener('pointerdown', (ev) => {
-  swipe = null;
+  swipe = null; suppressClick = false; // новое касание — новый жест
   if (!document.body.classList.contains('fig') || !ev.isPrimary) return;
   if (ev.target.closest && ev.target.closest(NO_SWIPE)) return;
   const head = document.querySelector('#view .o-head');
@@ -211,5 +211,16 @@ document.addEventListener('pointermove', (ev) => {
   if (btn) { suppressClick = true; btn.click(); setTimeout(() => { suppressClick = false; }, 400); }
 }, true);
 document.addEventListener('pointerup', () => { swipe = null; }, true);
-document.addEventListener('pointercancel', () => { swipe = null; }, true);
+// Если браузер забрал жест под прокрутку списка, досчитываем свайп по касаниям.
+document.addEventListener('touchmove', (ev) => {
+  if (!swipe || swipe.done || !ev.touches[0]) return;
+  const t = ev.touches[0];
+  const dx = t.clientX - swipe.x; const dy = t.clientY - swipe.y;
+  if (Math.abs(dy) > 24 && Math.abs(dy) > Math.abs(dx)) { swipe = null; return; }
+  if (Math.abs(dx) < 28 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+  swipe.done = true;
+  const btn = swipe.head.querySelector(dx < 0 ? 'button.o-back--r' : 'button.o-back--l');
+  if (btn) { suppressClick = true; btn.click(); setTimeout(() => { suppressClick = false; }, 400); }
+}, { capture: true, passive: true });
+document.addEventListener('touchend', () => { setTimeout(() => { swipe = null; }, 0); }, true);
 document.addEventListener('click', (ev) => { if (suppressClick && ev.isTrusted) { ev.stopPropagation(); ev.preventDefault(); } }, true);

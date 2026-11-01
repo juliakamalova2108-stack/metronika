@@ -540,3 +540,5 @@ body.fig .view:has(.o-head) { touch-action: pan-y; }
 .o-room__bar { position: relative; height: 16px; flex: none; }
 .o-room__bar .f-status { top: 0; right: 8px; }
 .o-room:has(.o-room__bar) { padding-top: 10px; }
+/* Горизонтальный жест отдаём свайпу комнат: списки внутри листаются только вертикально. */
+body.fig .view:has(.o-head) * { touch-action: pan-y; }
