@@ -728,3 +728,41 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .f-botnav .f-tab.is-active::after { top: 40px; }
 /* Вкладок больше, чем влезает, — у краёв затухание: видно, что строку можно листать. */
 .f-botnav--many .f-topnav__track { left: 6px; right: 6px; padding: 0 14px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%); }
+
+/* ================= Заказы · доска по дням ================= */
+.bd-search { gap: 10px; flex: none; }
+.bd-search svg { width: 18px; height: 18px; flex: none; opacity: 0.75; }
+.bd-search input { -webkit-appearance: none; appearance: none; }
+.bd-list { display: flex; flex-direction: column; gap: 10px; }
+.bd-slot { position: relative; padding-left: 52px; }
+/* язычок — листок календаря, торчит слева из-под карточки */
+.bd-leaf { position: absolute; z-index: 1; left: 2px; top: 50%; transform: translateY(-50%); width: 60px; height: 66px; padding-right: 10px; overflow: hidden;
+  border-radius: 10px 0 0 10px; background: #edf2e8; color: #162c33; box-shadow: -3px 4px 8px rgba(3, 10, 13, 0.45);
+  display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+.bd-leaf small { width: calc(100% + 10px); margin-right: -10px; padding: 3px 10px 2px 0; box-sizing: border-box; background: #3f5f5c; color: #edf2e8; text-align: center; font: 700 10px/12px var(--font-body); text-transform: uppercase; }
+.bd-leaf b { margin-top: 6px; font: 700 24px/28px var(--font-num); }
+.bd-leaf.is-today { box-shadow: -3px 4px 12px rgba(230, 242, 204, 0.45); }
+.bd-leaf.is-today small { background: #2d4a3a; color: #e6f2cc; }
+/* карточка — все одного размера */
+.bd-card { position: relative; z-index: 2; width: 100%; height: 96px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; padding: 9px 10px 10px; text-align: left; cursor: pointer;
+  border-radius: 14px; border: 0.9px solid rgba(5, 13, 15, 0.75); background: linear-gradient(180deg, #182829, #203030); color: #edf2e8;
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.16), inset 0 1.5px 2px rgba(1, 6, 9, 0.55), inset 0 4px 10px rgba(1, 8, 10, 0.7); }
+.bd-card.is-today { border-color: rgba(230, 242, 204, 0.55); }
+.bd-card--free { cursor: default; align-items: center; justify-content: center; background: linear-gradient(180deg, #152324, #1b2a2a); font: 400 13px/16px var(--font-body); color: rgba(237, 242, 232, 0.5); }
+.bd-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: start; }
+.bd-who { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.bd-who b { font: 700 17px/21px var(--font-body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bd-who small { font: 400 12.5px/16px var(--font-body); color: rgba(237, 242, 232, 0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bd-who em { font-style: normal; font-weight: 600; color: #e6f2cc; }
+.bd-sum { text-align: right; } .bd-sum b { display: block; font: 700 16px/21px var(--font-num); white-space: nowrap; } .bd-sum small { font: 400 11px/14px var(--font-body); color: rgba(237, 242, 232, 0.6); }
+.bd-foot { display: flex; align-items: center; gap: 10px; padding-top: 6px; border-top: 0.5px solid rgba(191, 214, 204, 0.12); }
+.bd-room { flex: none; position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px 0 10px; border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06); border: 0.5px solid rgba(255, 255, 255, 0.14); font: 600 12px/1 var(--font-body); white-space: nowrap; }
+.bd-room::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); }
+.bd-room small { font: 400 10.5px/1 var(--font-body); color: rgba(237, 242, 232, 0.6); }
+.bd-steps { flex: 1; min-width: 0; display: flex; align-items: center; height: 20px; }
+.bd-steps i { flex: none; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid rgba(237, 242, 232, 0.3); font-style: normal; }
+.bd-steps i.past { background: rgba(237, 242, 232, 0.45); border-color: transparent; }
+.bd-steps i.on { width: 62px; height: 18px; border-radius: 9px; background: rgba(237, 242, 232, 0.14); border: 1px solid rgba(237, 242, 232, 0.55); display: grid; place-items: center; font: 600 10px/1 var(--font-body); color: #edf2e8; }
+.bd-steps b { flex: 1; height: 1px; background: rgba(255, 255, 255, 0.12); } .bd-steps b.past { background: rgba(237, 242, 232, 0.35); } .bd-steps b.bd-gap { background: none; }
+.bd-empty { margin: 20px 0; text-align: center; font: 400 14px/20px var(--font-body); color: rgba(237, 242, 232, 0.6); }

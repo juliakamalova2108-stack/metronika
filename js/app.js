@@ -1,17 +1,18 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=60';
-import * as S from './store.js?v=60';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=60';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=60';
-import { renderSettlements } from './shared.js?v=60';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=60';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=60';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=60';
-import { renderOformit, onLiveOformit } from './oformit.js?v=60';
-import { onLiveZakaz } from './zakaz.js?v=60';
-import './kbd.js?v=60';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=60';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=61';
+import * as S from './store.js?v=61';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=61';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=61';
+import { renderSettlements } from './shared.js?v=61';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=61';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=61';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=61';
+import { renderOformit, onLiveOformit } from './oformit.js?v=61';
+import { onLiveZakaz } from './zakaz.js?v=61';
+import { renderBoard, onLiveBoard } from './board.js?v=61';
+import './kbd.js?v=61';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=61';
 
 const VERSION = 'прототип 1.0';
 
@@ -49,7 +50,7 @@ function screenFor(name, role) {
     if (name === 'for-client') return renderForClient();
     if (name.startsWith('a-order-')) return renderOrder(name.slice(8));
   } else {
-    if (name === 'orders') return renderProOrders();
+    if (name === 'orders') return renderBoard();
     if (name === 'current') return renderOformit('current');
     if (name === 'oformit') return renderOformit('oformit');
     if (name === 'trash') return renderTrash();
@@ -116,7 +117,7 @@ function render() {
   }
   view.innerHTML = html;
   // Экраны, перенесённые из Figma один в один, рисуют свою нижнюю навигацию.
-  const fig = name === 'oformit' || (name === 'current' && role !== 'agent');
+  const fig = name === 'oformit' || ((name === 'current' || name === 'orders') && role !== 'agent');
   document.body.classList.toggle('fig', fig);
   if (fig) {
     const ft = view.querySelector('.f-tab.is-active');
@@ -201,6 +202,7 @@ document.addEventListener('click', (ev) => {
 });
 document.addEventListener('input', (ev) => {
   if (!ev.target.dataset || !ev.target.dataset.live) return;
+  if (onLiveBoard(ev.target)) return;
   if (onLiveZakaz(ev.target)) return;
   if (onLiveOformit(ev.target)) return;
   if (onLivePro(ev.target)) return;
