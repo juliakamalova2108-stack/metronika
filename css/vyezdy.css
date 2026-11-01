@@ -620,5 +620,21 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .o-anim--prev > :not(.o-head) { animation: oInPrev 0.4s 0.05s cubic-bezier(.2, .8, .2, 1) both; }
 .o-anim--next > .o-head .o-cur, .o-anim--prev > .o-head .o-cur { animation-name: oInNext, oFlash; animation-duration: 0.35s, 1.4s; animation-timing-function: cubic-bezier(.2, .8, .2, 1), ease-out; }
 .o-anim--prev > .o-head .o-cur { animation-name: oInPrev, oFlash; }
-.o-next { margin-top: -4px; }
+
 @media (prefers-reduced-motion: reduce) { .o-wrap[class*="o-anim"] * { animation: none !important; } }
+/* Оценка: сообщение при переходе после «ОК» (2 с). Перекрывает экран — нажатия в это время не проходят. */
+.o-note-big { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 0 24px; background: transparent; }
+.o-note-big__plate {
+  min-width: 220px; max-width: 320px; padding: 22px 24px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; gap: 8px;
+  border: 0.7px solid rgba(204, 219, 207, 0.35);
+  background: linear-gradient(180deg, rgba(71, 89, 89, 0.92) 0%, rgba(51, 74, 77, 0.94) 55%, rgba(31, 54, 56, 0.96) 100%);
+  box-shadow: 0 16px 30px rgba(4, 10, 11, 0.45), inset 0 1px 1.2px rgba(235, 242, 227, 0.18);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
+.o-note-big__plate b { font: 700 24px/30px var(--font-num); color: #edf0e7; }
+.o-note-big__plate b.o-note-big__ok { color: #8dffb0; font-size: 20px; line-height: 26px; }
+.o-note-big__plate span { font: 400 16px/20px var(--font-body); color: rgba(237, 240, 231, 0.85); }
+.o-note-big.is-in .o-note-big__plate { animation: oNoteIn 0.22s ease-out both; }
+@keyframes oNoteIn { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+@keyframes oFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.o-reveal > :not(.o-head) { animation: oFadeIn 0.3s ease-out both; }

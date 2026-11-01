@@ -1,9 +1,9 @@
 // Экраны и блоки, общие для всех ролей: шапка, начисления, профиль, история, сводка расчёта.
 
-import { actions, rerender, go } from './core.js?v=43';
-import * as S from './store.js?v=43';
-import { WALLPAPER_TYPES } from './seed.js?v=43';
-import { esc, rub, m2, num, kv, status, btnRow, dateTimeRu, phoneRu, ICONS, sheet, closeSheet, toast } from './ui.js?v=43';
+import { actions, rerender, go } from './core.js?v=44';
+import * as S from './store.js?v=44';
+import { WALLPAPER_TYPES } from './seed.js?v=44';
+import { esc, rub, m2, num, kv, status, btnRow, dateTimeRu, phoneRu, ICONS, sheet, closeSheet, toast } from './ui.js?v=44';
 
 export function topbar(title, { back = '', right = '' } = {}) {
   return `<header class="plate topbar">

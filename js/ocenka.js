@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=43';
-import * as S from './store.js?v=43';
-import { SYSTEM_PRICE } from './seed.js?v=43';
-import { shiftsText, hoursFor } from './calc.js?v=43';
-import { esc } from './ui.js?v=43';
-import { logEvent } from './zlog.js?v=43';
+import { actions, rerender } from './core.js?v=44';
+import * as S from './store.js?v=44';
+import { SYSTEM_PRICE } from './seed.js?v=44';
+import { shiftsText, hoursFor } from './calc.js?v=44';
+import { esc } from './ui.js?v=44';
+import { logEvent } from './zlog.js?v=44';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -168,8 +168,7 @@ function volumesView(e, r) {
     <div class="f-btn-row" id="o-room-ok" ${filled ? '' : 'hidden'}>
       <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="o-ok">ОК</button>
       ${r.status !== 'new' ? `<button type="button" class="f-btn${r.status === 'editing' ? ' f-btn--editing' : ''}" data-action="o-edit">${r.status === 'editing' ? 'Редактирование' : 'Редактировать'}</button>` : ''}
-    </div>
-    ${locked ? (() => { const n = nextAfter(e, r); return `<div class="f-btn-row o-next"><button type="button" class="f-btn f-btn--lit" data-action="o-go" data-key="${n.key}">Дальше: ${esc(n.name)} →</button></div>`; })() : ''}`;
+    </div>`;
 }
 
 function calcView(e, r) {
@@ -231,7 +230,8 @@ export function renderEstimate(d) {
   }
   // Внутри комнаты (услуги, объёмы, калькулятор, итог) прокручивается весь экран, а не блок внутри.
   if (!one) html = html.replace(/ f-fill\b/g, '');
-  const anim = slide ? ` o-anim--${slide}` : ''; slide = '';
+  if (transit) { const r = roomOf(e, e.view); html = r ? carousel(e, roomTabs(r)) : carousel(e); one = true; }
+  const anim = (slide ? ` o-anim--${slide}` : '') + (reveal && !transit ? ' o-reveal' : ''); slide = ''; if (!transit) reveal = false;
   return `${one ? '<i class="f-one" hidden></i>' : ''}<div class="o-wrap${anim}">${html}</div>${e.confirm ? confirmDialog(e.confirm) : ''}`;
 }
 
@@ -242,6 +242,15 @@ const save = () => { S.save(); rerender(); };
 // Переход между комнатами — с анимацией: шапка и содержимое уезжают в сторону листания,
 // новая комната выезжает с другой стороны, её название на мгновение подсвечивается.
 let slide = '';
+let transit = 0; // 1 — «сохранена», 2 — название следующей комнаты; содержимое комнаты в это время скрыто
+let reveal = false; // после перехода содержимое плавно появляется
+function showNote(html) {
+  let el = document.getElementById('o-note-big');
+  if (!el) { el = document.createElement('div'); el.id = 'o-note-big'; el.className = 'o-note-big'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.innerHTML = `<div class="o-note-big__plate">${html}</div>`;
+  el.classList.remove('is-in'); void el.offsetWidth; el.classList.add('is-in');
+}
+function hideNote() { const el = document.getElementById('o-note-big'); if (el) el.remove(); }
 function goView(e, key) {
   const items = carouselItems(e);
   const a = items.findIndex((x) => x.key === e.view); const b = items.findIndex((x) => x.key === key);
@@ -250,7 +259,6 @@ function goView(e, key) {
   const r = roomOf(e, e.view); if (r && r.panel === 'calc') r.panel = '';
 }
 actions['o-view'] = (el) => { const e = D(); goView(e, el.dataset.key); save(); window.scrollTo(0, 0); };
-actions['o-go'] = (el) => { const e = D(); goView(e, el.dataset.key); save(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 // Куда вести после сохранённой комнаты: следующая несохранённая, иначе любая несохранённая, иначе «Итог».
 function nextAfter(e, r) {
   const i = e.rooms.indexOf(r);
@@ -323,8 +331,19 @@ actions['o-ok'] = () => {
   r.status = 'saved';
   r.snap = Object.fromEntries(r.svcs.map((x) => [x.id, x.qty]));
   { const t = roomTotals(r); logEvent(S.get().oformit[S.me().id], 'Сохранена оценка комнаты', `${r.name}: ${fmt(t.total)} ₽ · ${shiftsText(t.hours)}`); }
-  // ОК не перекидывает сам: комната становится «сохранено», а внизу появляется кнопка «Дальше: …».
+  // ОК → переход с сообщением (2 секунды, нажатия в это время не принимаются):
+  // 1 с — содержимое скрыто, по центру «✓ Спальня сохранена · Дальше — Гостиная»;
+  // затем шапка переезжает на следующую комнату, по центру её название — ещё 1 с; потом комната открывается.
+  const n = nextAfter(e, r);
+  transit = 1;
+  showNote(`<b class="o-note-big__ok">✓ ${esc(r.name)} сохранена</b><span>Дальше — ${esc(n.name)}</span>`);
   save();
+  setTimeout(() => {
+    const e2 = D(); goView(e2, n.key); transit = 2;
+    showNote(`<b>${esc(n.name)}</b>`);
+    save(); window.scrollTo(0, 0);
+    setTimeout(() => { transit = 0; reveal = true; hideNote(); rerender(); }, 1000);
+  }, 1000);
 };
 actions['o-edit'] = () => { const e = D(); const r = roomOf(e, e.view); if (r.status === 'saved') { r.status = 'editing'; save(); } };
 actions['o-calc-open'] = () => { const e = D(); const r = roomOf(e, e.view); r.panel = 'calc'; r.calc = r.calc || { expr: '', res: '' }; save(); };
