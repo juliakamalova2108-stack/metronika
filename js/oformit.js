@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=82';
-import * as S from './store.js?v=82';
-import { CHANNELS } from './seed.js?v=82';
-import { esc } from './ui.js?v=82';
-import { logEvent } from './zlog.js?v=82';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=82';
+import { actions, rerender, go } from './core.js?v=84';
+import * as S from './store.js?v=84';
+import { CHANNELS } from './seed.js?v=84';
+import { esc } from './ui.js?v=84';
+import { logEvent } from './zlog.js?v=84';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=84';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=82';
-import { renderSchedule, scheduleState } from './grafik.js?v=82';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=84';
+import { renderSchedule, scheduleState } from './grafik.js?v=84';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -92,7 +92,7 @@ function channelPlate(d) {
 function nav(tabsHtml, many, right = '') {
   return `<nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">
     <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>
-    <div class="f-topnav f-botnav${many ? ' f-botnav--many' : ''}"><div class="f-topnav__track" role="tablist">${tabsHtml}</div></div>${right}
+    ${tabsHtml ? `<div class="f-topnav f-botnav${many ? ' f-botnav--many' : ''}"><div class="f-topnav__track" role="tablist">${tabsHtml}</div></div>` : right ? '' : '<span class="f-nav__space"></span>'}${right}
   </nav>`;
 }
 

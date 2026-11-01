@@ -823,3 +823,10 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 /* «Сохранено» ещё крупнее (+50 %). */
 .o-note-big__plate { padding: 33px 51px; border-radius: 12px; }
 .o-note-big__plate b.o-note-big__ok { font-size: 39px; line-height: 46px; }
+.f-nav__space { flex: 1; }
+/* Шапка заказа в нижней навигации: назад + клиент/раздел, между «Меню» и «Чатом». */
+.bd-ohead--nav { flex: 1 1 auto; min-width: 0; height: 50px; padding: 0 12px 0 4px; gap: 10px; border-radius: 10px; border: 0.8px solid rgba(219, 232, 212, 0.34);
+  background: linear-gradient(180deg, rgba(110, 130, 122, 0.48) 0%, rgba(77, 102, 99, 0.36) 34%, rgba(46, 74, 77, 0.5) 100%); }
+.bd-ohead--nav .f-icon-btn { width: 40px; height: 40px; }
+.bd-ohead--nav b { font-size: 15px; line-height: 19px; }
+.bd-ohead--nav small { font-size: 11px; line-height: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
