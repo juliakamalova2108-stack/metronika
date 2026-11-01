@@ -1,16 +1,16 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=24';
-import * as S from './store.js?v=24';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=24';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=24';
-import { renderSettlements } from './shared.js?v=24';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=24';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=24';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=24';
-import { renderOformit, onLiveOformit } from './oformit.js?v=24';
-import { onLiveZakaz } from './zakaz.js?v=24';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=24';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=25';
+import * as S from './store.js?v=25';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=25';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=25';
+import { renderSettlements } from './shared.js?v=25';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=25';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=25';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=25';
+import { renderOformit, onLiveOformit } from './oformit.js?v=25';
+import { onLiveZakaz } from './zakaz.js?v=25';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=25';
 
 const VERSION = 'прототип 1.0';
 

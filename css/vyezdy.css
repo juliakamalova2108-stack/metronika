@@ -546,3 +546,7 @@ body.fig .view:has(.o-head) * { touch-action: pan-y; }
 .o-room:has(.o-room__bar) { padding-top: 4px; }
 .o-room__bar { height: 16px; margin-bottom: -4px; }
 .o-room__bar .f-status { top: 0; line-height: 16px; }
+/* Ярлыки «+» и калькулятор под комнатой — выше на 40 % (34 → 48). */
+.o-ear { height: 48px; padding-top: 16px; }
+.o-ear--calc { padding-top: 12px; }
+.o-head--tabs { height: 107px; }
