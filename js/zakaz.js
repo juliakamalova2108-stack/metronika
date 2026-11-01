@@ -2,12 +2,12 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=12';
-import * as S from './store.js?v=12';
-import { WALLPAPER_TYPES } from './seed.js?v=12';
-import { esc, toast } from './ui.js?v=12';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=12';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=12';
+import { actions, changes, rerender } from './core.js?v=13';
+import * as S from './store.js?v=13';
+import { WALLPAPER_TYPES } from './seed.js?v=13';
+import { esc, toast } from './ui.js?v=13';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=13';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=13';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
