@@ -3,13 +3,13 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=78';
-import * as S from './store.js?v=78';
-import { renderOformit, oformitDraft } from './oformit.js?v=78';
-import { roomTotals, svcInfo } from './ocenka.js?v=78';
-import { smetaTotals } from './zakaz.js?v=78';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=78';
-import { esc, toast } from './ui.js?v=78';
+import { actions, rerender, go } from './core.js?v=81';
+import * as S from './store.js?v=81';
+import { renderOformit, oformitDraft } from './oformit.js?v=81';
+import { roomTotals, svcInfo } from './ocenka.js?v=81';
+import { smetaTotals } from './zakaz.js?v=81';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=81';
+import { esc, toast } from './ui.js?v=81';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -121,7 +121,7 @@ function seedOrder(no) {
   const o = st.oformit[key];
   if (no === '007') o.mat = { view: '', scans: 1, rooms: { [rooms[0].key]: { items: [], panel: '', tab: 'added', res: null, note: 'Передал продавец магазина «Обои+»', added: { brand: 'Erismann', type: 'Обои флиз. 106 см' } } } };
   if (no === '014') o.sm = { view: '', rooms: { [rooms[0].key]: { sameH: true, h: 2.7, sameSvc: true, dlg: null, walls: [4.2, 3.6, 4.2, 3.6].map((len, i) => ({ len, h: 2.7, opens: i === 1 ? [{ name: 'Окно', area: 2.1 }] : i === 3 ? [{ name: 'Дверь', area: 1.8 }] : [], svcs: ['prime', 'paste-flizelin'] })) } } };
-  if (no === '004') { o.fin = { pays: [{ kind: 'Аванс', amount: 5000, date: iso(-2), method: 'Перевод' }], exps: [] }; o.chat = [{ who: 'client', text: 'Можно начать в 9:30? Буду дома с 9:20.', at: new Date().toISOString() }]; }
+  if (no === '004') { o.fin = { pays: [{ kind: 'Аванс', amount: 5000, date: iso(-2), method: 'Перевод' }], exps: [] }; o.chat = [{ who: 'u-agent', text: 'Клиент просил начать в 9:30 — будет дома с 9:20.', at: new Date().toISOString() }]; }
   S.save();
 }
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -180,12 +180,15 @@ export function renderBoardOrder(no) {
   if (pays || exps) extra.push(block('Финансы', no, 'finance', `<div class="bd-total"><div><small>Получено</small><b>${fmt(pays)} ₽</b></div><div><small>Остаток</small><b>${fmt(Math.max(0, tot.sum - pays))} ₽</b></div></div>${exps ? `<p class="bd-range">Расходы: ${fmt(exps)} ₽</p>` : ''}`));
   const openTasks = (d.tasks || []).filter((t) => !t.done);
   if (openTasks.length) extra.push(block('Задачи', no, 'tasks', openTasks.slice(0, 3).map((t) => `<p class="bd-line"><b>${esc(t.text)}</b>${t.due ? `<small>до ${esc(t.due)}</small>` : ''}</p>`).join('')));
-  if ((d.chat || []).length) { const m = d.chat[d.chat.length - 1]; extra.push(block('Чат', no, 'chat', `<p class="bd-note">«${esc(m.text)}»</p><p class="bd-range">${d.chat.length} ${d.chat.length === 1 ? 'сообщение' : 'сообщения'}</p>`)); }
   const more = extra.join('');
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${head}${client}${est}${sched}${sum}${chan}${more}
-    <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button><div class="f-topnav f-botnav"><div class="f-topnav__track" role="tablist"><button type="button" class="f-tab" data-action="bd-back">← Заказы</button><button type="button" class="f-tab is-active">Заказ №${no}</button></div></div></nav>`;
+    <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button><div class="f-topnav f-botnav"><div class="f-topnav__track" role="tablist"><button type="button" class="f-tab" data-action="bd-back">← Заказы</button><button type="button" class="f-tab is-active">Заказ №${no}</button></div></div>${chatBtn(no, d)}</nav>`;
 }
 // Правка блока — та же форма, что при оформлении; «назад» возвращает в сводку заказа.
+// Чат заказа — кнопка справа в нижней навигации; красная цифра — непрочитанные сообщения не от мастера.
+const CHAT = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5h16v10.5H9.5L5 19.5V16H4z" stroke="#A3AEBE" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 9.5h8M8 12.5h5" stroke="#A3AEBE" stroke-width="1.6" stroke-linecap="round"/></svg>';
+const unread = (d) => (d.chat || []).filter((m) => m.who !== S.me().id && !m.read).length;
+const chatBtn = (no, d) => { const n = unread(d); return `<button type="button" class="f-nav__tab f-nav__chat" data-action="bd-edit" data-no="${no}" data-tab="chat" aria-label="Чат заказа">${CHAT}${n ? `<b class="f-nav__badge">${n}</b>` : ''}<span>Чат</span></button>`; };
 // Правка блока — только этот раздел (та же форма, что при оформлении), без вкладок других разделов.
 const TAB_T = { client: 'Клиент', estimate: 'Оценка', schedule: 'График', channel: 'Канал', material: 'Материал', smeta: 'Смета', chat: 'Чат', tasks: 'Задачи', finance: 'Финансы', history: 'История' };
 // «Изменить» сразу включает правку раздела — «Редактировать» нажимать не нужно.
@@ -205,7 +208,9 @@ export function renderBoardEdit(no, t) {
   const c = CL[no];
   const head = `<div class="bd-ohead"><button type="button" class="f-icon-btn bd-back" data-action="bd-to-order" data-no="${no}" aria-label="К заказу">${BACK}</button><span><b>${TAB_T[t]}</b><small>${esc(c.n)} · заказ №${no}</small></span></div>`;
   const navHtml = `<button type="button" class="f-tab" data-action="bd-to-order" data-no="${no}">← К заказу</button><button type="button" class="f-tab is-active">${TAB_T[t]}</button>`;
-  return renderOformit('order', { only: t, navHtml }).replace('<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>', `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${head}`);
+  const dd = oformitDraft();
+  if (t === 'chat') { (dd.chat || []).forEach((m) => { m.read = true; }); S.save(); }
+  return renderOformit('order', { only: t, navHtml, navRight: t === 'chat' ? '' : chatBtn(no, dd) }).replace('<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>', `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${head}`);
 }
 actions['bd-edit'] = (el) => { startEdit = el.dataset.tab; go(`bd-edit-${el.dataset.no}-${el.dataset.tab}`); };
 actions['bd-to-order'] = (el) => go('bd-order-' + el.dataset.no);

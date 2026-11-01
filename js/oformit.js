@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=78';
-import * as S from './store.js?v=78';
-import { CHANNELS } from './seed.js?v=78';
-import { esc } from './ui.js?v=78';
-import { logEvent } from './zlog.js?v=78';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=78';
+import { actions, rerender, go } from './core.js?v=81';
+import * as S from './store.js?v=81';
+import { CHANNELS } from './seed.js?v=81';
+import { esc } from './ui.js?v=81';
+import { logEvent } from './zlog.js?v=81';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=81';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=78';
-import { renderSchedule, scheduleState } from './grafik.js?v=78';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=81';
+import { renderSchedule, scheduleState } from './grafik.js?v=81';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -89,10 +89,10 @@ function channelPlate(d) {
 }
 
 // Нижняя навигация «Оформить заказ» / «Текущий заказ»: «Меню» и вкладки разделов (листаются вбок, если не влезают).
-function nav(tabsHtml, many) {
+function nav(tabsHtml, many, right = '') {
   return `<nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">
     <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>
-    <div class="f-topnav f-botnav${many ? ' f-botnav--many' : ''}"><div class="f-topnav__track" role="tablist">${tabsHtml}</div></div>
+    <div class="f-topnav f-botnav${many ? ' f-botnav--many' : ''}"><div class="f-topnav__track" role="tablist">${tabsHtml}</div></div>${right}
   </nav>`;
 }
 
@@ -127,7 +127,7 @@ export function renderOformit(mode = 'oformit', opts = {}) {
   const tabsHtml = tabs.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="f-tab${k === tab ? ' is-active' : ''}" data-action="f-tab" data-tab="${k}">${t}${((st) => (st ? `<i class="f-tab__dot${st === 'ok' ? ' f-tab__dot--ok' : ''}" aria-label="${st === 'ok' ? 'сохранено' : 'редактирование'}"></i>` : ''))(stateOf(k))}</button>`).join('');
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     ${body}
-    ${nav(opts.only ? opts.navHtml || '' : tabsHtml, !opts.only && tabs.length > 4)}`;
+    ${nav(opts.only ? opts.navHtml || '' : tabsHtml, !opts.only && tabs.length > 4, opts.navRight || '')}`;
 }
 
 function markDirty(d) {

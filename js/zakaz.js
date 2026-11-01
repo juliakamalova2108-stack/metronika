@@ -2,16 +2,16 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=78';
-import * as S from './store.js?v=78';
-import { WALLPAPER_TYPES } from './seed.js?v=78';
-import { esc, toast } from './ui.js?v=78';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=78';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=78';
-import { country } from './phonecodes.js?v=78';
-import { suggestAddress } from './address.js?v=78';
-import { suggesters } from './kbd.js?v=78';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=78';
+import { actions, changes, rerender } from './core.js?v=81';
+import * as S from './store.js?v=81';
+import { WALLPAPER_TYPES } from './seed.js?v=81';
+import { esc, toast } from './ui.js?v=81';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=81';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=81';
+import { country } from './phonecodes.js?v=81';
+import { suggestAddress } from './address.js?v=81';
+import { suggesters } from './kbd.js?v=81';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=81';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -348,7 +348,7 @@ actions['z-wsvc-done'] = (el) => {
 function renderChat(d) {
   d.chat = d.chat || [];
   return `<section class="f-plate"><p class="z-title">Чат заказа</p><p class="z-muted">Только участники заказа. Клиента здесь нет.</p>
-    <div class="z-chat">${d.chat.length ? d.chat.map((m) => `<div class="z-msg${m.who === S.me().id ? ' z-msg--me' : ''}"><small>${m.who === S.me().id ? 'Вы' : esc((S.user(m.who) || {}).name || '')} · ${new Date(m.at).toTimeString().slice(0, 5)}</small><p>${esc(m.text)}</p></div>`).join('') : '<p class="z-muted">Сообщений пока нет</p>'}</div>
+    <div class="z-chat">${d.chat.length ? d.chat.map((m) => `<div class="z-msg${m.who === S.me().id ? ' z-msg--me' : ''}"><small>${m.who === S.me().id ? 'Вы' : esc((S.user(m.who) || {}).name || 'Клиент')} · ${new Date(m.at).toTimeString().slice(0, 5)}</small><p>${esc(m.text)}</p></div>`).join('') : '<p class="z-muted">Сообщений пока нет</p>'}</div>
     ${area('z-chat-text', '', '', { ph: 'Сообщение участникам' })}
     ${row(btn('Отправить', 'z-chat-send'))}</section>`;
 }
