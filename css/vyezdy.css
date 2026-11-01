@@ -570,7 +570,7 @@ body.fig .view:has(.o-head) * { touch-action: pan-y; }
 }
 .kb__row { display: flex; gap: 4px; justify-content: center; }
 .kb__k {
-  flex: 1 1 0; min-width: 0; height: 44px; padding: 0; border-radius: 5px; cursor: pointer;
+  flex: 1 1 0; min-width: 0; height: 53px; padding: 0; border-radius: 5px; cursor: pointer;
   border: 1px solid rgba(204, 222, 209, 0.55); background: #213839; color: #edf0e7;
   font: 500 16px/1 var(--font-body); display: grid; place-items: center;
   box-shadow: 0 2px 2.5px rgba(1, 6, 9, 0.27), inset 0 -2px 2px rgba(6, 18, 20, 0.34), inset 0 1px 1px rgba(224, 242, 227, 0.36);
@@ -582,6 +582,7 @@ body.fig .view:has(.o-head) * { touch-action: pan-y; }
 .kb__k--fn.is-on { color: #ffc247; }
 .kb__row .kb__k--fn[data-k="sh"], .kb__row .kb__k[data-k="bs"] { flex-grow: 1.4; }
 .kb__w { flex-grow: 1.6; }
+.kb__k[data-k="paste"] { flex-grow: 2.4; font-size: 13px; }
 .kb__space { flex-grow: 4; }
 .kb__ok { background: #2d4a3a; font-weight: 600; color: #e6f2cc; border-color: rgba(222, 237, 194, 0.7); }
 .kb__num { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }

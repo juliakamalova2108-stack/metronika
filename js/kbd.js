@@ -1,4 +1,4 @@
-import { afterRender } from './core.js?v=32';
+import { afterRender } from './core.js?v=33';
 
 // Своя клавиатура для экранов «Оформить заказ» и «Текущий заказ».
 // Системная клавиатура телефона не открывается (inputmode="none"); вместо неё прямо под полем
@@ -31,6 +31,9 @@ function prepare(root = document) {
     el.dataset.kb = kind;
     el.dataset.kbMode = mode || el.type;
     el.setAttribute('inputmode', 'none');
+    // Поля «телефон», «ссылка», «число» некоторые телефоны всё равно открывают системной клавиатурой —
+    // делаем их обычными текстовыми (тип клавиатуры уже запомнен в data-kb-mode).
+    if (el.tagName === 'INPUT' && el.type !== 'text') el.type = 'text';
     el.setAttribute('autocomplete', 'off');
   });
 }
@@ -74,7 +77,7 @@ function build(el) {
     <div class="kb__row kb__row--bottom">
       <button type="button" class="kb__k kb__k--fn kb__w" data-k="layer">${layer === 'sym' ? (lastLetters === 'en' ? 'ABC' : 'АБВ') : '123'}</button>
       <button type="button" class="kb__k kb__k--fn" data-k="lang" aria-label="Язык">${layer === 'en' ? 'RU' : 'EN'}</button>
-      <button type="button" class="kb__k" data-k=",">,</button>
+      ${el.dataset.kbMode === 'url' ? '<button type="button" class="kb__k kb__k--fn kb__w" data-k="paste">Вставить</button>' : '<button type="button" class="kb__k" data-k=",">,</button>'}
       <button type="button" class="kb__k kb__space" data-k=" " aria-label="Пробел"></button>
       <button type="button" class="kb__k" data-k=".">.</button>
       <button type="button" class="kb__k kb__ok kb__w" data-k="ok">ОК</button>
@@ -186,6 +189,11 @@ function onKey(ev) {
   if (!el) return close();
   if (k === 'ok') return ok();
   if (k === 'bs') { type(null); autoShift(cur() || el); return draw(); }
+  if (k === 'paste') {
+    if (!navigator.clipboard || !navigator.clipboard.readText) return;
+    navigator.clipboard.readText().then((t) => { if (t) { type(t.trim()); draw(); } }).catch(() => {});
+    return;
+  }
   if (k === 'sh') { shift = !shift; return draw(); }
   if (k === 'layer') { layer = layer === 'sym' ? lastLetters : 'sym'; shift = false; return draw(); }
   if (k === 'lang') { layer = layer === 'en' ? 'ru' : 'en'; lastLetters = layer; shift = false; return draw(); }
