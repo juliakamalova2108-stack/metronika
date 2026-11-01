@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=42';
-import * as S from './store.js?v=42';
-import { SYSTEM_PRICE } from './seed.js?v=42';
-import { shiftsText, hoursFor } from './calc.js?v=42';
-import { esc } from './ui.js?v=42';
-import { logEvent } from './zlog.js?v=42';
+import { actions, rerender } from './core.js?v=43';
+import * as S from './store.js?v=43';
+import { SYSTEM_PRICE } from './seed.js?v=43';
+import { shiftsText, hoursFor } from './calc.js?v=43';
+import { esc } from './ui.js?v=43';
+import { logEvent } from './zlog.js?v=43';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -219,12 +219,12 @@ function confirmDialog(c) {
 export function renderEstimate(d) {
   const e = est(d);
   let html;
-  let one = false; // один экран без прокрутки — только выбор комнат (и пустая комната с одной кнопкой «+»)
+  let one = false; // один экран без прокрутки — выбор комнат, выбор услуг и пустая комната с одной кнопкой «+»
   if (e.view === 'total' && carouselItems(e).some((x) => x.key === 'total')) html = totalView(e);
   else {
     const r = roomOf(e, e.view);
     if (!r) { e.view = 'pick'; html = pickView(e); one = true; }
-    else if (r.panel === 'services') html = servicesView(e, r);
+    else if (r.panel === 'services') { html = servicesView(e, r); one = true; } // список услуг — как выбор комнат: кнопка всегда внизу
     else if (r.panel === 'calc') html = calcView(e, r);
     else if (r.svcs.length) html = volumesView(e, r);
     else { html = carousel(e, roomTabs(r)); one = true; }
