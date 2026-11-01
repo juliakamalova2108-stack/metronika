@@ -535,3 +535,4 @@ body.fig .view:has(.g-screen) { padding-bottom: 112px; }
 /* Строка «Без даты» всегда одной высоты; календарь не обрезается по бокам. */
 .g-screen .g-tray { height: 56px; flex: none; }
 .g-screen.f-fill { overflow: visible; }
+body.fig .view:has(.o-head) { touch-action: pan-y; }
