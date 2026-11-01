@@ -1,3 +1,5 @@
+import { afterRender } from './core.js?v=31';
+
 // Своя клавиатура для экранов «Оформить заказ» и «Текущий заказ».
 // Системная клавиатура телефона не открывается (inputmode="none"); вместо неё прямо под полем
 // появляется компактная клавиатура: буквы — для текста, цифры — для телефона, дома, этажа и т. п.
@@ -32,6 +34,7 @@ function prepare(root = document) {
     el.setAttribute('autocomplete', 'off');
   });
 }
+afterRender.push(() => prepare());
 new MutationObserver(() => prepare()).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
 // На случай, если поле появилось между перерисовками: готовим его в момент касания, до фокуса.
 document.addEventListener('pointerdown', (ev) => { if (isFig() && editable(ev.target)) prepare(ev.target.parentNode); }, true);
@@ -105,8 +108,8 @@ function place() {
   const plate = (el.closest('.f-plate, .o-card, section') || el).getBoundingClientRect();
   const vw = window.innerWidth; const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   const num = el.dataset.kb === 'num';
-  const w = num ? Math.min(260, plate.width) : Math.min(plate.width, vw - 12);
-  let left = num ? Math.max(box.left, 6) : plate.left + (plate.width - w) / 2;
+  const w = Math.min(plate.width, vw - 12);
+  let left = plate.left + (plate.width - w) / 2;
   left = Math.max(6, Math.min(left, vw - w - 6));
   kb.style.width = `${w}px`;
   kb.style.left = `${left}px`;
@@ -195,7 +198,10 @@ function onKey(ev) {
 
 document.addEventListener('focusin', (ev) => {
   const el = ev.target;
-  if (!isFig() || !el.dataset || !el.dataset.kb) return;
+  if (!isFig() || !el.dataset) return;
+  // Поле получило фокус раньше, чем его подготовили: готовим и переоткрываем без системной клавиатуры.
+  if (!el.dataset.kb && editable(el)) { prepare(el.parentNode); if (el.dataset.kb) { el.blur(); el.focus({ preventScroll: true }); } return; }
+  if (!el.dataset.kb) return;
   if (el.readOnly || el.disabled) { if (field) close(); return; }
   open(el);
 });

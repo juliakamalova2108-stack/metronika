@@ -1,17 +1,17 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=30';
-import * as S from './store.js?v=30';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=30';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=30';
-import { renderSettlements } from './shared.js?v=30';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=30';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=30';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=30';
-import { renderOformit, onLiveOformit } from './oformit.js?v=30';
-import { onLiveZakaz } from './zakaz.js?v=30';
-import './kbd.js?v=30';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=30';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=31';
+import * as S from './store.js?v=31';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=31';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=31';
+import { renderSettlements } from './shared.js?v=31';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=31';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=31';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=31';
+import { renderOformit, onLiveOformit } from './oformit.js?v=31';
+import { onLiveZakaz } from './zakaz.js?v=31';
+import './kbd.js?v=31';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=31';
 
 const VERSION = 'прототип 1.0';
 
@@ -134,6 +134,7 @@ function render() {
 }
 
 setRenderer(render);
+// Первая отрисовка тоже проходит через afterRender (см. core.js).
 
 // ---------- действия оболочки ----------
 actions['menu-open'] = () => {
@@ -214,6 +215,6 @@ document.addEventListener('keydown', (ev) => {
     if (form) { ev.preventDefault(); submitForm(form); }
   }
 });
-window.addEventListener('hashchange', render);
+window.addEventListener('hashchange', rerender);
 
-render();
+rerender();

@@ -6,8 +6,10 @@ export const inputs = Object.create(null);
 // Обработчики изменения полей (data-change): сохраняют значение сразу, без кнопки.
 export const changes = Object.create(null);
 
+// После каждой отрисовки (сразу, до любого фокуса) — например, своя клавиатура готовит поля.
+export const afterRender = [];
 let renderFn = () => {};
-export function setRenderer(fn) { renderFn = fn; }
+export function setRenderer(fn) { renderFn = () => { fn(); afterRender.forEach((f) => f()); }; }
 export function rerender() { renderFn(); }
 
 export function go(name) {
