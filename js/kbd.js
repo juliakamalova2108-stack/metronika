@@ -1,4 +1,4 @@
-import { afterRender } from './core.js?v=38';
+import { afterRender } from './core.js?v=39';
 
 // Подсказки над клавишами: поле с data-suggest="имя" получает список из suggesters[имя](текст).
 // Выбор подсказки шлёт полю событие kb-pick с выбранным пунктом.
@@ -27,9 +27,19 @@ const isFig = () => document.body.classList.contains('fig');
 const editable = (el) => el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && /^(text|tel|url|search|number|email|)$/.test(el.type || ''))) && el.closest('.view');
 
 // Каждое поле получает тип клавиатуры (data-kb) и inputmode="none", чтобы системная не выскакивала.
+// Поле без id получает постоянное имя из своих data-атрибутов: по нему клавиатура находит поле и после перерисовки.
+function autoId(el) {
+  if (el.id) return;
+  const ds = el.dataset;
+  const base = ['kb', ds.live || ds.change || el.tagName.toLowerCase(), ds.id ?? ds.i ?? ds.type ?? ds.key ?? ''].join('-').replace(/[^\w-]/g, '_');
+  let id = base; let n = 2;
+  while (document.getElementById(id)) id = `${base}-${n++}`;
+  el.id = id;
+}
 function prepare(root = document) {
   if (!isFig()) return;
   root.querySelectorAll('.view input, .view textarea').forEach((el) => {
+    if (editable(el)) autoId(el);
     if (el.dataset.kb || !editable(el)) return;
     const mode = el.getAttribute('inputmode') || '';
     const kind = NUM_MODES.has(mode) || el.type === 'tel' || el.type === 'number' ? 'num' : mode === 'url' || el.type === 'url' ? 'en' : 'ru';
