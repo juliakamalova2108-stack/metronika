@@ -638,6 +638,37 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 @keyframes oNoteIn { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
 @keyframes oFadeIn { from { opacity: 0; } to { opacity: 1; } }
 .o-reveal > :not(.o-head) { animation: oFadeIn 0.3s ease-out both; }
-/* До первого сохранения «Редактировать» нет: одиночная «Сохранить»/«ОК» — стандартной ширины (как в ряду из двух), по центру. */
-.f-btn-row:has(> .f-btn:only-child:is([data-action="o-ok"], [data-action="g-ok"], [data-action="f-save"], [data-action="z-cl-save"])) { justify-content: center; }
-.f-btn-row > .f-btn:only-child:is([data-action="o-ok"], [data-action="g-ok"], [data-action="f-save"], [data-action="z-cl-save"]) { flex: 0 0 calc(50% - 2.5px); }
+/* До первого сохранения «Редактировать» нет: одиночная «Сохранить»/«ОК» стандартной ширины (как в ряду из двух),
+   и подложка под ней тоже сужается под одну кнопку — пропорции как у ряда из двух. Стоит по центру. */
+.f-btn-row:has(> .f-btn:only-child:is([data-action="o-ok"], [data-action="g-ok"], [data-action="f-save"], [data-action="z-cl-save"])) { width: calc(50% + 2.5px); align-self: center; margin-left: auto; margin-right: auto; box-sizing: border-box; }
+
+/* ================= Оценка · Итог ================= */
+.o-grand { align-items: center; text-align: center; gap: 4px; padding: 16px; }
+.o-grand__t { margin: 0; font: 500 13px/16px var(--font-body); color: rgba(237, 242, 232, 0.75); text-transform: uppercase; letter-spacing: 0.06em; }
+.o-grand__sum { font: 700 32px/38px var(--font-num); color: #edf2e8; }
+.o-grand__x { margin: 0; font: 500 15px/20px var(--font-body); color: #d4deb8; }
+.o-sec { margin: 0 4px -4px; font: 600 13px/16px var(--font-body); color: rgba(237, 242, 232, 0.7); text-transform: uppercase; letter-spacing: 0.06em; }
+.o-sec--in { margin: 0 0 4px; }
+/* Комната: отдельная плашка, слева полоса её цвета (как в «Графике»). */
+.o-sroom { position: relative; border-radius: 8px; overflow: hidden; border: 0.7px solid rgba(204, 219, 207, 0.28);
+  background: linear-gradient(180deg, rgba(51, 71, 74, 0.85) 0%, rgba(31, 54, 56, 0.92) 100%);
+  box-shadow: 0 8px 16px rgba(4, 10, 11, 0.28), inset 0 1px 1.2px rgba(235, 242, 227, 0.14); }
+.o-sroom::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--rc); }
+.o-sroom__head { width: 100%; display: flex; align-items: center; gap: 10px; padding: 12px 10px 12px 18px; border: 0; background: none; cursor: pointer; text-align: left; color: #edf2e8; }
+.o-sroom__name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.o-sroom__name b { font: 600 17px/22px var(--font-body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.o-sroom__name small, .o-sroom__sum small { font: 400 12px/16px var(--font-body); color: rgba(237, 242, 232, 0.7); }
+.o-sroom__sum { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.o-sroom__sum b { font: 700 18px/22px var(--font-num); white-space: nowrap; }
+.o-sroom__chev { flex: none; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 4px; background: #213839; border: 1px solid rgba(204, 222, 209, 0.4); transition: transform 0.2s; }
+.o-sroom__chev svg { width: 14px; height: 14px; }
+.o-sroom.is-open .o-sroom__chev { transform: rotate(180deg); }
+.o-sroom__list { display: none; padding: 0 12px 10px 18px; }
+.o-sroom.is-open .o-sroom__list { display: block; }
+/* Строка услуги в итоге: текст, без полей ввода. */
+.o-line { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: baseline; padding: 8px 0; border-top: 0.5px solid rgba(191, 214, 204, 0.16); }
+.o-line__n { font: 400 14px/18px var(--font-body); color: #edf2e8; }
+.o-line__q { font: 400 13px/18px var(--font-body); color: rgba(237, 242, 232, 0.7); white-space: nowrap; }
+.o-line__s { font: 600 14px/18px var(--font-num); color: #edf2e8; white-space: nowrap; min-width: 72px; text-align: right; }
+.o-bywork { gap: 0; padding: 12px 12px 6px 16px; }
+@media print { .o-sroom__list { display: block !important; } .o-sroom__chev { display: none; } }

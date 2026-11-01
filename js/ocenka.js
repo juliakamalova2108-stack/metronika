@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=47';
-import * as S from './store.js?v=47';
-import { SYSTEM_PRICE } from './seed.js?v=47';
-import { shiftsText, hoursFor } from './calc.js?v=47';
-import { esc, toast } from './ui.js?v=47';
-import { logEvent } from './zlog.js?v=47';
+import { actions, rerender } from './core.js?v=49';
+import * as S from './store.js?v=49';
+import { SYSTEM_PRICE } from './seed.js?v=49';
+import { shiftsText, hoursFor } from './calc.js?v=49';
+import { esc, toast } from './ui.js?v=49';
+import { logEvent } from './zlog.js?v=49';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -183,12 +183,22 @@ function calcView(e, r) {
     <div class="f-btn-row"><button type="button" class="f-btn" data-action="o-calc-close">Закрыть</button></div>`;
 }
 
+// «Итог»: комнаты — свёрнутые плашки с цветной полосой (нажатие раскрывает услуги строками),
+// затем «Итого по видам работ» строками, внизу общий итог и «Скачать PDF».
+const openSum = new Set();
+const SUM_CHEV = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const sumLine = (l) => `<div class="o-line"><span class="o-line__n">${esc(l.name)}</span><span class="o-line__q">${numTxt(l.qty)} м²</span><b class="o-line__s">${fmt(l.sum)} ₽</b></div>`;
 function totalView(e) {
-  const blocks = e.rooms.map((r) => {
+  const rooms = e.rooms.map((r) => {
     const t = roomTotals(r);
-    return `<section class="f-plate o-room o-room--sum">
-      <div class="o-room__head"><span>${esc(r.name)} · ${r.floor} этаж</span><span>${fmt(t.total)} ₽</span></div>
-      ${t.lines.map((l) => svcCard(l, true)).join('')}
+    const on = openSum.has(r.key);
+    return `<section class="o-sroom${on ? ' is-open' : ''}" style="--rc:${r.color || '#7c8f8a'}">
+      <button type="button" class="o-sroom__head" data-action="o-sum-toggle" data-key="${r.key}" aria-expanded="${on}">
+        <span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж · ${t.lines.length} ${plural(t.lines.length, 'услуга', 'услуги', 'услуг')}</small></span>
+        <span class="o-sroom__sum"><b>${fmt(t.total)} ₽</b><small>${shiftsText(t.hours)}</small></span>
+        <span class="o-sroom__chev">${SUM_CHEV}</span>
+      </button>
+      <div class="o-sroom__list">${t.lines.map(sumLine).join('')}</div>
     </section>`;
   }).join('');
   const by = new Map();
@@ -196,16 +206,18 @@ function totalView(e) {
   const lines = [...by.entries()].map(([id, qty]) => { const s = svcInfo(id); return { ...s, qty: Math.round(qty * 100) / 100, sum: Math.round(qty * s.price), hours: hoursFor(qty, s.norm) }; });
   const total = lines.reduce((a, l) => a + l.sum, 0);
   const hours = lines.reduce((a, l) => a + l.hours, 0);
+  const n = e.rooms.length;
   return `${carousel(e)}
-    <div class="f-fill o-stack">${blocks}
-    <section class="f-plate o-room o-room--sum">
-      <div class="o-room__head"><span>Итого по видам работ</span></div>
-      ${lines.map((l) => svcCard(l, true)).join('')}
-      <div class="o-card o-total"><div class="o-card__head"><span>Общий итог</span></div>
-        <div class="o-tiles"><div class="o-tile"><small>Стоимость</small><b>${fmt(total)} ₽</b></div><div class="o-tile"><small>Срок</small><b>${shiftsText(hours)}</b></div></div></div>
-    </section></div>
+    <div class="f-fill o-stack">
+      <p class="o-sec">Комнаты</p>
+      ${rooms}
+      <section class="f-plate o-bywork"><p class="o-sec o-sec--in">Итого по видам работ</p>${lines.map(sumLine).join('')}</section>
+      <section class="f-plate o-grand"><p class="o-grand__t">Общий итог</p><b class="o-grand__sum">${fmt(total)} ₽</b>
+        <p class="o-grand__x">${shiftsText(hours)} · ${n} ${plural(n, 'комната', 'комнаты', 'комнат')}</p></section>
+    </div>
     <div class="f-btn-row o-noprint"><button type="button" class="f-btn" data-action="o-pdf">Скачать PDF</button></div>`;
 }
+actions['o-sum-toggle'] = (el) => { const k = el.dataset.key; if (openSum.has(k)) openSum.delete(k); else openSum.add(k); rerender(); };
 
 function confirmDialog(c) {
   return `<div class="o-overlay" data-action="o-confirm-no"></div>
