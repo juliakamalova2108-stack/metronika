@@ -1,14 +1,14 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=23';
-import * as S from './store.js?v=23';
-import { CHANNELS } from './seed.js?v=23';
-import { esc } from './ui.js?v=23';
-import { logEvent } from './zlog.js?v=23';
+import { actions, rerender, go } from './core.js?v=24';
+import * as S from './store.js?v=24';
+import { CHANNELS } from './seed.js?v=24';
+import { esc } from './ui.js?v=24';
+import { logEvent } from './zlog.js?v=24';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=23';
-import { renderSchedule, scheduleState } from './grafik.js?v=23';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=24';
+import { renderSchedule, scheduleState } from './grafik.js?v=24';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -194,15 +194,13 @@ let swipe = null;
 let suppressClick = false;
 const NO_SWIPE = '.f-topnav, .f-nav, input, textarea, select, .g-tray, .f-select__win, .o-overlay, .o-dialog, .drawer, .sheet';
 document.addEventListener('pointerdown', (ev) => {
-  swipe = null; suppressClick = false; // новое касание — новый жест
-  if (!document.body.classList.contains('fig') || !ev.isPrimary) return;
-  if (ev.target.closest && ev.target.closest(NO_SWIPE)) return;
-  const head = document.querySelector('#view .o-head');
-  if (!head) return;
-  swipe = { head, x: ev.clientX, y: ev.clientY, done: false };
+  if (ev.pointerType === 'touch') return; // касания ведут touch-события ниже
+  swipe = null; suppressClick = false;
+  if (!ev.isPrimary) return;
+  swipe = startSwipe(ev.target, ev.clientX, ev.clientY);
 }, true);
 document.addEventListener('pointermove', (ev) => {
-  if (!swipe || swipe.done) return;
+  if (ev.pointerType === 'touch' || !swipe || swipe.done) return;
   const dx = ev.clientX - swipe.x; const dy = ev.clientY - swipe.y;
   if (Math.abs(dy) > 24 && Math.abs(dy) > Math.abs(dx)) { swipe = null; return; } // это прокрутка списка
   if (Math.abs(dx) < 28 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
@@ -210,17 +208,32 @@ document.addEventListener('pointermove', (ev) => {
   const btn = swipe.head.querySelector(dx < 0 ? 'button.o-back--r' : 'button.o-back--l');
   if (btn) { suppressClick = true; btn.click(); setTimeout(() => { suppressClick = false; }, 400); }
 }, true);
-document.addEventListener('pointerup', () => { swipe = null; }, true);
-// Если браузер забрал жест под прокрутку списка, досчитываем свайп по касаниям.
+document.addEventListener('pointerup', (ev) => { if (ev.pointerType !== 'touch') swipe = null; }, true);
+// На телефонах жест ведём по касаниям: начало — touchstart, решение — первое заметное движение.
+// Горизонтальный жест забираем у прокрутки (preventDefault), вертикальный оставляем спискам.
+function startSwipe(target, x, y) {
+  if (!document.body.classList.contains('fig')) return null;
+  if (target.closest && target.closest(NO_SWIPE)) return null;
+  const head = document.querySelector('#view .o-head');
+  return head ? { head, x, y, done: false } : null;
+}
+document.addEventListener('touchstart', (ev) => {
+  if (ev.touches.length !== 1) { swipe = null; return; }
+  const t = ev.touches[0];
+  suppressClick = false;
+  swipe = startSwipe(ev.target, t.clientX, t.clientY);
+}, { capture: true, passive: true });
 document.addEventListener('touchmove', (ev) => {
-  if (!swipe || swipe.done || !ev.touches[0]) return;
+  if (!swipe || !ev.touches[0]) return;
   const t = ev.touches[0];
   const dx = t.clientX - swipe.x; const dy = t.clientY - swipe.y;
-  if (Math.abs(dy) > 24 && Math.abs(dy) > Math.abs(dx)) { swipe = null; return; }
-  if (Math.abs(dx) < 28 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+  if (swipe.done) { if (ev.cancelable) ev.preventDefault(); return; }
+  if (Math.abs(dy) > 18 && Math.abs(dy) > Math.abs(dx)) { swipe = null; return; } // прокрутка списка
+  if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) && ev.cancelable) ev.preventDefault();
+  if (Math.abs(dx) < 28) return;
   swipe.done = true;
   const btn = swipe.head.querySelector(dx < 0 ? 'button.o-back--r' : 'button.o-back--l');
   if (btn) { suppressClick = true; btn.click(); setTimeout(() => { suppressClick = false; }, 400); }
-}, { capture: true, passive: true });
+}, { capture: true, passive: false });
 document.addEventListener('touchend', () => { setTimeout(() => { swipe = null; }, 0); }, true);
 document.addEventListener('click', (ev) => { if (suppressClick && ev.isTrusted) { ev.stopPropagation(); ev.preventDefault(); } }, true);
