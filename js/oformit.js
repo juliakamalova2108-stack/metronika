@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=74';
-import * as S from './store.js?v=74';
-import { CHANNELS } from './seed.js?v=74';
-import { esc } from './ui.js?v=74';
-import { logEvent } from './zlog.js?v=74';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=74';
+import { actions, rerender, go } from './core.js?v=75';
+import * as S from './store.js?v=75';
+import { CHANNELS } from './seed.js?v=75';
+import { esc } from './ui.js?v=75';
+import { logEvent } from './zlog.js?v=75';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=75';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=74';
-import { renderSchedule, scheduleState } from './grafik.js?v=74';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=75';
+import { renderSchedule, scheduleState } from './grafik.js?v=75';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -104,9 +104,13 @@ export { draft as oformitDraft };
 const sections = Object.create(null);
 export function registerSection(key, render, state) { sections[key] = { render, state }; }
 
-export function renderOformit(mode = 'oformit') {
+// opts.only — показать один раздел (правка блока заказа с доски): без вкладок других разделов,
+// внизу вместо них opts.navHtml (например «← К заказу»).
+export function renderOformit(mode = 'oformit', opts = {}) {
   const d = draft();
-  const tabs = mode === 'oformit' ? TABS : ALL_TABS; // «Оформить заказ» — 4 вкладки, «Текущий заказ» — все разделы «Выездов»
+  const keepTab = tab; // свой раздел «Оформить заказ» не сбиваем
+  if (opts.only) tab = opts.only;
+  const tabs = opts.only ? ALL_TABS.filter(([k]) => k === opts.only) : mode === 'oformit' ? TABS : ALL_TABS; // «Оформить заказ» — 4 вкладки, «Текущий заказ» — все разделы «Выездов»
   if (!tabs.some(([k]) => k === tab)) tab = 'channel';
   const body = tab === 'channel' ? channelPlate(d)
     : tab === 'estimate' ? renderEstimate(d)
@@ -119,10 +123,11 @@ export function renderOformit(mode = 'oformit') {
     if (k === 'schedule') return scheduleState(d);
     return sections[k] && sections[k].state ? sections[k].state(d) : '';
   };
+  if (opts.only) tab = keepTab;
   const tabsHtml = tabs.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="f-tab${k === tab ? ' is-active' : ''}" data-action="f-tab" data-tab="${k}">${t}${((st) => (st ? `<i class="f-tab__dot${st === 'ok' ? ' f-tab__dot--ok' : ''}" aria-label="${st === 'ok' ? 'сохранено' : 'редактирование'}"></i>` : ''))(stateOf(k))}</button>`).join('');
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     ${body}
-    ${nav(tabsHtml, tabs.length > 4)}`;
+    ${nav(opts.only ? opts.navHtml || '' : tabsHtml, !opts.only && tabs.length > 4)}`;
 }
 
 function markDirty(d) {
