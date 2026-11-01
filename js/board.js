@@ -3,13 +3,13 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=92';
-import * as S from './store.js?v=92';
-import { renderOformit, oformitDraft } from './oformit.js?v=92';
-import { roomTotals, svcInfo } from './ocenka.js?v=92';
-import { smetaTotals } from './zakaz.js?v=92';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=92';
-import { esc, toast } from './ui.js?v=92';
+import { actions, rerender, go } from './core.js?v=93';
+import * as S from './store.js?v=93';
+import { renderOformit, oformitDraft } from './oformit.js?v=93';
+import { roomTotals, svcInfo } from './ocenka.js?v=93';
+import { smetaTotals } from './zakaz.js?v=93';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=93';
+import { esc, toast } from './ui.js?v=93';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -300,6 +300,7 @@ function renderBoardChat(no) {
   d.chat.forEach((m) => { m.read = true; }); S.save();
   const c = CL[no]; const me = S.me();
   const parts = PARTS[no] || [];
+  const AV_C = ['#5b5f8f', '#8a6a3f', '#4f7a8f'];
   const tile = (n, r) => `<span class="ch-part"><b>${esc(n)}</b><small>${esc(r)}</small></span>`;
   const mid = `<div class="bd-ohead bd-ohead--nav"><button type="button" class="f-icon-btn bd-back" data-action="bd-to-order" data-no="${no}" aria-label="К заказу">${BACK}</button><span><b>${esc(c.n)}</b><small>Заказ №${no} · Очередь</small></span></div>`;
   const nav = `<nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${mid}<button type="button" class="f-nav__tab f-nav__chat is-active" aria-current="page" aria-label="Чат заказа">${CHAT}<span>Чат</span></button></nav>`;
@@ -317,8 +318,10 @@ function renderBoardChat(no) {
   const msgs = d.chat.map((m) => { const mine = m.who === me.id;
     return `<div class="ch-msg${mine ? ' is-me' : ''}" data-at="${esc(m.at)}">${mine ? '' : `<div class="ch-msg__hd"><span>${esc(who(m))}${role(m) ? ' · ' + esc(role(m)) : ''}</span></div>`}<p>${esc(m.text)}<span class="ch-meta">${hhmm(m.at)}${mine ? tick(m.st || 'read') : ''}</span></p></div>`; }).join('');
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
-    <section class="f-plate ch-head"><div class="ch-head__row"><p class="ch-t">Чат заказа</p><button type="button" class="ch-pbtn" data-action="ch-parts">Участники · ${parts.length + 1}</button></div>
-      ${parts.length ? `<div class="ch-tiles">${tile('Вы', 'Мастер')}${parts.map(([, n, r]) => tile(n.split(' ')[0], r)).join('')}</div>` : '<p class="ch-x">Заказ вы ведёте один — других участников нет. Сообщения увидите только вы.</p>'}</section>
+    <button type="button" class="ch-bar" data-action="ch-parts" aria-label="Участники заказа">
+      <span class="ch-av"><i style="background:#3f6a5c">В</i>${parts.map(([, n], k) => `<i style="background:${AV_C[k % AV_C.length]}">${esc(n[0])}</i>`).join('')}</span>
+      <span class="ch-bar__t"><b>Чат заказа</b><small>${parts.length ? `${parts.length + 1} ${parts.length + 1 < 5 ? 'участника' : 'участников'} · Вы, ${parts.map(([, n, r]) => `${esc(n)} (${esc(r.toLowerCase())})`).join(', ')}` : 'Только вы'}</small></span>
+      <span class="ch-bar__go" aria-hidden="true">›</span></button>
     <div class="ch-feed">${msgs || '<p class="ch-empty">Сообщений пока нет</p>'}</div>
     <div class="ch-input"><button type="button" class="f-icon-btn ch-clip" aria-label="Прикрепить">${CLIP}</button><span class="f-input ch-field"><textarea id="ch-text" rows="1" placeholder="Сообщение" data-kb-dock="1"></textarea></span><button type="button" class="f-icon-btn ch-send" data-action="ch-send" data-no="${no}" aria-label="Отправить">${SEND}</button></div>
     ${nav}`;

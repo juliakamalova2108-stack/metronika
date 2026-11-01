@@ -893,3 +893,14 @@ body.kb-docked .f-nav { display: none; }
 body.kb-docked .ch-input { bottom: var(--kbh, 0px); background: linear-gradient(180deg, rgba(22, 40, 42, 0), rgba(22, 40, 42, 0.97) 25%); }
 body.kb-docked .ch-tiles, body.kb-docked .ch-head .ch-x { display: none; }
 body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
+/* Шапка чата — как в Telegram: одна строка, всегда сверху; по нажатию — список участников. */
+.ch-bar { position: fixed; z-index: 22; left: 0; right: 0; top: 0; height: 62px; display: flex; align-items: center; gap: 12px; padding: 0 16px; border: 0; text-align: left; cursor: pointer;
+  background: linear-gradient(180deg, rgba(28, 48, 50, 0.98), rgba(24, 42, 44, 0.96)); border-bottom: 0.9px solid rgba(204, 219, 207, 0.22); box-shadow: 0 6px 16px rgba(1, 9, 11, 0.35); }
+.ch-av { display: flex; flex: none; }
+.ch-av i { width: 38px; height: 38px; margin-left: -10px; border-radius: 50%; border: 2px solid #1c3032; display: grid; place-items: center; font: 600 15px/1 var(--font-body); font-style: normal; color: #edf0e7; }
+.ch-av i:first-child { margin-left: 0; }
+.ch-bar__t { flex: 1; min-width: 0; }
+.ch-bar__t b { display: block; font: 600 17px/21px var(--font-body); color: #edf0e7; }
+.ch-bar__t small { display: block; font: 400 13px/17px var(--font-body); color: rgba(230, 242, 204, 0.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-bar__go { flex: none; font-size: 24px; color: rgba(237, 240, 231, 0.6); }
+.ch-bar ~ .ch-feed { padding-top: 66px; }
