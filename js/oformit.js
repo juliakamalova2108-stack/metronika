@@ -1,14 +1,14 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=15';
-import * as S from './store.js?v=15';
-import { CHANNELS } from './seed.js?v=15';
-import { esc } from './ui.js?v=15';
-import { logEvent } from './zlog.js?v=15';
+import { actions, rerender, go } from './core.js?v=17';
+import * as S from './store.js?v=17';
+import { CHANNELS } from './seed.js?v=17';
+import { esc } from './ui.js?v=17';
+import { logEvent } from './zlog.js?v=17';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=15';
-import { renderSchedule, scheduleState } from './grafik.js?v=15';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=17';
+import { renderSchedule, scheduleState } from './grafik.js?v=17';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -67,7 +67,7 @@ function channelPlate(d) {
   const reEdit = d.dirty || (d.saved && d.editing);
   const statusHtml = reEdit ? '<span class="f-status f-status--warn"><i></i>редактирование</span>'
     : d.saved ? '<span class="f-status f-status--ok"><i></i>сохранено</span>' : '';
-  return `<section class="f-plate" aria-label="Канал">
+  return `<i class="f-one" hidden></i><section class="f-plate f-fill" aria-label="Канал">
     ${selectField('source', 'Источник заявки', c.source, SOURCES.map((s) => ({ value: s, label: s })), locked)}
     ${selectField('partner', 'Партнёр', partnerName(c.partner), [{ value: 'self', label: 'Самостоятельно' }, ...partners().map((p) => ({ value: p.id, label: p.name }))], locked)}
     <label class="f-field" for="f-url"><span class="f-field__label">Ссылка</span>

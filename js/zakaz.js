@@ -2,12 +2,12 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=15';
-import * as S from './store.js?v=15';
-import { WALLPAPER_TYPES } from './seed.js?v=15';
-import { esc, toast } from './ui.js?v=15';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=15';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=15';
+import { actions, changes, rerender } from './core.js?v=17';
+import * as S from './store.js?v=17';
+import { WALLPAPER_TYPES } from './seed.js?v=17';
+import { esc, toast } from './ui.js?v=17';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=17';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=17';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -66,7 +66,7 @@ function renderClient(d) {
   const ro = !c.editing;
   const edit = c.dirty || (c.saved && c.editing);
   const st = edit ? status('warn', 'редактирование') : c.saved ? status('ok', 'сохранено') : '';
-  return `<section class="f-plate z-client" aria-label="Клиент"><p class="z-title">Клиент</p>${st}
+  return `<i class="f-one" hidden></i><section class="f-plate z-client f-fill" aria-label="Клиент"><p class="z-title">Клиент</p>${st}
     ${input('z-cl-name', 'Имя', c.name, { ph: 'Имя клиента', live: 'z-cl:name', ro })}
     ${input('z-cl-phone', 'Телефон', c.phone, { ph: '+7 (___) ___-__-__', live: 'z-cl:phone', mode: 'tel', ro, type: 'tel' })}
     ${input('z-cl-street', 'Улица', c.street, { ph: 'Улица', live: 'z-cl:street', ro })}

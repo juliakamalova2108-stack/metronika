@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=15';
-import * as S from './store.js?v=15';
-import { SYSTEM_PRICE } from './seed.js?v=15';
-import { shiftsText, hoursFor } from './calc.js?v=15';
-import { esc } from './ui.js?v=15';
-import { logEvent } from './zlog.js?v=15';
+import { actions, rerender } from './core.js?v=17';
+import * as S from './store.js?v=17';
+import { SYSTEM_PRICE } from './seed.js?v=17';
+import { shiftsText, hoursFor } from './calc.js?v=17';
+import { esc } from './ui.js?v=17';
+import { logEvent } from './zlog.js?v=17';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -111,7 +111,7 @@ function pickView(e) {
       <span class="o-row__mark" style="background:${color}"></span><span class="o-row__name">${esc(name)}</span>${toggle(on)}</button>`;
   }).join('');
   return `${carousel(e)}
-    <section class="f-plate o-sheet">
+    <section class="f-plate o-sheet f-fill">
       <div class="o-floors" role="tablist">${[1, 2, 3].map((f) => `<button type="button" role="tab" aria-selected="${f === e.floor}" class="o-floor${f === e.floor ? ' is-on' : ''}" data-action="o-floor" data-f="${f}">${f} этаж</button>`).join('')}</div>
       <div class="o-list">${list}</div>
       <div class="f-btn-row"><button type="button" class="f-btn" data-action="o-rooms-done">Добавить выбранные</button></div>
@@ -127,7 +127,7 @@ function servicesView(e, r) {
   const sel = r.pick || r.svcs.map((x) => x.id);
   const added = sel.filter((id) => !r.svcs.some((x) => x.id === id)).length;
   return `${carousel(e, roomTabs(r))}
-    <section class="f-plate o-sheet o-sheet--svc">
+    <section class="f-plate o-sheet o-sheet--svc f-fill">
       <div class="o-list o-list--svc">${SVC.map((s0) => {
         const s = svcInfo(s0.id);
         const on = sel.includes(s.id);
@@ -155,7 +155,7 @@ function volumesView(e, r) {
   const filled = r.svcs.length && r.svcs.every((x) => x.qty > 0);
   const status = locked ? '<span class="f-status f-status--ok o-status"><i></i>сохранено</span>' : '<span class="f-status f-status--warn o-status"><i></i>редактирование</span>';
   return `${carousel(e, roomTabs(r))}
-    <section class="f-plate o-room">
+    <section class="f-plate o-room f-fill">
       <div class="o-room__head">${esc(r.name)} · ${r.floor} этаж</div>${status}
       ${t.lines.map((l) => svcCard(l, locked)).join('')}
     </section>
@@ -173,7 +173,7 @@ function calcView(e, r) {
   const c = r.calc || { expr: '', res: '' };
   const keys = [['C', 'op'], ['⌫', 'op'], ['÷', 'op'], ['×', 'op'], ['7'], ['8'], ['9'], ['−', 'op'], ['4'], ['5'], ['6'], ['+', 'op'], ['1'], ['2'], ['3'], ['=', 'op'], ['0'], [','], ['(', 'dim'], [')', 'dim']];
   return `${carousel(e, roomTabs(r))}
-    <section class="f-plate o-calc">
+    <section class="f-plate o-calc f-fill">
       <div class="o-calc__screen"><small>${esc(c.res !== '' ? c.expr : '') || '&nbsp;'}</small><b>${esc(c.res !== '' ? c.res : c.expr || '0')}</b></div>
       <div class="o-calc__keys">${keys.map(([k, t]) => `<button type="button" class="o-key${t ? ' o-key--' + t : ''}" data-action="o-key" data-k="${k}">${k}</button>`).join('')}</div>
     </section>
@@ -195,13 +195,13 @@ function totalView(e) {
   const total = lines.reduce((a, l) => a + l.sum, 0);
   const hours = lines.reduce((a, l) => a + l.hours, 0);
   return `${carousel(e)}
-    ${blocks}
+    <div class="f-fill o-stack">${blocks}
     <section class="f-plate o-room o-room--sum">
       <div class="o-room__head"><span>Итого по видам работ</span></div>
       ${lines.map((l) => svcCard(l, true)).join('')}
       <div class="o-card o-total"><div class="o-card__head"><span>Общий итог</span></div>
         <div class="o-tiles"><div class="o-tile"><small>Стоимость</small><b>${fmt(total)} ₽</b></div><div class="o-tile"><small>Срок</small><b>${shiftsText(hours)}</b></div></div></div>
-    </section>
+    </section></div>
     <div class="f-btn-row o-noprint"><button type="button" class="f-btn" data-action="o-pdf">Скачать PDF</button></div>`;
 }
 
@@ -225,7 +225,7 @@ export function renderEstimate(d) {
     else if (r.svcs.length) html = volumesView(e, r);
     else html = carousel(e, roomTabs(r));
   }
-  return `<div class="o-wrap">${html}</div>${e.confirm ? confirmDialog(e.confirm) : ''}`;
+  return `<i class="f-one" hidden></i><div class="o-wrap">${html}</div>${e.confirm ? confirmDialog(e.confirm) : ''}`;
 }
 
 // ---------- действия ----------

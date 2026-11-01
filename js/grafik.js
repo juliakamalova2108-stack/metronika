@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=15';
-import * as S from './store.js?v=15';
-import { SHIFT_HOURS } from './calc.js?v=15';
-import { esc } from './ui.js?v=15';
-import { logEvent } from './zlog.js?v=15';
-import { estimateRooms, roomTotals } from './ocenka.js?v=15';
+import { actions, rerender } from './core.js?v=17';
+import * as S from './store.js?v=17';
+import { SHIFT_HOURS } from './calc.js?v=17';
+import { esc } from './ui.js?v=17';
+import { logEvent } from './zlog.js?v=17';
+import { estimateRooms, roomTotals } from './ocenka.js?v=17';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -114,7 +114,7 @@ export function renderSchedule(d) {
   }
   const editing = s.dirty || s.status === 'editing';
   const status = editing ? '<span class="f-status f-status--warn g-status"><i></i>редактирование</span>' : locked ? '<span class="f-status f-status--ok g-status"><i></i>сохранено</span>' : '';
-  return `<div class="g-screen"><button type="button" class="o-row g-mode" role="switch" aria-checked="${s.mode === 'measure'}" data-action="g-mode"><span class="o-row__name">Замеры</span><span class="o-tog${s.mode === 'measure' ? ' is-on' : ''}" aria-hidden="true"><i></i></span></button>
+  return `<i class="f-one" hidden></i><div class="g-screen f-fill"><button type="button" class="o-row g-mode" role="switch" aria-checked="${s.mode === 'measure'}" data-action="g-mode"><span class="o-row__name">Замеры</span><span class="o-tog${s.mode === 'measure' ? ' is-on' : ''}" aria-hidden="true"><i></i></span></button>
     ${todo}
     <section class="f-plate g-plate"><p class="g-plate__t">Запланированы</p>${status}${calendar(s, rooms, lay, locked)}</section>
     <div class="f-btn-row">
