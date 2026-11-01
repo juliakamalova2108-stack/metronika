@@ -2,14 +2,14 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=34';
-import * as S from './store.js?v=34';
-import { WALLPAPER_TYPES } from './seed.js?v=34';
-import { esc, toast } from './ui.js?v=34';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=34';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=34';
-import { country } from './phonecodes.js?v=34';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=34';
+import { actions, changes, rerender } from './core.js?v=35';
+import * as S from './store.js?v=35';
+import { WALLPAPER_TYPES } from './seed.js?v=35';
+import { esc, toast } from './ui.js?v=35';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=35';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=35';
+import { country } from './phonecodes.js?v=35';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=35';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -66,26 +66,26 @@ const MINS = ['00', '15', '30', '45'];
 const CL_FIELDS = ['name', 'phone', 'street', 'house', 'entrance', 'flat', 'floor', 'hour', 'min', 'comment'];
 const clSnap = (c) => c.snap || {};
 const clCh = (c, k) => c.editing && String(c[k] || '') !== String(clSnap(c)[k] || '');
-// Телефон: код оператора выбирается из списка (по стране из настроек), остальные 7 цифр — вручную.
+// Телефон: «+7» стоит в поле всегда (код страны из настроек), набираются 10 цифр.
+// После трёх цифр справа в поле видно оператора; несуществующий код подсвечивается красным.
 const myCountry = () => country((S.me() && S.me().settings && S.me().settings.country) || 'RU');
-const restFmt = (r) => [r.slice(0, 3), r.slice(3, 5), r.slice(5, 7)].filter(Boolean).join('-');
-function phoneParts(c) {
-  if (c.pcode === undefined) { const dd = phoneDigits(c.phone); c.pcode = dd.slice(0, 3); c.prest = dd.slice(3); }
-  return { code: c.pcode || '', rest: c.prest || '' };
+const localFmt = (d) => (!d ? '' : `(${d.slice(0, 3)}${d.length >= 3 ? ')' : ''}${d.length > 3 ? ' ' + d.slice(3, 6) : ''}${d.length > 6 ? '-' + d.slice(6, 8) : ''}${d.length > 8 ? '-' + d.slice(8, 10) : ''}`);
+function codeInfo(dd) {
+  if (dd.length < 3) return { text: '', bad: false };
+  const code = dd.slice(0, 3);
+  const hit = myCountry().codes.find(([k]) => k === code);
+  if (hit) return { text: hit[1] === 'разные операторы' ? 'мобильный' : hit[1], bad: false };
+  if ('348'.includes(code[0])) return { text: 'городской', bad: false };
+  if (code[0] === '7') return { text: 'Казахстан', bad: false };
+  return { text: 'нет такого кода', bad: true };
 }
-const phoneCompose = (c) => { c.phone = c.pcode ? phoneFormat(c.pcode + (c.prest || '')) : ''; };
 function phoneField(c, ro, e) {
-  const cn = myCountry();
-  const { code, rest } = phoneParts(c);
-  const changed = clCh(c, 'phone');
-  const opts = cn.codes.map(([k, op]) => ({ value: k, label: `${k} · ${op}` }));
-  const head = code ? `+${cn.cc} ${code}` : `+${cn.cc} код`;
+  const dd = phoneDigits(c.phone);
+  const inf = codeInfo(dd);
+  const err = e.phone || (inf.bad ? ' ' : '');
   return `<div class="f-field"><span class="f-field__label">Телефон</span>
-    <div class="z-phone">${selectField('cl-code', 'Код оператора', head, opts, ro, { changed, err: e.pcode })}
-      <span class="f-input${fcls(changed, e.phone)}"><input id="z-cl-phone" type="tel" inputmode="tel" placeholder="___-__-__" value="${esc(restFmt(rest))}" ${ro ? 'readonly' : ''} data-live="z-cl:prest"/></span></div>${ferr(e.pcode || e.phone)}</div>`;
+    <span class="f-input z-phone${fcls(clCh(c, 'phone'), err)}"><b class="z-cc">+${myCountry().cc}</b><input id="z-cl-phone" type="tel" inputmode="tel" placeholder="(___) ___-__-__" value="${esc(localFmt(dd))}" ${ro ? 'readonly' : ''} data-live="z-cl:phone10"/><span class="z-op${inf.bad ? ' is-bad' : ''}" id="z-cl-op">${esc(inf.text)}</span></span>${ferr(e.phone)}</div>`;
 }
-pickers['cl-code'] = (v, d) => { const c = cl(d); phoneParts(c); c.pcode = v; phoneCompose(c); c.dirty = true; if (c.err) { delete c.err.pcode; delete c.err.phone; } };
-toggles['cl-code'] = (d) => { cl(d).dirty = true; };
 function renderClient(d) {
   const c = cl(d);
   const ro = !c.editing;
@@ -110,11 +110,12 @@ toggles['cl-h'] = toggles['cl-m'] = (d) => { cl(d).dirty = true; };
 actions['z-cl-save'] = () => {
   const d = D(); const c = cl(d);
   if (!c.editing) return;
-  phoneParts(c); phoneCompose(c);
+  if (c.phone) c.phone = phoneFormat(c.phone);
   const e = {};
   if (c.name.trim().length < 2) e.name = 'Введите имя';
-  if (!c.pcode) e.pcode = 'Выберите код оператора';
-  else if ((c.prest || '').length < 7) e.phone = c.prest ? 'Не хватает цифр: нужно 7 после кода' : 'Введите номер';
+  const dd = phoneDigits(c.phone);
+  if (dd.length < 10) e.phone = dd ? 'Не хватает цифр: нужно 10 после +7' : 'Введите телефон';
+  else if (codeInfo(dd).bad) e.phone = `Кода ${dd.slice(0, 3)} нет — проверьте номер`;
   if (!c.street.trim()) e.street = 'Введите улицу';
   if (!c.house.trim()) e.house = 'Дом';
   c.err = e;
@@ -490,15 +491,18 @@ function renderHistory(d) {
 export function onLiveZakaz(el) {
   const [k, f] = (el.dataset.live || '').split(':');
   const d = D();
-  if (k === 'z-cl' && f === 'prest') {
-    const c = cl(d); phoneParts(c);
-    let dd = el.value.replace(/\D/g, '');
-    // Вставили номер целиком (+7 917 123-45-67) — раскладываем на код и остальное.
-    if (dd.length >= 10) { const full = phoneDigits(el.value); c.pcode = full.slice(0, 3); dd = full.slice(3); }
-    c.prest = dd.slice(0, 7); phoneCompose(c);
-    if (c.err) { delete c.err.phone; if (c.pcode) delete c.err.pcode; }
-    el.value = restFmt(c.prest);
-    if (!c.dirty || dd.length >= 10) { c.dirty = true; S.save(); refocus(el); } else { S.save(); liveMark(el, clCh(c, 'phone')); }
+  if (k === 'z-cl' && f === 'phone10') {
+    const c = cl(d);
+    const dd = phoneDigits(el.value);
+    c.phone = dd ? phoneFormat(dd) : '';
+    if (c.err) delete c.err.phone;
+    el.value = localFmt(dd);
+    const inf = codeInfo(dd);
+    const op = document.getElementById('z-cl-op');
+    if (op) { op.textContent = inf.text; op.classList.toggle('is-bad', inf.bad); }
+    if (!c.dirty) { c.dirty = true; S.save(); refocus(el); } else { S.save(); liveMark(el, clCh(c, 'phone')); }
+    const box2 = (document.getElementById('z-cl-phone') || el).closest('.f-input');
+    if (box2) box2.classList.toggle('is-error', inf.bad);
     return true;
   }
   if (k === 'z-cl') {

@@ -1,11 +1,11 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=34';
-import * as S from './store.js?v=34';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=34';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=34';
-import { topbar, typeName } from './shared.js?v=34';
-import { COUNTRIES, SOON } from './phonecodes.js?v=34';
+import { actions, changes, rerender, go, val } from './core.js?v=35';
+import * as S from './store.js?v=35';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=35';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=35';
+import { topbar, typeName } from './shared.js?v=35';
+import { COUNTRIES, SOON } from './phonecodes.js?v=35';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -75,7 +75,7 @@ export function renderSettings() {
     <section class="plate">
       <h2 class="plate__title">Страна</h2>
       ${select({ id: 'set-country', label: 'Страна работы', value: st.country || 'RU', options: [...Object.entries(COUNTRIES).map(([k, c]) => ({ value: k, label: c.name })), ...SOON.map((n) => ({ value: 'soon:' + n, label: n + ' — скоро' }))], attrs: 'data-change="set-country"' })}
-      <p class="small">По стране в поле «Телефон» клиента появляется список кодов операторов. Сейчас собраны коды России.</p>
+      <p class="small">По стране в поле «Телефон» клиента стоит её код (Россия — +7) и проверяется код оператора. Сейчас собраны коды России.</p>
     </section>
     <section class="plate">
       <h2 class="plate__title">Уведомления</h2>

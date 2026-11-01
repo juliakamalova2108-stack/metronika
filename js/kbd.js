@@ -1,4 +1,4 @@
-import { afterRender } from './core.js?v=34';
+import { afterRender } from './core.js?v=35';
 
 // Своя клавиатура для экранов «Оформить заказ» и «Текущий заказ».
 // Системная клавиатура телефона не открывается (inputmode="none"); вместо неё прямо под полем
@@ -161,7 +161,10 @@ function type(text) {
   const e = el.selectionEnd ?? el.value.length;
   if (text === null) {
     if (s === e && s === 0) return;
-    el.setRangeText('', s === e ? s - 1 : s, e, 'end');
+    let from = s === e ? s - 1 : s;
+    // В цифровых полях со скобками и дефисами «стереть» убирает цифру, а не знак оформления.
+    if (s === e && el.dataset.kbMode === 'tel') while (from > 0 && /\D/.test(el.value[from])) from -= 1;
+    el.setRangeText('', from, e, 'end');
   } else {
     el.setRangeText(text, s, e, 'end');
   }

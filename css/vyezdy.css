@@ -593,14 +593,8 @@ body.fig .view:has(.o-head) * { touch-action: pan-y; }
 /* Поле, в которое сейчас идёт ввод. */
 .f-input.is-typing { border-color: rgba(222, 237, 194, 0.9); }
 
-/* Клиент · телефон: слева список кодов оператора, справа 7 цифр номера. Список раскрывается на всю ширину строки. */
-.z-phone { position: relative; display: grid; grid-template-columns: 124px minmax(0, 1fr); gap: 8px; }
-.z-phone > .f-field { gap: 0; margin: 0; position: static; }
-.z-phone > .f-field > .f-field__label { display: none; }
-.z-phone > .f-field > .f-field__err { display: none; }
-.z-phone .f-input--list { padding-left: 12px; }
-.z-phone .f-input__value, .z-phone .f-select__head > span:first-child { white-space: nowrap; font-size: 15px; }
-.z-phone .f-select { overflow: visible; position: static; height: 44px; }
-.z-phone .f-select__head { height: 42.4px; padding-left: 12px; }
-.z-phone .f-select__list { position: absolute; z-index: 10; top: 48px; left: 0; right: 0; border-radius: 6px; box-shadow: 0 10px 18px rgba(1, 6, 8, 0.6), inset 0 -1px 1px rgba(191, 217, 199, 0.11), inset 0 3px 6px rgba(1, 6, 8, 0.58); }
-@media (max-height: 760px) { .z-phone .f-select { height: 40px; } .z-phone .f-select__head { height: 38.4px; } .z-phone .f-select__list { top: 44px; } }
+/* Клиент · телефон: «+7» всегда стоит в поле, справа — оператор по первым трём цифрам. */
+.z-phone { gap: 6px; }
+.z-cc { flex: none; font: 500 16px/20px var(--font-body); color: #edf0e7; }
+.z-op { flex: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 400 13px/16px var(--font-body); color: rgba(237, 240, 231, 0.6); }
+.z-op.is-bad { color: #ff8a8a; }
