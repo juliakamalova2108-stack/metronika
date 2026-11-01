@@ -861,3 +861,10 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .ch-send svg { width: 22px; height: 22px; margin-left: 2px; }
 .ch-close { position: fixed; z-index: 21; left: 16px; right: 16px; bottom: 96px; }
 .ch-close .f-btn { width: 100%; }
+/* Строка ввода чата — в нашем стиле: прямоугольное поле, квадратные кнопки. */
+.ch-input { align-items: center; }
+.ch-clip, .ch-send { width: 46px; height: 46px; border-radius: 6px; background: #213839; border: 1px solid rgba(204, 222, 209, 0.55); box-shadow: 0 4px 7px rgba(4, 13, 15, 0.24), 0 2px 2.5px rgba(1, 6, 9, 0.42), inset 0 -2px 2px rgba(6, 18, 20, 0.34), inset 0 1px 1px rgba(224, 242, 227, 0.36); }
+.ch-send svg { width: 22px; height: 22px; margin: 0; }
+.ch-field { border-radius: 6px; min-height: 46px; padding: 0 14px; }
+.f-nav__chat.is-active svg path { stroke: #edf0e7; }
+.f-nav__chat.is-active { color: #edf0e7; }
