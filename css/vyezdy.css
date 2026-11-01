@@ -922,3 +922,14 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .ch-msg.is-me .ch-meta, .ch-msg.is-me .ch-st { color: rgba(237, 246, 238, 0.75); }
 .ch-msg.is-me .ch-st--read { color: #8fdcff; }
 .ch-bar { background: #1b2f31; }
+/* Строка ввода как в Telegram: одна светло-серая форма — скрепка, текст и «отправить» внутри неё.
+   Растёт вся форма целиком, значки остаются внизу. */
+.ch-input { padding: 8px 16px; }
+.ch-box { flex: 1; min-width: 0; height: auto; min-height: 50px; padding: 0 2px; gap: 0; align-items: flex-end; box-sizing: border-box; }
+.ch-box textarea { flex: 1; min-width: 0; display: block; height: 48px; padding: 13px 4px; box-sizing: border-box; border: 0; background: none; outline: none; resize: none; overflow-y: hidden;
+  font: 400 16px/22px var(--font-body); color: #edf0e7; }
+.ch-box textarea::placeholder { color: rgba(237, 240, 231, 0.55); }
+.ch-box .ch-clip, .ch-box .ch-send { flex: 0 0 44px; width: 44px; height: 48px; padding: 0; margin: 0; border: 0; background: none; box-shadow: none; display: grid; place-items: center; cursor: pointer; color: #edf0e7; }
+.ch-box .ch-clip svg, .ch-box .ch-send svg { width: 24px; height: 24px; margin: 0; }
+.ch-box .ch-send { opacity: 0.5; transition: opacity .15s; }
+.ch-box.has-text .ch-send { opacity: 1; }

@@ -3,13 +3,13 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=94';
-import * as S from './store.js?v=94';
-import { renderOformit, oformitDraft } from './oformit.js?v=94';
-import { roomTotals, svcInfo } from './ocenka.js?v=94';
-import { smetaTotals } from './zakaz.js?v=94';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=94';
-import { esc, toast } from './ui.js?v=94';
+import { actions, rerender, go } from './core.js?v=95';
+import * as S from './store.js?v=95';
+import { renderOformit, oformitDraft } from './oformit.js?v=95';
+import { roomTotals, svcInfo } from './ocenka.js?v=95';
+import { smetaTotals } from './zakaz.js?v=95';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=95';
+import { esc, toast } from './ui.js?v=95';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -289,8 +289,8 @@ const ST_I = {
   delivered: `<svg viewBox="0 0 16 12">${T1}${T2}</svg>`,
   read: `<svg viewBox="0 0 16 12">${T1}${T2}</svg>`,
 };
-const SEND = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 11.5l15-7-5.6 15-2.6-5.8z" stroke="#edf0e7" stroke-width="1.7" stroke-linejoin="round"/><path d="M11.3 13.7l3.4-3.4" stroke="#edf0e7" stroke-width="1.7" stroke-linecap="round"/></svg>';
-const CLIP = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17.5 11.5l-6.4 6.4a4 4 0 0 1-5.7-5.7l7-7a2.7 2.7 0 0 1 3.8 3.8l-7 7a1.3 1.3 0 0 1-1.9-1.9l6.4-6.4" stroke="#edf0e7" stroke-width="1.7" stroke-linecap="round"/></svg>';
+const SEND = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 11.5l15-7-5.6 15-2.6-5.8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M11.3 13.7l3.4-3.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+const CLIP = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17.5 11.5l-6.4 6.4a4 4 0 0 1-5.7-5.7l7-7a2.7 2.7 0 0 1 3.8 3.8l-7 7a1.3 1.3 0 0 1-1.9-1.9l6.4-6.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
 let showParts = false;
 const hhmm = (iso) => new Date(iso).toTimeString().slice(0, 5);
 function renderBoardChat(no) {
@@ -331,7 +331,7 @@ function renderBoardChat(no) {
       <span class="ch-bar__t"><b>Чат заказа</b><small>${parts.length ? `${parts.length + 1} ${parts.length + 1 < 5 ? 'участника' : 'участников'} · Вы, ${parts.map(([, n, r]) => `${esc(n)} (${esc(r.toLowerCase())})`).join(', ')}` : 'Только вы'}</small></span>
       <span class="ch-bar__go" aria-hidden="true">›</span></button>
     <div class="ch-feed">${msgs || '<p class="ch-empty">Сообщений пока нет</p>'}</div>
-    <div class="ch-input"><button type="button" class="f-icon-btn ch-clip" aria-label="Прикрепить">${CLIP}</button><span class="f-input ch-field"><textarea id="ch-text" rows="1" placeholder="Сообщение" data-kb-dock="1"></textarea></span><button type="button" class="f-icon-btn ch-send" data-action="ch-send" data-no="${no}" aria-label="Отправить">${SEND}</button></div>
+    <div class="ch-input"><div class="f-input ch-box"><button type="button" class="ch-clip" aria-label="Прикрепить">${CLIP}</button><textarea id="ch-text" rows="1" placeholder="Сообщение" data-kb-dock="1"></textarea><button type="button" class="ch-send" data-action="ch-send" data-no="${no}" aria-label="Отправить">${SEND}</button></div></div>
     ${nav}`;
 }
 // Поле сообщения растёт вместе с текстом (до 6 строк, дальше прокрутка внутри), как в Telegram.
@@ -346,7 +346,7 @@ document.addEventListener('kb-dock', () => { const t = document.getElementById('
 // Кнопки строки ввода не забирают фокус у поля: после «Отправить» клавиатура остаётся открытой.
 document.addEventListener('pointerdown', (e) => { if (e.target.closest && e.target.closest('.ch-input button') && document.body.classList.contains('kb-docked')) e.preventDefault(); }, true);
 document.addEventListener('mousedown', (e) => { if (e.target.closest && e.target.closest('.ch-input button') && document.body.classList.contains('kb-docked')) e.preventDefault(); }, true);
-document.addEventListener('input', (e) => { if (e.target && e.target.id === 'ch-text') { const atEnd = window.innerHeight + window.scrollY >= document.body.scrollHeight - 4; chGrow(e.target); if (atEnd) window.scrollTo(0, document.body.scrollHeight); } });
+document.addEventListener('input', (e) => { if (e.target && e.target.id === 'ch-text') { const bx = e.target.closest('.ch-box'); if (bx) bx.classList.toggle('has-text', !!e.target.value.trim()); const atEnd = window.innerHeight + window.scrollY >= document.body.scrollHeight - 4; chGrow(e.target); if (atEnd) window.scrollTo(0, document.body.scrollHeight); } });
 actions['ch-parts'] = () => { showParts = !showParts; rerender(); };
 actions['ch-send'] = (btn) => {
   const el = document.getElementById('ch-text'); const t = el ? el.value.trim() : '';
