@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=40';
-import * as S from './store.js?v=40';
-import { SYSTEM_PRICE } from './seed.js?v=40';
-import { shiftsText, hoursFor } from './calc.js?v=40';
-import { esc } from './ui.js?v=40';
-import { logEvent } from './zlog.js?v=40';
+import { actions, rerender } from './core.js?v=41';
+import * as S from './store.js?v=41';
+import { SYSTEM_PRICE } from './seed.js?v=41';
+import { shiftsText, hoursFor } from './calc.js?v=41';
+import { esc } from './ui.js?v=41';
+import { logEvent } from './zlog.js?v=41';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -218,16 +218,19 @@ function confirmDialog(c) {
 export function renderEstimate(d) {
   const e = est(d);
   let html;
+  let one = false; // один экран без прокрутки — только выбор комнат (и пустая комната с одной кнопкой «+»)
   if (e.view === 'total' && carouselItems(e).some((x) => x.key === 'total')) html = totalView(e);
   else {
     const r = roomOf(e, e.view);
-    if (!r) { e.view = 'pick'; html = pickView(e); }
+    if (!r) { e.view = 'pick'; html = pickView(e); one = true; }
     else if (r.panel === 'services') html = servicesView(e, r);
     else if (r.panel === 'calc') html = calcView(e, r);
     else if (r.svcs.length) html = volumesView(e, r);
-    else html = carousel(e, roomTabs(r));
+    else { html = carousel(e, roomTabs(r)); one = true; }
   }
-  return `<i class="f-one" hidden></i><div class="o-wrap">${html}</div>${e.confirm ? confirmDialog(e.confirm) : ''}`;
+  // Внутри комнаты (услуги, объёмы, калькулятор, итог) прокручивается весь экран, а не блок внутри.
+  if (!one) html = html.replace(/ f-fill\b/g, '');
+  return `${one ? '<i class="f-one" hidden></i>' : ''}<div class="o-wrap">${html}</div>${e.confirm ? confirmDialog(e.confirm) : ''}`;
 }
 
 // ---------- действия ----------
