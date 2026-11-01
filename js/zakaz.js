@@ -2,13 +2,13 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=28';
-import * as S from './store.js?v=28';
-import { WALLPAPER_TYPES } from './seed.js?v=28';
-import { esc, toast } from './ui.js?v=28';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=28';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=28';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=28';
+import { actions, changes, rerender } from './core.js?v=29';
+import * as S from './store.js?v=29';
+import { WALLPAPER_TYPES } from './seed.js?v=29';
+import { esc, toast } from './ui.js?v=29';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=29';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=29';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=29';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
