@@ -559,3 +559,35 @@ body.fig .view:has(.o-head) * { touch-action: pan-y; }
 .z-client .z-area { height: 75px; min-height: 75px; }
 .z-client .z-area textarea { height: 100%; min-height: 0; }
 @media (max-height: 760px) { .z-client .z-area { height: 68px; min-height: 68px; } }
+
+/* ================= Своя клавиатура (под полем, с кнопкой «ОК») ================= */
+.kb {
+  position: fixed; z-index: 60; padding: 5px; border-radius: 8px; display: flex; flex-direction: column; gap: 5px;
+  border: 0.9px solid rgba(6, 18, 20, 0.78);
+  background: linear-gradient(180deg, #accbc9 0%, #b4d3d0 28%, #bedcd6 100%);
+  box-shadow: 0 10px 24px rgba(1, 9, 11, 0.55), inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.44);
+  user-select: none; -webkit-user-select: none; touch-action: manipulation;
+}
+.kb__row { display: flex; gap: 3px; justify-content: center; }
+.kb__k {
+  flex: 1 1 0; min-width: 0; height: 38px; padding: 0; border-radius: 5px; cursor: pointer;
+  border: 1px solid rgba(204, 222, 209, 0.55); background: #213839; color: #edf0e7;
+  font: 500 16px/1 var(--font-body); display: grid; place-items: center;
+  box-shadow: 0 2px 2.5px rgba(1, 6, 9, 0.27), inset 0 -2px 2px rgba(6, 18, 20, 0.34), inset 0 1px 1px rgba(224, 242, 227, 0.36);
+  -webkit-tap-highlight-color: transparent;
+}
+.kb__k:active { background: #36504f; }
+.kb__k svg { width: 20px; height: 20px; }
+.kb__k--fn { background: #172a2b; font-size: 13px; }
+.kb__k--fn.is-on { color: #ffc247; }
+.kb__row .kb__k--fn[data-k="sh"], .kb__row .kb__k[data-k="bs"] { flex-grow: 1.4; }
+.kb__w { flex-grow: 1.6; }
+.kb__space { flex-grow: 4; }
+.kb__ok { background: #2d4a3a; font-weight: 600; color: #e6f2cc; border-color: rgba(222, 237, 194, 0.7); }
+.kb__num { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.kb__num > span { display: block; }
+.kb__num .kb__k { height: 40px; font-size: 18px; }
+.kb__ok--tall { grid-row: span 2; height: auto !important; }
+.kb__zero { grid-column: span 3; }
+/* Поле, в которое сейчас идёт ввод. */
+.f-input.is-typing { border-color: rgba(222, 237, 194, 0.9); }

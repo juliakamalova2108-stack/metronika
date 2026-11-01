@@ -2,13 +2,13 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=29';
-import * as S from './store.js?v=29';
-import { WALLPAPER_TYPES } from './seed.js?v=29';
-import { esc, toast } from './ui.js?v=29';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=29';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=29';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=29';
+import { actions, changes, rerender } from './core.js?v=30';
+import * as S from './store.js?v=30';
+import { WALLPAPER_TYPES } from './seed.js?v=30';
+import { esc, toast } from './ui.js?v=30';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=30';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=30';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=30';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -76,7 +76,7 @@ function renderClient(d) {
     ${input('z-cl-name', 'Имя', c.name, o('name', { ph: 'Имя клиента' }))}
     ${input('z-cl-phone', 'Телефон', c.phone, o('phone', { ph: '+7 (___) ___-__-__', mode: 'tel', type: 'tel' }))}
     ${input('z-cl-street', 'Улица', c.street, o('street', { ph: 'Улица' }))}
-    <div class="z-grid4">${input('z-cl-house', 'Дом', c.house, o('house'))}${input('z-cl-entrance', 'Подъезд', c.entrance, o('entrance', { mode: 'numeric' }))}${input('z-cl-flat', 'Кв', c.flat, o('flat', { mode: 'numeric' }))}${input('z-cl-floor', 'Этаж', c.floor, o('floor', { mode: 'numeric' }))}</div>
+    <div class="z-grid4">${input('z-cl-house', 'Дом', c.house, o('house', { mode: 'numeric' }))}${input('z-cl-entrance', 'Подъезд', c.entrance, o('entrance', { mode: 'numeric' }))}${input('z-cl-flat', 'Кв', c.flat, o('flat', { mode: 'numeric' }))}${input('z-cl-floor', 'Этаж', c.floor, o('floor', { mode: 'numeric' }))}</div>
     <div class="f-field"><span class="f-field__label">Время приезда</span>
       <div class="z-time">${selectField('cl-h', 'Часы', c.hour || '—', HOURS.map((h) => ({ value: h, label: h })), ro, { changed: clCh(c, 'hour') })}<b>:</b>${selectField('cl-m', 'Минуты', c.min || '—', MINS.map((m) => ({ value: m, label: m })), ro, { changed: clCh(c, 'min') })}</div></div>
     ${area('z-cl-comment', 'Комментарий', c.comment, o('comment'))}
