@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=44';
-import * as S from './store.js?v=44';
-import { SYSTEM_PRICE } from './seed.js?v=44';
-import { shiftsText, hoursFor } from './calc.js?v=44';
-import { esc } from './ui.js?v=44';
-import { logEvent } from './zlog.js?v=44';
+import { actions, rerender } from './core.js?v=45';
+import * as S from './store.js?v=45';
+import { SYSTEM_PRICE } from './seed.js?v=45';
+import { shiftsText, hoursFor } from './calc.js?v=45';
+import { esc, toast } from './ui.js?v=45';
+import { logEvent } from './zlog.js?v=45';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -140,11 +140,11 @@ function servicesView(e, r) {
     </section>`;
 }
 
-function svcCard(l, locked, changed = false) {
+function svcCard(l, locked, changed = false, err = false) {
   return `<div class="o-card">
     <div class="o-card__head"><span>${esc(l.name)}</span><small data-o-hours="${l.id}">${l.qty ? shiftsText(l.hours) : ''}</small></div>
     <div class="o-card__row">
-      <label class="o-qty${locked ? ' is-locked' : ''}${changed ? ' is-changed' : ''}"><input inputmode="decimal" value="${l.qty ? esc(numTxt(l.qty)) : ''}" placeholder="—" ${locked ? 'readonly' : ''} data-live="o-qty" data-id="${l.id}" aria-label="${esc(l.name)}, м²"/><span>м²</span></label>
+      <label class="o-qty${locked ? ' is-locked' : ''}${err ? ' is-error' : changed ? ' is-changed' : ''}"><input inputmode="decimal" value="${l.qty ? esc(numTxt(l.qty)) : ''}" placeholder="—" ${locked ? 'readonly' : ''} data-live="o-qty" data-id="${l.id}" aria-label="${esc(l.name)}, м²"/><span>м²</span></label>
       <span class="o-x">×</span><span class="o-price">${fmt(l.price)} ₽/м²</span>
       <b class="o-sum" data-o-sum="${l.id}">${l.qty ? `= ${fmt(l.sum)} ₽` : ''}</b>
     </div>
@@ -159,13 +159,13 @@ function volumesView(e, r) {
   return `${carousel(e, roomTabs(r))}
     <section class="f-plate o-room f-fill">
       <div class="o-room__bar">${status}</div>
-      ${t.lines.map((l) => svcCard(l, locked, qtyChanged(r, l.id))).join('')}
+      ${t.lines.map((l) => svcCard(l, locked, qtyChanged(r, l.id), !l.qty && (r.qtyErr || []).includes(l.id))).join('')}
     </section>
     <section class="o-card o-total" id="o-room-total" ${filled ? '' : 'hidden'}>
       <div class="o-card__head"><span>Итог комнаты</span></div>
       <div class="o-tiles"><div class="o-tile"><small>Стоимость</small><b id="o-room-sum">${fmt(t.total)} ₽</b></div><div class="o-tile"><small>Срок</small><b id="o-room-time">${shiftsText(t.hours)}</b></div></div>
     </section>
-    <div class="f-btn-row" id="o-room-ok" ${filled ? '' : 'hidden'}>
+    <div class="f-btn-row" id="o-room-ok">
       <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="o-ok">ОК</button>
       ${r.status !== 'new' ? `<button type="button" class="f-btn${r.status === 'editing' ? ' f-btn--editing' : ''}" data-action="o-edit">${r.status === 'editing' ? 'Редактирование' : 'Редактировать'}</button>` : ''}
     </div>`;
@@ -320,7 +320,8 @@ export function onLiveEstimate(el) {
   });
   const filled = r.svcs.every((s) => s.qty > 0);
   const box = document.getElementById('o-room-total'); const ok = document.getElementById('o-room-ok');
-  if (box) box.hidden = !filled; if (ok) ok.hidden = !filled;
+  if (box) box.hidden = !filled;
+  if (x.qty && r.qtyErr) { r.qtyErr = r.qtyErr.filter((id) => id !== x.id); if (qbox) qbox.classList.remove('is-error'); }
   const a = document.getElementById('o-room-sum'); if (a) a.textContent = `${fmt(t.total)} ₽`;
   const b = document.getElementById('o-room-time'); if (b) b.textContent = shiftsText(t.hours);
   return true;
@@ -328,6 +329,16 @@ export function onLiveEstimate(el) {
 actions['o-ok'] = () => {
   const e = D(); const r = roomOf(e, e.view);
   if (r.status === 'saved') return;
+  // Объём не введён — не сохраняем: сообщение с названиями услуг, пустые поля красные, прокрутка к первому.
+  const empty = r.svcs.filter((x) => !(x.qty > 0));
+  if (empty.length) {
+    r.qtyErr = empty.map((x) => x.id);
+    save();
+    toast(`Не введён объём: ${empty.map((x) => svcInfo(x.id).name).join(', ')}`);
+    requestAnimationFrame(() => { const f = document.querySelector('#view .o-qty.is-error'); if (f) f.scrollIntoView({ block: 'center', behavior: 'smooth' }); });
+    return;
+  }
+  r.qtyErr = [];
   r.status = 'saved';
   r.snap = Object.fromEntries(r.svcs.map((x) => [x.id, x.qty]));
   { const t = roomTotals(r); logEvent(S.get().oformit[S.me().id], 'Сохранена оценка комнаты', `${r.name}: ${fmt(t.total)} ₽ · ${shiftsText(t.hours)}`); }
