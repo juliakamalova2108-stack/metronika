@@ -778,3 +778,35 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .bd-ohead span { min-width: 0; display: flex; flex-direction: column; }
 .bd-ohead b { font: 700 18px/22px var(--font-body); color: #edf2e8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bd-ohead small { font: 400 12px/16px var(--font-body); color: rgba(237, 242, 232, 0.7); }
+
+/* ================= Открытый заказ · сводка ================= */
+.bd-block { gap: 10px; padding: 12px 14px 14px; }
+.bd-block__hd { display: flex; justify-content: space-between; align-items: center; }
+.bd-block__hd > span { font: 600 13px/16px var(--font-body); color: rgba(237, 242, 232, 0.75); text-transform: uppercase; letter-spacing: 0.05em; }
+.bd-edit { height: 30px; padding: 0 12px; border-radius: 6px; border: 1px solid rgba(204, 222, 209, 0.55); background: #213839; color: #edf0e7; font: 500 12px/14px var(--font-body); cursor: pointer; }
+.bd-cl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.bd-cl > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.bd-cl b { font: 700 17px/22px var(--font-body); color: #edf2e8; }
+.bd-cl small { font: 400 13px/17px var(--font-body); color: rgba(237, 242, 232, 0.8); }
+.bd-cl em { font-style: normal; font-weight: 600; color: #e6f2cc; }
+.bd-cl__ic { display: flex; gap: 8px; }
+.bd-cl__ic .f-icon-btn { width: 42px; height: 42px; text-decoration: none; }
+.bd-cl__ic svg { width: 18px; height: 18px; }
+.bd-note { margin: 0; font: 400 13px/18px var(--font-body); color: rgba(237, 242, 232, 0.75); }
+.bd-rooms { display: flex; flex-direction: column; gap: 8px; }
+.bd-days { display: flex; flex-direction: column; gap: 6px; }
+.bd-day { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 44px; padding: 4px 12px 4px 6px; border-radius: 10px;
+  border: 0.9px solid rgba(5, 13, 15, 0.75); background: linear-gradient(180deg, #182829, #203030); }
+.bd-day__d { text-align: center; } .bd-day__d b { display: block; font: 700 18px/20px var(--font-num); color: #edf2e8; } .bd-day__d small { font: 500 10px/12px var(--font-body); color: rgba(237, 242, 232, 0.65); text-transform: uppercase; }
+.bd-day__r { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.bd-day__n { font: 500 12px/16px var(--font-body); color: rgba(237, 242, 232, 0.7); white-space: nowrap; }
+.bd-total { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.bd-total > div { border-radius: 8px; padding: 10px 12px; border: 0.9px solid rgba(6, 18, 20, 0.78); background: linear-gradient(180deg, #687b7a, #738582);
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.58), inset 0 4px 7px rgba(1, 9, 11, 0.66); }
+.bd-total small { display: block; font: 400 12px/16px var(--font-body); color: rgba(237, 242, 232, 0.8); } .bd-total b { font: 700 20px/26px var(--font-num); color: #edf2e8; }
+.bd-range { margin: 0; font: 500 13px/18px var(--font-body); color: #d4deb8; }
+.bd-line { margin: 0; display: flex; gap: 10px; align-items: baseline; } .bd-line b { font: 600 16px/20px var(--font-body); color: #edf2e8; } .bd-line small { font: 400 12px/16px var(--font-body); color: rgba(237, 242, 232, 0.7); }
+.bd-more { display: flex; flex-direction: column; }
+.bd-more__i { display: flex; justify-content: space-between; align-items: center; height: 44px; padding: 0 4px; border: 0; border-top: 0.5px solid rgba(191, 214, 204, 0.16); background: none; color: #edf2e8; font: 500 15px/20px var(--font-body); cursor: pointer; }
+.bd-more__i:first-child { border-top: 0; }
+.bd-more__i svg { width: 14px; height: 14px; transform: rotate(-90deg); opacity: 0.7; }
