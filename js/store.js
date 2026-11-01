@@ -1,8 +1,8 @@
 // Данные прототипа и все действия над ними. Хранятся только в этом браузере (localStorage).
 // Модель повторяет «Скелет системы»: заказ → звенья передачи → начисления; комнаты → стены → смета.
 
-import { makeSeed, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=64';
-import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=64';
+import { makeSeed, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=67';
+import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=67';
 
 const KEY = 'metronika-prototype-v2';
 let state;
@@ -56,6 +56,10 @@ const rubText = (n) => `${Math.round(n).toLocaleString('ru-RU')} ₽`;
 // ================= люди =================
 export const user = (id) => state.users.find((u) => u.id === id);
 export const me = () => user(state.session.userId);
+// Чей черновик сейчас открыт в разделах «Выездов»: свой «Оформить заказ» (по умолчанию) или заказ с доски.
+let draftKeyNow = null;
+export function setDraftKey(k) { draftKeyNow = k || null; }
+export const draftKey = () => draftKeyNow || me().id;
 export const findByPhone = (digits) => state.users.find((u) => u.phone === digits);
 export const hasRole = (u, r) => !!u && u.roles.includes(r);
 export const ROLE_NAMES = { agent: 'Агент', dispatcher: 'Диспетчер', master: 'Мастер' };

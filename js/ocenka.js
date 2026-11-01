@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=64';
-import * as S from './store.js?v=64';
-import { SYSTEM_PRICE } from './seed.js?v=64';
-import { shiftsText, hoursFor } from './calc.js?v=64';
-import { esc, toast } from './ui.js?v=64';
-import { logEvent } from './zlog.js?v=64';
+import { actions, rerender } from './core.js?v=67';
+import * as S from './store.js?v=67';
+import { SYSTEM_PRICE } from './seed.js?v=67';
+import { shiftsText, hoursFor } from './calc.js?v=67';
+import { esc, toast } from './ui.js?v=67';
+import { logEvent } from './zlog.js?v=67';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -261,7 +261,7 @@ export function renderEstimate(d) {
 }
 
 // ---------- действия ----------
-const D = () => { const st = S.get(); return est(st.oformit[S.me().id]); };
+const D = () => { const st = S.get(); return est(st.oformit[S.draftKey()]); };
 const save = () => { S.save(); rerender(); };
 
 // Переход между комнатами — с анимацией: шапка и содержимое уезжают в сторону листания,
@@ -386,7 +386,7 @@ actions['o-ok'] = () => {
   r.qtyErr = [];
   r.status = 'saved';
   r.snap = Object.fromEntries(r.svcs.map((x) => [x.id, x.qty]));
-  { const t = roomTotals(r); logEvent(S.get().oformit[S.me().id], 'Сохранена оценка комнаты', `${r.name}: ${fmt(t.total)} ₽ · ${shiftsText(t.hours)}`); }
+  { const t = roomTotals(r); logEvent(S.get().oformit[S.draftKey()], 'Сохранена оценка комнаты', `${r.name}: ${fmt(t.total)} ₽ · ${shiftsText(t.hours)}`); }
   // «Сохранить» → короткое сообщение «✓ Спальня сохранена» на 1 секунду. Никуда не перекидывает —
   // ни на следующую комнату, ни в «Итог»: мастер листает сам.
   showNote(`<b class="o-note-big__ok">✓ ${esc(r.name)} сохранена</b>`);

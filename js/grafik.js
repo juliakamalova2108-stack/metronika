@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=64';
-import * as S from './store.js?v=64';
-import { SHIFT_HOURS } from './calc.js?v=64';
-import { esc, toast } from './ui.js?v=64';
-import { logEvent } from './zlog.js?v=64';
-import { estimateRooms, roomTotals } from './ocenka.js?v=64';
+import { actions, rerender } from './core.js?v=67';
+import * as S from './store.js?v=67';
+import { SHIFT_HOURS } from './calc.js?v=67';
+import { esc, toast } from './ui.js?v=67';
+import { logEvent } from './zlog.js?v=67';
+import { estimateRooms, roomTotals } from './ocenka.js?v=67';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -163,7 +163,7 @@ export function renderSchedule(d) {
 }
 
 // ---------- действия ----------
-const D = () => sch(S.get().oformit[S.me().id]);
+const D = () => sch(S.get().oformit[S.draftKey()]);
 const save = () => { S.save(); rerender(); };
 const editable = (s) => s.status !== 'saved';
 
@@ -201,7 +201,7 @@ actions['g-month'] = (el) => {
 actions['g-day'] = (el) => {
   const s = D(); if (!editable(s)) return;
   const date = el.dataset.date;
-  const d = S.get().oformit[S.me().id];
+  const d = S.get().oformit[S.draftKey()];
   if (s.mode === 'measure') {
     if (s.measure === date) { s.measure = ''; s.sel = ''; s.dirty = true; save(); return; } // замер снят с даты
     if (s.sel === 'measure' || s.measure) { s.measure = date; s.sel = ''; s.dirty = true; save(); }
@@ -233,7 +233,7 @@ actions['g-day'] = (el) => {
 };
 actions['g-ok'] = () => {
   const s = D(); if (!s.dirty && s.status !== 'editing') return;
-  const d = S.get().oformit[S.me().id];
+  const d = S.get().oformit[S.draftKey()];
   const rooms = estimateRooms(d).filter((r) => s.place[r.key]).map((r) => `${r.name} с ${Number(s.place[r.key].slice(8))}.${s.place[r.key].slice(5, 7)}`);
   logEvent(d, 'Изменён график', [...rooms, s.measure ? `замер ${Number(s.measure.slice(8))}.${s.measure.slice(5, 7)}` : ''].filter(Boolean).join(', '));
   s.status = 'saved'; s.dirty = false; s.sel = ''; s.picks = []; save();
