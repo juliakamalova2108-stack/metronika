@@ -1,4 +1,4 @@
-import { afterRender } from './core.js?v=49';
+import { afterRender } from './core.js?v=52';
 
 // Подсказки над клавишами: поле с data-suggest="имя" получает список из suggesters[имя](текст).
 // Выбор подсказки шлёт полю событие kb-pick с выбранным пунктом.
@@ -158,6 +158,8 @@ function open(el) {
     shift = false;
     layer = el.dataset.kb === 'en' ? 'en' : 'ru';
     lastLetters = layer;
+    // Набор всегда идёт с конца поля (куда бы ни ткнули пальцем): «стереть» убирает последнюю цифру.
+    try { const n = el.value.length; el.setSelectionRange(n, n); } catch (e) { /* поле без выделения */ }
     autoShift(el);
   }
   setActive(true);
@@ -180,8 +182,10 @@ function autoShift(el) {
 function type(text) {
   let el = cur();
   if (!el) return;
-  const s = el.selectionStart ?? el.value.length;
-  const e = el.selectionEnd ?? el.value.length;
+  // В цифровых полях набор и «стереть» всегда с конца — куда бы ни ткнули пальцем.
+  const atEnd = el.dataset.kb === 'num';
+  const s = atEnd ? el.value.length : (el.selectionStart ?? el.value.length);
+  const e = atEnd ? el.value.length : (el.selectionEnd ?? el.value.length);
   if (text === null) {
     if (s === e && s === 0) return;
     let from = s === e ? s - 1 : s;

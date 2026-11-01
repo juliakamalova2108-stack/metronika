@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
 // выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
 
-import { actions, rerender } from './core.js?v=49';
-import * as S from './store.js?v=49';
-import { SYSTEM_PRICE } from './seed.js?v=49';
-import { shiftsText, hoursFor } from './calc.js?v=49';
-import { esc, toast } from './ui.js?v=49';
-import { logEvent } from './zlog.js?v=49';
+import { actions, rerender } from './core.js?v=52';
+import * as S from './store.js?v=52';
+import { SYSTEM_PRICE } from './seed.js?v=52';
+import { shiftsText, hoursFor } from './calc.js?v=52';
+import { esc, toast } from './ui.js?v=52';
+import { logEvent } from './zlog.js?v=52';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -140,15 +140,27 @@ function servicesView(e, r) {
     </section>`;
 }
 
+// Короткие названия для строк ввода: строки одной высоты, название в одну строку.
+const SHORT = { 'paste-flizelin': 'Поклейка флиз. обоев', 'paste-paper': 'Поклейка бум. обоев', strip: 'Демонтаж обоев', 'strip-paint': 'Снятие краски', 'strip-plaster': 'Снятие штукатурки', mesh: 'Малярная сетка', 'paste-glass': 'Поклейка стеклообоев', 'paste-photo': 'Поклейка фотообоев' };
+// Строка услуги: слева поле м² (под левую руку), в середине название и цена, справа сумма.
 function svcCard(l, locked, changed = false, err = false) {
-  return `<div class="o-card">
-    <div class="o-card__head"><span>${esc(l.name)}</span><small data-o-hours="${l.id}">${l.qty ? shiftsText(l.hours) : ''}</small></div>
-    <div class="o-card__row">
-      <label class="o-qty${locked ? ' is-locked' : ''}${err ? ' is-error' : changed ? ' is-changed' : ''}"><input inputmode="decimal" value="${l.qty ? esc(numTxt(l.qty)) : ''}" placeholder="—" ${locked ? 'readonly' : ''} data-live="o-qty" data-id="${l.id}" aria-label="${esc(l.name)}, м²"/><span>м²</span></label>
-      <span class="o-x">×</span><span class="o-price">${fmt(l.price)} ₽/м²</span>
-      <b class="o-sum" data-o-sum="${l.id}">${l.qty ? `= ${fmt(l.sum)} ₽` : ''}</b>
-    </div>
+  return `<div class="o-svc">
+    <label class="o-qty${locked ? ' is-locked' : ''}${err ? ' is-error' : changed ? ' is-changed' : ''}"><input inputmode="decimal" value="${l.qty ? esc(numTxt(l.qty)) : ''}" placeholder="—" ${locked ? 'readonly' : ''} data-live="o-qty" data-id="${l.id}" aria-label="${esc(l.name)}, м²"/><span>м²</span></label>
+    <span class="o-svc__t"><span class="o-svc__n">${esc(SHORT[l.id] || l.name)}</span><small>${fmt(l.price)} ₽/м²<span data-o-hours="${l.id}">${l.qty ? ' · ' + shiftsText(l.hours) : ''}</span></small></span>
+    <b class="o-svc__s" data-o-sum="${l.id}">${l.qty ? `${fmt(l.sum)} ₽` : ''}</b>
   </div>`;
+}
+// «Одинаковый объём»: введённая цифра заливается во все услуги комнаты; любую услугу потом можно поправить в её строке.
+const sameOn = (r) => r.same !== false;
+function sameCard(r, locked) {
+  const on = sameOn(r); const ro = locked || !on;
+  return `<section class="f-plate o-same${on ? '' : ' is-off'}">
+    <div class="o-svc">
+      <label class="o-qty${ro ? ' is-locked' : ''}"><input id="o-same-q" inputmode="decimal" value="${r.sameQty ? esc(numTxt(r.sameQty)) : ''}" placeholder="—" ${ro ? 'readonly' : ''} data-live="o-same" aria-label="Одинаковый объём, м²"/><span>м²</span></label>
+      <span class="o-svc__t"><span class="o-svc__n">Одинаковый объём</span><small>${on ? 'заливается во все услуги' : 'выключен — каждая услуга отдельно'}</small></span>
+      <button type="button" class="o-same__tog" role="switch" aria-checked="${on}" aria-label="Одинаковый объём" data-action="o-same-tog" ${locked ? 'disabled' : ''}>${toggle(on)}</button>
+    </div>
+  </section>`;
 }
 
 function volumesView(e, r) {
@@ -157,7 +169,8 @@ function volumesView(e, r) {
   const filled = r.svcs.length && r.svcs.every((x) => x.qty > 0);
   const status = locked ? '<span class="f-status f-status--ok o-status"><i></i>сохранено</span>' : '<span class="f-status f-status--warn o-status"><i></i>редактирование</span>';
   return `${carousel(e, roomTabs(r))}
-    <section class="f-plate o-room f-fill">
+    ${sameCard(r, locked)}
+    <section class="f-plate o-room o-room--rows f-fill">
       <div class="o-room__bar">${status}</div>
       ${t.lines.map((l) => svcCard(l, locked, qtyChanged(r, l.id), !l.qty && (r.qtyErr || []).includes(l.id))).join('')}
     </section>
@@ -303,7 +316,7 @@ actions['o-svc-toggle'] = (el) => {
 actions['o-svc-done'] = () => {
   const e = D(); const r = roomOf(e, e.view);
   const pick = r.pick || [];
-  pick.filter((id) => !r.svcs.some((x) => x.id === id)).forEach((id) => r.svcs.push({ id, qty: 0 }));
+  pick.filter((id) => !r.svcs.some((x) => x.id === id)).forEach((id) => r.svcs.push({ id, qty: sameOn(r) && r.sameQty ? r.sameQty : 0 }));
   r.svcs.sort((a, b) => SVC.findIndex((s) => s.id === a.id) - SVC.findIndex((s) => s.id === b.id));
   r.pick = null; r.panel = '';
   if (r.status === 'saved') r.status = 'editing';
@@ -317,27 +330,47 @@ actions['o-confirm-yes'] = () => {
   save();
 };
 // Объём вводится без перерисовки экрана: обновляем сумму, срок и итог комнаты на месте.
-export function onLiveEstimate(el) {
-  if (el.dataset.live !== 'o-qty') return false;
-  const e = D(); const r = roomOf(e, e.view);
-  const x = r.svcs.find((s) => s.id === el.dataset.id);
-  const v = parseFloat(String(el.value).replace(',', '.').replace(/\s/g, ''));
-  x.qty = Number.isFinite(v) && v > 0 ? Math.round(v * 100) / 100 : 0;
-  S.save();
-  const qbox = el.closest('.o-qty'); if (qbox) qbox.classList.toggle('is-changed', qtyChanged(r, x.id));
+const parseQty = (v) => { const n = parseFloat(String(v).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) && n > 0 ? Math.round(n * 100) / 100 : 0; };
+// Обновить на экране суммы, сроки, подсветку и итог комнаты — без перерисовки (поле в фокусе не теряется).
+function refreshRoom(r) {
   const t = roomTotals(r);
   t.lines.forEach((l) => {
-    const sum = document.querySelector(`[data-o-sum="${l.id}"]`); if (sum) sum.textContent = l.qty ? `= ${fmt(l.sum)} ₽` : '';
-    const h = document.querySelector(`[data-o-hours="${l.id}"]`); if (h) h.textContent = l.qty ? shiftsText(l.hours) : '';
+    const sum = document.querySelector(`[data-o-sum="${l.id}"]`); if (sum) sum.textContent = l.qty ? `${fmt(l.sum)} ₽` : '';
+    const h = document.querySelector(`[data-o-hours="${l.id}"]`); if (h) h.textContent = l.qty ? ' · ' + shiftsText(l.hours) : '';
+    const box = document.querySelector(`[data-live="o-qty"][data-id="${l.id}"]`)?.closest('.o-qty');
+    if (box) { box.classList.toggle('is-changed', qtyChanged(r, l.id)); if (l.qty) box.classList.remove('is-error'); }
   });
+  if (r.qtyErr) r.qtyErr = r.qtyErr.filter((id) => !(r.svcs.find((x) => x.id === id) || {}).qty);
   const filled = r.svcs.every((s) => s.qty > 0);
-  const box = document.getElementById('o-room-total'); const ok = document.getElementById('o-room-ok');
-  if (box) box.hidden = !filled;
-  if (x.qty && r.qtyErr) { r.qtyErr = r.qtyErr.filter((id) => id !== x.id); if (qbox) qbox.classList.remove('is-error'); }
+  const box = document.getElementById('o-room-total'); if (box) box.hidden = !filled;
   const a = document.getElementById('o-room-sum'); if (a) a.textContent = `${fmt(t.total)} ₽`;
   const b = document.getElementById('o-room-time'); if (b) b.textContent = shiftsText(t.hours);
+}
+export function onLiveEstimate(el) {
+  const k = el.dataset.live;
+  if (k !== 'o-qty' && k !== 'o-same') return false;
+  const e = D(); const r = roomOf(e, e.view);
+  if (k === 'o-same') {
+    r.sameQty = parseQty(el.value);
+    if (sameOn(r) && r.sameQty) {
+      r.svcs.forEach((x) => { x.qty = r.sameQty; });
+      document.querySelectorAll('[data-live="o-qty"]').forEach((inp) => { inp.value = numTxt(r.sameQty); });
+    }
+  } else {
+    const x = r.svcs.find((s) => s.id === el.dataset.id);
+    x.qty = parseQty(el.value);
+  }
+  S.save();
+  refreshRoom(r);
   return true;
 }
+actions['o-same-tog'] = () => {
+  const e = D(); const r = roomOf(e, e.view);
+  if (r.status === 'saved') return;
+  r.same = !sameOn(r);
+  if (r.same && r.sameQty) r.svcs.forEach((x) => { x.qty = r.sameQty; });
+  save();
+};
 actions['o-ok'] = () => {
   const e = D(); const r = roomOf(e, e.view);
   if (r.status === 'saved') return;

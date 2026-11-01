@@ -1,11 +1,11 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=49';
-import * as S from './store.js?v=49';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=49';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=49';
-import { topbar, typeName } from './shared.js?v=49';
-import { COUNTRIES, SOON } from './phonecodes.js?v=49';
+import { actions, changes, rerender, go, val } from './core.js?v=52';
+import * as S from './store.js?v=52';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=52';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=52';
+import { topbar, typeName } from './shared.js?v=52';
+import { COUNTRIES, SOON } from './phonecodes.js?v=52';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
