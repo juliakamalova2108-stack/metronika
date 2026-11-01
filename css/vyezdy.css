@@ -697,3 +697,24 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 /* Короткое сообщение «Комната сохранена» — небольшое, не мешает нажатиям. */
 .o-note-big { pointer-events: none; }
 .o-note-big__plate { min-width: 0; padding: 14px 22px; }
+
+/* График · «Без даты»: одна плашка на комнату — название и сумма, клетки смен, срок. Можно отметить несколько (номер — порядок). */
+.g-train { position: relative; flex: none; display: flex; flex-direction: column; gap: 3px; padding: 5px 7px 5px; border-radius: 8px; cursor: pointer; text-align: left;
+  border: 0.5px solid #465061; background: rgba(255, 255, 255, 0.04); color: #edf0e7; }
+.g-train.is-sel { border: 1.5px solid #ebf5d6; box-shadow: 0 4px 6px rgba(0, 8, 10, 0.6); background: rgba(235, 245, 214, 0.08); }
+.g-train__hd { display: flex; justify-content: space-between; gap: 10px; font: 600 12px/14px var(--font-body); white-space: nowrap; }
+.g-train__hd span:last-child { font-weight: 700; }
+.g-train__cars { display: flex; gap: 2px; }
+.g-car { position: relative; width: 30px; height: 16px; border-radius: 3px; overflow: hidden; }
+.g-car i { position: absolute; left: 0; top: 0; bottom: 0; }
+.g-train__ft { font: 400 10px/12px var(--font-body); color: rgba(237, 242, 232, 0.75); white-space: nowrap; }
+.g-train__n { position: absolute; top: -1px; right: -1px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 0 7px 0 6px; background: #ebf5d6; color: #162c33; font: 700 11px/16px var(--font-body); text-align: center; }
+.g-train.is-sel .g-train__hd { padding-right: 14px; }
+.g-screen .g-tray:has(.g-train) { padding: 4px; align-items: stretch; }
+.g-train { gap: 2px; padding: 3px 7px 3px; justify-content: center; }
+.g-car { height: 11px; }
+.g-train__hd { font-size: 11.5px; line-height: 13px; }
+.g-train__ft { font-size: 9.5px; line-height: 11px; }
+/* Отмеченная комната — цветом самой комнаты: рамка, свечение, подкраска, номер порядка. */
+.g-train.is-sel { border: 2px solid var(--rc); background: var(--rcA); box-shadow: 0 0 0 1px var(--rcG), 0 0 12px var(--rcG), 0 4px 6px rgba(0, 8, 10, 0.6); }
+.g-train.is-sel .g-train__n { background: var(--rc); color: #fff; top: -2px; right: -2px; }

@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=54';
-import * as S from './store.js?v=54';
-import { SHIFT_HOURS } from './calc.js?v=54';
-import { esc, toast } from './ui.js?v=54';
-import { logEvent } from './zlog.js?v=54';
-import { estimateRooms, roomTotals } from './ocenka.js?v=54';
+import { actions, rerender } from './core.js?v=57';
+import * as S from './store.js?v=57';
+import { SHIFT_HOURS } from './calc.js?v=57';
+import { esc, toast } from './ui.js?v=57';
+import { logEvent } from './zlog.js?v=57';
+import { estimateRooms, roomTotals } from './ocenka.js?v=57';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -77,6 +77,15 @@ function fits(lay, hours, date) {
 const hTxt = (h) => { const d = Math.floor(h / SHIFT_HOURS + EPS); const r = Math.round(h - d * SHIFT_HOURS); return [d ? `${d} дн` : '', r ? `${r} ч` : ''].filter(Boolean).join(' ') || '0 ч'; };
 const usedOn = (segs) => (segs || []).reduce((a, x) => a + x.hours, 0);
 
+// Плашка комнаты в «Без даты»: одна на комнату — название и сумма, клетки смен (неполная закрашена на долю дня), срок.
+function trainChip(r, n) {
+  const t = roomTotals(r);
+  const cars = roomDays(r).map((x) => `<span class="g-car" style="background:${hexA(r.color, 0.22)}"><i style="background:${r.color};width:${((x.hours / SHIFT_HOURS) * 100).toFixed(1)}%"></i></span>`).join('');
+  return `<button type="button" class="g-train${n ? ' is-sel' : ''}" style="--rc:${r.color};--rcA:${hexA(r.color, 0.28)};--rcG:${hexA(r.color, 0.6)}" data-action="g-pick" data-key="${r.key}" aria-pressed="${!!n}">
+    ${n ? `<b class="g-train__n">${n}</b>` : ''}<span class="g-train__hd"><span>${esc(r.name)}</span><span>${fmt(t.total)} ₽</span></span>
+    <span class="g-train__cars">${cars}</span><span class="g-train__ft">${shiftsTxt(t.hours)}</span></button>`;
+}
+const shiftsTxt = (h) => { const d = Math.floor(h / SHIFT_HOURS + 1e-6); const r = Math.round(h - d * SHIFT_HOURS); return [d ? `${d} ${d === 1 ? 'смена' : d < 5 ? 'смены' : 'смен'}` : '', r ? `${r} ч` : ''].filter(Boolean).join(' ') || '0 ч'; };
 function chip(r, x, selected, extraAttrs = '') {
   const frac = x.hours / SHIFT_HOURS;
   const style = frac >= 1 ? `background:${r.color}` : `background:${hexA(r.color, 0.18)}`;
@@ -139,8 +148,8 @@ export function renderSchedule(d) {
   } else if (!pending.length) {
     todo = '<section class="g-todo g-todo--done"><p class="g-todo__t">Все комнаты запланированы</p><p class="g-todo__x" aria-hidden="true" style="visibility:hidden">Выберите комнату и нажмите на любую свободную дату</p><div class="g-tray"></div></section>';
   } else {
-    todo = `<section class="g-todo"><p class="g-todo__t">Без даты</p><p class="g-todo__x">Выберите комнату и нажмите на любую свободную дату</p>
-      <div class="g-tray">${pending.map((r) => roomDays(r).map((x) => chip(r, x, s.sel === r.key, `data-action="g-pick" data-key="${r.key}"`)).join('')).join('')}</div></section>`;
+    todo = `<section class="g-todo"><p class="g-todo__t">Без даты</p><p class="g-todo__x">Выберите одну или несколько комнат и нажмите на дату</p>
+      <div class="g-tray">${pending.map((r) => trainChip(r, (s.picks || []).indexOf(r.key) + 1)).join('')}</div></section>`;
   }
   const editing = s.dirty || s.status === 'editing';
   const status = editing ? '<span class="f-status f-status--warn g-status"><i></i>редактирование</span>' : locked ? '<span class="f-status f-status--ok g-status"><i></i>сохранено</span>' : '';
@@ -158,8 +167,33 @@ const D = () => sch(S.get().oformit[S.me().id]);
 const save = () => { S.save(); rerender(); };
 const editable = (s) => s.status !== 'saved';
 
-actions['g-mode'] = () => { const s = D(); s.mode = s.mode === 'rooms' ? 'measure' : 'rooms'; s.sel = ''; save(); };
-actions['g-pick'] = (el) => { const s = D(); if (!editable(s)) return; s.sel = s.sel === el.dataset.key ? '' : el.dataset.key; save(); };
+actions['g-mode'] = () => { const s = D(); s.mode = s.mode === 'rooms' ? 'measure' : 'rooms'; s.sel = ''; s.picks = []; save(); };
+actions['g-pick'] = (el) => {
+  const s = D(); if (!editable(s)) return;
+  const k = el.dataset.key;
+  if (k === 'measure') { s.sel = s.sel === k ? '' : k; save(); return; }
+  // Комнаты в «Без даты» отмечаются по одной или несколько; порядок отметки = порядок на календаре.
+  s.picks = s.picks || []; s.sel = '';
+  s.picks = s.picks.includes(k) ? s.picks.filter((x) => x !== k) : [...s.picks, k];
+  save();
+};
+// Поставить отмеченные комнаты подряд с даты: каждая следующая — сразу за предыдущей (в остаток её дня, если есть).
+// Не хватает места хотя бы одной — не ставится ни одна.
+function placeChain(s, rooms, keys, date) {
+  const tmp = { ...s.place }; keys.forEach((k) => delete tmp[k]);
+  let start = date;
+  for (const k of keys) {
+    const room = rooms.find((r) => r.key === k); if (!room) continue;
+    const need = roomTotals(room).hours;
+    const f = fits(layout({ place: tmp }, rooms), need, start);
+    if (!f.ok) return { fail: room, start, avail: f.avail, need };
+    tmp[k] = start;
+    const lay = layout({ place: tmp }, rooms);
+    let last = start; for (let d = start, i = 0; i < 400; d = addDays(d, 1), i += 1) { if ((lay[d] || []).some((x) => x.room.key === k)) last = d; else if (d > last) break; }
+    start = usedOn(lay[last]) < SHIFT_HOURS - EPS ? last : addDays(last, 1);
+  }
+  return { place: tmp };
+}
 actions['g-month'] = (el) => {
   const s = D(); const [Y, M] = s.month.split('-').map(Number);
   const d = new Date(Y, M - 1 + Number(el.dataset.d), 1); s.month = `${d.getFullYear()}-${p2(d.getMonth() + 1)}`; save();
@@ -174,6 +208,11 @@ actions['g-day'] = (el) => {
     return;
   }
   const rooms = estimateRooms(d).filter((r) => roomTotals(r).hours > 0);
+  if ((s.picks || []).length) {
+    const res = placeChain(s, rooms, s.picks, date);
+    if (res.fail) { toast(`«${res.fail.name}» не помещается: с ${Number(res.start.slice(8))}-го свободно ${hTxt(res.avail)}, а нужно ${hTxt(res.need)}`); return; }
+    s.place = res.place; s.picks = []; s.sel = ''; s.dirty = true; save(); return;
+  }
   const segs = layout(s, rooms)[date] || [];
   const mine = segs.find((x) => x.room.key === s.sel);
   // Нажали на день с комнатами без выбора — выбирается последняя комната дня (её можно перенести или снять).
@@ -197,6 +236,6 @@ actions['g-ok'] = () => {
   const d = S.get().oformit[S.me().id];
   const rooms = estimateRooms(d).filter((r) => s.place[r.key]).map((r) => `${r.name} с ${Number(s.place[r.key].slice(8))}.${s.place[r.key].slice(5, 7)}`);
   logEvent(d, 'Изменён график', [...rooms, s.measure ? `замер ${Number(s.measure.slice(8))}.${s.measure.slice(5, 7)}` : ''].filter(Boolean).join(', '));
-  s.status = 'saved'; s.dirty = false; s.sel = ''; save();
+  s.status = 'saved'; s.dirty = false; s.sel = ''; s.picks = []; save();
 };
 actions['g-edit'] = () => { const s = D(); if (s.status === 'saved') { s.status = 'editing'; save(); } };
