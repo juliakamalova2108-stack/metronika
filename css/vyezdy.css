@@ -904,3 +904,21 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .ch-bar__t small { display: block; font: 400 13px/17px var(--font-body); color: rgba(230, 242, 204, 0.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ch-bar__go { flex: none; font-size: 24px; color: rgba(237, 240, 231, 0.6); }
 .ch-bar ~ .ch-feed { padding-top: 66px; }
+/* Сообщения как в Telegram: свои справа (зелёные), чужие слева (тёмные) с кружком собеседника. */
+.ch-feed { gap: 6px; }
+.ch-row { display: flex; align-items: flex-end; gap: 8px; align-self: flex-start; max-width: 88%; }
+.ch-row .ch-msg { max-width: none; border-radius: 16px; }
+.ch-row .ch-msg.is-tail { border-radius: 16px 16px 16px 4px; }
+.ch-ava { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 600 14px/1 var(--font-body); font-style: normal; color: #edf0e7; }
+.ch-ava.is-empty { visibility: hidden; }
+.ch-msg { padding: 8px 12px; }
+.ch-row .ch-msg { background: linear-gradient(180deg, #2b3f40, #263a3b); border-color: rgba(204, 219, 207, 0.18); }
+.ch-msg.is-me { max-width: 80%; border-radius: 16px 16px 4px 16px; background: linear-gradient(180deg, #4d7a62, #44705a); border-color: rgba(204, 236, 214, 0.35); }
+.ch-msg.is-me + .ch-msg.is-me { margin-top: -2px; }
+.ch-msg__hd { display: flex; align-items: baseline; gap: 6px; }
+.ch-msg__hd span { font: 600 14px/18px var(--font-body); color: color-mix(in srgb, var(--nc, #9fb7ff) 45%, #ffffff); }
+.ch-msg__hd small { margin: 0; text-align: left; font: 400 12px/16px var(--font-body); color: rgba(237, 240, 231, 0.55); }
+.ch-msg p { margin-top: 2px; }
+.ch-msg.is-me .ch-meta, .ch-msg.is-me .ch-st { color: rgba(237, 246, 238, 0.75); }
+.ch-msg.is-me .ch-st--read { color: #8fdcff; }
+.ch-bar { background: #1b2f31; }

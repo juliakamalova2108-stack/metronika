@@ -3,13 +3,13 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=93';
-import * as S from './store.js?v=93';
-import { renderOformit, oformitDraft } from './oformit.js?v=93';
-import { roomTotals, svcInfo } from './ocenka.js?v=93';
-import { smetaTotals } from './zakaz.js?v=93';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=93';
-import { esc, toast } from './ui.js?v=93';
+import { actions, rerender, go } from './core.js?v=94';
+import * as S from './store.js?v=94';
+import { renderOformit, oformitDraft } from './oformit.js?v=94';
+import { roomTotals, svcInfo } from './ocenka.js?v=94';
+import { smetaTotals } from './zakaz.js?v=94';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=94';
+import { esc, toast } from './ui.js?v=94';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -315,8 +315,16 @@ function renderBoardChat(no) {
   // Статусы, как в мессенджерах: часы — отправляется, одна галочка — отправлено,
   // две серые — доставлено, две голубые — прочитано.
   const tick = (st) => `<i class="ch-st ch-st--${st}" aria-label="${ST_T[st]}">${ST_I[st]}</i>`;
-  const msgs = d.chat.map((m) => { const mine = m.who === me.id;
-    return `<div class="ch-msg${mine ? ' is-me' : ''}" data-at="${esc(m.at)}">${mine ? '' : `<div class="ch-msg__hd"><span>${esc(who(m))}${role(m) ? ' · ' + esc(role(m)) : ''}</span></div>`}<p>${esc(m.text)}<span class="ch-meta">${hhmm(m.at)}${mine ? tick(m.st || 'read') : ''}</span></p></div>`; }).join('');
+  // Как в Telegram: свои — справа, зелёные; чужие — слева, с кружком и цветным именем.
+  // Подряд от одного человека: имя — у первого сообщения, кружок — у последнего.
+  const pi = (m) => parts.findIndex((x) => x[0] === m.who);
+  const msgs = d.chat.map((m, k) => { const mine = m.who === me.id;
+    const meta = `<span class="ch-meta">${hhmm(m.at)}${mine ? tick(m.st || 'read') : ''}</span>`;
+    if (mine) return `<div class="ch-msg is-me" data-at="${esc(m.at)}"><p>${esc(m.text)}${meta}</p></div>`;
+    const prev = d.chat[k - 1]; const next = d.chat[k + 1];
+    const first = !prev || prev.who !== m.who; const last = !next || next.who !== m.who;
+    const col = AV_C[Math.max(0, pi(m)) % AV_C.length];
+    return `<div class="ch-row${last ? ' is-last' : ''}">${last ? `<i class="ch-ava" style="background:${col}">${esc(who(m)[0])}</i>` : '<i class="ch-ava is-empty"></i>'}<div class="ch-msg${last ? ' is-tail' : ''}" data-at="${esc(m.at)}">${first ? `<div class="ch-msg__hd" style="--nc:${col}"><span>${esc(who(m))}</span>${role(m) ? `<small>${esc(role(m))}</small>` : ''}</div>` : ''}<p>${esc(m.text)}${meta}</p></div></div>`; }).join('');
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     <button type="button" class="ch-bar" data-action="ch-parts" aria-label="Участники заказа">
       <span class="ch-av"><i style="background:#3f6a5c">В</i>${parts.map(([, n], k) => `<i style="background:${AV_C[k % AV_C.length]}">${esc(n[0])}</i>`).join('')}</span>
