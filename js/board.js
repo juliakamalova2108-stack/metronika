@@ -3,8 +3,8 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender } from './core.js?v=62';
-import { esc } from './ui.js?v=62';
+import { actions, rerender } from './core.js?v=63';
+import { esc } from './ui.js?v=63';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -27,20 +27,22 @@ const R = {
   iK: { c: I, r: 'Кухня', f: '1 этаж', col: '#f59e0b', sum: 5400, sh: [1] },
   hG: { c: H, r: 'Гостиная', f: '3 этаж', col: '#f59e0b', sum: 16800, sh: [1, 1, 1] },
 };
-// день относительно сегодня → [комната, номер смены, время]
+// Смены считаются по заказу целиком (все комнаты клиента подряд): доли рабочих дней заказа.
+const ORDER_SH = { '004': [1, 1, 0.5], '007': [1, 1, 0.5], '011': [1], '014': [1, 1, 1] };
+// день относительно сегодня → [комната, номер смены заказа, время]
 const QUEUE = [
   [-1, 'aK', 0, '10:00'], [0, 'aK', 1, '9:00'], [1, 'aK', 2, '9:00'], [1, 'pS', 0, '13:00'],
-  [2, 'pK', 0, '9:00'], [2, 'pV', 0, '13:00'], [3, null], [4, 'iK', 0, '11:00'], [5, 'pS', 1, '9:00'],
+  [2, 'pS', 1, '9:00'], [3, 'pK', 2, '9:00'], [3, 'pV', 2, '13:00'], [4, null], [5, 'iK', 0, '11:00'],
   [6, null], [7, 'hG', 0, '9:00'], [8, 'hG', 1, '9:00'], [9, 'hG', 2, '9:00'],
 ];
-
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const dayOf = (off) => { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + off); return d; };
-const label = (x, i) => (x.sh[i] < 1 ? `${Math.round(x.sh[i] * 8)} ч` : `${i + 1}-я смена`);
+const label = (sh, i) => (sh[i] < 1 ? `${Math.round(sh[i] * 8)} ч` : `${i + 1}-я смена`);
 
 function steps(x, k) {
-  const parts = x.sh.map((h, i) => `${i ? `<b class="${i <= k ? 'past' : ''}"></b>` : ''}<i class="${i < k ? 'past' : i === k ? 'on' : ''}">${i === k ? label(x, i) : ''}</i>`).join('');
-  return `<span class="bd-steps">${parts}${x.sh.length === 1 ? '<b class="bd-gap"></b>' : ''}</span>`;
+  const sh = ORDER_SH[x.c.no];
+  const parts = sh.map((h, i) => `${i ? `<b class="${i <= k ? 'past' : ''}"></b>` : ''}<i class="${i < k ? 'past' : i === k ? 'on' : ''}">${i === k ? label(sh, i) : ''}</i>`).join('');
+  return `<span class="bd-steps">${parts}${sh.length === 1 ? '<b class="bd-gap"></b>' : ''}</span>`;
 }
 const leaf = (d, today) => `<span class="bd-leaf${today ? ' is-today' : ''}"><small>${WD[d.getDay()]}</small><b>${d.getDate()}</b></span>`;
 
