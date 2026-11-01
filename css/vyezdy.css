@@ -463,3 +463,28 @@ body.fig .view { padding-bottom: 170px; }
 .z-tog-btn { display: block; } .z-tog-btn .o-tog { display: block; }
 
 .o-head { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+
+/* График — один экран без прокрутки: календарь сжимается под видимую высоту телефона. */
+body.fig .view:has(.g-screen) { padding-bottom: 0; }
+.g-screen { display: flex; flex-direction: column; gap: 8px; }
+.g-screen .g-mode { height: 44px; }
+.g-screen .g-todo { padding: 8px 10px; gap: 6px; }
+.g-screen .g-todo__x { margin-top: -4px; }
+.g-screen .g-tray { min-height: 0; padding: 4px; }
+.g-screen .g-chip { height: 46px; }
+.g-screen .g-plate { padding: 8px; gap: 6px; }
+.g-screen .g-month { height: 42px; }
+.g-screen .g-month .f-icon-btn { width: 36px; height: 36px; }
+.g-screen .g-dow { margin-top: -2px; }
+.g-screen .g-grid { margin-top: -2px; gap: 3px; }
+.g-screen .g-cell { --cell: clamp(26px, calc((100vh - 590px) / var(--weeks) - 3px), 50px); --cell: clamp(26px, calc((100svh - 590px) / var(--weeks) - 3px), 50px); height: var(--cell); padding: 2px 1px; }
+.g-screen .g-cell:not(.g-cell--work) { padding-top: 4px; }
+.g-screen .g-cell--work b { font-size: 15px; line-height: 16px; }
+.g-screen .g-cell--work span { font-size: 9px; line-height: 10px; }
+.g-screen .f-btn-row { margin-bottom: 12px; }
+@media (max-height: 760px) {
+  .g-screen .g-cell--work span:last-of-type { display: none; }
+  .g-screen .g-cell b { font-size: 13px; line-height: 14px; }
+  .g-screen .g-todo__x { display: none; }
+}
+@media (max-height: 680px) { .g-screen .g-cell--work span { display: none; } }

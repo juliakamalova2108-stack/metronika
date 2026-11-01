@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=14';
-import * as S from './store.js?v=14';
-import { SHIFT_HOURS } from './calc.js?v=14';
-import { esc } from './ui.js?v=14';
-import { logEvent } from './zlog.js?v=14';
-import { estimateRooms, roomTotals } from './ocenka.js?v=14';
+import { actions, rerender } from './core.js?v=15';
+import * as S from './store.js?v=15';
+import { SHIFT_HOURS } from './calc.js?v=15';
+import { esc } from './ui.js?v=15';
+import { logEvent } from './zlog.js?v=15';
+import { estimateRooms, roomTotals } from './ocenka.js?v=15';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -90,7 +90,7 @@ function calendar(s, rooms, lay, locked) {
   return `<div class="g-month"><button type="button" class="f-icon-btn g-prev" data-action="g-month" data-d="-1" aria-label="Предыдущий месяц">${CHEV}</button>
       <span>${MONTHS[M - 1]} ${Y}</span><button type="button" class="f-icon-btn g-next" data-action="g-month" data-d="1" aria-label="Следующий месяц">${CHEV}</button></div>
     <div class="g-dow">${DOW.map((x) => `<span>${x}</span>`).join('')}</div>
-    <div class="g-grid">${cells.join('')}</div>`;
+    <div class="g-grid" style="--weeks:${Math.ceil((lead + days) / 7)}">${cells.join('')}</div>`;
 }
 
 export function renderSchedule(d) {
@@ -114,13 +114,13 @@ export function renderSchedule(d) {
   }
   const editing = s.dirty || s.status === 'editing';
   const status = editing ? '<span class="f-status f-status--warn g-status"><i></i>редактирование</span>' : locked ? '<span class="f-status f-status--ok g-status"><i></i>сохранено</span>' : '';
-  return `<button type="button" class="o-row g-mode" role="switch" aria-checked="${s.mode === 'measure'}" data-action="g-mode"><span class="o-row__name">Замеры</span><span class="o-tog${s.mode === 'measure' ? ' is-on' : ''}" aria-hidden="true"><i></i></span></button>
+  return `<div class="g-screen"><button type="button" class="o-row g-mode" role="switch" aria-checked="${s.mode === 'measure'}" data-action="g-mode"><span class="o-row__name">Замеры</span><span class="o-tog${s.mode === 'measure' ? ' is-on' : ''}" aria-hidden="true"><i></i></span></button>
     ${todo}
     <section class="f-plate g-plate"><p class="g-plate__t">Запланированы</p>${status}${calendar(s, rooms, lay, locked)}</section>
     <div class="f-btn-row">
       <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="g-ok" ${!locked && !s.dirty && s.status !== 'editing' ? 'disabled' : ''}>ОК</button>
       ${s.status !== 'new' ? `<button type="button" class="f-btn${s.status === 'editing' ? ' f-btn--editing' : ''}" data-action="g-edit">Редактировать</button>` : ''}
-    </div>`;
+    </div></div>`;
 }
 
 // ---------- действия ----------
