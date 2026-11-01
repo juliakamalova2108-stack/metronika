@@ -536,3 +536,7 @@ body.fig .view:has(.g-screen) { padding-bottom: 112px; }
 .g-screen .g-tray { height: 56px; flex: none; }
 .g-screen.f-fill { overflow: visible; }
 body.fig .view:has(.o-head) { touch-action: pan-y; }
+/* Название комнаты уже на пластине карусели — в карточке остаётся только строка статуса. */
+.o-room__bar { position: relative; height: 16px; flex: none; }
+.o-room__bar .f-status { top: 0; right: 8px; }
+.o-room:has(.o-room__bar) { padding-top: 10px; }
