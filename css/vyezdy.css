@@ -1146,3 +1146,4 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .bd-leaf:has(em) b { margin-top: 1px; font-size: 22px; line-height: 23px; }
 .bd-leaf em { margin-top: 1px; font-style: normal; font: 700 10.5px/12px var(--font-num); color: #2d6a46; white-space: nowrap; }
 .bd-fine { margin: 2px 2px 0; font: 400 11.5px/15px var(--font-body); color: rgba(237, 242, 232, 0.55); }
+.bd-block__hd > span .bd-sub { display: block; margin-top: 2px; font: 400 11.5px/15px var(--font-body); color: rgba(237, 242, 232, 0.6); text-transform: none; letter-spacing: 0; }
