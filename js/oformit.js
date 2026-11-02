@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=112';
-import * as S from './store.js?v=112';
-import { CHANNELS } from './seed.js?v=112';
-import { esc } from './ui.js?v=112';
-import { logEvent } from './zlog.js?v=112';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=112';
+import { actions, rerender, go } from './core.js?v=113';
+import * as S from './store.js?v=113';
+import { CHANNELS } from './seed.js?v=113';
+import { esc } from './ui.js?v=113';
+import { logEvent } from './zlog.js?v=113';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=113';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=112';
-import { renderSchedule, scheduleState } from './grafik.js?v=112';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=113';
+import { renderSchedule, scheduleState } from './grafik.js?v=113';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';

@@ -1142,3 +1142,5 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-rplate { isolation: isolate; overflow: hidden; border-color: color-mix(in srgb, var(--rc) 55%, transparent); }
 .o-rplate::before { content: ''; left: -60px; top: -40px; bottom: auto; width: 240px; height: 240px; border-radius: 50%; background: var(--rc); filter: blur(60px); opacity: .45; box-shadow: none; z-index: -1; }
 .o-rplate .o-rhead { padding-left: 8px; }
+/* Листок даты выровнен по верху карточки. */
+.bd-leaf { top: 0; transform: none; }
