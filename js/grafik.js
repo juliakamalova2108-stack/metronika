@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=105';
-import * as S from './store.js?v=105';
-import { SHIFT_HOURS } from './calc.js?v=105';
-import { esc, toast } from './ui.js?v=105';
-import { logEvent } from './zlog.js?v=105';
-import { estimateRooms, roomTotals } from './ocenka.js?v=105';
+import { actions, rerender } from './core.js?v=106';
+import * as S from './store.js?v=106';
+import { SHIFT_HOURS } from './calc.js?v=106';
+import { esc, toast } from './ui.js?v=106';
+import { logEvent } from './zlog.js?v=106';
+import { estimateRooms, roomTotals } from './ocenka.js?v=106';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -156,19 +156,14 @@ export function renderSchedule(d) {
   } else if (!pending.length) {
     todo = '<section class="g-todo g-todo--done"><p class="g-todo__t">Все комнаты запланированы</p><p class="g-todo__x" aria-hidden="true" style="visibility:hidden">Выберите комнату и нажмите на любую свободную дату</p><div class="g-tray"></div></section>';
   } else {
-    todo = `<section class="g-todo"><p class="g-todo__t">Без даты</p><p class="g-todo__x">Выберите одну или несколько комнат и нажмите на дату</p>
+    todo = `<section class="g-todo"><p class="g-todo__t">Без даты</p><p class="g-todo__x">${d.schedHint ? 'Новая комната — нажмите на неё, потом на дату' : 'Выберите одну или несколько комнат и нажмите на дату'}</p>
       <div class="g-tray">${pending.map((r) => trainChip(r, (s.picks || []).indexOf(r.key) + 1)).join('')}</div></section>`;
   }
   const editing = s.dirty || s.status === 'editing';
   const status = editing ? '<span class="f-status f-status--warn g-status"><i></i>редактирование</span>' : locked ? '<span class="f-status f-status--ok g-status"><i></i>сохранено</span>' : '';
   return `<i class="f-one" hidden></i><div class="g-screen f-fill"><button type="button" class="o-row g-mode" role="switch" aria-checked="${s.mode === 'measure'}" data-action="g-mode"><span class="o-row__name">Замеры</span><span class="o-tog${s.mode === 'measure' ? ' is-on' : ''}" aria-hidden="true"><i></i></span></button>
     ${todo}
-    ${d.schedHint ? `<section class="g-hint"><b>Объём изменился — проверьте график</b>
-      ${d.schedHint.removed.length ? `<span><i class="g-hint__dot g-hint__dot--del"></i>Освободились: ${d.schedHint.removed.map((x) => Number(x.slice(8)) + '.' + x.slice(5, 7)).join(', ')} — снимите бронь у клиента</span>` : ''}
-      ${d.schedHint.added.length ? `<span><i class="g-hint__dot g-hint__dot--add"></i>Новые дни работ: ${d.schedHint.added.map((x) => Number(x.slice(8)) + '.' + x.slice(5, 7)).join(', ')}</span>` : ''}
-      ${pending.length ? `<span><i class="g-hint__dot g-hint__dot--new"></i>Без даты: ${pending.map((r) => esc(r.name)).join(', ')} — поставьте в календарь</span>` : ''}
-      <small>Проверьте и нажмите «ОК».</small></section>` : ''}
-    <section class="f-plate g-plate"><p class="g-plate__t">Запланированы</p>${status}${calendar(s, rooms, lay, locked, d.schedHint)}</section>
+    <section class="f-plate g-plate"><p class="g-plate__t">Запланированы</p>${d.schedHint && (d.schedHint.removed.length || d.schedHint.added.length) ? '<span class="g-hint-s">проверьте отмеченные дни</span>' : status}${calendar(s, rooms, lay, locked, d.schedHint)}</section>
     <div class="f-btn-row">
       <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="g-ok" ${!locked && !s.dirty && s.status !== 'editing' ? 'disabled' : ''}>ОК</button>
       ${s.status !== 'new' ? `<button type="button" class="f-btn${s.status === 'editing' ? ' f-btn--editing' : ''}" data-action="g-edit">${s.status === 'editing' ? 'Редактирование' : 'Редактировать'}</button>` : ''}
@@ -215,6 +210,11 @@ actions['g-day'] = (el) => {
   const s = D(); if (!editable(s)) return;
   const date = el.dataset.date;
   const d = S.get().oformit[S.draftKey()];
+  // Красный «снять»: нажали — бронь у клиента снята, отметка уходит.
+  if (d.schedHint && d.schedHint.removed.includes(date) && !(s.picks || []).length) {
+    d.schedHint.removed = d.schedHint.removed.filter((x) => x !== date); s.dirty = true;
+    toast(`Бронь на ${Number(date.slice(8))}.${date.slice(5, 7)} снята`); save(); return;
+  }
   if (s.mode === 'measure') {
     if (s.measure === date) { s.measure = ''; s.sel = ''; s.dirty = true; save(); return; } // замер снят с даты
     if (s.sel === 'measure' || s.measure) { s.measure = date; s.sel = ''; s.dirty = true; save(); }

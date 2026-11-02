@@ -1108,3 +1108,7 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-same.o-same--v2.is-off { box-shadow: none; }
 .o-same.o-same--v2:not(.is-off) .o-qty,
 .o-room.is-same .o-qty:not(.is-error) { border-color: var(--rc); box-shadow: 0 0 0 1.5px var(--rc), 0 0 8px color-mix(in srgb, var(--rc) 55%, transparent), inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.58), inset 0 4px 7px rgba(1, 9, 11, 0.66); }
+.g-hint-s { font: 500 11.5px/14px var(--font-body); color: #ffc247; text-align: right; max-width: 60%; }
+.g-plate:has(.g-hint-s) { }
+/* Поле «Одинаковый объём» строго над полями работ: тот же отступ, что у строк внутри плашки работ. */
+.o-same.o-same--v2 { margin-left: 9px; margin-right: 9px; }
