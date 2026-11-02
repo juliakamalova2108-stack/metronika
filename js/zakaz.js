@@ -2,16 +2,16 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=125';
-import * as S from './store.js?v=125';
-import { WALLPAPER_TYPES } from './seed.js?v=125';
-import { esc, toast } from './ui.js?v=125';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=125';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=125';
-import { country } from './phonecodes.js?v=125';
-import { suggestAddress } from './address.js?v=125';
-import { suggesters } from './kbd.js?v=125';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=125';
+import { actions, changes, rerender } from './core.js?v=126';
+import * as S from './store.js?v=126';
+import { WALLPAPER_TYPES } from './seed.js?v=126';
+import { esc, toast } from './ui.js?v=126';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=126';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=126';
+import { country } from './phonecodes.js?v=126';
+import { suggestAddress } from './address.js?v=126';
+import { suggesters } from './kbd.js?v=126';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=126';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');

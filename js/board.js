@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=125';
-import * as S from './store.js?v=125';
-import { renderOformit, oformitDraft } from './oformit.js?v=125';
-import { roomTotals, svcInfo } from './ocenka.js?v=125';
-import { smetaTotals } from './zakaz.js?v=125';
-import { bookedDays } from './grafik.js?v=125';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=125';
-import { esc, toast } from './ui.js?v=125';
+import { actions, rerender, go } from './core.js?v=126';
+import * as S from './store.js?v=126';
+import { renderOformit, oformitDraft } from './oformit.js?v=126';
+import { roomTotals, svcInfo } from './ocenka.js?v=126';
+import { smetaTotals } from './zakaz.js?v=126';
+import { bookedDays } from './grafik.js?v=126';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=126';
+import { esc, toast } from './ui.js?v=126';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -179,14 +179,15 @@ export function renderBoardOrder(no) {
   const matRooms = d.mat ? Object.entries(d.mat.rooms || {}).filter(([, r]) => r.added) : [];
   if (matRooms.length) extra.push(block('Материал', no, 'material', matRooms.map(([k, r]) => { const room = rooms.find((x) => x.key === k); return `<p class="bd-line"><b>${esc(r.added.brand)}</b><small>${esc(r.added.type)}${room ? ' · ' + esc(room.name) : ''}</small></p>${r.note ? `<p class="bd-note">${esc(r.note)}</p>` : ''}`; }).join('')));
   const smt = d.sm ? smetaTotals(d) : null;
-  if (smt && smt.total) extra.push(block('Смета', no, 'smeta', `${smt.rooms.filter((x) => x.total).map((x) => `<p class="bd-line bd-line--sum"><b>${esc(x.room.name)}</b><small>${x.lines.map((l) => `${esc(l.name.split(' ')[0])} ${String(Math.round(l.qty * 10) / 10).replace('.', ',')} м²`).join(' · ')}</small><em>${fmt(x.total)} ₽</em></p>`).join('')}<p class="bd-range">Итого по смете: ${fmt(smt.total)} ₽</p>`));
+  // Замер — всегда после «Источника»: есть замер — его итог, нет — пусто; «Изменить» открывает замер по стенам.
+  const zam = block('Замер', no, 'smeta', smt && smt.total ? `${smt.rooms.filter((x) => x.total).map((x) => `<p class="bd-line bd-line--sum"><b>${esc(x.room.name)}</b><small>${x.lines.map((l) => `${esc(l.name.split(' ')[0])} ${String(Math.round(l.qty * 10) / 10).replace('.', ',')} м²`).join(' · ')}</small><em>${fmt(x.total)} ₽</em></p>`).join('')}<p class="bd-range">Итого по смете: ${fmt(smt.total)} ₽</p>` : '<p class="bd-note">Замера пока нет</p>');
   const pays = d.fin ? d.fin.pays.reduce((a, x) => a + x.amount, 0) : 0;
   const exps = d.fin ? d.fin.exps.reduce((a, x) => a + x.amount, 0) : 0;
   if (pays || exps) extra.push(block('Финансы', no, 'finance', `<div class="bd-total"><div><small>Получено</small><b>${fmt(pays)} ₽</b></div><div><small>Остаток</small><b>${fmt(Math.max(0, tot.sum - pays))} ₽</b></div></div>${exps ? `<p class="bd-range">Расходы: ${fmt(exps)} ₽</p>` : ''}`));
   const openTasks = (d.tasks || []).filter((t) => !t.done);
   if (openTasks.length) extra.push(block('Задачи', no, 'tasks', openTasks.slice(0, 3).map((t) => `<p class="bd-line"><b>${esc(t.text)}</b>${t.due ? `<small>до ${esc(t.due)}</small>` : ''}</p>`).join('')));
   const more = extra.join('');
-  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${head}${client}${est}${sched}${sum}${chan}${more}
+  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${head}${client}${est}${sched}${sum}${chan}${zam}${more}
     <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${mid}${chatBtn(no, d)}</nav>`;
 }
 // Правка блока — та же форма, что при оформлении; «назад» возвращает в сводку заказа.
@@ -195,7 +196,7 @@ const CHAT = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M
 const unread = (d) => (d.chat || []).filter((m) => m.who !== S.me().id && !m.read).length;
 const chatBtn = (no, d) => { const n = unread(d); return `<button type="button" class="f-nav__tab f-nav__chat" data-action="bd-edit" data-no="${no}" data-tab="chat" aria-label="Чат заказа">${CHAT}${n ? `<b class="f-nav__badge">${n}</b>` : ''}<span>Чат</span></button>`; };
 // Правка блока — только этот раздел (та же форма, что при оформлении), без вкладок других разделов.
-const TAB_T = { client: 'Клиент', estimate: 'Оценка', schedule: 'План', channel: 'Источник', material: 'Материал', smeta: 'Смета', chat: 'Чат', tasks: 'Задачи', finance: 'Финансы', history: 'История' };
+const TAB_T = { client: 'Клиент', estimate: 'Оценка', schedule: 'План', channel: 'Источник', material: 'Материал', smeta: 'Замер', chat: 'Чат', tasks: 'Задачи', finance: 'Финансы', history: 'История' };
 // «Изменить» сразу включает правку раздела — «Редактировать» нажимать не нужно.
 let startEdit = '';
 // Снимок раздела до правки: «Отмена» возвращает его, «Сохранить» без изменений — «Без изменений».
