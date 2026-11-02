@@ -203,6 +203,85 @@
   .j25 .mk-tab.is-on::after { content: ''; position: absolute; bottom: 0; right: -12px; width: 12px; height: 12px; background: radial-gradient(circle at 100% 0, transparent 12px, #3a5051 12.5px); }
   .j25 .mk-body { background: #3a5051; border: 0; }
   .j25 .mk-plus { border-radius: 50%; width: 40px; height: 40px; margin-bottom: 4px; }
+
+  /* ======== НОВЫЕ 5 (31–35) ======== */
+  .nx .mk-open { border-top: 0 !important; }
+  .nx .mk-open__hd b { font-size: 24px; }
+  .nx-name { display: flex; flex-direction: column; line-height: 1.1; } .nx-name small { font: 400 11px/14px var(--font-body); opacity: .7; margin-top: 2px; }
+  .nx-plusbtn { flex: none; width: 46px; height: 46px; border-radius: 10px; display: grid; place-items: center; cursor: pointer; font: 300 28px/1 var(--font-body); color: #e6f2cc;
+    border: 1px solid rgba(204,222,209,.55); background: #213839; box-shadow: 0 4px 7px rgba(4,13,15,.24), 0 2px 2.5px rgba(1,6,9,.42), inset 0 -2px 2px rgba(6,18,20,.34), inset 0 1px 1px rgba(224,242,227,.36); }
+  .nx-plusbtn span { transition: transform .25s; display: block; } .nx-plusbtn.is-open span { transform: rotate(45deg); }
+  .nx-sticky { position: sticky; top: 0; z-index: 40; padding: 8px 0; margin: 0 -16px 10px; padding-left: 16px; padding-right: 16px; background: linear-gradient(180deg, rgba(25,44,46,.97) 70%, rgba(25,44,46,0)); }
+
+  /* 31 · Слайдер с выемкой */
+  .s31 { display: flex; gap: 8px; align-items: center; }
+  .s31-rail { position: relative; flex: 1; min-width: 0; display: flex; gap: 2px; padding: 4px; border-radius: 12px; overflow-x: auto; scrollbar-width: none;
+    border: .9px solid rgba(6,18,20,.78); background: linear-gradient(180deg, #687b7a, #738582); box-shadow: inset 0 -1.2px 1.4px rgba(217,237,207,.33), inset 1px 1.5px 1.8px rgba(1,6,9,.58), inset 0 4px 7px rgba(1,9,11,.66); }
+  .s31-rail::-webkit-scrollbar { display: none; }
+  .s31-t { position: relative; z-index: 2; flex: none; height: 44px; padding: 0 14px; border: 0; background: none; cursor: pointer; color: #172b2c; font: 600 14px/1 var(--font-body); text-align: left; transition: color .3s; }
+  .s31-t small { display: block; font: 500 11px/13px var(--font-body); opacity: .75; margin-top: 3px; }
+  .s31-t.is-on { color: #fff; }
+  .s31-puck { position: absolute; z-index: 1; top: 4px; height: 44px; border-radius: 9px; background: #213839; border: 1px solid rgba(204,222,209,.55);
+    box-shadow: 0 4px 9px rgba(1,9,11,.45), inset 0 1px 1px rgba(224,242,227,.36), inset 0 -3px 0 var(--rc); transition: left .38s cubic-bezier(.3,1.35,.5,1), width .38s cubic-bezier(.3,1.35,.5,1), box-shadow .3s; }
+  .s31-card { position: relative; margin-top: 14px; }
+  .s31-card::before { content: ''; position: absolute; top: -9px; left: var(--nx, 50%); width: 18px; height: 18px; transform: translateX(-50%) rotate(45deg); border-radius: 3px;
+    background: var(--rc); box-shadow: 0 0 14px var(--rc); transition: left .38s cubic-bezier(.3,1.35,.5,1); z-index: 0; }
+  .s31-card .mk-open { position: relative; z-index: 1; box-shadow: 0 -2px 0 var(--rc), 0 10px 24px rgba(1,9,11,.4); }
+
+  /* 32 · Стопка (как карты в кошельке) */
+  .s32-edge { position: relative; display: flex; align-items: center; gap: 12px; height: 58px; padding: 0 16px 10px; margin: 0 var(--inset) -14px; border-radius: 16px 16px 0 0; cursor: pointer;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--rc) 45%, #2a4142), color-mix(in srgb, var(--rc) 20%, #213536)); border: 1px solid rgba(255,255,255,.18); border-bottom: 0;
+    box-shadow: 0 -4px 12px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.25); color: #fff; }
+  .s32-edge b { font: 600 15px/1 var(--font-body); } .s32-edge span { margin-left: auto; font: 600 14px/1 var(--font-num); opacity: .9; }
+  .s32-edge--down { margin: -14px var(--inset) 0; height: 58px; padding: 10px 16px 0; border-radius: 0 0 16px 16px; border-top: 0; border-bottom: 1px solid rgba(255,255,255,.18); box-shadow: 0 6px 12px rgba(0,0,0,.35); }
+  .s32-add { display: flex; align-items: center; justify-content: center; gap: 8px; height: 50px; margin-bottom: 14px; border-radius: 14px; border: 1.5px dashed rgba(230,242,204,.5); background: rgba(230,242,204,.05); color: #e6f2cc; font: 600 15px/1 var(--font-body); cursor: pointer; }
+  .s32-card { position: relative; z-index: 3; border-radius: 18px; overflow: hidden; box-shadow: 0 14px 30px rgba(0,0,0,.5); }
+  .s32-card .mk-open { margin: 0; border-radius: 0 0 18px 18px; }
+  .s32-head { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: linear-gradient(135deg, var(--rc), color-mix(in srgb, var(--rc) 60%, #13292b)); color: #fff; }
+  .s32-head b { font: 700 24px/1 var(--font-num); } .s32-head span { margin-left: auto; font: 700 18px/1 var(--font-num); }
+  .s32 .mk-open__hd { display: none; }
+  .s32-drop { margin-bottom: 14px; }
+
+  /* 33 · Индекс сбоку (как разделители в блокноте) */
+  .s33 { display: grid; grid-template-columns: minmax(0, 1fr) 40px; align-items: start; }
+  .s33 .mk-open { border-radius: 14px 0 14px 14px; border-right: 3px solid var(--rc) !important; min-height: 420px; }
+  .s33-col { position: sticky; top: 10px; display: flex; flex-direction: column; gap: 4px; padding-top: 0; }
+  .s33-t { writing-mode: vertical-rl; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 92px; padding: 10px 0; border: 0; border-radius: 0 12px 12px 0; cursor: pointer;
+    background: color-mix(in srgb, var(--rc) 35%, #1f3435); color: rgba(255,255,255,.75); font: 600 13px/1 var(--font-body); box-shadow: inset 4px 0 6px rgba(0,0,0,.35); transition: transform .2s; }
+  .s33-t.is-on { background: var(--rc); color: #fff; transform: translateX(-3px); box-shadow: 0 0 14px color-mix(in srgb, var(--rc) 60%, transparent); min-height: 120px; }
+  .s33-t--sum { --rc: #8fa58b; } .s33-t--sum.is-on { --rc: #e6f2cc; color: #13292b; }
+  .s33-plus { height: 40px; border-radius: 0 12px 12px 0; border: 1px solid rgba(204,222,209,.5); border-left: 0; background: #213839; color: #e6f2cc; font: 300 26px/1 var(--font-body); cursor: pointer; }
+  .s33 .mk-drop, .s33 .mk-blank { border-radius: 14px 0 14px 14px; margin: 0; position: static; }
+
+  /* 34 · Барабан */
+  .s34 { display: flex; align-items: center; gap: 8px; }
+  .s34-drum { position: relative; flex: 1; height: 70px; perspective: 520px; overflow: hidden; touch-action: pan-y; }
+  .s34-i { position: absolute; left: 50%; top: 8px; width: 130px; height: 54px; margin-left: -65px; border-radius: 12px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: linear-gradient(180deg, #2c4344, #213839); border: 1px solid rgba(204,222,209,.4); color: #edf0e7; font: 600 15px/1 var(--font-body);
+    transition: transform .4s cubic-bezier(.25,.9,.3,1), opacity .4s; box-shadow: inset 0 1px 1px rgba(224,242,227,.3), inset 0 -3px 0 var(--rc); }
+  .s34-i small { font: 500 11px/13px var(--font-body); opacity: .7; margin-top: 4px; }
+  .s34-i.is-on { background: linear-gradient(180deg, color-mix(in srgb, var(--rc) 85%, #fff 0%), color-mix(in srgb, var(--rc) 70%, #13292b)); color: #fff; border-color: rgba(255,255,255,.6); box-shadow: 0 0 18px color-mix(in srgb, var(--rc) 60%, transparent); }
+  .s34-drum::before, .s34-drum::after { content: ''; position: absolute; top: 0; bottom: 0; width: 60px; z-index: 5; pointer-events: none; }
+  .s34-drum::before { left: 0; background: linear-gradient(90deg, #1b3133, transparent); } .s34-drum::after { right: 0; background: linear-gradient(-90deg, #1b3133, transparent); }
+  .s34-glow { height: 3px; margin: 2px auto 12px; width: 120px; border-radius: 2px; background: var(--rc); box-shadow: 0 0 14px var(--rc); }
+
+  /* 35 · Рулетка */
+  .s35 { display: flex; align-items: stretch; gap: 0; }
+  .s35-case { flex: none; width: 58px; height: 62px; border-radius: 16px 6px 6px 16px; display: grid; place-items: center; cursor: pointer; position: relative; z-index: 2;
+    background: radial-gradient(circle at 40% 35%, #3a5556, #1d3133 70%); border: 1px solid rgba(204,222,209,.5); box-shadow: 0 6px 12px rgba(0,0,0,.45), inset 0 1px 1px rgba(224,242,227,.35); color: #e6f2cc; font: 300 30px/1 var(--font-body); }
+  .s35-case span { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; border: 2px solid rgba(230,242,204,.5); transition: transform .3s; }
+  .s35-case.is-open span { transform: rotate(135deg); }
+  .s35-tape { flex: 1; min-width: 0; margin: 9px 0; display: flex; overflow-x: auto; scrollbar-width: none; border-radius: 0 4px 4px 0;
+    background-color: #c9d4bf; background-image: repeating-linear-gradient(90deg, rgba(19,41,43,.55) 0 1px, transparent 1px 8px), repeating-linear-gradient(90deg, rgba(19,41,43,.8) 0 1.5px, transparent 1.5px 40px);
+    background-size: auto 9px, auto 15px; background-repeat: repeat-x; background-position: 0 0, 0 0; box-shadow: inset 0 -2px 3px rgba(0,0,0,.25), 0 3px 6px rgba(0,0,0,.35); }
+  .s35-tape::-webkit-scrollbar { display: none; }
+  .s35-seg { flex: none; min-width: var(--w); height: 44px; padding: 16px 10px 0; border: 0; border-right: 2px solid rgba(19,41,43,.55); background: none; text-align: left; cursor: pointer; color: #13292b; font: 700 13px/1 var(--font-body); position: relative; }
+  .s35-seg small { font: 600 10px/12px var(--font-num); opacity: .7; margin-left: 4px; }
+  .s35-seg::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: var(--rc); }
+  .s35-seg.is-on { background: color-mix(in srgb, var(--rc) 35%, #c9d4bf); }
+  .s35-seg.is-on::before { content: ''; position: absolute; left: 50%; bottom: -16px; width: 2px; height: 16px; background: #e5484d; }
+  .s35-card { margin-top: 12px; }
+  .s35-card .mk-open { box-shadow: 0 -3px 0 var(--rc), 0 10px 24px rgba(1,9,11,.4); }
 </style></head>
 <body class="fig"><div class="app"><main id="view" class="view"></main></div>
 <script>
@@ -220,6 +299,11 @@ function mk(n, c) { const k = rooms.filter((r) => r.type === n).length; return {
 const sum = (r) => SVC.reduce((s, [id, , p]) => s + (parseFloat(r.q[id]) || 0) * p, 0);
 const total = () => rooms.reduce((s, r) => s + sum(r), 0);
 const HINT = {
+  31: 'Слайдер: комнаты лежат в утопленной дорожке, по ней с пружинкой ездит выпуклая кнопка. Под выбранной комнатой у карточки цветной уголок-указатель.',
+  32: 'Стопка: комнаты сложены карточками, как в кошельке на телефоне. Выбранная — сверху стопки целиком, края остальных торчат сверху и снизу.',
+  33: 'Индекс сбоку: цветные разделители торчат справа, как в блокноте с алфавитом. Карточка во всю высоту, большой палец достаёт до вкладок.',
+  34: 'Барабан: комнаты на вращающемся барабане, как выбор времени в будильнике. Свайп крутит барабан.',
+  35: 'Рулетка: полоса — лента рулетки с делениями, комнаты — отрезки на ней (ширина по метрам). «+» — корпус рулетки, красная риска — где вы.',
   21: 'Язычки 1 · Базовый: тёмные язычки с цветной полоской сверху; выбранный выше и срастается с карточкой.',
   22: 'Язычки 2 · Цветные: язычки залиты цветом комнаты, у карточки шапка того же цвета — комната видна издалека.',
   23: 'Язычки 3 · Папки: язычки-трапеции наплывают друг на друга, выбранный выходит вперёд, как папка в картотеке.',
@@ -240,8 +324,8 @@ const HINT = {
   13: 'Прогресс: внизу каждой плашки полоска — сколько работ уже заполнено, ✓ — сохранена.',
   14: 'По этажам: комнаты в полосе сгруппированы по этажам с подписью.',
 };
-function vars() { return `<div class="mk-vars">${[['21','Язычки 1'],['22','Язычки 2'],['23','Язычки 3'],['24','Язычки 4'],['25','Язычки 5']].map(([n, t]) => `<button class="${D == n ? 'is-on' : ''}" onclick="setD(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[D]}</p>`; }
-let D = 21;
+function vars() { return `<div class="mk-vars">${[['31','Слайдер'],['32','Стопка'],['33','Индекс'],['34','Барабан'],['35','Рулетка']].map(([n, t]) => `<button class="${D == n ? 'is-on' : ''}" onclick="setD(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[D]}</p>`; }
+let D = 31;
 function setD(n) { D = n; draw(); }
 const head = (t, s) => `<div class="o-head"><div class="o-cur"><b>${esc(t)}</b>${s ? `<small>${esc(s)}</small>` : ''}</div></div>`;
 const cnt = () => rooms.length ? `${rooms.length} ${plural(rooms.length, 'комната', 'комнаты', 'комнат')} · ${money(total())}` : 'комнат пока нет';
@@ -358,15 +442,76 @@ function swipe(dir) { const ids = [...rooms.map((r) => r.id), ...(rooms.length ?
   const n = k + dir; if (n < 0 || n >= ids.length) return; tab = ids[n]; slide = dir > 0 ? 'l' : 'r'; draw();
   requestAnimationFrame(() => { const t = document.querySelector('.mk-tab.is-on'); if (t) t.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }); }
 let sx = null, sy = null;
-document.addEventListener('touchstart', (e) => { if (!e.target.closest('.mk-swipe')) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchstart', (e) => { if (!e.target.closest('.mk-swipe, .s34-drum, .s32-card')) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
 document.addEventListener('touchend', (e) => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; const dy = e.changedTouches[0].clientY - sy; sx = null;
   if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) swipe(dx < 0 ? 1 : -1); });
 function v4add(n, c) { const r = mk(n, c); r.fl = fl; rooms.push(r); tab = r.id; drop = false; draw(); window.scrollTo(0, 0);
   requestAnimationFrame(() => { const s = document.querySelector('.mk-strip'); if (s) s.scrollLeft = s.scrollWidth; }); }
 function v4go(id) { tab = id; draw(); window.scrollTo(0, 0); }
+
+/* ===== 31–35 ===== */
+let lastPuck = null;
+function nx() {
+  const items = [...rooms.map((r) => ({ id: r.id, n: r.name, c: r.c, sm: money(sum(r)), r })), ...(rooms.length ? [{ id: 'sum', n: 'Итог', c: '#e6f2cc', sm: money(total()), sumT: true }] : [])];
+  const isOn = (it) => tab === it.id && !drop;
+  const r = rooms.find((x) => x.id === tab);
+  const floors = `<div class="o-floors">${[1,2,3].map((f) => `<button type="button" class="o-floor${f === fl ? ' is-on' : ''}" onclick="fl=${f};draw()">${f} этаж</button>`).join('')}</div>`;
+  const dropHtml = `<section class="f-plate mk-drop">${floors}<div class="mk-chips">${chips(null, 'v4add')}</div></section>`;
+  const card = r ? `<section class="f-plate o-room mk-open" style="--rc:${r.c}"><div class="mk-open__hd"><b>${esc(r.name)}</b><small>${r.fl} этаж</small></div>${fields(r)}
+      <div class="f-btn-row mk-one"><button class="f-btn" onclick="saveR(${r.id})">Сохранить</button></div></section>` : '';
+  const sumv = `<div class="o-stack">${rooms.map((x) => folded(x, 'v4go')).join('')}${grand()}</div>`;
+  const blank = `<section class="f-plate mk-blank"><b>Комнат пока нет</b>Нажмите «+» и выберите комнату, в которой стоите.</section>`;
+  const main = drop ? dropHtml : !rooms.length ? blank : tab === 'sum' ? sumv : card;
+  const plusBtn = `<button type="button" class="nx-plusbtn${drop ? ' is-open' : ''}" onclick="drop=!drop;draw()" aria-label="Добавить комнату"><span>+</span></button>`;
+  const rc = r ? r.c : '#e6f2cc';
+  const sw = (h) => drop ? h : `<div class="mk-swipe${slide ? ' sl-' + slide : ''}">${h}</div>`;
+  let out = '';
+  if (D === 31) {
+    out = `<div class="nx-sticky"><div class="s31">${plusBtn}<div class="s31-rail" id="rail">${items.map((it) => `<button type="button" class="s31-t${isOn(it) ? ' is-on' : ''}" data-id="${it.id}" onclick="pick('${it.id}')">${esc(it.n)}<small>${it.sm}</small></button>`).join('')}${items.length ? `<i class="s31-puck" id="puck" style="--rc:${rc}"></i>` : ''}</div></div></div>
+      ${sw(`<div class="s31-card" id="s31card" style="--rc:${rc}">${main}</div>`)}`;
+  } else if (D === 32) {
+    const k = items.findIndex(isOn);
+    const edge = (it, i, down) => `<div class="s32-edge${down ? ' s32-edge--down' : ''}" style="--rc:${it.c};--inset:${down ? (i + 1) * 8 : (k - i) * 8}px;z-index:${down ? 2 - i : i}" onclick="pick('${it.id}')"><b>${esc(it.n)}</b><span>${it.sm}</span></div>`;
+    const before = k < 0 ? items : items.slice(0, k); const after = k < 0 ? [] : items.slice(k + 1);
+    out = `<div class="s32"><div class="s32-add" onclick="drop=!drop;draw()">${drop ? '× Закрыть выбор' : '+ Добавить комнату'}</div>
+      ${drop ? `<div class="s32-drop">${dropHtml}</div>` : ''}
+      ${!drop && rooms.length ? `${before.map((it, i) => edge(it, i, false)).join('')}
+      ${sw(tab === 'sum' ? `<div class="s32-card"><div class="s32-head" style="--rc:#6f8a6c"><b>Итог</b><span>${money(total())}</span></div><section class="f-plate" style="border-radius:0 0 18px 18px;margin:0;padding:12px">${sumv}</section></div>`
+        : r ? `<div class="s32-card" style="--rc:${r.c}"><div class="s32-head"><b>${esc(r.name)}</b><span id="tb-${r.id}">${money(sum(r))}</span></div>${card}</div>` : '')}
+      ${after.map((it, i) => edge(it, i, true)).join('')}` : !drop ? blank : ''}</div>`;
+  } else if (D === 33) {
+    out = `<div class="s33">${sw(main)}<div class="s33-col"><button type="button" class="s33-plus" onclick="drop=!drop;draw()">${drop ? '×' : '+'}</button>
+      ${items.map((it) => `<button type="button" class="s33-t${it.sumT ? ' s33-t--sum' : ''}${isOn(it) ? ' is-on' : ''}" style="${it.sumT ? '' : `--rc:${it.c}`}" onclick="pick('${it.id}')">${esc(it.n)}</button>`).join('')}</div></div>`;
+  } else if (D === 34) {
+    const k = Math.max(0, items.findIndex(isOn));
+    out = `<div class="nx-sticky"><div class="s34">${plusBtn}<div class="s34-drum">${items.map((it, i) => { const d = i - k; const a = Math.max(-3, Math.min(3, d));
+        return `<div class="s34-i${isOn(it) ? ' is-on' : ''}" style="--rc:${it.c};transform:translateX(${a * 92}px) rotateY(${-a * 38}deg) translateZ(${-Math.abs(a) * 50}px);opacity:${Math.abs(d) > 2 ? 0 : 1 - Math.abs(d) * 0.25};z-index:${10 - Math.abs(d)}" onclick="pick('${it.id}')">${esc(it.n)}<small>${it.sm}</small></div>`; }).join('')}</div></div>
+      ${items.length && !drop ? `<div class="s34-glow" style="--rc:${rc}"></div>` : ''}</div>${sw(main)}`;
+  } else if (D === 35) {
+    out = `<div class="nx-sticky"><div class="s35"><button type="button" class="s35-case${drop ? ' is-open' : ''}" onclick="drop=!drop;draw()" aria-label="Добавить комнату"><span>+</span></button>
+      <div class="s35-tape" id="tape">${items.map((it) => { const m = it.r ? Math.max(...SVC.map(([id]) => parseFloat(it.r.q[id]) || 0)) : 0;
+        return `<button type="button" class="s35-seg${isOn(it) ? ' is-on' : ''}" style="--rc:${it.c};--w:${it.sumT ? 70 : Math.max(86, 40 + m * 5)}px" onclick="pick('${it.id}')">${esc(it.n)}${it.sumT ? '' : `<small>${m ? m + ' м²' : ''}</small>`}</button>`; }).join('')}<span style="flex:none;width:120px"></span></div></div></div>
+      ${sw(`<div class="s35-card" style="--rc:${rc}">${main}</div>`)}`;
+  }
+  return `<div class="nx">${out}</div>`;
+}
+function placePuck() {
+  const rail = document.getElementById('rail'); const puck = document.getElementById('puck'); const on = rail && rail.querySelector('.s31-t.is-on');
+  if (!puck) return;
+  if (!on) { puck.style.opacity = 0; return; }
+  const to = { l: on.offsetLeft, w: on.offsetWidth };
+  if (lastPuck) { puck.style.transition = 'none'; puck.style.left = lastPuck.l + 'px'; puck.style.width = lastPuck.w + 'px'; puck.offsetWidth; puck.style.transition = ''; }
+  puck.style.left = to.l + 'px'; puck.style.width = to.w + 'px'; lastPuck = to;
+  on.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  const card = document.getElementById('s31card'); if (card) { const rr = on.getBoundingClientRect(); const cr = card.getBoundingClientRect(); card.style.setProperty('--nx', (rr.left + rr.width / 2 - cr.left) + 'px'); }
+}
 function draw() {
-  const body = v4();
+  const body = D >= 31 ? nx() : v4();
   document.getElementById('view').innerHTML = `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><div class="o-wrap">${vars()}${body}</div>${NAV}` + (note ? `<div class="mk-note">${note}</div>` : '');
+  if (D === 31) placePuck();
+  if (D === 35) { const t = document.querySelector('.s35-seg.is-on'); if (t) t.scrollIntoView({ inline: 'nearest', block: 'nearest' }); }
+  if (D === 31) placePuck();
+  if (D === 35) { const t = document.querySelector('.s35-seg.is-on'); if (t) t.scrollIntoView({ inline: 'nearest', block: 'nearest' }); }
 }
 function scrollToEl(s) { requestAnimationFrame(() => { const e = document.querySelector(s); if (e) window.scrollTo(0, e.getBoundingClientRect().top + window.scrollY - 80); }); }
 function setV(n) { V = n; rooms = []; drop = false; tab = null; fl = 1; open = null; sheet = false; draft = { id: ++uid, q: {}, same: '' }; draw(); window.scrollTo(0, 0); }
