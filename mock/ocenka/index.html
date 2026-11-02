@@ -314,7 +314,7 @@
   .s38-c b { font: 600 13px/15px var(--font-body); } .s38-c small { font: 600 12px/14px var(--font-num); opacity: .8; margin-top: auto; }
   .s38-bars { display: flex; align-items: flex-end; gap: 3px; height: 18px; } .s38-bars i { width: 10px; border-radius: 2px; background: var(--rc); opacity: .85; min-height: 2px; }
   .s38-c.is-on { transform: translateY(-3px); border-color: rgba(255,255,255,.75); box-shadow: 0 8px 18px rgba(0,0,0,.45), 0 0 0 2px var(--rc); background: linear-gradient(160deg, color-mix(in srgb, var(--rc) 60%, #263c3d), color-mix(in srgb, var(--rc) 25%, #1e3334)); }
-  .s38-add { flex: none; width: 70px; height: 82px; border-radius: 12px; border: 1.5px dashed rgba(230,242,204,.5); background: rgba(230,242,204,.05); color: #e6f2cc; font: 300 30px/1 var(--font-body); cursor: pointer; scroll-snap-align: start; }
+  .s38-add { flex: none; width: 52px; height: 82px; border-radius: 12px; border: 1.5px dashed rgba(230,242,204,.5); background: rgba(230,242,204,.05); color: #e6f2cc; font: 300 30px/1 var(--font-body); cursor: pointer; scroll-snap-align: start; }
   /* 39 · Пульт снизу */
   .s39-bar { position: fixed; z-index: 45; left: 12px; right: 12px; bottom: 96px; display: flex; align-items: center; gap: 8px; height: 64px; padding: 0 8px; border-radius: 22px;
     background: rgba(18,36,38,.78); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(204,222,209,.3); box-shadow: 0 12px 28px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.12); }
@@ -335,6 +335,13 @@
     background: rgba(230,242,204,.12); backdrop-filter: blur(3px) saturate(1.6); -webkit-backdrop-filter: blur(3px) saturate(1.6); border: 2px solid var(--rc);
     box-shadow: 0 8px 18px rgba(0,0,0,.45), inset 0 2px 6px rgba(255,255,255,.25), 0 0 16px color-mix(in srgb, var(--rc) 45%, transparent); transition: left .45s cubic-bezier(.3,1.3,.45,1), border-color .3s; pointer-events: none; }
   .s40-lens b { font: 700 17px/20px var(--font-num); color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); } .s40-lens small { font: 600 12px/14px var(--font-num); color: #fff; opacity: .9; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+
+  .mk-hd-btns { display: flex; gap: 6px; margin-left: auto; }
+  .mk-ib { width: 44px; height: 44px; border-radius: 6px; display: grid; place-items: center; cursor: pointer; color: #e6f2cc; font: 300 26px/1 var(--font-body);
+    border: 1px solid rgba(204,222,209,.55); background: #213839; box-shadow: 0 4px 7px rgba(4,13,15,.24), 0 2px 2.5px rgba(1,6,9,.42), inset 0 -2px 2px rgba(6,18,20,.34), inset 0 1px 1px rgba(224,242,227,.36); }
+  .mk-ib.is-on { background: #2d4a3a; border-color: rgba(222,237,194,.8); }
+  .nx .mk-open__hd { align-items: center; gap: 10px; } .nx .mk-open__hd .nx-name small { font-size: 12px; }
+  .mk-calc .o-calc__keys { margin-top: 10px; }
 </style></head>
 <body class="fig"><div class="app"><main id="view" class="view"></main></div>
 <script>
@@ -382,8 +389,8 @@ const HINT = {
   13: 'Прогресс: внизу каждой плашки полоска — сколько работ уже заполнено, ✓ — сохранена.',
   14: 'По этажам: комнаты в полосе сгруппированы по этажам с подписью.',
 };
-function vars() { return `<div class="mk-vars">${[['31','Слайдер'],['36','Остров'],['37','Истории'],['38','Превью'],['39','Пульт'],['40','Лупа']].map(([n, t]) => `<button class="${D == n ? 'is-on' : ''}" onclick="setD(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[D]}</p>`; }
-let D = 31;
+function vars() { return D === 38 ? `<p class="mk-hint">Превью: каждая комната — карточка с мини-графиком работ и суммой. «+» слева — добавить комнату. В карточке комнаты справа: «+» — добавить работу, калькулятор.</p>` : `<div class="mk-vars">${[['31','Слайдер'],['36','Остров'],['37','Истории'],['38','Превью'],['39','Пульт'],['40','Лупа']].map(([n, t]) => `<button class="${D == n ? 'is-on' : ''}" onclick="setD(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[D]}</p>`; }
+let D = 38;
 function setD(n) { D = n; draw(); }
 const head = (t, s) => `<div class="o-head"><div class="o-cur"><b>${esc(t)}</b>${s ? `<small>${esc(s)}</small>` : ''}</div></div>`;
 const cnt = () => rooms.length ? `${rooms.length} ${plural(rooms.length, 'комната', 'комнаты', 'комнат')} · ${money(total())}` : 'комнат пока нет';
@@ -515,8 +522,14 @@ function nx() {
   const r = rooms.find((x) => x.id === tab);
   const floors = `<div class="o-floors">${[1,2,3].map((f) => `<button type="button" class="o-floor${f === fl ? ' is-on' : ''}" onclick="fl=${f};draw()">${f} этаж</button>`).join('')}</div>`;
   const dropHtml = `<section class="f-plate mk-drop">${floors}<div class="mk-chips">${chips(null, 'v4add')}</div></section>`;
-  const card = r ? `<section class="f-plate o-room mk-open" style="--rc:${r.c}"><div class="mk-open__hd"><b>${esc(r.name)}</b><small>${r.fl} этаж</small></div>${fields(r)}
-      <div class="f-btn-row mk-one"><button class="f-btn" onclick="saveR(${r.id})">Сохранить</button></div></section>` : '';
+  const CALC_ICO = '<span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span>';
+  const calcKeys = [['C', 'op'], ['⌫', 'op'], ['÷', 'op'], ['×', 'op'], ['7'], ['8'], ['9'], ['−', 'op'], ['4'], ['5'], ['6'], ['+', 'op'], ['1'], ['2'], ['3'], ['=', 'op'], ['0'], [','], ['(', 'dim'], [')', 'dim']];
+  const calcHtml = (rr) => { const c = rr.calc || { expr: '', res: '' }; return `<div class="mk-calc"><div class="o-calc__screen"><small>${esc(c.res !== '' ? c.expr : '') || '&nbsp;'}</small><b>${esc(c.res !== '' ? c.res : c.expr || '0')}</b></div>
+      <div class="o-calc__keys">${calcKeys.map(([k, t]) => `<button type="button" class="o-key${t ? ' o-key--' + t : ''}" onclick="ckey(${rr.id},'${k}')">${k}</button>`).join('')}</div>
+      <p class="o-note">Расчёт применяется только к этой комнате</p></div>`; };
+  const card = r ? `<section class="f-plate o-room mk-open" style="--rc:${r.c}"><div class="mk-open__hd"><span class="nx-name"><b>${esc(r.name)}</b><small>${r.fl} этаж</small></span>
+      <span class="mk-hd-btns"><button type="button" class="mk-ib" onclick="flash('Выбор работ — как сейчас')" aria-label="Добавить работу">+</button><button type="button" class="mk-ib${r.calcOn ? ' is-on' : ''}" onclick="ctog(${r.id})" aria-label="Калькулятор">${CALC_ICO}</button></span></div>
+      ${r.calcOn ? calcHtml(r) + `<div class="f-btn-row mk-one"><button class="f-btn" onclick="ctog(${r.id})">Закрыть</button></div>` : fields(r) + `<div class="f-btn-row mk-one"><button class="f-btn" onclick="saveR(${r.id})">Сохранить</button></div>`}</section>` : '';
   const sumv = `<div class="o-stack">${rooms.map((x) => folded(x, 'v4go')).join('')}${grand()}</div>`;
   const blank = `<section class="f-plate mk-blank"><b>Комнат пока нет</b>Нажмите «+» и выберите комнату, в которой стоите.</section>`;
   const main = drop ? dropHtml : !rooms.length ? blank : tab === 'sum' ? sumv : card;
@@ -558,9 +571,9 @@ function nx() {
       <div class="s37-row">${plusBtn}<div class="s37-t">${it ? `<span class="s37-av" style="--rc:${it.c};--p:${Math.round(fr(it) * 100)}%"><i>${it.sumT ? '∑' : esc(it.n[0])}</i></span><div><b>${esc(it.n)}</b><small>${k + 1} из ${items.length} · ${it.sm}</small></div>` : `<div><b>${drop ? 'Какая комната?' : 'Оценка'}</b><small>${drop ? 'выберите ниже' : 'комнат пока нет'}</small></div>`}</div>
       ${it ? `<div class="s37-nav"><button onclick="swipe(-1)" ${k <= 0 ? 'disabled' : ''}>‹</button><button onclick="swipe(1)" ${k >= items.length - 1 ? 'disabled' : ''}>›</button></div>` : ''}</div></div>${sw(main)}`;
   } else if (D === 38) {
-    out = `<div class="nx-sticky"><div class="s38" id="s38"><button type="button" class="s38-add" onclick="drop=!drop;draw()">${drop ? '×' : '+'}</button>${items.map((it) => {
+    out = `<div class="nx-sticky"><div style="display:flex;gap:8px;align-items:flex-start"><button type="button" class="s38-add" style="margin-top:4px" onclick="drop=!drop;draw()">${drop ? '×' : '+'}</button><div class="s38" id="s38" style="flex:1;min-width:0">${items.map((it) => {
         const bars = it.sumT ? rooms.map((x) => `<i style="background:${x.c};height:${Math.max(2, Math.min(18, sum(x) / 900))}px"></i>`).join('') : SVC.map(([id]) => `<i style="height:${Math.max(2, Math.min(18, (parseFloat(it.r.q[id]) || 0) * 0.8))}px"></i>`).join('');
-        return `<button type="button" class="s38-c${isOn(it) ? ' is-on' : ''}" style="--rc:${it.sumT ? '#c8d9a8' : it.c}" onclick="pick('${it.id}')"><b>${esc(it.n)}</b><span class="s38-bars">${bars}</span><small>${it.sm}</small></button>`; }).join('')}</div></div>${sw(main)}`;
+        return `<button type="button" class="s38-c${isOn(it) ? ' is-on' : ''}" style="--rc:${it.sumT ? '#c8d9a8' : it.c}" onclick="pick('${it.id}')"><b>${esc(it.n)}</b><span class="s38-bars">${bars}</span><small>${it.sm}</small></button>`; }).join('')}</div></div></div>${sw(main)}`;
   } else if (D === 39) {
     out = `${drop ? `<div class="s39-up">${dropHtml}</div>` : ''}${sw(drop ? (rooms.length ? (tab === 'sum' ? sumv : card) : blank) : main)}<div class="s39-pad"></div>
       <div class="s39-bar"><button type="button" class="s39-fab${drop ? ' is-open' : ''}" onclick="drop=!drop;draw()"><span>+</span></button><div class="s39-sc">${items.length ? items.map((it) => `<button type="button" class="s39-t${isOn(it) ? ' is-on' : ''}" style="--rc:${it.c}" onclick="pick('${it.id}')">${esc(it.n)}</button>`).join('') : '<span style="color:rgba(237,240,231,.6);font:400 14px var(--font-body);padding-left:6px">Добавьте первую комнату</span>'}</div></div>`;
@@ -571,6 +584,14 @@ function nx() {
   }
   return `<div class="nx">${out}</div>`;
 }
+function ctog(id) { const r = rooms.find((x) => x.id === id); r.calcOn = !r.calcOn; r.calc = r.calc || { expr: '', res: '' }; draw(); }
+function ckey(id, k) { const c = rooms.find((x) => x.id === id).calc;
+  if (k === 'C') { c.expr = ''; c.res = ''; }
+  else if (k === '⌫') { if (c.res !== '') c.res = ''; c.expr = c.expr.slice(0, -1).trimEnd(); }
+  else if (k === '=') { const js = c.expr.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/,/g, '.').replace(/\s/g, '');
+    if (/^[\d+\-*/().]+$/.test(js)) { try { const v = Function(`"use strict";return (${js})`)(); if (Number.isFinite(v)) c.res = String(Math.round(v * 100) / 100).replace('.', ','); } catch (e) { c.res = ''; } } }
+  else { if (c.res !== '') { c.expr = /[\d,]/.test(k) ? '' : c.res; c.res = ''; } c.expr += /[+×÷−]/.test(k) ? ` ${k} ` : k; }
+  draw(); }
 function placePuck() {
   const rail = document.getElementById('rail'); const puck = document.getElementById('puck'); const on = rail && rail.querySelector('.s31-t.is-on');
   if (!puck) return;
