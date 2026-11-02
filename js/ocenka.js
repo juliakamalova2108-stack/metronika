@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=110';
-import * as S from './store.js?v=110';
-import { SYSTEM_PRICE } from './seed.js?v=110';
-import { shiftsText, hoursFor } from './calc.js?v=110';
-import { esc, toast } from './ui.js?v=110';
-import { logEvent } from './zlog.js?v=110';
+import { actions, rerender } from './core.js?v=111';
+import * as S from './store.js?v=111';
+import { SYSTEM_PRICE } from './seed.js?v=111';
+import { shiftsText, hoursFor } from './calc.js?v=111';
+import { esc, toast } from './ui.js?v=111';
+import { logEvent } from './zlog.js?v=111';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -158,15 +158,15 @@ function svcCard(l, locked, changed = false, err = false) {
     <b class="o-svc__s" data-o-sum="${l.id}">${l.qty ? `${fmt(l.sum)} ₽` : ''}</b>
   </div>`;
 }
-// «Одинаковый объём»: введённая цифра заливается во все услуги комнаты; любую услугу потом можно поправить в её строке.
+// «Одинаковая высота»: введённая цифра заливается во все услуги комнаты; любую услугу потом можно поправить в её строке.
 const sameOn = (r) => r.same !== false;
 function sameCard(r, locked) {
   const on = sameOn(r); const ro = locked || !on;
   return `<div class="o-same-wrap" style="--rc:${r.color || '#7c8f8a'}"><section class="o-same o-same--v2${on ? '' : ' is-off'}" style="--rc:${r.color || '#7c8f8a'}">
     <div class="o-svc">
-      <label class="o-qty${ro ? ' is-locked' : ''}"><input id="o-same-q" inputmode="decimal" value="${r.sameQty ? esc(numTxt(r.sameQty)) : ''}" placeholder="—" ${ro ? 'readonly' : ''} data-live="o-same" aria-label="Одинаковый объём, м²"/><span>м²</span></label>
-      <span class="o-svc__t"><span class="o-svc__n">Одинаковый объём</span><small>${on ? 'заливается во все услуги' : 'выключен — каждая услуга отдельно'}</small></span>
-      <button type="button" class="o-same__tog" role="switch" aria-checked="${on}" aria-label="Одинаковый объём" data-action="o-same-tog" ${locked ? 'disabled' : ''}>${toggle(on)}</button>
+      <label class="o-qty${ro ? ' is-locked' : ''}"><input id="o-same-q" inputmode="decimal" value="${r.sameQty ? esc(numTxt(r.sameQty)) : ''}" placeholder="—" ${ro ? 'readonly' : ''} data-live="o-same" aria-label="Одинаковая высота"/><span>м²</span></label>
+      <span class="o-svc__t"><span class="o-svc__n">Одинаковая высота</span><small>${on ? 'заливается во все работы' : 'выключена — каждая работа отдельно'}</small></span>
+      <button type="button" class="o-same__tog" role="switch" aria-checked="${on}" aria-label="Одинаковая высота" data-action="o-same-tog" ${locked ? 'disabled' : ''}>${toggle(on)}</button>
     </div>
   </section></div>`;
 }
