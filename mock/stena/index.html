@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Карточка стены — варианты</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Manrope:wght@400;500;600;700&family=Onest:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/app.css"><link rel="stylesheet" href="../../css/vyezdy.css">
+<style>
+  :root { --rc: #f59e0b; }
+  body.fig .view { padding-bottom: 40px; }
+  .vs { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 8px; padding: 3px; border-radius: 8px; background: rgba(0,0,0,.28); }
+  .vs button { flex: 1 0 calc(20% - 4px); height: 30px; border: 0; border-radius: 6px; background: none; color: rgba(237,240,231,.6); font: 600 12px/1 var(--font-body); cursor: pointer; }
+  .vs button.is-on { background: #e6f2cc; color: #13292b; }
+  .zx { margin: 0 2px 12px; font: 400 13px/18px var(--font-body); color: rgba(230,242,204,.85); }
+  .W { margin-bottom: 10px; }
+  .t { font: 600 16px/20px var(--font-body); color: #fff; } .mut { font: 400 12px/15px var(--font-body); color: rgba(237,240,231,.6); }
+  .row { display: flex; align-items: center; gap: 8px; } .sp { margin-left: auto; }
+  .x { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(204,222,209,.35); background: none; color: rgba(237,240,231,.7); font-size: 17px; }
+  .inp { display: flex; align-items: baseline; justify-content: flex-end; gap: 3px; height: 46px; padding: 0 12px; border-radius: 6px; border: .9px solid rgba(6,18,20,.78); background: linear-gradient(180deg,#687b7a,#738582); box-shadow: inset 1px 1.5px 1.8px rgba(1,6,9,.58), inset 0 4px 7px rgba(1,9,11,.66); color: #fff; font: 700 20px/46px var(--font-num); }
+  .inp small { font: 500 12px/1 var(--font-body); color: rgba(255,255,255,.7); }
+  .inp.lock { opacity: .6; } .inp.res { background: #2d4a3a; border-color: rgba(222,237,194,.6); color: #e6f2cc; }
+  .inp.on { border-color: var(--rc); box-shadow: 0 0 0 1.5px var(--rc), 0 0 8px rgba(245,158,11,.5), inset 1px 1.5px 1.8px rgba(1,6,9,.58); }
+  .lbl { font: 400 11px/14px var(--font-body); color: rgba(237,240,231,.7); margin: 0 0 4px 4px; }
+  .btn2 { display: flex; gap: 6px; } .btn2 .f-btn { flex: 1; height: 40px; font-size: 13px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); color: #edf0e7; font: 500 13px/1 var(--font-body); }
+  .chip b { font: 700 13px/1 var(--font-num); } .chip.neg b { color: #ff9c9c; } .chip.add { border-style: dashed; color: #e6f2cc; background: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .works { display: flex; flex-direction: column; gap: 6px; } .works .o-svc { height: 56px; }
+  .works .o-qty { border-color: var(--rc) !important; box-shadow: 0 0 0 1.5px var(--rc) !important; }
+  .sum { display: flex; justify-content: space-between; font: 500 14px/18px var(--font-body); color: #edf0e7; margin: 2px 4px 0; } .sum b { font: 700 16px/18px var(--font-num); }
+  /* 2 */
+  .eq { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 6px; font: 700 26px/1 var(--font-num); color: #fff; }
+  .eq .op { color: rgba(237,240,231,.5); font-weight: 400; } .eq .lk { color: rgba(237,240,231,.55); } .eq .a { color: #e6f2cc; }
+  .eq .L { padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--rc); box-shadow: 0 0 10px rgba(245,158,11,.4); }
+  /* 3 схема */
+  .sch { position: relative; height: 120px; margin: 4px 8px 0; border: 2px solid var(--rc); border-radius: 4px; background: repeating-linear-gradient(135deg, rgba(245,158,11,.08) 0 8px, transparent 8px 16px); }
+  .sch .win { position: absolute; left: 34%; top: 22%; width: 30%; height: 40%; border: 2px dashed #ff9c9c; background: #1d3233; display: grid; place-items: center; font: 600 11px/1 var(--font-body); color: #ff9c9c; }
+  .sch .ar { position: absolute; right: 8px; bottom: 6px; font: 700 18px/1 var(--font-num); color: #fff; }
+  .sch .hl { position: absolute; left: -38px; top: 50%; transform: translateY(-50%) rotate(-90deg); font: 500 11px/1 var(--font-num); color: rgba(237,240,231,.7); }
+  .dimL { display: flex; align-items: center; gap: 6px; margin: 6px 8px 0; } .dimL i { flex: 1; height: 1px; background: rgba(237,240,231,.35); } .dimL .inp { height: 38px; line-height: 38px; font-size: 17px; }
+  /* 4 строка */
+  .line4 { display: grid; grid-template-columns: auto 1fr 1fr auto; gap: 8px; align-items: center; padding: 8px 10px; border-radius: 12px; background: linear-gradient(180deg,#182829,#203030); border: .9px solid rgba(5,13,15,.75); }
+  .n4 { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--rc); color: #fff; font: 700 14px/1 var(--font-num); }
+  /* 5 вкладки */
+  .seg { display: flex; padding: 3px; gap: 3px; border-radius: 9px; background: rgba(0,0,0,.25); } .seg span { flex: 1; text-align: center; height: 32px; line-height: 32px; border-radius: 7px; font: 600 13px/32px var(--font-body); color: rgba(237,240,231,.6); } .seg span.on { background: #213839; color: #fff; border: 1px solid rgba(204,222,209,.5); }
+  /* 7 плитка */
+  .t7 { display: grid; grid-template-columns: 1fr 120px; gap: 8px; } .tile7 { border-radius: 12px; background: linear-gradient(160deg, #eef6dc, #cfe0b4); color: #13292b; display: flex; flex-direction: column; justify-content: center; align-items: center; } .tile7 b { font: 800 30px/1 var(--font-num); } .tile7 small { font: 500 12px/16px var(--font-body); }
+  /* 8 чек */
+  .rc { padding: 10px 12px; border-radius: 10px; background: rgba(0,0,0,.2); font: 500 14px/22px var(--font-body); color: #edf0e7; }
+  .rc div { display: flex; justify-content: space-between; } .rc div b { font-family: var(--font-num); } .rc .neg b { color: #ff9c9c; } .rc .tot { border-top: 1px dashed rgba(237,240,231,.3); margin-top: 4px; padding-top: 4px; font-weight: 700; color: #e6f2cc; }
+  /* 9 линейка */
+  .ruler { position: relative; height: 40px; border-radius: 8px; background-color: #c9d4bf; background-image: repeating-linear-gradient(90deg, rgba(19,41,43,.5) 0 1px, transparent 1px 8px), repeating-linear-gradient(90deg, rgba(19,41,43,.85) 0 2px, transparent 2px 40px); background-size: auto 12px, auto 20px; background-repeat: repeat-x; }
+  .ruler i { position: absolute; top: 0; bottom: 0; left: 42%; width: 3px; background: #e5484d; box-shadow: 0 0 6px #e5484d; }
+  /* 10 стекло */
+  .g10 { position: relative; isolation: isolate; overflow: hidden; padding: 12px; border-radius: 18px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.25); display: flex; flex-direction: column; gap: 10px; }
+  .g10::before { content: ''; position: absolute; z-index: -1; right: -40px; top: -60px; width: 180px; height: 180px; border-radius: 50%; background: var(--rc); filter: blur(50px); opacity: .5; }
+  .num { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--rc); color: #fff; font: 800 17px/1 var(--font-num); }
+</style></head>
+<body class="fig"><div class="app"><main class="view"><div class="fig-blobs"><i></i><i></i></div><div class="o-wrap" id="w"></div></main></div>
+<script>
+const works = (a) => `<div class="works">${[['Грунтовка стен', 100], ['Поклейка флиз. обоев', 330]].map(([n, p]) => `<div class="o-svc"><label class="o-qty is-locked"><input value="${a}" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">${n}</span><small>${p} ₽/м²</small></span><b class="o-svc__s">${Math.round(parseFloat(a.replace(',', '.')) * p).toLocaleString('ru-RU')} ₽</b></div>`).join('')}</div>`;
+const L = '<span class="inp on">4,2<small>м</small></span>', H = '<span class="inp lock">2,7<small>м</small></span>', S = '<span class="inp res">9,24<small>м²</small></span>';
+const head = (k = 1) => `<div class="row"><span class="t">Стена ${k}</span><span class="mut">4,2 × 2,7 м</span><button class="x sp">×</button></div>`;
+const V = {
+  1: ['Три поля в ряд', 'Длина · Высота · Площадь в одну строку. Высота бледная — взята из «Одинаковой высоты». Проёмы и работы ниже.',
+    `<section class="f-plate W" style="padding:10px;gap:8px">${head()}<div style="display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:6px"><div><p class="lbl">Длина</p>${L}</div><div><p class="lbl">Высота</p>${H}</div><div><p class="lbl">Площадь</p>${S}</div></div><div class="chips"><span class="chip neg">Окно 1,5×1,4 <b>−2,1</b></span><span class="chip add">+ проём</span></div>${works('9,24')}<div class="btn2"><button class="f-btn">+ Работа</button></div></section>`],
+  2: ['Формула', 'Стена читается как пример: длина × высота = площадь. Нажал на длину — ввод. Вычет проёмов строкой под ним.',
+    `<section class="f-plate W" style="padding:10px;gap:6px">${head()}<div class="eq"><span class="L">4,2</span><span class="op">×</span><span class="lk">2,7</span><span class="op">=</span><span class="a">11,34</span><small class="mut">м²</small></div><div class="chips" style="justify-content:center"><span class="chip neg">Окно <b>−2,1</b></span><span class="chip add">+ проём</span></div><p class="mut" style="text-align:center;margin:0">В работы идёт <b style="color:#fff">9,24 м²</b></p>${works('9,24')}<div class="btn2"><button class="f-btn">+ Работа</button></div></section>`],
+  3: ['Схема стены', 'Стена нарисована прямоугольником цвета комнаты, окно — вырез. Под схемой линейка с длиной, внутри — площадь.',
+    `<section class="f-plate W" style="padding:10px 10px 10px 48px;gap:8px">${head()}<div class="sch"><span class="hl">2,7 м</span><span class="win">окно −2,1</span><span class="ar">9,24 м²</span></div><div class="dimL"><i></i><span class="inp on" style="padding:0 10px">4,2<small>м</small></span><i></i></div><div class="chips"><span class="chip add">+ окно</span><span class="chip add">+ дверь</span></div>${works('9,24')}<div class="btn2"><button class="f-btn">+ Работа</button></div></section>`],
+  4: ['Свёрнутые строки', 'Все стены — короткие строки «номер · длина · площадь». Открыта только одна: под ней проёмы и работы. Видно сразу все стены комнаты.',
+    `<section class="f-plate W" style="padding:8px;gap:6px">${[['1', '4,2', '9,24', 1], ['2', '3,6', '9,72', 0], ['3', '4,2', '11,34', 0]].map(([n, l, s, on]) => `<div class="line4" style="${on ? 'border-color:var(--rc);box-shadow:0 0 0 1.5px var(--rc)' : ''}"><span class="n4">${n}</span><span class="inp${on ? ' on' : ''}" style="height:38px;line-height:38px;font-size:17px">${l}<small>м</small></span><span class="inp res" style="height:38px;line-height:38px;font-size:17px">${s}<small>м²</small></span><span class="mut">${on ? '▲' : '▼'}</span></div>${on ? `<div class="chips" style="padding:0 4px"><span class="chip neg">Окно <b>−2,1</b></span><span class="chip add">+ проём</span></div>${works('9,24')}` : ''}`).join('')}</section>`],
+  5: ['Вкладки в стене', 'У стены три вкладки: Размеры · Проёмы · Работы. Экран короче, но больше нажатий.',
+    `<section class="f-plate W" style="padding:10px;gap:8px">${head()}<div class="seg"><span class="on">Размеры</span><span>Проёмы · 1</span><span>Работы · 2</span></div><div style="display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:6px"><div><p class="lbl">Длина</p>${L}</div><div><p class="lbl">Высота</p>${H}</div><div><p class="lbl">Площадь</p>${S}</div></div><div class="sum"><span>Работы стены</span><b>4 973 ₽</b></div></section>`],
+  6: ['Всё фишками', 'Под размерами — проёмы и работы фишками. Нажал на работу — она включилась для этой стены, объём = площадь.',
+    `<section class="f-plate W" style="padding:10px;gap:8px">${head()}<div style="display:grid;grid-template-columns:1fr 1.1fr;gap:6px"><div><p class="lbl">Длина</p>${L}</div><div><p class="lbl">Площадь</p>${S}</div></div><p class="lbl" style="margin-top:4px">Проёмы</p><div class="chips"><span class="chip neg">Окно <b>−2,1</b></span><span class="chip add">+ окно</span><span class="chip add">+ дверь</span></div><p class="lbl" style="margin-top:4px">Работы</p><div class="chips"><span class="chip" style="background:var(--rc);color:#fff;border-color:#fff">✓ Грунтовка · 924 ₽</span><span class="chip" style="background:var(--rc);color:#fff;border-color:#fff">✓ Флизелин · 3 049 ₽</span><span class="chip">Демонтаж</span><span class="chip">Шпаклёвка</span></div><div class="sum"><span>Итого по стене</span><b>3 973 ₽</b></div></section>`],
+  7: ['Площадь-плитка', 'Слева длина и высота, справа большая светлая плитка с площадью, к ней привязан вычет проёмов.',
+    `<section class="f-plate W" style="padding:10px;gap:8px">${head()}<div class="t7"><div style="display:flex;flex-direction:column;gap:6px"><div><p class="lbl">Длина</p>${L}</div><div><p class="lbl">Высота</p>${H}</div></div><div class="tile7"><small>площадь</small><b>9,24</b><small>м² · окно −2,1</small></div></div><div class="btn2"><button class="f-btn">+ Проём</button><button class="f-btn">+ Работа</button></div>${works('9,24')}</section>`],
+  8: ['Как чек', 'Под длиной — расчёт столбиком, как в чеке: стена, минус окно, минус дверь, итого в работы.',
+    `<section class="f-plate W" style="padding:10px;gap:8px">${head()}<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><p class="lbl">Длина</p>${L}</div><div><p class="lbl">Высота</p>${H}</div></div><div class="rc"><div><span>Стена 4,2 × 2,7</span><b>11,34</b></div><div class="neg"><span>Окно 1,5 × 1,4</span><b>− 2,10</b></div><div class="tot"><span>В работы</span><b>9,24 м²</b></div></div><div class="btn2"><button class="f-btn">+ Проём</button><button class="f-btn">+ Работа</button></div>${works('9,24')}</section>`],
+  9: ['Рулетка', 'Длину можно протянуть пальцем по ленте рулетки или ввести цифрой. Под замеры подходит по смыслу.',
+    `<section class="f-plate W" style="padding:10px;gap:8px">${head()}<div class="row"><span class="mut">Длина</span><span class="inp on sp" style="height:38px;line-height:38px">4,2<small>м</small></span></div><div class="ruler"><i></i></div><div class="row"><span class="mut">Площадь (высота 2,7, окно −2,1)</span><span class="inp res sp" style="height:38px;line-height:38px">9,24<small>м²</small></span></div><div class="btn2"><button class="f-btn">+ Проём</button><button class="f-btn">+ Работа</button></div>${works('9,24')}</section>`],
+  10: ['Стекло', 'Стена — стеклянная карточка с номером-плиткой цвета комнаты и засветкой, как превью комнат в полосе.',
+    `<div class="g10 W"><div class="row"><span class="num">1</span><span><span class="t">Стена</span><br><span class="mut">высота 2,7 м — одинаковая</span></span><button class="x sp">×</button></div><div style="display:grid;grid-template-columns:1fr 1.1fr;gap:6px"><div><p class="lbl">Длина</p>${L}</div><div><p class="lbl">Площадь</p>${S}</div></div><div class="chips"><span class="chip neg">Окно <b>−2,1</b></span><span class="chip add">+ проём</span><span class="chip add">+ работа</span></div>${works('9,24')}</div>`],
+};
+let K = 1;
+function draw() { const [t, x, h] = V[K]; document.getElementById('w').innerHTML = `<div class="vs">${Object.keys(V).map((k) => `<button class="${K == k ? 'is-on' : ''}" onclick="K=${k};draw()">${k}</button>`).join('')}</div><p class="zx"><b>${K}. ${t}.</b> ${x}</p>${h}`; }
+draw();
+</script></body></html>
