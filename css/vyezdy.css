@@ -1050,3 +1050,7 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-chip__del { width: 28px; } .o-chip__del svg { width: 15px; height: 15px; }
 .o-chip.is-on .o-chip__add { letter-spacing: -0.02em; }
 .o-chip.is-on .o-chip__add { font-size: 12.5px; } .o-chips { gap: 5px; }
+/* Итог: под объёмом — цена за м². */
+.o-line { align-items: center; }
+.o-line__q { display: flex; flex-direction: column; align-items: flex-end; line-height: 16px; }
+.o-line__q small { font: 400 11.5px/15px var(--font-body); color: rgba(230, 242, 204, 0.85); }

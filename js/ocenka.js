@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=101';
-import * as S from './store.js?v=101';
-import { SYSTEM_PRICE } from './seed.js?v=101';
-import { shiftsText, hoursFor } from './calc.js?v=101';
-import { esc, toast } from './ui.js?v=101';
-import { logEvent } from './zlog.js?v=101';
+import { actions, rerender } from './core.js?v=102';
+import * as S from './store.js?v=102';
+import { SYSTEM_PRICE } from './seed.js?v=102';
+import { shiftsText, hoursFor } from './calc.js?v=102';
+import { esc, toast } from './ui.js?v=102';
+import { logEvent } from './zlog.js?v=102';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -201,7 +201,8 @@ function calcView(e, r) {
 // затем «Итого по видам работ» строками, внизу общий итог и «Скачать PDF».
 const openSum = new Set();
 const SUM_CHEV = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const sumLine = (l) => `<div class="o-line"><span class="o-line__n">${esc(l.name)}</span><span class="o-line__q">${numTxt(l.qty)} м²</span><b class="o-line__s">${fmt(l.sum)} ₽</b></div>`;
+// Строка итога: работа · объём и цена за м² · сумма за весь объём.
+const sumLine = (l) => `<div class="o-line"><span class="o-line__n">${esc(l.name)}</span><span class="o-line__q">${numTxt(l.qty)} м²<small>× ${fmt(l.price)} ₽/м²</small></span><b class="o-line__s">${fmt(l.sum)} ₽</b></div>`;
 function totalView(e) {
   const rooms = e.rooms.map((r) => {
     const t = roomTotals(r);
