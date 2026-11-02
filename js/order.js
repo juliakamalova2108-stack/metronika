@@ -2,12 +2,12 @@
 // Одна карточка для всех ролей: ведущий (мастер или диспетчер) редактирует всё, мастер от диспетчера — свои комнаты,
 // агент смотрит заказ целиком и пишет в чат.
 
-import { actions, changes, rerender, go, val, numVal } from './core.js?v=118';
-import * as S from './store.js?v=118';
-import { SERVICES, UNIT, CHANNELS, EXPENSE_CATS, DEMO_BARCODES, DEMO_DEVICE, WALLPAPER_TYPES } from './seed.js?v=118';
-import { shiftsText, wallArea, penalty as penaltyRule, commissionAmount } from './calc.js?v=118';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=118';
-import { topbar, typeName, orderStatus, prelimBlock, historyBlock } from './shared.js?v=118';
+import { actions, changes, rerender, go, val, numVal } from './core.js?v=119';
+import * as S from './store.js?v=119';
+import { SERVICES, UNIT, CHANNELS, EXPENSE_CATS, DEMO_BARCODES, DEMO_DEVICE, WALLPAPER_TYPES } from './seed.js?v=119';
+import { shiftsText, wallArea, penalty as penaltyRule, commissionAmount } from './calc.js?v=119';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=119';
+import { topbar, typeName, orderStatus, prelimBlock, historyBlock } from './shared.js?v=119';
 
 let tab = 'channel';
 let lastId = '';
@@ -45,7 +45,7 @@ const TABS = {
   master: ['channel', 'client', 'estimate', 'schedule', 'material', 'smeta', 'chat', 'tasks', 'finance', 'history'],
   agent: ['channel', 'client', 'estimate', 'schedule', 'material', 'smeta', 'chat', 'history'],
 };
-const TAB_NAMES = { channel: 'Канал', client: 'Клиент', estimate: 'Оценка', schedule: 'График', material: 'Материал', smeta: 'Смета', chat: 'Чат', tasks: 'Задачи', finance: 'Финансы', history: 'История' };
+const TAB_NAMES = { channel: 'Источник', client: 'Клиент', estimate: 'Оценка', schedule: 'План', material: 'Материал', smeta: 'Смета', chat: 'Чат', tasks: 'Задачи', finance: 'Финансы', history: 'История' };
 
 function roomPicker(o, me, rooms) {
   if (!rooms.length) return '';
