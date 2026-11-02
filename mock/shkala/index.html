@@ -56,6 +56,32 @@
   .wl button { height: 52px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(204,222,209,.4); background: #213839; color: #fff; text-align: left; font: 500 13.5px/16px var(--font-body); cursor: pointer; }
   .wl button small { display: block; font: 400 11px/13px var(--font-body); color: rgba(237,240,231,.6); }
   .wl button.on { border-color: var(--wc); box-shadow: 0 0 0 1.5px var(--wc); background: color-mix(in srgb, var(--wc) 30%, #213839); }
+
+  /* v2: широкая шкала, работы заливаются в неё, красивые иконки проёмов */
+  .bar { height: 120px; border-radius: 14px; margin: 0 -4px; }
+  .seg.net { position: relative; background: rgba(245,158,11,.14); border-right: 0; padding: 0; }
+  .seg.net .ttl { position: absolute; z-index: 2; left: 12px; top: 10px; font: 800 22px/24px var(--font-num); color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+  .seg.net .ttl small { font: 600 13px/1 var(--font-body); color: rgba(255,255,255,.8); }
+  .layers { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  .layer { flex: 1; position: relative; overflow: hidden; border-top: 1px solid rgba(0,0,0,.25); }
+  .layer i { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: linear-gradient(90deg, var(--wc), color-mix(in srgb, var(--wc) 70%, #13292b)); animation: fill .9s cubic-bezier(.3,1,.4,1); font-style: normal; }
+  .layer span { position: absolute; right: 8px; bottom: 4px; font: 600 11px/1 var(--font-body); color: rgba(255,255,255,.9); }
+  .seg.net.none .layers { display: none; }
+  .seg.net.none { background: repeating-linear-gradient(90deg, rgba(245,158,11,.22) 0 1px, transparent 1px 22px), rgba(245,158,11,.10); }
+  .seg.op { background: #13292b; border-left: 2px solid #1b2f31; flex-direction: column; justify-content: center; gap: 4px; }
+  .seg.op svg { width: 30px; height: 30px; }
+  .seg.op b { font: 700 12px/1 var(--font-num); color: #ff9c9c; }
+  .lab { margin-top: 2px; }
+  .opbtns { display: grid; grid-template-columns: repeat(3, 1fr) 1.4fr; gap: 6px; }
+  .ob { height: 56px; border-radius: 10px; border: 1px solid rgba(204,222,209,.45); background: #213839; color: #e6f2cc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font: 600 11px/1 var(--font-body); cursor: pointer;
+    box-shadow: 0 4px 7px rgba(4,13,15,.24), inset 0 -2px 2px rgba(6,18,20,.34), inset 0 1px 1px rgba(224,242,227,.36); }
+  .ob svg { width: 24px; height: 24px; }
+  .ob.w { background: linear-gradient(180deg, color-mix(in srgb, var(--rc) 55%, #213839), #213839); color: #fff; font-size: 13px; }
+  .legend2 { display: flex; flex-direction: column; gap: 4px; }
+  .lg { display: flex; align-items: center; gap: 8px; padding: 6px 4px; font: 500 13.5px/1 var(--font-body); color: #fff; border-bottom: .5px solid rgba(255,255,255,.08); }
+  .lg i { width: 12px; height: 12px; border-radius: 3px; background: var(--wc); }
+  .lg small { color: rgba(237,240,231,.6); font-size: 12px; } .lg b { margin-left: auto; font: 700 14px/1 var(--font-num); }
+  .lg .xx { width: 24px; height: 24px; border-radius: 6px; border: 0; background: rgba(255,255,255,.06); color: rgba(255,255,255,.6); }
 </style></head>
 <body class="fig"><div class="app"><main class="view"><div class="fig-blobs"><i></i><i></i></div><div class="o-wrap" id="w"></div></main></div><div id="pop"></div>
 <script>
@@ -67,25 +93,32 @@ const gross = () => L * H, opA = () => ops.reduce((a, o) => a + o.w * o.h, 0), n
 const money = (n) => Math.round(n).toLocaleString('ru-RU') + ' ₽';
 function draw() {
   const g = gross();
-  const bar = !L ? '<div class="empty">Введите длину — появится площадь стены</div>' : `<div class="lab"><span>Площадь стены ${f(L)} × ${f(H)}</span><b>${f(g)} м²</b></div>
-    <div class="bar"><div class="seg net" style="flex-basis:${(net() / g) * 100}%"><b>${f(net())} м²</b><small>в работы</small></div>${ops.map((o, i) => `<div class="seg op${i === last ? ' fly' : ''}" style="flex-basis:${((o.w * o.h) / g) * 100}%" title="${o.t}"><span class="ic">${o.t === 'Окно' ? '🪟' : o.t === 'Дверь' ? '🚪' : '⬜'}</span><b>−${f(o.w * o.h)}</b></div>`).join('')}</div>`;
-  const wl = wks.map((k, i) => { const [, n, p, c] = WORKS.find((x) => x[0] === k); return `<div class="wrow"><div class="wfill" style="--wc:${c};--w:${(net() / g) * 100}%"></div><div class="wtxt">${n}<small>${f(net())} м² × ${p}</small><b>${money(net() * p)}</b><button class="xx" onclick="wks.splice(${i},1);draw()">×</button></div></div>`; }).join('');
+  const layers = wks.map((k) => { const [, n, , c] = WORKS.find((x) => x[0] === k); return `<div class="layer"><i style="--wc:${c}"></i><span>${n}</span></div>`; }).join('');
+  const bar = !L ? '<div class="empty">Введите длину — появится площадь стены</div>' : `<div class="bar"><div class="seg net${wks.length ? '' : ' none'}" style="flex-basis:${(net() / g) * 100}%"><div class="layers">${layers}</div><span class="ttl">${f(net())}<small> м²</small></span></div>${ops.map((o, i) => `<div class="seg op${i === last ? ' fly' : ''}" style="flex-basis:${((o.w * o.h) / g) * 100}%">${IC[TK[o.t]]}<b>−${f(o.w * o.h)}</b></div>`).join('')}</div>
+    <div class="lab"><span>Стена ${f(L)} × ${f(H)} = ${f(g)} м²${ops.length ? ` · проёмы −${f(opA())}` : ''}</span><b>${f(net())} м²</b></div>`;
+  const wl = wks.map((k, i) => { const [, n, p, c] = WORKS.find((x) => x[0] === k); return `<div class="lg"><i style="--wc:${c}"></i>${n}<small>× ${p} ₽</small><b>${money(net() * p)}</b><button class="xx" onclick="wks.splice(${i},1);draw()">×</button></div>`; }).join('');
   const tot = wks.reduce((a, k) => a + net() * WORKS.find((x) => x[0] === k)[2], 0);
-  document.getElementById('w').innerHTML = `<p class="zx">Ввёл длину — появилась шкала площади стены. Добавил окно или проём — он «залетает» в шкалу и занимает свою долю. Добавил работы — каждая заливается своей полосой на площадь, что идёт в работы.</p>
+  document.getElementById('w').innerHTML = `<p class="zx">Ввёл длину — появилась шкала площади. Окно, дверь или проём «залетают» в шкалу и забирают свою долю. Работы заливаются прямо в шкалу — слоями по площади.</p>
     <section class="f-plate card"><div class="hd"><b>Стена 1</b><small>высота 2,7 м — одинаковая</small></div>
       <div class="Lin"><label>Длина</label><span class="fld"><input id="L" inputmode="decimal" value="${L ? f(L) : ''}" placeholder="—" oninput="setL(this.value)"><small>м</small></span><span class="hint2">${L ? `${ops.length} проём${ops.length === 1 ? '' : ops.length > 1 && ops.length < 5 ? 'а' : 'ов'}` : 'например 4,2'}</span></div>
       <div id="barbox">${bar}</div>
-      ${L ? `<div class="row2"><button class="f-btn" onclick="openOp()">+ Окно / проём</button><button class="f-btn" onclick="openW()">+ Работа</button></div>` : ''}
-      ${wks.length ? `<div class="wk">${wl}</div><div class="total"><span>Стена 1 итого</span><b>${money(tot)}</b></div>` : ''}
+      ${L ? `<div class="opbtns"><button class="ob" onclick="openOp('win')">${IC.win}+ окно</button><button class="ob" onclick="openOp('door')">${IC.door}+ дверь</button><button class="ob" onclick="openOp('arch')">${IC.arch}+ проём</button><button class="ob w" onclick="openW()">+ Работы</button></div>` : ''}
+      ${wks.length ? `<div class="legend2">${wl}</div><div class="total"><span>Стена 1 итого</span><b>${money(tot)}</b></div>` : ''}
     </section>`;
   last = -1;
 }
 function setL(v) { L = parseFloat(String(v).replace(',', '.')) || 0; const pos = 1; draw(); const el = document.getElementById('L'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+const IC = {
+  win: '<svg viewBox="0 0 32 32" fill="none"><rect x="5" y="4" width="22" height="22" rx="2" fill="#8fd3ff" fill-opacity=".25" stroke="#cfeeff" stroke-width="1.8"/><path d="M16 4v22M5 15h22" stroke="#cfeeff" stroke-width="1.6"/><rect x="3" y="26" width="26" height="2.5" rx="1" fill="#cfeeff"/></svg>',
+  door: '<svg viewBox="0 0 32 32" fill="none"><rect x="8" y="3" width="16" height="26" rx="1.5" fill="#c8a27a" fill-opacity=".25" stroke="#f1d7b8" stroke-width="1.8"/><circle cx="20" cy="16.5" r="1.5" fill="#f1d7b8"/><path d="M4 29h24" stroke="#f1d7b8" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  arch: '<svg viewBox="0 0 32 32" fill="none"><path d="M8 29V13a8 8 0 0 1 16 0v16" stroke="#e6f2cc" stroke-width="1.8" stroke-dasharray="3 2.5"/><path d="M4 29h24" stroke="#e6f2cc" stroke-width="1.8" stroke-linecap="round"/></svg>',
+};
+const TK = { 'Окно': 'win', 'Дверь': 'door', 'Проём': 'arch' };
 const PRE = { win: ['Окно', 1.5, 1.4], door: ['Дверь', 0.9, 2.1], arch: ['Проём', 1.2, 2.1] };
-function openOp() { pick = 'win'; ow = PRE.win[1]; oh = PRE.win[2]; drawOp(); }
+function openOp(t = 'win') { pick = t; ow = PRE[t][1]; oh = PRE[t][2]; drawOp(); }
 function drawOp() {
-  document.getElementById('pop').innerHTML = `<div class="shade" onclick="closePop()"></div><div class="sheet2"><div class="grab"></div><h3>Что в стене?</h3>
-    <div class="tp">${Object.entries(PRE).map(([k, [n]]) => `<button class="${pick === k ? 'on' : ''}" onclick="pick='${k}';ow=PRE.${k}[1];oh=PRE.${k}[2];drawOp()">${k === 'win' ? '🪟' : k === 'door' ? '🚪' : '⬜'} ${n}</button>`).join('')}</div>
+  document.getElementById('pop').innerHTML = `<div class="shade" onclick="closePop()"></div><div class="sheet2"><div class="grab"></div><h3>${PRE[pick][0]} в стене</h3>
+    <div class="tp">${Object.entries(PRE).map(([k, [n]]) => `<button class="${pick === k ? 'on' : ''}" onclick="pick='${k}';ow=PRE.${k}[1];oh=PRE.${k}[2];drawOp()"><span style="display:inline-flex;align-items:center;gap:6px">${IC[k].replace('<svg', '<svg width=\"20\" height=\"20\"')} ${n}</span></button>`).join('')}</div>
     <div class="sz"><span class="fld"><input inputmode="decimal" value="${f(ow)}" oninput="ow=parseFloat(this.value.replace(',','.'))||0"><small>м</small></span><span class="op">×</span><span class="fld"><input inputmode="decimal" value="${f(oh)}" oninput="oh=parseFloat(this.value.replace(',','.'))||0"><small>м</small></span></div>
     <div class="szl"><span>ширина</span><span></span><span>высота</span></div>
     <div class="f-btn-row" style="width:calc(50% + 2.5px);margin:0 auto"><button class="f-btn" onclick="addOp()">Добавить</button></div></div>`;
