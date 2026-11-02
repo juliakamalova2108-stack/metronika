@@ -119,7 +119,7 @@
   .d4 .mk-open { border-top: 0 !important; border-left: 6px solid var(--rc) !important; }
   .d4 .mk-list .o-row { cursor: pointer; } .d4 .mk-list .o-row__go { margin-left: auto; color: rgba(237,240,231,.5); font-size: 22px; }
 
-  .mk-vars { flex-wrap: wrap; } .mk-vars button { flex: 1 0 calc(20% - 4px); height: 30px; font-size: 11.5px; }
+  .mk-vars { flex-wrap: wrap; } .mk-vars button { flex: 1 0 calc(33% - 4px); height: 30px; font-size: 11.5px; }
   .mk-swipe { touch-action: pan-y; }
   .mk-swipe.sl-l { animation: slL .25s ease-out; } .mk-swipe.sl-r { animation: slR .25s ease-out; }
   @keyframes slL { from { transform: translateX(40px); opacity: .3; } } @keyframes slR { from { transform: translateX(-40px); opacity: .3; } }
@@ -282,6 +282,59 @@
   .s35-seg.is-on::before { content: ''; position: absolute; left: 50%; bottom: -16px; width: 2px; height: 16px; background: #e5484d; }
   .s35-card { margin-top: 12px; }
   .s35-card .mk-open { box-shadow: 0 -3px 0 var(--rc), 0 10px 24px rgba(1,9,11,.4); }
+
+  /* 36 · Остров */
+  .s36 { display: flex; align-items: center; gap: 8px; height: 58px; padding: 0 8px 0 6px; border-radius: 29px; background: rgba(16,32,34,.72); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(204,222,209,.28); box-shadow: 0 10px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12); overflow-x: auto; scrollbar-width: none; }
+  .s36 .nx-plusbtn { width: 44px; height: 44px; border-radius: 50%; }
+  .s36-i { flex: none; height: 44px; min-width: 18px; max-width: 18px; padding: 0; border: 0; border-radius: 22px; cursor: pointer; overflow: hidden; white-space: nowrap; display: flex; align-items: center; justify-content: center;
+    background: none; transition: max-width .45s cubic-bezier(.3,1.2,.4,1), background .3s, padding .3s; color: #fff; font: 600 15px/1 var(--font-body); }
+  .s36-i::before { content: ''; flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--rc); box-shadow: 0 0 8px color-mix(in srgb, var(--rc) 60%, transparent); }
+  .s36-i:not(.is-on) span, .s36-i:not(.is-on) small { display: none; }
+  .s36-i.is-on { max-width: 220px; padding: 0 16px 0 10px; gap: 10px; justify-content: flex-start; background: linear-gradient(135deg, var(--rc), color-mix(in srgb, var(--rc) 55%, #13292b)); box-shadow: 0 0 16px color-mix(in srgb, var(--rc) 50%, transparent); }
+  .s36-i.is-on::before { background: #fff; width: 8px; height: 8px; }
+  .s36-i.is-on span, .s36-i.is-on small { opacity: 1; transition-delay: .15s; } .s36-i small { font: 500 12px/1 var(--font-num); opacity: .9; }
+  .s36-i--sum { --rc: #e6f2cc; } .s36-i--sum.is-on { color: #13292b; } .s36-i--sum.is-on::before { background: #13292b; }
+  /* 37 · Истории */
+  .s37-seg { display: flex; gap: 4px; margin-bottom: 10px; }
+  .s37-seg i { flex: 1; height: 5px; border-radius: 3px; background: rgba(237,240,231,.18); overflow: hidden; cursor: pointer; position: relative; }
+  .s37-seg i b { position: absolute; inset: 0; width: var(--p); background: var(--rc); border-radius: 3px; transition: width .4s; }
+  .s37-seg i.is-on { height: 7px; margin-top: -1px; box-shadow: 0 0 10px var(--rc); }
+  .s37-row { display: flex; align-items: center; gap: 10px; }
+  .s37-t { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; }
+  .s37-av { flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--rc) var(--p), rgba(237,240,231,.15) 0); }
+  .s37-av i { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: #1d3233; font: 700 17px/1 var(--font-num); font-style: normal; color: #fff; }
+  .s37-t b { display: block; font: 700 21px/24px var(--font-num); color: #fff; } .s37-t small { font: 400 12px/16px var(--font-body); color: rgba(237,240,231,.65); }
+  .s37-nav { display: flex; gap: 6px; } .s37-nav button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(204,222,209,.4); background: rgba(33,56,57,.8); color: #e6f2cc; font-size: 20px; cursor: pointer; }
+  .s37-nav button:disabled { opacity: .3; }
+  /* 38 · Превью */
+  .s38 { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 8px; scrollbar-width: none; }
+  .s38-c { flex: none; width: 112px; height: 82px; scroll-snap-align: center; border-radius: 12px; padding: 8px 10px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 4px;
+    border: 1px solid rgba(204,222,209,.3); background: linear-gradient(160deg, color-mix(in srgb, var(--rc) 28%, #263c3d), #1e3334); color: #edf0e7; transition: transform .25s, box-shadow .25s; }
+  .s38-c b { font: 600 13px/15px var(--font-body); } .s38-c small { font: 600 12px/14px var(--font-num); opacity: .8; margin-top: auto; }
+  .s38-bars { display: flex; align-items: flex-end; gap: 3px; height: 18px; } .s38-bars i { width: 10px; border-radius: 2px; background: var(--rc); opacity: .85; min-height: 2px; }
+  .s38-c.is-on { transform: translateY(-3px); border-color: rgba(255,255,255,.75); box-shadow: 0 8px 18px rgba(0,0,0,.45), 0 0 0 2px var(--rc); background: linear-gradient(160deg, color-mix(in srgb, var(--rc) 60%, #263c3d), color-mix(in srgb, var(--rc) 25%, #1e3334)); }
+  .s38-add { flex: none; width: 70px; height: 82px; border-radius: 12px; border: 1.5px dashed rgba(230,242,204,.5); background: rgba(230,242,204,.05); color: #e6f2cc; font: 300 30px/1 var(--font-body); cursor: pointer; scroll-snap-align: start; }
+  /* 39 · Пульт снизу */
+  .s39-bar { position: fixed; z-index: 45; left: 12px; right: 12px; bottom: 96px; display: flex; align-items: center; gap: 8px; height: 64px; padding: 0 8px; border-radius: 22px;
+    background: rgba(18,36,38,.78); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(204,222,209,.3); box-shadow: 0 12px 28px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.12); }
+  .s39-fab { flex: none; width: 52px; height: 52px; border-radius: 16px; border: 0; cursor: pointer; font: 300 32px/1 var(--font-body); color: #13292b;
+    background: linear-gradient(180deg, #eef7d9, #cfe0b4); box-shadow: 0 4px 12px rgba(230,242,204,.35), inset 0 -3px 0 rgba(0,0,0,.15); }
+  .s39-fab span { display: block; transition: transform .25s; } .s39-fab.is-open span { transform: rotate(45deg); }
+  .s39-sc { flex: 1; min-width: 0; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .s39-t { flex: none; height: 46px; padding: 0 14px; border-radius: 14px; border: 1px solid rgba(204,222,209,.25); background: rgba(255,255,255,.04); color: rgba(237,240,231,.75); font: 600 14px/1 var(--font-body); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .s39-t::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--rc); }
+  .s39-t.is-on { background: var(--rc); color: #fff; border-color: rgba(255,255,255,.6); } .s39-t.is-on::before { background: #fff; }
+  .s39-pad { height: 90px; } .s39-up { position: fixed; z-index: 44; left: 12px; right: 12px; bottom: 168px; animation: mkUp .25s ease-out; }
+  /* 40 · Лупа */
+  .s40 { display: flex; align-items: center; gap: 10px; height: 74px; }
+  .s40-track { position: relative; flex: 1; min-width: 0; height: 74px; }
+  .s40-bar { position: absolute; left: 0; right: 0; top: 30px; height: 14px; border-radius: 7px; display: flex; overflow: hidden; box-shadow: inset 0 2px 3px rgba(0,0,0,.5); }
+  .s40-bar i { flex: 1; background: var(--rc); cursor: pointer; opacity: .75; } .s40-bar i + i { border-left: 2px solid #1b3133; }
+  .s40-lens { position: absolute; top: 6px; height: 62px; min-width: 104px; padding: 0 14px; transform: translateX(-50%); border-radius: 31px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: rgba(230,242,204,.12); backdrop-filter: blur(3px) saturate(1.6); -webkit-backdrop-filter: blur(3px) saturate(1.6); border: 2px solid var(--rc);
+    box-shadow: 0 8px 18px rgba(0,0,0,.45), inset 0 2px 6px rgba(255,255,255,.25), 0 0 16px color-mix(in srgb, var(--rc) 45%, transparent); transition: left .45s cubic-bezier(.3,1.3,.45,1), border-color .3s; pointer-events: none; }
+  .s40-lens b { font: 700 17px/20px var(--font-num); color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); } .s40-lens small { font: 600 12px/14px var(--font-num); color: #fff; opacity: .9; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
 </style></head>
 <body class="fig"><div class="app"><main id="view" class="view"></main></div>
 <script>
@@ -299,6 +352,11 @@ function mk(n, c) { const k = rooms.filter((r) => r.type === n).length; return {
 const sum = (r) => SVC.reduce((s, [id, , p]) => s + (parseFloat(r.q[id]) || 0) * p, 0);
 const total = () => rooms.reduce((s, r) => s + sum(r), 0);
 const HINT = {
+  36: 'Остров: стеклянная капсула, как «остров» на iPhone. Комнаты — цветные точки, выбранная раскрывается в цветную пилюлю с названием и суммой.',
+  37: 'Истории: сверху тонкие полоски, как в историях Instagram — одна полоска на комнату, заливка показывает, сколько заполнено. Ниже — крупно комната со стрелками.',
+  38: 'Превью: каждая комната — маленькая карточка с мини-графиком работ и суммой. Лента листается и сама встаёт по центру.',
+  39: 'Пульт снизу: комнаты на стеклянной панели внизу, под большим пальцем, «+» — светлая кнопка. Комнаты выбираются там, где держишь телефон.',
+  40: 'Лупа: комнаты — цветная шкала, над выбранной висит стеклянная лупа с названием и суммой. Лупа переезжает при свайпе.',
   31: 'Слайдер: комнаты лежат в утопленной дорожке, по ней с пружинкой ездит выпуклая кнопка. Под выбранной комнатой у карточки цветной уголок-указатель.',
   32: 'Стопка: комнаты сложены карточками, как в кошельке на телефоне. Выбранная — сверху стопки целиком, края остальных торчат сверху и снизу.',
   33: 'Индекс сбоку: цветные разделители торчат справа, как в блокноте с алфавитом. Карточка во всю высоту, большой палец достаёт до вкладок.',
@@ -324,7 +382,7 @@ const HINT = {
   13: 'Прогресс: внизу каждой плашки полоска — сколько работ уже заполнено, ✓ — сохранена.',
   14: 'По этажам: комнаты в полосе сгруппированы по этажам с подписью.',
 };
-function vars() { return `<div class="mk-vars">${[['31','Слайдер'],['32','Стопка'],['33','Индекс'],['34','Барабан'],['35','Рулетка']].map(([n, t]) => `<button class="${D == n ? 'is-on' : ''}" onclick="setD(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[D]}</p>`; }
+function vars() { return `<div class="mk-vars">${[['31','Слайдер'],['36','Остров'],['37','Истории'],['38','Превью'],['39','Пульт'],['40','Лупа']].map(([n, t]) => `<button class="${D == n ? 'is-on' : ''}" onclick="setD(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[D]}</p>`; }
 let D = 31;
 function setD(n) { D = n; draw(); }
 const head = (t, s) => `<div class="o-head"><div class="o-cur"><b>${esc(t)}</b>${s ? `<small>${esc(s)}</small>` : ''}</div></div>`;
@@ -442,7 +500,7 @@ function swipe(dir) { const ids = [...rooms.map((r) => r.id), ...(rooms.length ?
   const n = k + dir; if (n < 0 || n >= ids.length) return; tab = ids[n]; slide = dir > 0 ? 'l' : 'r'; draw();
   requestAnimationFrame(() => { const t = document.querySelector('.mk-tab.is-on'); if (t) t.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }); }
 let sx = null, sy = null;
-document.addEventListener('touchstart', (e) => { if (!e.target.closest('.mk-swipe, .s34-drum, .s32-card')) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchstart', (e) => { if (!e.target.closest('.mk-swipe, .s40-track')) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
 document.addEventListener('touchend', (e) => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; const dy = e.changedTouches[0].clientY - sy; sx = null;
   if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) swipe(dx < 0 ? 1 : -1); });
 function v4add(n, c) { const r = mk(n, c); r.fl = fl; rooms.push(r); tab = r.id; drop = false; draw(); window.scrollTo(0, 0);
@@ -492,6 +550,24 @@ function nx() {
       <div class="s35-tape" id="tape">${items.map((it) => { const m = it.r ? Math.max(...SVC.map(([id]) => parseFloat(it.r.q[id]) || 0)) : 0;
         return `<button type="button" class="s35-seg${isOn(it) ? ' is-on' : ''}" style="--rc:${it.c};--w:${it.sumT ? 70 : Math.max(86, 40 + m * 5)}px" onclick="pick('${it.id}')">${esc(it.n)}${it.sumT ? '' : `<small>${m ? m + ' м²' : ''}</small>`}</button>`; }).join('')}<span style="flex:none;width:120px"></span></div></div></div>
       ${sw(`<div class="s35-card" style="--rc:${rc}">${main}</div>`)}`;
+  } else if (D === 36) {
+    out = `<div class="nx-sticky"><div class="s36">${plusBtn}${items.map((it) => `<button type="button" class="s36-i${it.sumT ? ' s36-i--sum' : ''}${isOn(it) ? ' is-on' : ''}" style="${it.sumT ? '' : `--rc:${it.c}`}" onclick="pick('${it.id}')" aria-label="${esc(it.n)}"><span>${esc(it.n)}</span><small>${it.sm}</small></button>`).join('')}</div></div>${sw(main)}`;
+  } else if (D === 37) {
+    const k = items.findIndex(isOn); const it = items[k]; const fr = (x) => x.sumT ? 1 : SVC.filter(([id]) => parseFloat(x.r.q[id])).length / SVC.length;
+    out = `<div class="nx-sticky">${items.length ? `<div class="s37-seg">${items.map((x) => `<i class="${isOn(x) ? 'is-on' : ''}" style="--rc:${x.c}" onclick="pick('${x.id}')"><b style="--p:${Math.round(fr(x) * 100)}%"></b></i>`).join('')}</div>` : ''}
+      <div class="s37-row">${plusBtn}<div class="s37-t">${it ? `<span class="s37-av" style="--rc:${it.c};--p:${Math.round(fr(it) * 100)}%"><i>${it.sumT ? '∑' : esc(it.n[0])}</i></span><div><b>${esc(it.n)}</b><small>${k + 1} из ${items.length} · ${it.sm}</small></div>` : `<div><b>${drop ? 'Какая комната?' : 'Оценка'}</b><small>${drop ? 'выберите ниже' : 'комнат пока нет'}</small></div>`}</div>
+      ${it ? `<div class="s37-nav"><button onclick="swipe(-1)" ${k <= 0 ? 'disabled' : ''}>‹</button><button onclick="swipe(1)" ${k >= items.length - 1 ? 'disabled' : ''}>›</button></div>` : ''}</div></div>${sw(main)}`;
+  } else if (D === 38) {
+    out = `<div class="nx-sticky"><div class="s38" id="s38"><button type="button" class="s38-add" onclick="drop=!drop;draw()">${drop ? '×' : '+'}</button>${items.map((it) => {
+        const bars = it.sumT ? rooms.map((x) => `<i style="background:${x.c};height:${Math.max(2, Math.min(18, sum(x) / 900))}px"></i>`).join('') : SVC.map(([id]) => `<i style="height:${Math.max(2, Math.min(18, (parseFloat(it.r.q[id]) || 0) * 0.8))}px"></i>`).join('');
+        return `<button type="button" class="s38-c${isOn(it) ? ' is-on' : ''}" style="--rc:${it.sumT ? '#c8d9a8' : it.c}" onclick="pick('${it.id}')"><b>${esc(it.n)}</b><span class="s38-bars">${bars}</span><small>${it.sm}</small></button>`; }).join('')}</div></div>${sw(main)}`;
+  } else if (D === 39) {
+    out = `${drop ? `<div class="s39-up">${dropHtml}</div>` : ''}${sw(drop ? (rooms.length ? (tab === 'sum' ? sumv : card) : blank) : main)}<div class="s39-pad"></div>
+      <div class="s39-bar"><button type="button" class="s39-fab${drop ? ' is-open' : ''}" onclick="drop=!drop;draw()"><span>+</span></button><div class="s39-sc">${items.length ? items.map((it) => `<button type="button" class="s39-t${isOn(it) ? ' is-on' : ''}" style="--rc:${it.c}" onclick="pick('${it.id}')">${esc(it.n)}</button>`).join('') : '<span style="color:rgba(237,240,231,.6);font:400 14px var(--font-body);padding-left:6px">Добавьте первую комнату</span>'}</div></div>`;
+  } else if (D === 40) {
+    const k = items.findIndex(isOn); const it = items[k];
+    out = `<div class="nx-sticky"><div class="s40">${plusBtn}<div class="s40-track">${items.length ? `<div class="s40-bar">${items.map((x) => `<i style="--rc:${x.sumT ? '#c8d9a8' : x.c}" onclick="pick('${x.id}')"></i>`).join('')}</div>` : ''}
+      ${it ? `<div class="s40-lens" style="--rc:${it.sumT ? '#e6f2cc' : it.c};left:clamp(52px, ${((k + 0.5) / items.length) * 100}%, calc(100% - 52px))"><b>${esc(it.n)}</b><small>${it.sm}</small></div>` : ''}</div></div></div>${sw(main)}`;
   }
   return `<div class="nx">${out}</div>`;
 }
@@ -509,6 +585,7 @@ function draw() {
   const body = D >= 31 ? nx() : v4();
   document.getElementById('view').innerHTML = `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><div class="o-wrap">${vars()}${body}</div>${NAV}` + (note ? `<div class="mk-note">${note}</div>` : '');
   if (D === 31) placePuck();
+  if (D === 38) { const t = document.querySelector('.s38-c.is-on'); if (t) t.scrollIntoView({ inline: 'center', block: 'nearest' }); }
   if (D === 35) { const t = document.querySelector('.s35-seg.is-on'); if (t) t.scrollIntoView({ inline: 'nearest', block: 'nearest' }); }
   if (D === 31) placePuck();
   if (D === 35) { const t = document.querySelector('.s35-seg.is-on'); if (t) t.scrollIntoView({ inline: 'nearest', block: 'nearest' }); }
