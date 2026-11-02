@@ -1118,3 +1118,12 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
   border-bottom-left-radius: 12px; box-shadow: -2px 2px 8px color-mix(in srgb, var(--rc) 45%, transparent); pointer-events: none; }
 .o-same-wrap .o-same.o-same--v2 { margin-left: 0; margin-right: 9px; }
 .o-rhead { margin-bottom: 12px; }
+/* Шапка комнаты — отдельная пластинка в стиле строки «Одинаковый объём»: слева высокая палочка цвета комнаты. */
+.o-same-wrap { padding-left: 0; } .o-same-wrap::before { display: none; }
+.o-same-wrap .o-same.o-same--v2 { margin-left: 9px; margin-right: 9px; }
+.o-rhead { position: relative; margin: 0 9px 10px; padding: 10px 10px 10px 22px; min-height: 66px; box-sizing: border-box; border-left: 0; border-radius: 12px;
+  border: 0.9px solid rgba(5, 13, 15, 0.75); background: linear-gradient(180deg, #182829, #203030);
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.16), inset 0 1.5px 2px rgba(1, 6, 9, 0.55), inset 0 4px 10px rgba(1, 8, 10, 0.7); }
+.o-rhead::before { content: ''; position: absolute; left: 8px; top: 9px; bottom: 9px; width: 5px; border-radius: 3px; background: var(--rc); box-shadow: 0 0 10px var(--rc); }
+.o-rhead__t b { font-size: 22px; line-height: 26px; }
+.o-rhead .o-ib { width: 44px; height: 44px; }
