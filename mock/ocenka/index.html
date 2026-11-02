@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Оценка — варианты</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Manrope:wght@400;500;600;700&family=Onest:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/app.css"><link rel="stylesheet" href="../../css/vyezdy.css">
+<style>
+  .mk-vars { position: relative; z-index: 30; display: flex; gap: 4px; margin: 0 0 8px; padding: 3px; border-radius: 8px; background: rgba(0,0,0,.28); }
+  .mk-vars button { flex: 1; height: 34px; border: 0; border-radius: 6px; background: none; color: rgba(237,240,231,.6); font: 600 13px/1 var(--font-body); cursor: pointer; }
+  .mk-vars button.is-on { background: #e6f2cc; color: #13292b; }
+  .mk-hint { margin: 0 2px 12px; font: 400 13px/18px var(--font-body); color: rgba(230,242,204,.8); }
+  .mk-sec { margin: 14px 2px 8px; font: 600 13px/16px var(--font-body); letter-spacing: .04em; text-transform: uppercase; color: #e6f2cc; }
+  .mk-one { width: calc(50% + 2.5px); margin: 12px auto; box-sizing: border-box; }
+  .mk-two { display: flex; gap: 5px; margin: 12px 0; } .mk-two .f-btn { flex: 1; }
+  /* фишки комнат */
+  .mk-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .mk-chip { height: 46px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-radius: 6px; cursor: pointer;
+    border: 1px solid rgba(204,222,209,.45); background: #213839; color: #edf0e7; font: 500 14px/1 var(--font-body);
+    box-shadow: 0 2px 2.5px rgba(1,6,9,.27), inset 0 -2px 2px rgba(6,18,20,.34), inset 0 1px 1px rgba(224,242,227,.36); }
+  .mk-chip i { width: 4px; height: 20px; border-radius: 2px; background: var(--rc); flex: none; }
+  .mk-chip.is-on { background: var(--rc); border-color: #fff; color: #fff; font-weight: 600; }
+  .mk-chip.is-on i { background: #fff; }
+  /* развёрнутая комната (лента) */
+  .mk-open { border-top: 4px solid var(--rc) !important; padding-top: 12px; }
+  .mk-open__hd { display: flex; align-items: baseline; justify-content: space-between; margin: 0 4px 10px; }
+  .mk-open__hd b { font: 700 22px/26px var(--font-num); color: #edf0e7; } .mk-open__hd small { font: 400 13px/16px var(--font-body); color: rgba(237,240,231,.65); }
+  .mk-open .o-svc { margin-bottom: 6px; }
+  .mk-sum { display: flex; justify-content: space-between; margin: 10px 4px 0; font: 500 15px/20px var(--font-body); color: #edf0e7; } .mk-sum b { font: 700 18px/20px var(--font-num); }
+  /* карточка-шаги */
+  .mk-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .mk-pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; background: color-mix(in srgb, var(--rc) 30%, #1d3233); border: 1px solid var(--rc); color: #edf0e7; font: 500 13px/1 var(--font-body); cursor: pointer; }
+  .mk-pill b { font-weight: 700; }
+  .mk-step { display: flex; align-items: center; gap: 10px; margin: 2px 4px 10px; font: 600 15px/20px var(--font-body); color: #edf0e7; }
+  .mk-step i { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 700 13px/1 var(--font-body); font-style: normal; background: #e6f2cc; color: #13292b; }
+  .mk-step.is-done i { background: #3c6b52; color: #e6f2cc; }
+  .mk-step button { margin-left: auto; border: 0; background: none; color: #e6f2cc; font: 500 13px/1 var(--font-body); text-decoration: underline; cursor: pointer; }
+  .mk-card { padding: 14px 12px; }
+  .mk-card + .mk-card { margin-top: 0; }
+  .mk-sel { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 14px; border-radius: 6px; background: var(--rc); color: #fff; font: 700 18px/1 var(--font-body); margin-bottom: 12px; }
+  .mk-sel small { margin-left: auto; font: 400 13px/1 var(--font-body); opacity: .9; }
+  .mk-num { font: 400 13px/16px var(--font-body); color: rgba(237,240,231,.65); margin-left: 4px; }
+  /* шторка */
+  .mk-shade { position: fixed; inset: 0; z-index: 80; background: rgba(4,12,14,.6); }
+  .mk-sheet { position: fixed; z-index: 81; left: 0; right: 0; bottom: 0; max-height: 88vh; overflow-y: auto; padding: 8px 12px 20px; border-radius: 16px 16px 0 0;
+    background: linear-gradient(180deg, #2a4142, #213536); border-top: 1px solid rgba(204,222,209,.4); box-shadow: 0 -10px 30px rgba(0,0,0,.5); animation: mkUp .25s ease-out; }
+  @keyframes mkUp { from { transform: translateY(40%); opacity: .3; } }
+  .mk-grab { width: 44px; height: 5px; border-radius: 3px; background: rgba(237,240,231,.35); margin: 0 auto 10px; }
+  .mk-sheet__hd { display: flex; align-items: center; justify-content: space-between; margin: 0 4px 10px; font: 700 20px/24px var(--font-num); color: #edf0e7; }
+  .mk-sheet__hd button { border: 0; background: none; color: rgba(237,240,231,.7); font: 400 15px/1 var(--font-body); cursor: pointer; }
+  .mk-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 10px; }
+  .mk-scroll .mk-chip { flex: none; }
+  .mk-empty { padding: 20px 16px; text-align: center; font: 400 14px/20px var(--font-body); color: rgba(237,240,231,.7); }
+  .mk-big { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 100%; height: 86px; border-radius: 10px; cursor: pointer;
+    border: 1.5px dashed rgba(230,242,204,.55); background: rgba(230,242,204,.06); color: #e6f2cc; font: 600 18px/22px var(--font-body); }
+  .mk-big small { font: 400 13px/16px var(--font-body); color: rgba(237,240,231,.65); }
+  .mk-note { position: fixed; z-index: 95; left: 50%; top: 42%; transform: translate(-50%, -50%); padding: 22px 34px; border-radius: 14px; background: rgba(30,52,50,.96); border: 1px solid rgba(222,237,194,.6); color: #e6f2cc; font: 600 24px/30px var(--font-body); text-align: center; box-shadow: 0 12px 30px rgba(0,0,0,.5); pointer-events: none; white-space: nowrap; }
+  .o-sroom__head { cursor: pointer; }
+  .o-stack { display: flex; flex-direction: column; gap: 8px; }
+
+  /* 4 · Полоска */
+  .mk-strip { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 6px; margin: 0 -16px 12px; padding: 8px 16px; overflow-x: auto;
+    background: linear-gradient(180deg, rgba(27,47,49,.98), rgba(24,42,44,.96)); border-bottom: .9px solid rgba(204,219,207,.22); box-shadow: 0 6px 14px rgba(1,9,11,.3); scrollbar-width: none; }
+  .mk-strip::-webkit-scrollbar { display: none; }
+  .mk-plus { flex: none; width: 46px; height: 46px; border-radius: 6px; display: grid; place-items: center; cursor: pointer; font: 400 30px/1 var(--font-body); color: #e6f2cc;
+    border: 1px solid rgba(204,222,209,.55); background: #213839; box-shadow: 0 2px 2.5px rgba(1,6,9,.27), inset 0 -2px 2px rgba(6,18,20,.34), inset 0 1px 1px rgba(224,242,227,.36); transition: transform .2s; }
+  .mk-plus span { display: block; transition: transform .2s; } .mk-plus.is-open span { transform: rotate(45deg); } .mk-plus.is-open { background: #2d4a3a; }
+  .mk-tab { flex: none; height: 46px; display: flex; flex-direction: column; justify-content: center; padding: 0 14px; border-radius: 6px; cursor: pointer; text-align: left;
+    border: 1px solid rgba(204,222,209,.3); border-bottom: 3px solid var(--rc); background: rgba(33,56,57,.7); color: rgba(237,240,231,.75); font: 500 14px/17px var(--font-body); }
+  .mk-tab small { font: 400 11px/13px var(--font-body); opacity: .75; }
+  .mk-tab.is-on { background: var(--rc); border-color: #fff; color: #fff; font-weight: 600; box-shadow: 0 0 12px color-mix(in srgb, var(--rc) 55%, transparent); }
+  .mk-tab--sum { border-bottom-color: #e6f2cc; }
+  .mk-tab--sum.is-on { background: #e6f2cc; color: #13292b; }
+  .mk-drop { position: sticky; top: 63px; z-index: 39; margin: -6px 0 12px; padding: 12px; animation: mkDrop .22s ease-out; }
+  @keyframes mkDrop { from { transform: translateY(-14px); opacity: 0; } }
+  .mk-drop .o-floors { margin-bottom: 10px; }
+  .mk-blank { padding: 40px 20px; text-align: center; font: 400 15px/22px var(--font-body); color: rgba(237,240,231,.7); }
+  .mk-blank b { display: block; font: 600 18px/24px var(--font-body); color: #edf0e7; margin-bottom: 6px; }
+</style></head>
+<body class="fig"><div class="app"><main id="view" class="view"></main></div>
+<script>
+const NAV = `<nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">
+    <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"></rect><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"></rect><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"></rect></svg><span>Меню</span></button>
+    <div class="f-topnav f-botnav"><div class="f-topnav__track" role="tablist"><button type="button" role="tab" aria-selected="false" class="f-tab" data-action="f-tab" data-tab="channel">Канал</button><button type="button" role="tab" aria-selected="false" class="f-tab" data-action="f-tab" data-tab="client">Клиент</button><button type="button" role="tab" aria-selected="true" class="f-tab is-active" data-action="f-tab" data-tab="estimate">Оценка</button><button type="button" role="tab" aria-selected="false" class="f-tab" data-action="f-tab" data-tab="schedule">График</button></div></div>
+  </nav>`;
+const TYPES = [['Спальня','#3b82f6'],['Гостиная','#f59e0b'],['Кухня','#ef4444'],['Коридор','#10b981'],['Детская','#8b5cf6'],['Прихожая','#f97316'],['Санузел','#0ea5e9'],['Балкон','#14b8a6'],['Кабинет','#eab308']];
+const SVC = [['prime','Грунтовка стен',100],['fliz','Поклейка флиз. обоев',330],['strip','Демонтаж обоев',150]];
+const money = (n) => Math.round(n).toLocaleString('ru-RU') + ' ₽';
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const plural = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? b : c);
+let V = 1, rooms = [], open = null, draft = null, sheet = false, note = null, uid = 0;
+function mk(n, c) { const k = rooms.filter((r) => r.type === n).length; return { id: ++uid, type: n, name: k ? `${n} ${k + 1}` : n, c, q: {}, same: '' }; }
+const sum = (r) => SVC.reduce((s, [id, , p]) => s + (parseFloat(r.q[id]) || 0) * p, 0);
+const total = () => rooms.reduce((s, r) => s + sum(r), 0);
+const HINT = {
+  4: 'Полоска: сверху полоса, слева «+». Нажал «+» — выкатились плитки комнат, выбрал — комната встала в полосу рядом с «+» и сразу открылась. «+» всегда на месте.',
+  1: 'Лента: всё на одном экране. Нажал на комнату внизу — она раскрылась тут же, заполнил, сохранил — свернулась. Раскрыта всегда только одна.',
+  2: 'Карточка-шаги: одна карточка «Комната N». Шаг 1 — что за комната, шаг 2 — объёмы. «Сохранить и следующая» сразу даёт чистую карточку.',
+  3: 'Шторка: на экране только список готовых комнат. Комната заполняется в шторке снизу — пока она открыта, всё остальное закрыто.',
+};
+function vars() { return `<div class="mk-vars">${[['4','Полоска'],['1','Лента'],['2','Карточка'],['3','Шторка']].map(([n, t]) => `<button class="${V == n ? 'is-on' : ''}" onclick="setV(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[V]}</p>`; }
+const head = (t, s) => `<div class="o-head"><div class="o-cur"><b>${esc(t)}</b>${s ? `<small>${esc(s)}</small>` : ''}</div></div>`;
+const cnt = () => rooms.length ? `${rooms.length} ${plural(rooms.length, 'комната', 'комнаты', 'комнат')} · ${money(total())}` : 'комнат пока нет';
+function chips(on, fn) { return TYPES.map(([n, c]) => `<button type="button" class="mk-chip${on === n ? ' is-on' : ''}" style="--rc:${c}" onclick="${fn}('${n}','${c}')"><i></i>${n}</button>`).join(''); }
+function folded(r, act) {
+  const n = SVC.filter(([id]) => parseFloat(r.q[id])).length;
+  return `<section class="o-sroom" style="--rc:${r.c}"><button type="button" class="o-sroom__head" onclick="${act}(${r.id})">
+    <span class="o-sroom__name"><b>${esc(r.name)}</b><small>${n} ${plural(n, 'работа', 'работы', 'работ')}</small></span>
+    <span class="o-sroom__sum"><b>${money(sum(r))}</b><small>изменить</small></span>
+    <span class="o-sroom__chev"><svg viewBox="0 0 16 16" fill="none"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button></section>`;
+}
+function fields(r) {
+  return `<div class="o-svc"><label class="o-qty"><input inputmode="decimal" value="${esc(r.same)}" placeholder="—" oninput="setSame(${r.id},this.value)"><span>м²</span></label>
+      <span class="o-svc__t"><span class="o-svc__n">Одинаковый объём</span><small>во все работы сразу</small></span><span class="o-tog is-on" aria-hidden="true"><i></i></span></div>
+    ${SVC.map(([id, n, p]) => `<div class="o-svc"><label class="o-qty"><input inputmode="decimal" value="${esc(r.q[id] || '')}" placeholder="—" data-q="${r.id}-${id}" oninput="setQ(${r.id},'${id}',this.value)"><span>м²</span></label>
+      <span class="o-svc__t"><span class="o-svc__n">${n}</span><small>${p} ₽/м²</small></span><b class="o-svc__s" id="s-${r.id}-${id}">${money((parseFloat(r.q[id]) || 0) * p)}</b></div>`).join('')}
+    <div class="mk-sum"><span>Итого по комнате</span><b id="t-${r.id}">${money(sum(r))}</b></div>`;
+}
+const grand = () => rooms.length ? `<section class="f-plate o-grand"><p class="o-grand__t">Общий итог</p><b class="o-grand__sum">${money(total())}</b><p class="o-grand__x">${rooms.length} ${plural(rooms.length, 'комната', 'комнаты', 'комнат')}</p></section>` : '';
+const find = (id) => rooms.find((r) => r.id === id) || (draft && draft.id === id ? draft : null);
+
+/* 1 · Лента */
+function v1() {
+  return `${head('Оценка', cnt())}<div class="o-stack">
+    ${rooms.map((r) => r === open ? `<section class="f-plate o-room mk-open" style="--rc:${r.c}"><div class="mk-open__hd"><b>${esc(r.name)}</b><small>заполняете сейчас</small></div>${fields(r)}
+      <div class="f-btn-row mk-one"><button class="f-btn" onclick="v1save()">Сохранить</button></div></section>` : folded(r, 'v1open')).join('')}
+    ${open ? '' : `<p class="mk-sec">${rooms.length ? 'Добавить ещё комнату' : 'Добавьте первую комнату'}</p><div class="mk-chips">${chips(null, 'v1add')}</div>`}
+    ${open ? '' : grand()}</div>`;
+}
+function v1add(n, c) { const r = mk(n, c); rooms.push(r); open = r; draw(); scrollToEl('.mk-open'); }
+function v1open(id) { open = find(id); draw(); scrollToEl('.mk-open'); }
+function v1save() { const n = open.name; open = null; flash(`✓ ${esc(n)} сохранена`); }
+
+/* 2 · Карточка-шаги */
+function v2() {
+  const d = draft;
+  return `${head('Оценка', cnt())}
+    ${rooms.length ? `<div class="mk-pills">${rooms.map((r) => `<span class="mk-pill" style="--rc:${r.c}" onclick="v2edit(${r.id})"><b>${esc(r.name)}</b>${money(sum(r))}</span>`).join('')}</div>` : ''}
+    <section class="f-plate mk-card">
+      <div class="mk-step${d.type ? ' is-done' : ''}"><i>${d.type ? '✓' : '1'}</i>Что за комната?<span class="mk-num">Комната ${d.edit ? '' : rooms.length + 1}</span>${d.type ? `<button onclick="v2retype()">изменить</button>` : ''}</div>
+      ${d.type ? `<div class="mk-sel" style="--rc:${d.c}">${esc(d.name)}<small>${d.edit ? 'правка' : 'новая'}</small></div>` : `<div class="mk-chips">${chips(null, 'v2type')}</div>`}
+      ${d.type ? `<div class="mk-step"><i>2</i>Объёмы работ</div>${fields(d)}` : ''}
+    </section>
+    ${d.type ? (d.edit ? `<div class="f-btn-row mk-one"><button class="f-btn" onclick="v2save(false)">Сохранить</button></div>`
+      : `<div class="mk-two"><button class="f-btn" onclick="v2save(false)">Сохранить и итог</button><button class="f-btn" onclick="v2save(true)">Сохранить и следующая</button></div>`) : ''}
+    ${!d.type && rooms.length ? grand() : ''}`;
+}
+function v2type(n, c) { const k = mk(n, c); Object.assign(draft, { type: n, c, name: k.name }); draw(); }
+function v2retype() { draft.type = null; draw(); }
+function v2edit(id) { const r = rooms.find((x) => x.id === id); draft = r; draft.edit = true; draw(); }
+function v2save(next) { const d = draft; if (!d.edit) rooms.push(d); d.edit = false; const n = d.name; draft = { id: ++uid, q: {}, same: '' }; flash(`✓ ${esc(n)} сохранена`); if (!next) window.scrollTo(0, 0); }
+
+/* 3 · Шторка */
+function v3() {
+  return `${head('Оценка', cnt())}<div class="o-stack">
+    ${rooms.length ? rooms.map((r) => folded(r, 'v3edit')).join('') : '<section class="f-plate mk-empty">Комнат пока нет</section>'}
+    <button class="mk-big" onclick="v3new()">+ Комната<small>зашли в комнату — нажали</small></button>
+    ${grand()}</div>
+    ${sheet ? `<div class="mk-shade" onclick="sheet=false;draw()"></div><div class="mk-sheet"><div class="mk-grab"></div>
+      <div class="mk-sheet__hd"><span>${draft.type ? esc(draft.name) : 'Какая комната?'}</span><button onclick="sheet=false;draw()">Закрыть</button></div>
+      ${draft.edit ? '' : `<div class="mk-scroll">${chips(draft.type, 'v3type')}</div>`}
+      ${draft.type ? `<section class="f-plate o-room mk-open" style="--rc:${draft.c}">${fields(draft)}</section><div class="f-btn-row mk-one"><button class="f-btn" onclick="v3save()">Сохранить</button></div>` : '<p class="mk-empty">Выберите комнату — появятся работы</p>'}
+    </div>` : ''}`;
+}
+function v3new() { draft = { id: ++uid, q: {}, same: '' }; sheet = true; draw(); }
+function v3type(n, c) { const k = mk(n, c); Object.assign(draft, { type: n, c, name: k.name }); draw(); }
+function v3edit(id) { draft = rooms.find((x) => x.id === id); draft.edit = true; sheet = true; draw(); }
+function v3save() { const d = draft; if (!d.edit) rooms.push(d); d.edit = false; sheet = false; flash(`✓ ${esc(d.name)} сохранена`); }
+
+
+/* 4 · Полоска */
+let drop = false, fl = 1, tab = null; // tab: id комнаты или 'sum'
+function v4() {
+  const strip = `<div class="mk-strip"><button type="button" class="mk-plus${drop ? ' is-open' : ''}" onclick="drop=!drop;draw()" aria-label="Добавить комнату"><span>+</span></button>
+    ${rooms.map((r) => `<button type="button" class="mk-tab${tab === r.id && !drop ? ' is-on' : ''}" style="--rc:${r.c}" onclick="tab=${r.id};drop=false;draw()">${esc(r.name)}<small id="tb-${r.id}">${money(sum(r))}</small></button>`).join('')}
+    ${rooms.length ? `<button type="button" class="mk-tab mk-tab--sum${tab === 'sum' && !drop ? ' is-on' : ''}" onclick="tab='sum';drop=false;draw()">Итог<small>${money(total())}</small></button>` : ''}</div>`;
+  const dropHtml = drop ? `<section class="f-plate mk-drop"><div class="o-floors">${[1,2,3].map((f) => `<button type="button" class="o-floor${f === fl ? ' is-on' : ''}" onclick="fl=${f};draw()">${f} этаж</button>`).join('')}</div>
+    <div class="mk-chips">${chips(null, 'v4add')}</div></section>` : '';
+  const r = rooms.find((x) => x.id === tab);
+  let body = '';
+  if (!rooms.length && !drop) body = `<section class="f-plate mk-blank"><b>Комнат пока нет</b>Нажмите «+» в полосе сверху и выберите комнату, в которой стоите.</section>`;
+  else if (tab === 'sum') body = `<div class="o-stack">${rooms.map((x) => folded(x, 'v4go')).join('')}${grand()}</div>`;
+  else if (r) body = `<section class="f-plate o-room mk-open" style="--rc:${r.c}"><div class="mk-open__hd"><b>${esc(r.name)}</b><small>${r.fl} этаж</small></div>${fields(r)}
+      <div class="f-btn-row mk-one"><button class="f-btn" onclick="flash('✓ ${esc(r.name)} сохранена')">Сохранить</button></div></section>`;
+  return strip + dropHtml + (drop ? '' : body);
+}
+function v4add(n, c) { const r = mk(n, c); r.fl = fl; rooms.push(r); tab = r.id; drop = false; draw(); window.scrollTo(0, 0);
+  requestAnimationFrame(() => { const s = document.querySelector('.mk-strip'); if (s) s.scrollLeft = s.scrollWidth; }); }
+function v4go(id) { tab = id; draw(); window.scrollTo(0, 0); }
+function draw() {
+  const body = V === 4 ? v4() : V === 1 ? v1() : V === 2 ? v2() : v3();
+  document.getElementById('view').innerHTML = `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><div class="o-wrap">${vars()}${body}</div>${NAV}` + (note ? `<div class="mk-note">${note}</div>` : '');
+}
+function scrollToEl(s) { requestAnimationFrame(() => { const e = document.querySelector(s); if (e) window.scrollTo(0, e.getBoundingClientRect().top + window.scrollY - 80); }); }
+function setV(n) { V = n; rooms = []; drop = false; tab = null; fl = 1; open = null; sheet = false; draft = { id: ++uid, q: {}, same: '' }; draw(); window.scrollTo(0, 0); }
+function setQ(rid, id, v) { const r = find(rid); r.q[id] = v; const p = SVC.find((x) => x[0] === id)[2];
+  document.getElementById(`s-${rid}-${id}`).textContent = money((parseFloat(v) || 0) * p); document.getElementById(`t-${rid}`).textContent = money(sum(r)); const tb = document.getElementById(`tb-${rid}`); if (tb) tb.textContent = money(sum(r)); }
+function setSame(rid, v) { const r = find(rid); r.same = v; SVC.forEach(([id]) => { const el = document.querySelector(`[data-q="${rid}-${id}"]`); if (el) el.value = v; setQ(rid, id, v); }); }
+function flash(h) { note = h; draw(); setTimeout(() => { note = null; draw(); }, 1000); }
+setV(4);
+</script></body></html>
