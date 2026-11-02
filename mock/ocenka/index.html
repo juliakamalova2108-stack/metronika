@@ -119,7 +119,7 @@
   .d4 .mk-open { border-top: 0 !important; border-left: 6px solid var(--rc) !important; }
   .d4 .mk-list .o-row { cursor: pointer; } .d4 .mk-list .o-row__go { margin-left: auto; color: rgba(237,240,231,.5); font-size: 22px; }
 
-  .mk-vars { flex-wrap: wrap; } .mk-vars button { flex: 0 0 calc(20% - 4px); height: 30px; font-size: 11.5px; }
+  .mk-vars { flex-wrap: wrap; } .mk-vars button { flex: 1 0 calc(20% - 4px); height: 30px; font-size: 11.5px; }
   .mk-swipe { touch-action: pan-y; }
   .mk-swipe.sl-l { animation: slL .25s ease-out; } .mk-swipe.sl-r { animation: slR .25s ease-out; }
   @keyframes slL { from { transform: translateX(40px); opacity: .3; } } @keyframes slR { from { transform: translateX(-40px); opacity: .3; } }
@@ -174,6 +174,35 @@
   .d14 .mk-fl { flex: none; display: flex; flex-direction: column; gap: 3px; } .d14 .mk-fl > small { font: 600 10px/12px var(--font-body); color: #e6f2cc; letter-spacing: .05em; text-transform: uppercase; padding-left: 2px; }
   .d14 .mk-fl > div { display: flex; gap: 4px; padding: 3px; border-radius: 8px; background: rgba(0,0,0,.22); } .d14 .mk-tab { height: 40px; }
   .d14 .mk-strip { align-items: flex-end; }
+
+  /* ===== Язычки: 5 вариантов (общая основа — .d2) ===== */
+  .jx .mk-tab small { display: block; }
+  /* J2 · Цветные язычки, шапка карточки в цвет комнаты */
+  .j22 .mk-tab { background: color-mix(in srgb, var(--rc) 40%, #1d3233); border-top: 0; color: #fff; }
+  .j22 .mk-tab.is-on { background: var(--rc); border-color: var(--rc); }
+  .j22 .mk-tab--sum { background: #59665a; } .j22 .mk-tab--sum.is-on { background: #e6f2cc; color: #13292b; }
+  .j22 .mk-body { border-color: var(--bc, rgba(204,219,207,.4)); background: linear-gradient(180deg, var(--bc, #3f5655) 0, var(--bc, #3f5655) 58px, #33494a 58px); border-top-left-radius: 0; }
+  .j22 .mk-open__hd b, .j22 .mk-open__hd small { color: #fff; }
+  /* J3 · Наплывающие трапеции, как папки */
+  .j23 .mk-strip { gap: 0; padding-left: 16px; }
+  .j23 .mk-tab { margin-right: -12px; padding: 0 22px; clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 100%, 0 100%); border: 0; border-radius: 0; background: linear-gradient(180deg, #2b4243, #263b3c); position: relative; }
+  .j23 .mk-tab::after { content: ''; position: absolute; left: 12px; right: 12px; top: 0; height: 3px; background: var(--rc); }
+  .j23 .mk-tab.is-on { z-index: 2; background: linear-gradient(180deg, #4a605f, #3f5655); clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 100%, 0 100%); }
+  .j23 .mk-plus { margin-right: 6px; border-radius: 8px 8px 0 0; }
+  /* J4 · Карточка обведена цветом комнаты */
+  .j24 .mk-tab { border: 1.5px solid color-mix(in srgb, var(--rc) 60%, transparent); border-bottom: 0; background: rgba(33,56,57,.75); }
+  .j24 .mk-tab.is-on { border: 2px solid var(--rc); border-bottom: 0; background: #33494a; }
+  .j24 .mk-body { border: 2px solid var(--bc, rgba(204,219,207,.4)); border-top-width: 2px; background: #33494a; box-shadow: 0 0 18px color-mix(in srgb, var(--bc, transparent) 35%, transparent); }
+  .j24 .mk-tab.is-on { margin-bottom: -2px; height: 54px; z-index: 2; }
+  /* J5 · Плавные язычки (как вкладки браузера), точка цвета */
+  .j25 .mk-strip { gap: 2px; }
+  .j25 .mk-tab { border: 0; border-radius: 12px 12px 0 0; background: none; color: rgba(237,240,231,.6); flex-direction: row; align-items: center; gap: 7px; height: 44px; }
+  .j25 .mk-tab::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--rc); flex: none; }
+  .j25 .mk-tab small { display: none !important; }
+  .j25 .mk-tab.is-on { height: 48px; background: #3a5051; color: #fff; position: relative; }
+  .j25 .mk-tab.is-on::after { content: ''; position: absolute; bottom: 0; right: -12px; width: 12px; height: 12px; background: radial-gradient(circle at 100% 0, transparent 12px, #3a5051 12.5px); }
+  .j25 .mk-body { background: #3a5051; border: 0; }
+  .j25 .mk-plus { border-radius: 50%; width: 40px; height: 40px; margin-bottom: 4px; }
 </style></head>
 <body class="fig"><div class="app"><main id="view" class="view"></main></div>
 <script>
@@ -191,6 +220,11 @@ function mk(n, c) { const k = rooms.filter((r) => r.type === n).length; return {
 const sum = (r) => SVC.reduce((s, [id, , p]) => s + (parseFloat(r.q[id]) || 0) * p, 0);
 const total = () => rooms.reduce((s, r) => s + sum(r), 0);
 const HINT = {
+  21: 'Язычки 1 · Базовый: тёмные язычки с цветной полоской сверху; выбранный выше и срастается с карточкой.',
+  22: 'Язычки 2 · Цветные: язычки залиты цветом комнаты, у карточки шапка того же цвета — комната видна издалека.',
+  23: 'Язычки 3 · Папки: язычки-трапеции наплывают друг на друга, выбранный выходит вперёд, как папка в картотеке.',
+  24: 'Язычки 4 · Обводка: выбранный язычок и вся карточка обведены цветом комнаты — рамка показывает, где вы.',
+  25: 'Язычки 5 · Браузер: плавные вкладки, как в Chrome; цвет комнаты — точкой, выбранная вкладка перетекает в карточку.',
   1: 'Плашки: комнаты — плашки с суммой, выбранная залита цветом комнаты.',
   2: 'Язычки: язычки папки, выбранный срастается с карточкой комнаты.',
   3: 'Кружки: как истории в Telegram — кружки с буквой и цветным кольцом.',
@@ -206,8 +240,8 @@ const HINT = {
   13: 'Прогресс: внизу каждой плашки полоска — сколько работ уже заполнено, ✓ — сохранена.',
   14: 'По этажам: комнаты в полосе сгруппированы по этажам с подписью.',
 };
-function vars() { return `<div class="mk-vars">${[['1','Плашки'],['2','Язычки'],['3','Кружки'],['4','Трек'],['5','Линии'],['6','Таблетки'],['7','Карусель'],['8','Точки'],['9','Иконки'],['10','Шаги'],['11','Закладки'],['12','Шкала'],['13','Прогресс'],['14','Этажи']].map(([n, t]) => `<button class="${D == n ? 'is-on' : ''}" onclick="setD(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[D]}</p>`; }
-let D = 1;
+function vars() { return `<div class="mk-vars">${[['21','Язычки 1'],['22','Язычки 2'],['23','Язычки 3'],['24','Язычки 4'],['25','Язычки 5']].map(([n, t]) => `<button class="${D == n ? 'is-on' : ''}" onclick="setD(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[D]}</p>`; }
+let D = 21;
 function setD(n) { D = n; draw(); }
 const head = (t, s) => `<div class="o-head"><div class="o-cur"><b>${esc(t)}</b>${s ? `<small>${esc(s)}</small>` : ''}</div></div>`;
 const cnt = () => rooms.length ? `${rooms.length} ${plural(rooms.length, 'комната', 'комнаты', 'комнат')} · ${money(total())}` : 'комнат пока нет';
@@ -314,7 +348,8 @@ function v4() {
   else if (r) body = `<section class="f-plate o-room mk-open" style="--rc:${r.c}"><div class="mk-open__hd" data-l="${esc(r.name[0])}"><b>${esc(r.name)}</b><small>${r.fl} этаж</small></div>${fields(r)}
       <div class="f-btn-row mk-one"><button class="f-btn" onclick="saveR(${r.id})">Сохранить</button></div></section><p class="mk-swhint">← свайп — соседняя комната →</p>`;
   const inner = drop ? dropHtml : `<div class="mk-swipe${slide ? ' sl-' + slide : ''}">${body}</div>`; slide = '';
-  return `<div class="d${D}">${strip}${D === 2 && (rooms.length || drop) ? `<div class="mk-body">${inner}</div>` : inner}</div>`;
+  const J = D >= 21; const bc = (rooms.find((x) => x.id === tab) || {}).c || (tab === 'sum' ? '#e6f2cc' : '');
+  return `<div class="d${J ? 2 : D}${J ? ` jx j${D}` : ''}">${strip}${(D === 2 || J) && (rooms.length || drop) ? `<div class="mk-body" style="${bc && !drop ? `--bc:${bc}` : ''}">${inner}</div>` : inner}</div>`;
 }
 let slide = '';
 function pick(id) { tab = id === 'sum' ? 'sum' : Number(id); drop = false; draw(); }
