@@ -1152,3 +1152,11 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .bd-card:not(.bd-card--free) .bd-foot { flex: 1; padding: 0 10px; border-top: 0; }
 .bd-leaf { height: 58px; } .bd-leaf b { margin-top: 1px; line-height: 24px; font-size: 22px; }
 .bd-card.is-today .bd-top { background: #e6f2cc; }
+/* Листок даты на всю высоту карточки: сверху (как светлый верх карточки) — число и месяц, снизу (как тёмный низ) — день недели. */
+.bd-leaf { height: 96px; justify-content: flex-start; }
+.bd-leaf b { order: 1; margin-top: 9px; font-size: 24px; line-height: 26px; }
+.bd-leaf i { order: 2; margin-bottom: 0; }
+.bd-leaf small { order: 3; margin-top: auto; height: 38px; display: flex; align-items: center; justify-content: center; padding: 0 10px 0 0;
+  background: linear-gradient(180deg, #1b2b2b, #203030); color: #edf2e8; font-size: 11px; border-top: 0; }
+.bd-leaf.is-today small { background: linear-gradient(180deg, #1b2b2b, #203030); color: #e6f2cc; }
+.bd-leaf:has(+ .bd-card.is-today), .bd-slot:has(.bd-card.is-today) .bd-leaf { background: #e6f2cc; }
