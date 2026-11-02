@@ -1143,5 +1143,5 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-rplate::before { content: ''; left: -60px; top: -40px; bottom: auto; width: 240px; height: 240px; border-radius: 50%; background: var(--rc); filter: blur(60px); opacity: .45; box-shadow: none; z-index: -1; }
 .o-rplate .o-rhead { padding-left: 8px; }
 /* Время начала — под месяцем на листке; вторая строка карточки целиком под адрес. */
-.bd-leaf { height: 88px; }
-.bd-leaf em { margin-top: 3px; font-style: normal; font: 700 10.5px/12px var(--font-num); color: #2d6a46; white-space: nowrap; }
+.bd-leaf:has(em) b { margin-top: 1px; font-size: 22px; line-height: 23px; }
+.bd-leaf em { margin-top: 1px; font-style: normal; font: 700 10.5px/12px var(--font-num); color: #2d6a46; white-space: nowrap; }
