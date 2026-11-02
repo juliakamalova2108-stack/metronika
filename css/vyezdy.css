@@ -1026,3 +1026,9 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-same .o-tog.is-on { background: #2f7a4d; }
 .o-same.is-off { background: linear-gradient(180deg, #8e9e94, #7b8b82); box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35); border-color: rgba(255, 255, 255, 0.35); }
 .o-same .o-svc { grid-template-columns: 92px minmax(0, 1fr) auto; height: 60px; }
+/* Превью комнаты: только название, стоимость и галочка «сохранена». */
+.o-pv { justify-content: flex-start; gap: 0; }
+.o-pv__m { margin-top: auto; margin-bottom: 2px; font-size: 18px; letter-spacing: -0.01em; }
+.o-pv--sum .o-pv__m { font-size: 18px; }
+.o-pv__ok { right: 8px; top: 8px; bottom: auto; }
+.o-pv__n { padding-right: 18px; }

@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=99';
-import * as S from './store.js?v=99';
-import { SYSTEM_PRICE } from './seed.js?v=99';
-import { shiftsText, hoursFor } from './calc.js?v=99';
-import { esc, toast } from './ui.js?v=99';
-import { logEvent } from './zlog.js?v=99';
+import { actions, rerender } from './core.js?v=100';
+import * as S from './store.js?v=100';
+import { SYSTEM_PRICE } from './seed.js?v=100';
+import { shiftsText, hoursFor } from './calc.js?v=100';
+import { esc, toast } from './ui.js?v=100';
+import { logEvent } from './zlog.js?v=100';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -91,12 +91,11 @@ function carousel(e, tabs) {
   const adding = e.view === 'pick';
   const cards = e.rooms.map((r) => {
     const t = roomTotals(r);
-    const m2 = Math.max(0, ...r.svcs.map((x) => x.qty || 0));
     return `<button type="button" class="o-pv${e.view === r.key ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="o-view" data-key="${r.key}">
-      <b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${m2 ? numTxt(m2) : '—'}<small> м²</small></span><span class="o-pv__s">${fmt(t.total)} ₽</span>${r.status === 'saved' && !adding ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}${adding ? `<span class="o-pv__del" data-action="o-room-del" data-key="${r.key}" role="button" aria-label="Удалить ${esc(r.name)}">${TRASH}</span>` : ''}</button>`;
+      <b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span>${r.status === 'saved' && !adding ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}${adding ? `<span class="o-pv__del" data-action="o-room-del" data-key="${r.key}" role="button" aria-label="Удалить ${esc(r.name)}">${TRASH}</span>` : ''}</button>`;
   }).join('');
   const total = e.rooms.length ? (() => { const sum = e.rooms.reduce((a, r) => a + roomTotals(r).total, 0);
-    return `<button type="button" class="o-pv o-pv--sum${e.view === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="o-view" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(sum)}<small> ₽</small></span><span class="o-pv__s">${e.rooms.length} ${plural(e.rooms.length, 'комната', 'комнаты', 'комнат')}</span></button>`; })() : '';
+    return `<button type="button" class="o-pv o-pv--sum${e.view === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="o-view" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(sum)}<small> ₽</small></span></button>`; })() : '';
   const r = roomOf(e, e.view);
   const head = tabs && r ? `<div class="o-rhead" style="--rc:${r.color || '#7c8f8a'}"><span class="o-rhead__t"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span><span class="o-rhead__b">${tabs}</span></div>` : '';
   return `<div class="o-pvbar"><button type="button" class="o-pv-add${adding && e.rooms.length ? ' is-open' : ''}" data-action="o-add" aria-label="${adding ? 'Закрыть выбор комнаты' : 'Добавить комнату'}"><span>+</span></button>
@@ -381,7 +380,7 @@ function refreshRoom(r) {
   const a = document.getElementById('o-room-sum'); if (a) a.textContent = `${fmt(t.total)} ₽`;
   const b = document.getElementById('o-room-time'); if (b) b.textContent = shiftsText(t.hours);
   const pv = document.querySelector(`.o-pv[data-key="${r.key}"]`);
-  if (pv) { const m2 = Math.max(0, ...r.svcs.map((x) => x.qty || 0)); pv.querySelector('.o-pv__m').innerHTML = `${m2 ? numTxt(m2) : '—'}<small> м²</small>`; pv.querySelector('.o-pv__s').textContent = `${fmt(t.total)} ₽`; }
+  if (pv) pv.querySelector('.o-pv__m').innerHTML = `${t.total ? fmt(t.total) : '—'}<small> ₽</small>`;
 }
 export function onLiveEstimate(el) {
   const k = el.dataset.live;
