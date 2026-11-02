@@ -1071,3 +1071,35 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-tline--h { padding: 4px 0 6px; border-top: 0; font: 500 11px/14px var(--font-body); color: rgba(230, 242, 204, 0.7); }
 .o-tline--h > * { font-family: var(--font-body) !important; }
 .o-tline__n { white-space: normal; overflow: visible; line-height: 17px; }
+/* График после правки «Оценки»: что поменялось. */
+.g-hint { display: flex; flex-direction: column; gap: 6px; margin: 0 0 10px; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255, 194, 71, 0.7); background: rgba(255, 194, 71, 0.1); }
+.g-hint b { font: 700 15px/19px var(--font-body); color: #ffd27a; }
+.g-hint span { display: flex; align-items: flex-start; gap: 8px; font: 400 13px/18px var(--font-body); color: #edf0e7; }
+.g-hint small { font: 400 12px/16px var(--font-body); color: rgba(237, 240, 231, 0.65); }
+.g-hint__dot { flex: none; width: 10px; height: 10px; margin-top: 4px; border-radius: 3px; }
+.g-hint__dot--del { border: 2px dashed #ff6b6b; } .g-hint__dot--add { background: #ffc247; } .g-hint__dot--new { background: #8dd3ff; }
+.g-cell--hdel { outline: 2px dashed #ff6b6b; outline-offset: -2px; background: rgba(255, 107, 107, 0.12) !important; }
+.g-hint-x { position: absolute; left: 0; right: 0; bottom: 2px; text-align: center; font: 600 9px/11px var(--font-body); color: #ff8a8a; }
+.g-cell--hadd { outline: 2.5px solid #ffc247; outline-offset: -2px; box-shadow: 0 0 10px rgba(255, 194, 71, 0.6); animation: gHint 1.2s ease-in-out 3; }
+@keyframes gHint { 50% { box-shadow: 0 0 18px rgba(255, 194, 71, 0.95); } }
+.g-cell { position: relative; }
+/* «Одинаковый объём» (выбран вариант 1 + засветка из «стекла»): тёмная строка как у работ,
+   слева кромка цвета комнаты со свечением, справа — размытое пятно цвета комнаты. */
+.o-same.o-same--v2 { position: relative; isolation: isolate; overflow: hidden; padding: 0; margin-bottom: 10px; border-radius: 12px; border: 0; background: none;
+  box-shadow: -4px 0 0 var(--rc), 0 0 16px color-mix(in srgb, var(--rc) 30%, transparent); }
+.o-same.o-same--v2::after { content: ''; position: absolute; z-index: 0; width: 170px; height: 150px; right: -40px; top: -55px; border-radius: 50%; background: var(--rc); filter: blur(36px); opacity: .8; pointer-events: none; }
+.o-same.o-same--v2 .o-svc { position: relative; z-index: 1; height: 64px; padding: 0 12px 0 10px; grid-template-columns: 70px minmax(0, 1fr) auto;
+  border: 0.9px solid rgba(5, 13, 15, 0.75); background: linear-gradient(180deg, rgba(24, 40, 41, 0.72), rgba(32, 48, 48, 0.62));
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.16), inset 0 1.5px 2px rgba(1, 6, 9, 0.55), inset 0 4px 10px rgba(1, 8, 10, 0.7); }
+.o-same.o-same--v2 .o-qty { width: 70px; height: 44px; background: linear-gradient(180deg, #687b7a, #738582); border-color: rgba(6, 18, 20, 0.78);
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.58), inset 0 4px 7px rgba(1, 9, 11, 0.66); }
+.o-same.o-same--v2 .o-qty input { font-size: 17px; font-weight: 600; }
+.o-same.o-same--v2 .o-svc__n { color: #fff; font-weight: 600; font-size: 15px; }
+.o-same.o-same--v2 .o-svc__t small { color: rgba(237, 242, 232, 0.65); }
+.o-same.o-same--v2 .o-tog.is-on { background: #3f8f5c; }
+.o-same.o-same--v2.is-off { box-shadow: -4px 0 0 rgba(237, 240, 231, 0.25); } .o-same.o-same--v2.is-off::after { opacity: .15; }
+/* Строки работ: главное — белым (название, цифра объёма, сумма); «м²» и цена — сероватые. */
+.o-svc__n, .o-svc__s { color: #fff; }
+.o-svc .o-qty input, .o-svc .o-qty.is-locked input, .o-qty.is-locked { color: #fff; }
+.o-svc .o-qty span { color: rgba(237, 242, 232, 0.7); }
+.o-qty.is-locked input { -webkit-text-fill-color: #fff; opacity: 1; }

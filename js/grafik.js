@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=103';
-import * as S from './store.js?v=103';
-import { SHIFT_HOURS } from './calc.js?v=103';
-import { esc, toast } from './ui.js?v=103';
-import { logEvent } from './zlog.js?v=103';
-import { estimateRooms, roomTotals } from './ocenka.js?v=103';
+import { actions, rerender } from './core.js?v=104';
+import * as S from './store.js?v=104';
+import { SHIFT_HOURS } from './calc.js?v=104';
+import { esc, toast } from './ui.js?v=104';
+import { logEvent } from './zlog.js?v=104';
+import { estimateRooms, roomTotals } from './ocenka.js?v=104';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -61,6 +61,12 @@ function layout(s, rooms) {
   });
   return byDate;
 }
+// Какие дни заняты работами по этим комнатам (для подсказки после правки «Оценки»): дата → названия комнат.
+export function bookedDays(d, rooms) {
+  const s = d.sched || { place: {} };
+  const lay = layout({ place: s.place || {} }, (rooms || []).filter((r) => roomTotals(r).hours > 0));
+  return Object.fromEntries(Object.entries(lay).map(([k, v]) => [k, v.map((x) => x.room.name)]));
+}
 // Хватает ли комнате места с этой даты: остаток выбранного дня и дальше целые свободные дни подряд,
 // пока не наберутся её часы. Упёрлись в день, где уже стоит другая комната, — не помещается.
 function fits(lay, hours, date) {
@@ -101,7 +107,8 @@ function measuresOn(date) {
   return S.get().orders.filter((o) => !o.trashed && !['closed', 'cancelled', 'failed'].includes(o.status)).reduce((a, o) => a + o.visits.filter((v) => v.type === 'measure' && v.date === date && v.masterId === me.id).length, 0);
 }
 
-function calendar(s, rooms, lay, locked) {
+function calendar(s, rooms, lay, locked, hint) {
+  const hAdd = new Set((hint && hint.added) || []); const hDel = new Set((hint && hint.removed) || []);
   const [Y, M] = s.month.split('-').map(Number);
   const first = new Date(Y, M - 1, 1);
   const lead = (first.getDay() + 6) % 7;
@@ -119,11 +126,11 @@ function calendar(s, rooms, lay, locked) {
       const bars = one ? '' : segs.map((x) => `<i class="g-chip__fill" style="background:${x.room.color};left:${((x.from / SHIFT_HOURS) * 100).toFixed(1)}%;width:${((x.hours / SHIFT_HOURS) * 100).toFixed(1)}%"></i>`).join('');
       const style = one ? `background:${segs[0].room.color}` : `background:${hexA(segs[segs.length - 1].room.color, 0.18)}`;
       const text = segs.length === 1 ? `<span>${esc(segs[0].room.name)}</span><span>${fmt(segs[0].cost)}</span>` : segs.map((x) => `<span>${esc(x.room.name)}</span>`).join('');
-      cells.push(`<button type="button" class="g-cell g-cell--work${sel ? ' is-sel' : ''}${segs.length > 1 ? ' g-cell--multi' : ''}" style="${style}" ${act} aria-label="${dd}, ${esc(segs.map((x) => x.room.name).join(' и '))}">
+      cells.push(`<button type="button" class="g-cell g-cell--work${sel ? ' is-sel' : ''}${segs.length > 1 ? ' g-cell--multi' : ''}${hAdd.has(date) ? ' g-cell--hadd' : ''}${hDel.has(date) ? ' g-cell--hchg' : ''}" style="${style}" ${act} aria-label="${dd}, ${esc(segs.map((x) => x.room.name).join(' и '))}">
         ${bars}<b>${dd}</b>${text}</button>`);
     } else {
       const meas = s.mode === 'measure' ? measuresOn(date) + (s.measure === date ? 1 : 0) : 0;
-      cells.push(`<button type="button" class="g-cell" ${act} aria-label="${dd}"><b>${dd}</b>${meas ? `<i class="g-badge">${meas}</i>` : ''}</button>`);
+      cells.push(`<button type="button" class="g-cell${hDel.has(date) ? ' g-cell--hdel' : ''}" ${act} aria-label="${dd}${hDel.has(date) ? ', бронь снята' : ''}"><b>${dd}</b>${meas ? `<i class="g-badge">${meas}</i>` : ''}${hDel.has(date) ? '<span class="g-hint-x">снять</span>' : ''}</button>`);
     }
   }
   return `<div class="g-month"><button type="button" class="f-icon-btn g-prev" data-action="g-month" data-d="-1" aria-label="Предыдущий месяц">${CHEV}</button>
@@ -134,6 +141,7 @@ function calendar(s, rooms, lay, locked) {
 
 export function renderSchedule(d) {
   const s = sch(d);
+  if (d.schedHint && !d.schedHint.shown) { const f = [...d.schedHint.removed, ...d.schedHint.added].sort()[0]; if (f) s.month = f.slice(0, 7); d.schedHint.shown = true; }
   const rooms = estimateRooms(d).filter((r) => roomTotals(r).hours > 0);
   const lay = layout(s, rooms);
   const locked = s.status === 'saved';
@@ -155,7 +163,12 @@ export function renderSchedule(d) {
   const status = editing ? '<span class="f-status f-status--warn g-status"><i></i>редактирование</span>' : locked ? '<span class="f-status f-status--ok g-status"><i></i>сохранено</span>' : '';
   return `<i class="f-one" hidden></i><div class="g-screen f-fill"><button type="button" class="o-row g-mode" role="switch" aria-checked="${s.mode === 'measure'}" data-action="g-mode"><span class="o-row__name">Замеры</span><span class="o-tog${s.mode === 'measure' ? ' is-on' : ''}" aria-hidden="true"><i></i></span></button>
     ${todo}
-    <section class="f-plate g-plate"><p class="g-plate__t">Запланированы</p>${status}${calendar(s, rooms, lay, locked)}</section>
+    ${d.schedHint ? `<section class="g-hint"><b>Объём изменился — проверьте график</b>
+      ${d.schedHint.removed.length ? `<span><i class="g-hint__dot g-hint__dot--del"></i>Освободились: ${d.schedHint.removed.map((x) => Number(x.slice(8)) + '.' + x.slice(5, 7)).join(', ')} — снимите бронь у клиента</span>` : ''}
+      ${d.schedHint.added.length ? `<span><i class="g-hint__dot g-hint__dot--add"></i>Новые дни работ: ${d.schedHint.added.map((x) => Number(x.slice(8)) + '.' + x.slice(5, 7)).join(', ')}</span>` : ''}
+      ${pending.length ? `<span><i class="g-hint__dot g-hint__dot--new"></i>Без даты: ${pending.map((r) => esc(r.name)).join(', ')} — поставьте в календарь</span>` : ''}
+      <small>Проверьте и нажмите «ОК».</small></section>` : ''}
+    <section class="f-plate g-plate"><p class="g-plate__t">Запланированы</p>${status}${calendar(s, rooms, lay, locked, d.schedHint)}</section>
     <div class="f-btn-row">
       <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="g-ok" ${!locked && !s.dirty && s.status !== 'editing' ? 'disabled' : ''}>ОК</button>
       ${s.status !== 'new' ? `<button type="button" class="f-btn${s.status === 'editing' ? ' f-btn--editing' : ''}" data-action="g-edit">${s.status === 'editing' ? 'Редактирование' : 'Редактировать'}</button>` : ''}
@@ -236,7 +249,7 @@ actions['g-ok'] = () => {
   const d = S.get().oformit[S.draftKey()];
   const rooms = estimateRooms(d).filter((r) => s.place[r.key]).map((r) => `${r.name} с ${Number(s.place[r.key].slice(8))}.${s.place[r.key].slice(5, 7)}`);
   logEvent(d, 'Изменён график', [...rooms, s.measure ? `замер ${Number(s.measure.slice(8))}.${s.measure.slice(5, 7)}` : ''].filter(Boolean).join(', '));
-  s.status = 'saved'; s.dirty = false; s.sel = ''; s.picks = []; save();
+  s.status = 'saved'; s.dirty = false; s.sel = ''; s.picks = []; delete d.schedHint; save();
   document.dispatchEvent(new CustomEvent('section-saved', { detail: 'schedule' }));
 };
 actions['g-edit'] = () => { const s = D(); if (s.status === 'saved') { s.status = 'editing'; save(); } };

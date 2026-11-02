@@ -3,13 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=103';
-import * as S from './store.js?v=103';
-import { renderOformit, oformitDraft } from './oformit.js?v=103';
-import { roomTotals, svcInfo } from './ocenka.js?v=103';
-import { smetaTotals } from './zakaz.js?v=103';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=103';
-import { esc, toast } from './ui.js?v=103';
+import { actions, rerender, go } from './core.js?v=104';
+import * as S from './store.js?v=104';
+import { renderOformit, oformitDraft } from './oformit.js?v=104';
+import { roomTotals, svcInfo } from './ocenka.js?v=104';
+import { smetaTotals } from './zakaz.js?v=104';
+import { bookedDays } from './grafik.js?v=104';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=104';
+import { esc, toast } from './ui.js?v=104';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -258,12 +259,27 @@ document.addEventListener('section-saved', (ev) => {
   }
   const same = editSnap && editSnap.t === ev.detail && essence(d, ev.detail) === editSnap.essence;
   if (same) { Object.assign(d, clone(editSnap.data)); S.save(); }
+  // Изменили объёмы или комнаты в «Оценке» — сразу ведём в «График»: показываем, какие дни освободились
+  // (снять бронь), какие добавились и какие комнаты остались без даты.
+  if (!same && ev.detail === 'estimate' && editSnap) {
+    const before = bookedDays(d, ((editSnap.data.est || {}).rooms) || []);
+    const after = bookedDays(d, (d.est && d.est.rooms) || []);
+    const key = (o, k) => JSON.stringify(o[k] || []);
+    const removed = Object.keys(before).filter((k) => !after[k]).sort(); // день освободился — снять бронь
+    const added = Object.keys(after).filter((k) => !before[k] || key(before, k) !== key(after, k)).sort(); // новый или изменившийся день
+    d.schedHint = { removed, added };
+    if (d.sched) { d.sched.status = 'editing'; d.sched.dirty = true; }
+    S.save(); editSnap = null;
+    setTimeout(() => bigNote('✓ Сохранено — проверьте график'), 30);
+    setTimeout(() => { startEdit = 'schedule'; go(`bd-edit-${m[1]}-schedule`); setTimeout(hideBig, 400); }, 900);
+    return;
+  }
   editSnap = null;
   setTimeout(() => bigNote(same ? 'Без изменений' : '✓ Сохранено'), ev.detail === 'estimate' ? 30 : 0);
   setTimeout(() => { go('bd-order-' + m[1]); setTimeout(hideBig, 400); }, 650);
 });
 actions['bd-cancel'] = (el) => {
-  const d = oformitDraft();
+  const d = oformitDraft(); delete d.schedHint;
   if (editSnap) { Object.assign(d, clone(editSnap.data)); S.save(); }
   editSnap = null;
   bigNote('Отменено');

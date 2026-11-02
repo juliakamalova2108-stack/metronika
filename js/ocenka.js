@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=103';
-import * as S from './store.js?v=103';
-import { SYSTEM_PRICE } from './seed.js?v=103';
-import { shiftsText, hoursFor } from './calc.js?v=103';
-import { esc, toast } from './ui.js?v=103';
-import { logEvent } from './zlog.js?v=103';
+import { actions, rerender } from './core.js?v=104';
+import * as S from './store.js?v=104';
+import { SYSTEM_PRICE } from './seed.js?v=104';
+import { shiftsText, hoursFor } from './calc.js?v=104';
+import { esc, toast } from './ui.js?v=104';
+import { logEvent } from './zlog.js?v=104';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -161,7 +161,7 @@ function svcCard(l, locked, changed = false, err = false) {
 const sameOn = (r) => r.same !== false;
 function sameCard(r, locked) {
   const on = sameOn(r); const ro = locked || !on;
-  return `<section class="f-plate o-same${on ? '' : ' is-off'}">
+  return `<section class="o-same o-same--v2${on ? '' : ' is-off'}" style="--rc:${r.color || '#7c8f8a'}">
     <div class="o-svc">
       <label class="o-qty${ro ? ' is-locked' : ''}"><input id="o-same-q" inputmode="decimal" value="${r.sameQty ? esc(numTxt(r.sameQty)) : ''}" placeholder="—" ${ro ? 'readonly' : ''} data-live="o-same" aria-label="Одинаковый объём, м²"/><span>м²</span></label>
       <span class="o-svc__t"><span class="o-svc__n">Одинаковый объём</span><small>${on ? 'заливается во все услуги' : 'выключен — каждая услуга отдельно'}</small></span>
@@ -377,6 +377,10 @@ actions['o-confirm-yes'] = () => {
     const gone = roomOf(e, c.key);
     e.rooms = e.rooms.filter((r) => r.key !== c.key); if (e.view === c.key) e.view = 'pick'; if (!e.rooms.length) e.picking = false; if (e.back === c.key) e.back = '';
     if (gone) { showNote(`<i class="o-note-big__ico o-note-big__ico--del">✓</i><b>${esc(gone.name)}</b><span>удалена</span>`, gone.color || '#7c8f8a'); setTimeout(hideNote, 1000); }
+    save();
+    // Удаление комнаты меняет объём — как сохранение (в правке заказа с доски это ведёт в «График»).
+    if (gone && e.rooms.length) setTimeout(() => document.dispatchEvent(new CustomEvent('section-saved', { detail: 'estimate' })), 900);
+    return;
   }
   if (c.kind === 'svc') { const r = roomOf(e, e.view); r.svcs = r.svcs.filter((x) => x.id !== c.id); if (r.pick) r.pick = r.pick.filter((x) => x !== c.id); if (r.status === 'saved') r.status = 'editing'; }
   save();
