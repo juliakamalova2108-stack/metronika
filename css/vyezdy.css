@@ -1133,3 +1133,8 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-rplate .o-rhead::before { left: 2px; top: 4px; bottom: 2px; width: 5px; }
 .o-rplate .o-same-wrap .o-same.o-same--v2 { margin: 0; }
 .o-rplate:not(:has(.o-same)) { padding-bottom: 8px; }
+/* Палочка цвета комнаты — на всю высоту пластины: связывает название и строку «Одинаковый объём». */
+.o-rplate { position: relative; }
+.o-rplate .o-rhead::before { display: none; }
+.o-rplate::before { content: ''; position: absolute; left: 2px; top: 12px; bottom: 12px; width: 4px; border-radius: 2px; background: var(--rc); box-shadow: 0 0 10px var(--rc); z-index: 2; }
+.o-rplate .o-rhead { padding-left: 10px; }
