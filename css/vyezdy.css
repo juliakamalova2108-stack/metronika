@@ -979,3 +979,50 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-chip i { flex: none; width: 4px; height: 22px; border-radius: 2px; background: var(--rc); }
 .o-chip:active { background: #36504f; }
 .o-chip { font-size: 13px; padding: 0 7px; gap: 7px; letter-spacing: -0.01em; }
+/* Пока открыт «+»: карточки комнат чуть притушены, в углу — корзина для удаления. */
+.o-pvs { scroll-padding-left: 4px; }
+.o-pvs.is-edit .o-pv { background: rgba(255, 255, 255, 0.04); }
+.o-pvs.is-edit .o-pv > :not(.o-pv__del) { opacity: .7; }
+.o-pv__del { position: absolute; right: 6px; top: 6px; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; z-index: 2;
+  background: rgba(229, 72, 77, 0.92); color: #fff; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3); animation: oDelIn .25s cubic-bezier(.3, 1.4, .5, 1) both; }
+.o-pv__del svg { width: 17px; height: 17px; }
+.o-pv__del:active { transform: scale(.9); }
+@keyframes oDelIn { from { transform: scale(0); opacity: 0; } }
+/* Выбор работ — плитками, как выбор комнат: нажатие включает/выключает, выбранная подсвечена цветом комнаты. */
+.o-chips--svc { grid-template-columns: repeat(2, 1fr); margin-bottom: 12px; }
+.o-chip--svc { height: 56px; padding: 0 10px 0 12px; white-space: normal; font-size: 14px; }
+.o-chip__t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; text-align: left; }
+.o-chip__t span { font: 500 13.5px/16px var(--font-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o-chip__t small { font: 400 11px/13px var(--font-body); color: rgba(237, 240, 231, 0.6); }
+.o-chip__ok { flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font: 700 11px/1 var(--font-body); font-style: normal;
+  border: 1.5px solid rgba(237, 240, 231, 0.35); color: transparent; }
+.o-chip--svc.is-on { background: color-mix(in srgb, var(--rc) 45%, #213839); border-color: color-mix(in srgb, var(--rc) 70%, #fff); box-shadow: 0 0 10px color-mix(in srgb, var(--rc) 35%, transparent), inset 0 1px 1px rgba(224, 242, 227, 0.36); }
+.o-chip--svc.is-on small { color: rgba(255, 255, 255, 0.8); }
+.o-chip--svc.is-on .o-chip__ok { background: #fff; border-color: #fff; color: var(--rc); }
+.o-chip .o-chip__ok { width: 20px; height: 20px; border-radius: 50%; background: none; }
+.o-chip--svc.is-on .o-chip__ok { background: #fff; }
+/* «Сохранена» / «удалена» в оценке — стеклянная карточка, как превью комнат в полосе. */
+.o-note-big--glass .o-note-big__plate { position: relative; isolation: isolate; overflow: hidden; min-width: 230px; padding: 26px 34px 24px; border-radius: 22px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
+  background: rgba(36, 58, 59, 0.78); border: 1px solid rgba(255, 255, 255, 0.45); backdrop-filter: blur(22px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5), 0 0 0 2px color-mix(in srgb, var(--rc) 70%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
+.o-note-big--glass .o-note-big__plate::before { content: ''; position: absolute; z-index: -1; width: 170px; height: 170px; right: -50px; top: -60px; border-radius: 50%; background: var(--rc); filter: blur(40px); opacity: .85; }
+.o-note-big--glass .o-note-big__plate b { font: 700 30px/34px var(--font-num); color: #fff; }
+.o-note-big--glass .o-note-big__plate span { font: 500 16px/20px var(--font-body); color: rgba(255, 255, 255, 0.85); }
+.o-note-big__ico { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font: 700 22px/1 var(--font-body); font-style: normal; color: #fff;
+  background: #3c8f5f; box-shadow: 0 0 18px rgba(60, 143, 95, 0.7); margin-bottom: 4px; }
+.o-note-big__ico--del { background: #6b7b7a; box-shadow: none; }
+
+/* «Одинаковый объём» — главное поле комнаты: светлая плашка, крупное поле, тянет внимание на себя. */
+.o-same { position: relative; padding: 10px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.7);
+  background: linear-gradient(180deg, #eef6dc, #cfe0b4); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 22px rgba(230, 242, 204, 0.25), inset 0 1px 0 #fff; }
+.o-same .o-svc { background: none; border: 0; box-shadow: none; padding: 0; }
+.o-same .o-svc__n { color: #13292b; font-weight: 700; font-size: 17px; }
+.o-same .o-svc__t small { color: rgba(19, 41, 43, 0.7); }
+.o-same .o-qty { width: 92px; height: 56px; background: #213839; border-color: rgba(6, 18, 20, 0.8); box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55); }
+.o-same .o-qty input { color: #fff; font-size: 24px; font-weight: 700; }
+.o-same .o-qty span { color: rgba(237, 240, 231, 0.7); }
+.o-same .o-tog { background: rgba(19, 41, 43, 0.35); }
+.o-same .o-tog.is-on { background: #2f7a4d; }
+.o-same.is-off { background: linear-gradient(180deg, #8e9e94, #7b8b82); box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35); border-color: rgba(255, 255, 255, 0.35); }
+.o-same .o-svc { grid-template-columns: 92px minmax(0, 1fr) auto; height: 60px; }

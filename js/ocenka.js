@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=97';
-import * as S from './store.js?v=97';
-import { SYSTEM_PRICE } from './seed.js?v=97';
-import { shiftsText, hoursFor } from './calc.js?v=97';
-import { esc, toast } from './ui.js?v=97';
-import { logEvent } from './zlog.js?v=97';
+import { actions, rerender } from './core.js?v=99';
+import * as S from './store.js?v=99';
+import { SYSTEM_PRICE } from './seed.js?v=99';
+import { shiftsText, hoursFor } from './calc.js?v=99';
+import { esc, toast } from './ui.js?v=99';
+import { logEvent } from './zlog.js?v=99';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -50,6 +50,7 @@ export function svcInfo(id) {
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const numTxt = (n) => String(n).replace('.', ',');
+const TRASH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 7h15M10 4h4M6.5 7l.9 12a1.5 1.5 0 0 0 1.5 1.4h6.2a1.5 1.5 0 0 0 1.5-1.4l.9-12M10 11v5.5M14 11v5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const CALC_ICON = '<span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span>';
 
 function est(d) {
@@ -92,14 +93,14 @@ function carousel(e, tabs) {
     const t = roomTotals(r);
     const m2 = Math.max(0, ...r.svcs.map((x) => x.qty || 0));
     return `<button type="button" class="o-pv${e.view === r.key ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="o-view" data-key="${r.key}">
-      <b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${m2 ? numTxt(m2) : '—'}<small> м²</small></span><span class="o-pv__s">${fmt(t.total)} ₽</span>${r.status === 'saved' ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}</button>`;
+      <b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${m2 ? numTxt(m2) : '—'}<small> м²</small></span><span class="o-pv__s">${fmt(t.total)} ₽</span>${r.status === 'saved' && !adding ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}${adding ? `<span class="o-pv__del" data-action="o-room-del" data-key="${r.key}" role="button" aria-label="Удалить ${esc(r.name)}">${TRASH}</span>` : ''}</button>`;
   }).join('');
   const total = e.rooms.length ? (() => { const sum = e.rooms.reduce((a, r) => a + roomTotals(r).total, 0);
     return `<button type="button" class="o-pv o-pv--sum${e.view === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="o-view" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(sum)}<small> ₽</small></span><span class="o-pv__s">${e.rooms.length} ${plural(e.rooms.length, 'комната', 'комнаты', 'комнат')}</span></button>`; })() : '';
   const r = roomOf(e, e.view);
   const head = tabs && r ? `<div class="o-rhead" style="--rc:${r.color || '#7c8f8a'}"><span class="o-rhead__t"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span><span class="o-rhead__b">${tabs}</span></div>` : '';
   return `<div class="o-pvbar"><button type="button" class="o-pv-add${adding && e.rooms.length ? ' is-open' : ''}" data-action="o-add" aria-label="${adding ? 'Закрыть выбор комнаты' : 'Добавить комнату'}"><span>+</span></button>
-    <div class="o-pvs" id="o-pvs">${cards}${total}</div></div>${head}`;
+    <div class="o-pvs${adding ? ' is-edit' : ''}" id="o-pvs">${cards}${total}</div></div>${head}`;
 }
 
 // ---------- переключатель ----------
@@ -125,14 +126,15 @@ function servicesView(e, r) {
   const sel = r.pick || r.svcs.map((x) => x.id);
   const added = sel.filter((id) => !r.svcs.some((x) => x.id === id)).length;
   return `${carousel(e, roomTabs(r))}
-    <section class="f-plate o-sheet o-sheet--svc f-fill">
-      <div class="o-list o-list--svc">${SVC.map((s0) => {
+    <section class="f-plate o-sheet o-sheet--chips o-sheet--svc">
+      <p class="o-chips__t">Какие работы в комнате?</p>
+      <div class="o-chips o-chips--svc">${SVC.map((s0) => {
         const s = svcInfo(s0.id);
         const on = sel.includes(s.id);
-        return `<button type="button" class="o-row o-row--svc" role="switch" aria-checked="${on}" data-action="o-svc-toggle" data-id="${s.id}">
-          <span class="o-row__text"><span>${esc(s.name)}</span><small>от ${fmt(s.price)} ₽/м²</small></span>${toggle(on)}</button>`;
+        return `<button type="button" class="o-chip o-chip--svc${on ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" role="switch" aria-checked="${on}" data-action="o-svc-toggle" data-id="${s.id}">
+          <span class="o-chip__t"><span>${esc(SHORT[s.id] || s.name)}</span><small>${fmt(s.price)} ₽/м²</small></span><i class="o-chip__ok" aria-hidden="true">✓</i></button>`;
       }).join('')}</div>
-      <div class="f-btn-row"><button type="button" class="f-btn" data-action="o-svc-done">Добавить выбранные${added ? ` · ${added}` : ''}</button></div>
+      <div class="f-btn-row"><button type="button" class="f-btn" data-action="o-svc-done">${added ? `Добавить · ${added}` : 'Готово'}</button></div>
     </section>`;
 }
 
@@ -265,9 +267,11 @@ const save = () => { S.save(); rerender(); };
 let slide = '';
 let transit = 0; // 1 — «сохранена», 2 — название следующей комнаты; содержимое комнаты в это время скрыто
 let reveal = false; // после перехода содержимое плавно появляется
-function showNote(html) {
+function showNote(html, color) {
   let el = document.getElementById('o-note-big');
   if (!el) { el = document.createElement('div'); el.id = 'o-note-big'; el.className = 'o-note-big'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  // С цветом комнаты — стеклянная карточка, как превью в полосе: матовое стекло и размытое пятно цвета комнаты.
+  el.classList.toggle('o-note-big--glass', !!color); if (color) el.style.setProperty('--rc', color);
   el.innerHTML = `<div class="o-note-big__plate">${html}</div>`;
   el.classList.remove('is-in'); void el.offsetWidth; el.classList.add('is-in');
 }
@@ -280,7 +284,13 @@ function goView(e, key) {
   const r = roomOf(e, e.view); if (r && r.panel === 'calc') r.panel = '';
 }
 actions['o-view'] = (el) => { const e = D(); goView(e, el.dataset.key); save(); window.scrollTo(0, 0); requestAnimationFrame(scrollStrip); };
-function scrollStrip() { const s = document.getElementById('o-pvs'); const on = s && s.querySelector('.o-pv.is-on'); if (on) s.scrollTo({ left: on.offsetLeft - (s.clientWidth - on.offsetWidth) / 2, behavior: 'smooth' }); }
+// Докручиваем полосу ровно настолько, чтобы выбранная карточка была видна целиком — без заезда под «+».
+function scrollStrip() {
+  const s = document.getElementById('o-pvs'); const on = s && s.querySelector('.o-pv.is-on'); if (!on) return;
+  const sr = s.getBoundingClientRect(); const r = on.getBoundingClientRect(); const pad = 4;
+  if (r.left < sr.left + pad) s.scrollBy({ left: r.left - sr.left - pad, behavior: 'smooth' });
+  else if (r.right > sr.right - pad) s.scrollBy({ left: r.right - sr.right + pad, behavior: 'smooth' });
+}
 // Свайп по комнате влево/вправо — соседняя комната (после последней — «Итог»).
 let sx = null; let sy = null;
 document.addEventListener('touchstart', (ev) => { const w = ev.target.closest && ev.target.closest('.o-wrap'); if (!w || ev.target.closest('.o-pvbar, .kb, input, .o-calc')) { sx = null; return; } sx = ev.touches[0].clientX; sy = ev.touches[0].clientY; }, { passive: true });
@@ -318,6 +328,11 @@ actions['o-room-add'] = (el) => {
   save(); window.scrollTo(0, 0);
   requestAnimationFrame(scrollStrip);
 };
+// Корзина на карточке комнаты (видна, пока открыт «+»): спрашиваем и удаляем комнату вместе с работами.
+actions['o-room-del'] = (el) => {
+  const e = D(); const r = roomOf(e, el.dataset.key); if (!r) return;
+  e.confirm = { kind: 'room', key: r.key, title: 'Удалить комнату?', text: `«${r.name}» и её работы будут удалены из оценки.` }; save();
+};
 actions['o-svc-open'] = () => { const e = D(); const r = roomOf(e, e.view); if (r.panel === 'services' && r.svcs.length) { r.pick = null; r.panel = ''; save(); return; } r.pick = r.svcs.map((x) => x.id); r.panel = 'services'; save(); };
 actions['o-svc-toggle'] = (el) => {
   const e = D(); const r = roomOf(e, e.view);
@@ -341,7 +356,11 @@ actions['o-svc-done'] = () => {
 actions['o-confirm-no'] = () => { D().confirm = null; save(); };
 actions['o-confirm-yes'] = () => {
   const e = D(); const c = e.confirm; e.confirm = null;
-  if (c.kind === 'room') { e.rooms = e.rooms.filter((r) => r.key !== c.key); if (e.view === c.key) e.view = 'pick'; }
+  if (c.kind === 'room') {
+    const gone = roomOf(e, c.key);
+    e.rooms = e.rooms.filter((r) => r.key !== c.key); if (e.view === c.key) e.view = 'pick'; if (e.back === c.key) e.back = '';
+    if (gone) { showNote(`<i class="o-note-big__ico o-note-big__ico--del">✓</i><b>${esc(gone.name)}</b><span>удалена</span>`, gone.color || '#7c8f8a'); setTimeout(hideNote, 1000); }
+  }
   if (c.kind === 'svc') { const r = roomOf(e, e.view); r.svcs = r.svcs.filter((x) => x.id !== c.id); if (r.pick) r.pick = r.pick.filter((x) => x !== c.id); if (r.status === 'saved') r.status = 'editing'; }
   save();
 };
@@ -407,7 +426,7 @@ actions['o-ok'] = () => {
   { const t = roomTotals(r); logEvent(S.get().oformit[S.draftKey()], 'Сохранена оценка комнаты', `${r.name}: ${fmt(t.total)} ₽ · ${shiftsText(t.hours)}`); }
   // «Сохранить» → короткое сообщение «✓ Спальня сохранена» на 1 секунду. Никуда не перекидывает —
   // ни на следующую комнату, ни в «Итог»: мастер листает сам.
-  showNote(`<b class="o-note-big__ok">✓ ${esc(r.name)} сохранена</b>`);
+  showNote(`<i class="o-note-big__ico">✓</i><b>${esc(r.name)}</b><span>сохранена · ${fmt(roomTotals(r).total)} ₽</span>`, r.color || '#7c8f8a');
   save();
   document.dispatchEvent(new CustomEvent('section-saved', { detail: 'estimate' }));
   setTimeout(hideNote, 1000);
