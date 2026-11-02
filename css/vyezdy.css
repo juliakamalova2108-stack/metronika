@@ -1144,3 +1144,11 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-rplate .o-rhead { padding-left: 8px; }
 /* Листок даты выровнен по верху карточки. */
 .bd-leaf { top: 0; transform: none; }
+/* Карточка очереди: верх (клиент, адрес, сумма) — светлый, как листок даты; низ листка = разделительная линия карточки. */
+.bd-card:not(.bd-card--free) { padding: 0; gap: 0; overflow: hidden; justify-content: flex-start; }
+.bd-card:not(.bd-card--free) .bd-top { height: 58px; box-sizing: border-box; padding: 8px 10px 0; background: #edf2e8; color: #162c33; }
+.bd-card .bd-who b { color: #13292b; } .bd-card .bd-who small { color: rgba(22, 44, 51, 0.75); } .bd-card .bd-who em { color: #2d6a46; }
+.bd-card .bd-sum b { color: #13292b; } .bd-card .bd-sum small { color: rgba(22, 44, 51, 0.55); }
+.bd-card:not(.bd-card--free) .bd-foot { flex: 1; padding: 0 10px; border-top: 0; }
+.bd-leaf { height: 58px; } .bd-leaf b { margin-top: 1px; line-height: 24px; font-size: 22px; }
+.bd-card.is-today .bd-top { background: #e6f2cc; }
