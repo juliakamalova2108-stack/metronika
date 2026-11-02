@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Палочка комнаты — варианты</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Manrope:wght@400;500;600;700&family=Onest:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/app.css"><link rel="stylesheet" href="../../css/vyezdy.css">
+<style>
+  body.fig .view { padding-bottom: 40px; }
+  .kt { margin: 22px 4px 10px; font: 700 17px/22px var(--font-body); color: #e6f2cc; }
+  .kt:first-child { margin-top: 6px; }
+  .kv::before { display: none !important; }
+  .kv { align-items: stretch; } .kv > * { align-self: stretch; } .kv .o-rhead__t { display: flex; flex-direction: column; align-items: flex-start; text-align: left; } .kv .o-same-wrap, .kv .o-same { width: auto; }
+  .kv .o-rhead { display: flex; align-items: center; } .kv .o-rhead__t { flex: 1; min-width: 0; }
+  .kv .o-rhead { padding-left: 22px !important; position: relative; }
+  /* кромка карточки — у всех трёх */
+  .kv .o-same.o-same--v2 .o-svc { border-left: 5px solid var(--rc); padding-left: 7px; }
+  /* 1: стебелёк из кромки вверх до названия */
+  .kv1 .o-rhead::after { content: ''; position: absolute; left: 0; top: 6px; bottom: -10px; width: 5px; border-radius: 3px 3px 0 0; background: var(--rc); box-shadow: 0 0 8px color-mix(in srgb, var(--rc) 60%, transparent); }
+  /* 2: стебелёк + кружок-булавка наверху */
+  .kv2 .o-rhead::after { content: ''; position: absolute; left: 0; top: 14px; bottom: -10px; width: 5px; background: var(--rc); box-shadow: 0 0 8px color-mix(in srgb, var(--rc) 60%, transparent); }
+  .kv2 .o-rhead::before { content: ''; display: block !important; position: absolute; left: -4.5px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: var(--rc); box-shadow: 0 0 10px var(--rc); }
+  /* 3: без соединения — короткая палочка у названия на той же вертикали */
+  .kv3 .o-rhead::after { content: ''; position: absolute; left: 0; top: 6px; height: 40px; width: 5px; border-radius: 3px; background: var(--rc); box-shadow: 0 0 8px color-mix(in srgb, var(--rc) 60%, transparent); }
+</style></head>
+<body class="fig"><div class="app"><main class="view"><div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><div class="o-wrap">
+<p class="kt">1. Стебелёк из кромки карточки</p>
+<section class="f-plate o-rplate kv kv1" style="--rc:#3b82f6">
+  <div class="o-rhead"><span class="o-rhead__t"><b>Спальня</b><small>1 этаж</small></span><span class="o-rhead__b"><button class="o-ib">+</button><button class="o-ib"><span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span></button></span></div>
+  <div class="o-same-wrap"><section class="o-same o-same--v2" style="--rc:#3b82f6"><div class="o-svc">
+    <label class="o-qty"><input value="18" readonly><span>м²</span></label>
+    <span class="o-svc__t"><span class="o-svc__n">Одинаковый объём</span><small>заливается во все услуги</small></span>
+    <span class="o-same__tog"><span class="o-tog is-on"><i></i></span></span></div></section></div>
+</section>
+<section class="f-plate o-room o-room--rows is-same" style="--rc:#3b82f6">
+  <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Грунтовка стен</span><small>100 ₽/м² · 3 ч</small></span><b class="o-svc__s">1 800 ₽</b></div>
+  <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Поклейка флиз. обоев</span><small>330 ₽/м² · 1 день</small></span><b class="o-svc__s">5 940 ₽</b></div>
+</section>
+<p class="kt">2. Стебелёк с кружком-булавкой</p>
+<section class="f-plate o-rplate kv kv2" style="--rc:#3b82f6">
+  <div class="o-rhead"><span class="o-rhead__t"><b>Спальня</b><small>1 этаж</small></span><span class="o-rhead__b"><button class="o-ib">+</button><button class="o-ib"><span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span></button></span></div>
+  <div class="o-same-wrap"><section class="o-same o-same--v2" style="--rc:#3b82f6"><div class="o-svc">
+    <label class="o-qty"><input value="18" readonly><span>м²</span></label>
+    <span class="o-svc__t"><span class="o-svc__n">Одинаковый объём</span><small>заливается во все услуги</small></span>
+    <span class="o-same__tog"><span class="o-tog is-on"><i></i></span></span></div></section></div>
+</section>
+<section class="f-plate o-room o-room--rows is-same" style="--rc:#3b82f6">
+  <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Грунтовка стен</span><small>100 ₽/м² · 3 ч</small></span><b class="o-svc__s">1 800 ₽</b></div>
+  <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Поклейка флиз. обоев</span><small>330 ₽/м² · 1 день</small></span><b class="o-svc__s">5 940 ₽</b></div>
+</section>
+<p class="kt">3. Без соединения — палочка и кромка на одной линии</p>
+<section class="f-plate o-rplate kv kv3" style="--rc:#3b82f6">
+  <div class="o-rhead"><span class="o-rhead__t"><b>Спальня</b><small>1 этаж</small></span><span class="o-rhead__b"><button class="o-ib">+</button><button class="o-ib"><span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span></button></span></div>
+  <div class="o-same-wrap"><section class="o-same o-same--v2" style="--rc:#3b82f6"><div class="o-svc">
+    <label class="o-qty"><input value="18" readonly><span>м²</span></label>
+    <span class="o-svc__t"><span class="o-svc__n">Одинаковый объём</span><small>заливается во все услуги</small></span>
+    <span class="o-same__tog"><span class="o-tog is-on"><i></i></span></span></div></section></div>
+</section>
+<section class="f-plate o-room o-room--rows is-same" style="--rc:#3b82f6">
+  <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Грунтовка стен</span><small>100 ₽/м² · 3 ч</small></span><b class="o-svc__s">1 800 ₽</b></div>
+  <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Поклейка флиз. обоев</span><small>330 ₽/м² · 1 день</small></span><b class="o-svc__s">5 940 ₽</b></div>
+</section>
+</div></main></div></body></html>
