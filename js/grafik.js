@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=122';
-import * as S from './store.js?v=122';
-import { SHIFT_HOURS } from './calc.js?v=122';
-import { esc, toast } from './ui.js?v=122';
-import { logEvent } from './zlog.js?v=122';
-import { estimateRooms, roomTotals } from './ocenka.js?v=122';
+import { actions, rerender } from './core.js?v=123';
+import * as S from './store.js?v=123';
+import { SHIFT_HOURS } from './calc.js?v=123';
+import { esc, toast } from './ui.js?v=123';
+import { logEvent } from './zlog.js?v=123';
+import { estimateRooms, roomTotals } from './ocenka.js?v=123';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -130,7 +130,7 @@ function calendar(s, rooms, lay, locked, hint) {
         ${bars}<b>${dd}</b>${text}</button>`);
     } else {
       const meas = s.mode === 'measure' ? measuresOn(date) + (s.measure === date ? 1 : 0) : 0;
-      cells.push(`<button type="button" class="g-cell${hDel.has(date) ? ' g-cell--hdel' : ''}" ${act} aria-label="${dd}${hDel.has(date) ? ', бронь снята' : ''}"><b>${dd}</b>${meas ? `<i class="g-badge" aria-label="замер${meas > 1 ? ": " + meas : ""}">Z</i>` : ''}${hDel.has(date) ? '<span class="g-hint-x">снять</span>' : ''}</button>`);
+      cells.push(`<button type="button" class="g-cell${hDel.has(date) ? ' g-cell--hdel' : ''}" ${act} aria-label="${dd}${hDel.has(date) ? ', бронь снята' : ''}"><b>${dd}</b>${meas ? `<i class="g-badge" aria-label="замер${meas > 1 ? ": " + meas : ""}">З</i>` : ''}${hDel.has(date) ? '<span class="g-hint-x">снять</span>' : ''}</button>`);
     }
   }
   return `<div class="g-month"><button type="button" class="f-icon-btn g-prev" data-action="g-month" data-d="-1" aria-label="Предыдущий месяц">${CHEV}</button>

@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=122';
-import * as S from './store.js?v=122';
-import { renderOformit, oformitDraft } from './oformit.js?v=122';
-import { roomTotals, svcInfo } from './ocenka.js?v=122';
-import { smetaTotals } from './zakaz.js?v=122';
-import { bookedDays } from './grafik.js?v=122';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=122';
-import { esc, toast } from './ui.js?v=122';
+import { actions, rerender, go } from './core.js?v=123';
+import * as S from './store.js?v=123';
+import { renderOformit, oformitDraft } from './oformit.js?v=123';
+import { roomTotals, svcInfo } from './ocenka.js?v=123';
+import { smetaTotals } from './zakaz.js?v=123';
+import { bookedDays } from './grafik.js?v=123';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=123';
+import { esc, toast } from './ui.js?v=123';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
