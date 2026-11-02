@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=100';
-import * as S from './store.js?v=100';
-import { SYSTEM_PRICE } from './seed.js?v=100';
-import { shiftsText, hoursFor } from './calc.js?v=100';
-import { esc, toast } from './ui.js?v=100';
-import { logEvent } from './zlog.js?v=100';
+import { actions, rerender } from './core.js?v=101';
+import * as S from './store.js?v=101';
+import { SYSTEM_PRICE } from './seed.js?v=101';
+import { shiftsText, hoursFor } from './calc.js?v=101';
+import { esc, toast } from './ui.js?v=101';
+import { logEvent } from './zlog.js?v=101';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -92,14 +92,14 @@ function carousel(e, tabs) {
   const cards = e.rooms.map((r) => {
     const t = roomTotals(r);
     return `<button type="button" class="o-pv${e.view === r.key ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="o-view" data-key="${r.key}">
-      <b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span>${r.status === 'saved' && !adding ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}${adding ? `<span class="o-pv__del" data-action="o-room-del" data-key="${r.key}" role="button" aria-label="Удалить ${esc(r.name)}">${TRASH}</span>` : ''}</button>`;
+      <b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span>${r.status === 'saved' ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}</button>`;
   }).join('');
   const total = e.rooms.length ? (() => { const sum = e.rooms.reduce((a, r) => a + roomTotals(r).total, 0);
     return `<button type="button" class="o-pv o-pv--sum${e.view === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="o-view" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(sum)}<small> ₽</small></span></button>`; })() : '';
   const r = roomOf(e, e.view);
   const head = tabs && r ? `<div class="o-rhead" style="--rc:${r.color || '#7c8f8a'}"><span class="o-rhead__t"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span><span class="o-rhead__b">${tabs}</span></div>` : '';
   return `<div class="o-pvbar"><button type="button" class="o-pv-add${adding && e.rooms.length ? ' is-open' : ''}" data-action="o-add" aria-label="${adding ? 'Закрыть выбор комнаты' : 'Добавить комнату'}"><span>+</span></button>
-    <div class="o-pvs${adding ? ' is-edit' : ''}" id="o-pvs">${cards}${total}</div></div>${head}`;
+    <div class="o-pvs" id="o-pvs">${cards}${total}</div></div>${head}`;
 }
 
 // ---------- переключатель ----------
@@ -107,7 +107,11 @@ const toggle = (on) => `<span class="o-tog${on ? ' is-on' : ''}" aria-hidden="tr
 
 // ---------- экраны ----------
 function pickView(e) {
-  const list = ROOMS.map(([name, color]) => `<button type="button" class="o-chip" style="--rc:${color}" data-action="o-room-add" data-name="${esc(name)}"><i></i>${esc(name)}</button>`).join('');
+  // Комната уже есть на этом этаже — плитка горит цветом комнаты, справа корзина (удалить).
+  const list = ROOMS.map(([name, color]) => {
+    const has = e.rooms.filter((r) => r.floor === e.floor && (r.base || r.name) === name);
+    return `<div class="o-chip${has.length ? ' is-on' : ''}" style="--rc:${color}"><button type="button" class="o-chip__add" data-action="o-room-add" data-name="${esc(name)}"><i></i><span>${esc(name)}${has.length > 1 ? ` <small>×${has.length}</small>` : ''}</span></button>${has.length ? `<button type="button" class="o-chip__del" data-action="o-room-del" data-key="${has[has.length - 1].key}" aria-label="Удалить ${esc(has[has.length - 1].name)}">${TRASH}</button>` : ''}</div>`;
+  }).join('');
   return `${carousel(e)}
     <section class="f-plate o-sheet o-sheet--chips">
       <p class="o-chips__t">${e.rooms.length ? 'Какую комнату добавить?' : 'В какой комнате вы стоите?'}</p>
@@ -244,8 +248,8 @@ export function renderEstimate(d) {
   if (e.view === 'total' && carouselItems(e).some((x) => x.key === 'total')) html = totalView(e);
   else {
     const r = roomOf(e, e.view);
-    if (!r) { e.view = 'pick'; html = pickView(e); one = true; }
-    else if (r.panel === 'services') { html = servicesView(e, r); one = true; } // список услуг — как выбор комнат: кнопка всегда внизу
+    if (!r) { e.view = 'pick'; html = pickView(e); }
+    else if (r.panel === 'services') html = servicesView(e, r); // плитки работ — экран прокручивается до кнопки
     else if (r.panel === 'calc') html = calcView(e, r);
     else if (r.svcs.length) html = volumesView(e, r);
     else { html = `${carousel(e, roomTabs(r))}<p class="o-empty">Нажмите «+» справа, чтобы выбрать работы</p>`; one = true; }
@@ -333,6 +337,7 @@ actions['o-room-del'] = (el) => {
   e.confirm = { kind: 'room', key: r.key, title: 'Удалить комнату?', text: `«${r.name}» и её работы будут удалены из оценки.` }; save();
 };
 actions['o-svc-open'] = () => { const e = D(); const r = roomOf(e, e.view); if (r.panel === 'services' && r.svcs.length) { r.pick = null; r.panel = ''; save(); return; } r.pick = r.svcs.map((x) => x.id); r.panel = 'services'; save(); };
+// Нажатие на плитку работы — меняем только эту плитку и надпись на кнопке, без перерисовки экрана (быстро).
 actions['o-svc-toggle'] = (el) => {
   const e = D(); const r = roomOf(e, e.view);
   const id = el.dataset.id;
@@ -341,7 +346,10 @@ actions['o-svc-toggle'] = (el) => {
     if (r.svcs.some((x) => x.id === id)) { e.confirm = { kind: 'svc', id, title: 'Удалить услугу?', text: `${svcInfo(id).name} и её объём будут удалены из комнаты.` }; save(); return; }
     r.pick = r.pick.filter((x) => x !== id);
   } else r.pick.push(id);
-  save();
+  const on = r.pick.includes(id);
+  el.classList.toggle('is-on', on); el.setAttribute('aria-checked', String(on));
+  const added = r.pick.filter((x) => !r.svcs.some((s) => s.id === x)).length;
+  const btn = document.querySelector('[data-action="o-svc-done"]'); if (btn) btn.textContent = added ? `Добавить · ${added}` : 'Готово';
 };
 actions['o-svc-done'] = () => {
   const e = D(); const r = roomOf(e, e.view);

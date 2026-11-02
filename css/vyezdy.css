@@ -1032,3 +1032,21 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-pv--sum .o-pv__m { font-size: 18px; }
 .o-pv__ok { right: 8px; top: 8px; bottom: auto; }
 .o-pv__n { padding-right: 18px; }
+/* Плитка комнаты в выборе: без индикации, пока комнаты нет; есть — горит цветом слева и корзина справа. */
+.o-chip { padding: 0; gap: 0; }
+.o-chip__add { flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; gap: 7px; padding: 0 8px; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; text-align: left; }
+.o-chip__add span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .o-chip__add small { font-size: 11px; opacity: .8; }
+.o-chip__add i { flex: none; width: 4px; height: 22px; border-radius: 2px; background: rgba(237, 240, 231, 0.18); transition: background .2s, box-shadow .2s; }
+.o-chip.is-on { border-color: color-mix(in srgb, var(--rc) 70%, #fff); background: color-mix(in srgb, var(--rc) 22%, #213839); }
+.o-chip.is-on .o-chip__add i { background: var(--rc); box-shadow: 0 0 8px var(--rc); }
+.o-chip__del { flex: none; width: 34px; height: 100%; display: grid; place-items: center; border: 0; border-left: 1px solid rgba(255, 255, 255, 0.15); background: rgba(229, 72, 77, 0.85); color: #fff; cursor: pointer; padding: 0; }
+.o-chip__del svg { width: 17px; height: 17px; }
+.o-chip__del:active { background: #c23a3f; }
+/* Быстрее на телефоне: без размытия под карточками полосы (дорого при прокрутке). */
+.o-pv { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(255, 255, 255, 0.07); }
+.o-pv.is-on { background: rgba(255, 255, 255, 0.14); }
+.o-chip--svc { padding: 0 10px 0 12px; gap: 8px; }
+.o-chip__add { padding: 0 6px 0 7px; gap: 6px; }
+.o-chip__del { width: 28px; } .o-chip__del svg { width: 15px; height: 15px; }
+.o-chip.is-on .o-chip__add { letter-spacing: -0.02em; }
+.o-chip.is-on .o-chip__add { font-size: 12.5px; } .o-chips { gap: 5px; }
