@@ -1127,3 +1127,9 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-rhead::before { content: ''; position: absolute; left: 8px; top: 9px; bottom: 9px; width: 5px; border-radius: 3px; background: var(--rc); box-shadow: 0 0 10px var(--rc); }
 .o-rhead__t b { font-size: 22px; line-height: 26px; }
 .o-rhead .o-ib { width: 44px; height: 44px; }
+/* Пластина комнаты (как пластина работ): шапка сверху, внутри — строка «Одинаковый объём». */
+.o-rplate { padding: 8px; gap: 8px; margin-bottom: 10px; }
+.o-rplate .o-rhead { margin: 0; min-height: 0; padding: 4px 2px 2px 16px; border: 0; background: none; box-shadow: none; }
+.o-rplate .o-rhead::before { left: 2px; top: 4px; bottom: 2px; width: 5px; }
+.o-rplate .o-same-wrap .o-same.o-same--v2 { margin: 0; }
+.o-rplate:not(:has(.o-same)) { padding-bottom: 8px; }

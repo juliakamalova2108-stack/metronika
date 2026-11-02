@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=108';
-import * as S from './store.js?v=108';
-import { SYSTEM_PRICE } from './seed.js?v=108';
-import { shiftsText, hoursFor } from './calc.js?v=108';
-import { esc, toast } from './ui.js?v=108';
-import { logEvent } from './zlog.js?v=108';
+import { actions, rerender } from './core.js?v=109';
+import * as S from './store.js?v=109';
+import { SYSTEM_PRICE } from './seed.js?v=109';
+import { shiftsText, hoursFor } from './calc.js?v=109';
+import { esc, toast } from './ui.js?v=109';
+import { logEvent } from './zlog.js?v=109';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -87,7 +87,7 @@ const plural = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : [2, 3, 4].i
 
 // Полоса сверху: слева «+» (добавить комнату), дальше комнаты карточками-превью «стекло»
 // (название, метры, сумма) и «Итог». Выбранная приподнята и обведена цветом комнаты.
-function carousel(e, tabs) {
+function carousel(e, tabs, inner = '') {
   const adding = e.view === 'pick';
   const cards = e.rooms.map((r) => {
     const t = roomTotals(r);
@@ -97,7 +97,8 @@ function carousel(e, tabs) {
   const total = e.rooms.length ? (() => { const sum = e.rooms.reduce((a, r) => a + roomTotals(r).total, 0);
     return `<button type="button" class="o-pv o-pv--sum${e.view === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="o-view" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(sum)}<small> ₽</small></span></button>`; })() : '';
   const r = roomOf(e, e.view);
-  const head = tabs && r ? `<div class="o-rhead" style="--rc:${r.color || '#7c8f8a'}"><span class="o-rhead__t"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span><span class="o-rhead__b">${tabs}</span></div>` : '';
+  // Пластина комнаты: сверху палочка цвета комнаты, название, «+ работа» и калькулятор; внутри — поле «Одинаковый объём».
+  const head = tabs && r ? `<section class="f-plate o-rplate" style="--rc:${r.color || '#7c8f8a'}"><div class="o-rhead"><span class="o-rhead__t"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span><span class="o-rhead__b">${tabs}</span></div>${inner}</section>` : '';
   return `<div class="o-pvbar"><button type="button" class="o-pv-add${adding ? ' is-open' : ''}" data-action="o-add" aria-label="${adding ? 'Закрыть выбор комнаты' : 'Добавить комнату'}"><span>+</span></button>
     <div class="o-pvs" id="o-pvs">${cards}${total}</div></div>${head}`;
 }
@@ -175,8 +176,7 @@ function volumesView(e, r) {
   const locked = r.status === 'saved';
   const filled = r.svcs.length && r.svcs.every((x) => x.qty > 0);
   const status = locked ? '<span class="f-status f-status--ok o-status"><i></i>сохранено</span>' : '<span class="f-status f-status--warn o-status"><i></i>редактирование</span>';
-  return `${carousel(e, roomTabs(r))}
-    ${sameCard(r, locked)}
+  return `${carousel(e, roomTabs(r), sameCard(r, locked))}
     <section class="f-plate o-room o-room--rows f-fill${sameOn(r) ? ' is-same' : ''}" style="--rc:${r.color || '#7c8f8a'}">
       <div class="o-room__bar">${status}</div>
       ${t.lines.map((l) => svcCard(l, locked, qtyChanged(r, l.id), !l.qty && (r.qtyErr || []).includes(l.id))).join('')}
