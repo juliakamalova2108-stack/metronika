@@ -118,6 +118,62 @@
   .d4 .mk-drop { top: 62px; }
   .d4 .mk-open { border-top: 0 !important; border-left: 6px solid var(--rc) !important; }
   .d4 .mk-list .o-row { cursor: pointer; } .d4 .mk-list .o-row__go { margin-left: auto; color: rgba(237,240,231,.5); font-size: 22px; }
+
+  .mk-vars { flex-wrap: wrap; } .mk-vars button { flex: 0 0 calc(20% - 4px); height: 30px; font-size: 11.5px; }
+  .mk-swipe { touch-action: pan-y; }
+  .mk-swipe.sl-l { animation: slL .25s ease-out; } .mk-swipe.sl-r { animation: slR .25s ease-out; }
+  @keyframes slL { from { transform: translateX(40px); opacity: .3; } } @keyframes slR { from { transform: translateX(-40px); opacity: .3; } }
+  .mk-swhint { text-align: center; margin: 8px 0 0; font: 400 12px/16px var(--font-body); color: rgba(237,240,231,.5); }
+  /* 5 Линии */
+  .d5 .mk-strip { gap: 0; padding-bottom: 0; } .d5 .mk-tab { background: none; border: 0; border-bottom: 3px solid transparent; border-radius: 0; height: 52px; padding: 0 14px; color: rgba(237,240,231,.6); }
+  .d5 .mk-tab.is-on { background: none; color: #fff; border-bottom-color: var(--rc); box-shadow: none; } .d5 .mk-tab--sum.is-on { border-bottom-color: #e6f2cc; color: #e6f2cc; }
+  .d5 .mk-plus { margin: 0 6px 6px 0; }
+  /* 6 Таблетки */
+  .d6 .mk-tab { border-radius: 23px; border: 1px solid color-mix(in srgb, var(--rc) 70%, transparent); background: color-mix(in srgb, var(--rc) 14%, #1d3233); padding: 0 16px; }
+  .d6 .mk-plus { border-radius: 50%; } .d6 .mk-tab--sum { border-color: #e6f2cc; }
+  /* 7 Карусель */
+  .d7 .mk-strip { justify-content: flex-start; } .d7 .mk-car { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .d7 .mk-car .mk-tab { opacity: .55; transform: scale(.85); max-width: 90px; overflow: hidden; } .d7 .mk-car .mk-tab.is-on { opacity: 1; transform: none; max-width: none; height: 54px; padding: 0 18px; font-size: 17px; }
+  .d7 .mk-ctr { flex: none; font: 500 12px/1 var(--font-body); color: rgba(237,240,231,.6); width: 36px; text-align: right; }
+  /* 8 Точки */
+  .d8 .mk-strip { flex-wrap: wrap; } .d8 .mk-cur8 { flex: 1; display: flex; align-items: center; justify-content: space-between; min-width: 0; }
+  .d8 .mk-cur8 b { font: 700 20px/24px var(--font-num); color: #fff; } .d8 .mk-cur8 small { display: block; font: 400 12px/15px var(--font-body); color: rgba(237,240,231,.65); }
+  .d8 .mk-arr { width: 36px; height: 40px; border: 0; background: none; color: #e6f2cc; font-size: 26px; cursor: pointer; }
+  .d8 .mk-dots { flex-basis: 100%; display: flex; justify-content: center; gap: 8px; padding-top: 6px; }
+  .d8 .mk-dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--rc); opacity: .45; cursor: pointer; } .d8 .mk-dots i.is-on { width: 26px; border-radius: 5px; opacity: 1; }
+  /* 9 Иконки */
+  .d9 .mk-strip { gap: 10px; align-items: flex-start; } .d9 .mk-tab, .d9 .mk-plus { width: 60px; height: auto; padding: 0; background: none; border: 0; box-shadow: none; flex-direction: column; align-items: center; gap: 4px; font: 500 11px/13px var(--font-body); text-align: center; }
+  .d9 .mk-ic { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: linear-gradient(160deg, color-mix(in srgb, var(--rc) 85%, #fff), var(--rc)); color: #fff; font: 700 20px/1 var(--font-num); box-shadow: 0 4px 10px rgba(0,0,0,.35); opacity: .55; }
+  .d9 .mk-tab.is-on { background: none; box-shadow: none; color: #fff; } .d9 .mk-tab.is-on .mk-ic { opacity: 1; outline: 2px solid #fff; outline-offset: 2px; }
+  .d9 .mk-plus .mk-ic { background: #213839; border: 1px solid rgba(204,222,209,.55); color: #e6f2cc; font-weight: 400; font-size: 28px; opacity: 1; }
+  .d9 .mk-tab small, .d6 .mk-tab small, .d5 .mk-tab small { display: none; }
+  .d9 .mk-tab--sum .mk-ic { background: #e6f2cc; color: #13292b; }
+  /* 10 Шаги */
+  .d10 .mk-steps { flex: 1; display: flex; align-items: flex-start; position: relative; }
+  .d10 .mk-tab { flex: 1; min-width: 64px; height: auto; background: none; border: 0; box-shadow: none; padding: 0; flex-direction: column; align-items: center; gap: 4px; font: 500 11px/13px var(--font-body); position: relative; }
+  .d10 .mk-tab::before { content: ''; position: absolute; top: 15px; right: 50%; width: 100%; height: 2px; background: rgba(237,240,231,.25); z-index: 0; }
+  .d10 .mk-tab:first-child::before { display: none; }
+  .d10 .mk-tab .mk-n { position: relative; z-index: 1; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: #1b2f31; border: 2px solid var(--rc); color: #fff; font: 700 14px/1 var(--font-body); }
+  .d10 .mk-tab.is-on { background: none; box-shadow: none; color: #fff; } .d10 .mk-tab.is-on .mk-n { background: var(--rc); transform: scale(1.15); box-shadow: 0 0 10px var(--rc); }
+  .d10 .mk-tab small { display: none; } .d10 .mk-tab--sum .mk-n { border-color: #e6f2cc; }
+  /* 11 Закладки */
+  .d11 .mk-strip { align-items: flex-start; padding-top: 0; gap: 6px; }
+  .d11 .mk-tab { height: 56px; border: 0; border-radius: 0; padding: 4px 12px 14px; justify-content: flex-start; background: color-mix(in srgb, var(--rc) 55%, #1b2f31); color: #fff; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%); opacity: .7; }
+  .d11 .mk-tab.is-on { height: 68px; background: var(--rc); opacity: 1; box-shadow: none; } .d11 .mk-plus { margin-top: 8px; } .d11 .mk-tab--sum { background: #8a9a7a; } .d11 .mk-tab--sum.is-on { background: #e6f2cc; color: #13292b; }
+  /* 12 Шкала */
+  .d12 .mk-bar { flex: 1; display: flex; height: 46px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(204,222,209,.45); }
+  .d12 .mk-bar .mk-tab { flex: var(--w) 1 0; min-width: 44px; height: 100%; border: 0; border-radius: 0; background: color-mix(in srgb, var(--rc) 45%, #1b2f31); padding: 0 8px; color: #fff; font-size: 12px; overflow: hidden; white-space: nowrap; }
+  .d12 .mk-bar .mk-tab + .mk-tab { border-left: 1px solid rgba(0,0,0,.35); } .d12 .mk-bar .mk-tab.is-on { background: var(--rc); box-shadow: inset 0 -3px 0 #fff; }
+  .d12 .mk-sumbtn { flex: none; }
+  /* 13 Прогресс */
+  .d13 .mk-tab { position: relative; overflow: hidden; padding-bottom: 6px; }
+  .d13 .mk-tab .mk-pr { position: absolute; left: 0; bottom: 0; height: 4px; width: var(--p); background: var(--rc); }
+  .d13 .mk-tab.is-on { background: #2c4546; border-color: var(--rc); box-shadow: 0 0 0 1px var(--rc); }
+  .d13 .mk-tab .mk-ok { position: absolute; right: 5px; top: 4px; font-size: 11px; color: #9fe6b6; }
+  /* 14 По этажам */
+  .d14 .mk-fl { flex: none; display: flex; flex-direction: column; gap: 3px; } .d14 .mk-fl > small { font: 600 10px/12px var(--font-body); color: #e6f2cc; letter-spacing: .05em; text-transform: uppercase; padding-left: 2px; }
+  .d14 .mk-fl > div { display: flex; gap: 4px; padding: 3px; border-radius: 8px; background: rgba(0,0,0,.22); } .d14 .mk-tab { height: 40px; }
+  .d14 .mk-strip { align-items: flex-end; }
 </style></head>
 <body class="fig"><div class="app"><main id="view" class="view"></main></div>
 <script>
@@ -135,12 +191,22 @@ function mk(n, c) { const k = rooms.filter((r) => r.type === n).length; return {
 const sum = (r) => SVC.reduce((s, [id, , p]) => s + (parseFloat(r.q[id]) || 0) * p, 0);
 const total = () => rooms.reduce((s, r) => s + sum(r), 0);
 const HINT = {
-  1: 'Плашки: полоса сверху во всю ширину, комнаты — плашки с суммой, выбранная залита цветом комнаты. Плитки выкатываются под полосой.',
-  2: 'Язычки: комнаты — язычки папки. Выбранный язычок срастается с карточкой комнаты под ним, как вкладка в картотеке.',
-  3: 'Кружки: как истории в Telegram — комнаты кружками с буквой и цветным кольцом, «+» — пунктирный кружок. Плитки крупные, в два столбца.',
-  4: 'Трек: полоса — утопленная дорожка, как переключатель этажей. Выбранная комната — выпуклая кнопка. Комнаты выпадают списком, как сейчас «Выбор комнат».',
+  1: 'Плашки: комнаты — плашки с суммой, выбранная залита цветом комнаты.',
+  2: 'Язычки: язычки папки, выбранный срастается с карточкой комнаты.',
+  3: 'Кружки: как истории в Telegram — кружки с буквой и цветным кольцом.',
+  4: 'Трек: утопленная дорожка, выбранная комната — выпуклая кнопка; выбор комнат списком.',
+  5: 'Линии: просто названия, выбранная подчёркнута цветом комнаты. Самый лёгкий вид.',
+  6: 'Таблетки: скруглённые таблетки с цветной обводкой, «+» круглый.',
+  7: 'Карусель: текущая комната крупно по центру, соседние мельче по краям, справа «2 / 3». Похоже на наши «уши» в оценке сейчас.',
+  8: 'Точки: в полосе только текущая комната крупно и стрелки, под ней цветные точки — сколько комнат и где вы.',
+  9: 'Иконки: комнаты — цветные квадратики, как значки приложений на телефоне.',
+  10: 'Шаги: комнаты по порядку на линии с номерами — видно, какая по счёту.',
+  11: 'Закладки: цветные ленточки свисают сверху, выбранная длиннее.',
+  12: 'Шкала: одна полоса, поделённая на комнаты; ширина куска — по сумме комнаты.',
+  13: 'Прогресс: внизу каждой плашки полоска — сколько работ уже заполнено, ✓ — сохранена.',
+  14: 'По этажам: комнаты в полосе сгруппированы по этажам с подписью.',
 };
-function vars() { return `<div class="mk-vars">${[['1','Плашки'],['2','Язычки'],['3','Кружки'],['4','Трек']].map(([n, t]) => `<button class="${D == n ? 'is-on' : ''}" onclick="setD(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[D]}</p>`; }
+function vars() { return `<div class="mk-vars">${[['1','Плашки'],['2','Язычки'],['3','Кружки'],['4','Трек'],['5','Линии'],['6','Таблетки'],['7','Карусель'],['8','Точки'],['9','Иконки'],['10','Шаги'],['11','Закладки'],['12','Шкала'],['13','Прогресс'],['14','Этажи']].map(([n, t]) => `<button class="${D == n ? 'is-on' : ''}" onclick="setD(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[D]}</p>`; }
 let D = 1;
 function setD(n) { D = n; draw(); }
 const head = (t, s) => `<div class="o-head"><div class="o-cur"><b>${esc(t)}</b>${s ? `<small>${esc(s)}</small>` : ''}</div></div>`;
@@ -219,7 +285,25 @@ function v4() {
   const plus = `<button type="button" class="mk-plus${drop ? ' is-open' : ''}" onclick="drop=!drop;draw()" aria-label="Добавить комнату">${D === 3 ? `<span class="mk-ring">${drop ? '×' : '+'}</span>Комната` : '<span>+</span>'}</button>`;
   const tabs = rooms.map((r) => `<button type="button" class="mk-tab${tab === r.id && !drop ? ' is-on' : ''}" style="--rc:${r.c}" onclick="tab=${r.id};drop=false;draw()">${ring(esc(r.name[0]))}${esc(r.name)}<small id="tb-${r.id}">${money(sum(r))}</small></button>`).join('')
     + (rooms.length ? `<button type="button" class="mk-tab mk-tab--sum${tab === 'sum' && !drop ? ' is-on' : ''}" onclick="tab='sum';drop=false;draw()">${ring('∑')}Итог<small>${money(total())}</small></button>` : '');
-  const strip = D === 4 ? `<div class="mk-strip"><div class="mk-track">${plus}${tabs}</div></div>` : `<div class="mk-strip">${plus}${tabs}</div>`;
+  const items = [...rooms.map((r) => ({ id: r.id, n: r.name, c: r.c, sm: money(sum(r)), r })), ...(rooms.length ? [{ id: 'sum', n: 'Итог', c: '#e6f2cc', sm: money(total()), sumT: true }] : [])];
+  const on = (it) => tab === it.id && !drop;
+  const tb = (it, inner) => `<button type="button" class="mk-tab${it.sumT ? ' mk-tab--sum' : ''}${on(it) ? ' is-on' : ''}" style="--rc:${it.c}" onclick="pick('${it.id}')">${inner}</button>`;
+  const std = (it) => tb(it, `${ring(it.sumT ? '∑' : esc(it.n[0]))}${esc(it.n)}<small ${it.r ? `id="tb-${it.id}"` : ''}>${it.sm}</small>`);
+  let strip;
+  if (D === 4) strip = `<div class="mk-strip"><div class="mk-track">${plus}${tabs}</div></div>`;
+  else if (D === 7) { const k = items.findIndex(on); const vis = k < 0 ? items.slice(-3) : items.slice(Math.max(0, k - 1), k + 2);
+    strip = `<div class="mk-strip">${plus}<div class="mk-car">${vis.map(std).join('')}</div><span class="mk-ctr">${k < 0 ? '' : `${k + 1} / ${items.length}`}</span></div>`; }
+  else if (D === 8) { const it = items.find(on);
+    strip = `<div class="mk-strip">${plus}<div class="mk-cur8">${it ? `<button class="mk-arr" onclick="swipe(-1)">‹</button><div style="text-align:center"><b>${esc(it.n)}</b><small>${it.sm}</small></div><button class="mk-arr" onclick="swipe(1)">›</button>` : `<span style="color:rgba(237,240,231,.6);padding-left:10px">${drop ? 'Выберите комнату' : 'Комнат пока нет'}</span>`}</div>
+      ${items.length ? `<div class="mk-dots">${items.map((x) => `<i class="${on(x) ? 'is-on' : ''}" style="--rc:${x.c}" onclick="pick('${x.id}')"></i>`).join('')}</div>` : ''}</div>`; }
+  else if (D === 9) strip = `<div class="mk-strip"><button type="button" class="mk-plus" onclick="drop=!drop;draw()"><span class="mk-ic">${drop ? '×' : '+'}</span>Комната</button>${items.map((it) => tb(it, `<span class="mk-ic">${it.sumT ? '∑' : esc(it.n[0])}</span>${esc(it.n)}`)).join('')}</div>`;
+  else if (D === 10) strip = `<div class="mk-strip">${plus}<div class="mk-steps">${items.map((it, k) => tb(it, `<span class="mk-n">${it.sumT ? '∑' : k + 1}</span>${esc(it.n)}`)).join('')}</div></div>`;
+  else if (D === 12) { const rs = items.filter((x) => !x.sumT); const sumIt = items.find((x) => x.sumT);
+    strip = `<div class="mk-strip">${plus}${rs.length ? `<div class="mk-bar">${rs.map((it) => tb(it, esc(it.n)).replace('style="', `style="--w:${Math.max(1, sum(it.r) / 1000).toFixed(2)};`)).join('')}</div>` : ''}${sumIt ? `<span class="mk-sumbtn">${std(sumIt)}</span>` : ''}</div>`; }
+  else if (D === 13) strip = `<div class="mk-strip">${plus}${items.map((it) => { const f = it.r ? SVC.filter(([id]) => parseFloat(it.r.q[id])).length / SVC.length : 1; return tb(it, `${esc(it.n)}<small ${it.r ? `id="tb-${it.id}"` : ''}>${it.sm}</small>${it.r && it.r.saved ? '<span class="mk-ok">✓</span>' : ''}<span class="mk-pr" style="--p:${Math.round(f * 100)}%"></span>`); }).join('')}</div>`;
+  else if (D === 14) { const fls = [...new Set(rooms.map((r) => r.fl))].sort();
+    strip = `<div class="mk-strip">${plus}${fls.map((f) => `<div class="mk-fl"><small>${f} этаж</small><div>${items.filter((x) => x.r && x.r.fl === f).map(std).join('')}</div></div>`).join('')}${items.filter((x) => x.sumT).map(std).join('')}</div>`; }
+  else strip = `<div class="mk-strip">${plus}${items.map(std).join('')}</div>`;
   const floors = `<div class="o-floors">${[1,2,3].map((f) => `<button type="button" class="o-floor${f === fl ? ' is-on' : ''}" onclick="fl=${f};draw()">${f} этаж</button>`).join('')}</div>`;
   const list = D === 4 ? `<div class="o-list mk-list">${TYPES.map(([n, c]) => `<button type="button" class="o-row" onclick="v4add('${n}','${c}')"><span class="o-row__mark" style="background:${c}"></span><span class="o-row__name">${n}</span><span class="o-row__go">›</span></button>`).join('')}</div>` : `<div class="mk-chips">${chips(null, 'v4add')}</div>`;
   const dropHtml = drop ? `<section class="f-plate ${D === 4 ? 'o-sheet ' : ''}mk-drop">${floors}${list}</section>` : '';
@@ -228,10 +312,20 @@ function v4() {
   if (!rooms.length && !drop) body = `<section class="f-plate mk-blank"><b>Комнат пока нет</b>Нажмите «+» и выберите комнату, в которой стоите.</section>`;
   else if (tab === 'sum') body = `<div class="o-stack">${rooms.map((x) => folded(x, 'v4go')).join('')}${grand()}</div>`;
   else if (r) body = `<section class="f-plate o-room mk-open" style="--rc:${r.c}"><div class="mk-open__hd" data-l="${esc(r.name[0])}"><b>${esc(r.name)}</b><small>${r.fl} этаж</small></div>${fields(r)}
-      <div class="f-btn-row mk-one"><button class="f-btn" onclick="flash('✓ ${esc(r.name)} сохранена')">Сохранить</button></div></section>`;
-  const inner = drop ? dropHtml : body;
+      <div class="f-btn-row mk-one"><button class="f-btn" onclick="saveR(${r.id})">Сохранить</button></div></section><p class="mk-swhint">← свайп — соседняя комната →</p>`;
+  const inner = drop ? dropHtml : `<div class="mk-swipe${slide ? ' sl-' + slide : ''}">${body}</div>`; slide = '';
   return `<div class="d${D}">${strip}${D === 2 && (rooms.length || drop) ? `<div class="mk-body">${inner}</div>` : inner}</div>`;
 }
+let slide = '';
+function pick(id) { tab = id === 'sum' ? 'sum' : Number(id); drop = false; draw(); }
+function saveR(id) { const r = rooms.find((x) => x.id === id); r.saved = true; flash(`✓ ${esc(r.name)} сохранена`); }
+function swipe(dir) { const ids = [...rooms.map((r) => r.id), ...(rooms.length ? ['sum'] : [])]; const k = ids.indexOf(tab); if (k < 0) return;
+  const n = k + dir; if (n < 0 || n >= ids.length) return; tab = ids[n]; slide = dir > 0 ? 'l' : 'r'; draw();
+  requestAnimationFrame(() => { const t = document.querySelector('.mk-tab.is-on'); if (t) t.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }); }
+let sx = null, sy = null;
+document.addEventListener('touchstart', (e) => { if (!e.target.closest('.mk-swipe')) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchend', (e) => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; const dy = e.changedTouches[0].clientY - sy; sx = null;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) swipe(dx < 0 ? 1 : -1); });
 function v4add(n, c) { const r = mk(n, c); r.fl = fl; rooms.push(r); tab = r.id; drop = false; draw(); window.scrollTo(0, 0);
   requestAnimationFrame(() => { const s = document.querySelector('.mk-strip'); if (s) s.scrollLeft = s.scrollWidth; }); }
 function v4go(id) { tab = id; draw(); window.scrollTo(0, 0); }
