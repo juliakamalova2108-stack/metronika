@@ -68,6 +68,13 @@
   .v10 .bub input { font: 700 24px/1 var(--font-num); text-align: center; width: 56px; } .v10 .bub small { font: 600 10px/12px var(--font-body); }
   .v10 .o-room { margin: 0; }
 .v2 .n input { width: 70px; } .v3 .n { width: 84px; } .v3 { align-items: center; } .v5 .dial b input { text-align: center; width: 90px; } .v4 .q input { width: 90px; text-align: center; }
+.q2 .o-qty { box-shadow: 0 0 0 2px #f59e0b, 0 0 10px rgba(245,158,11,.4); }
+  .q4 { width: 100%; height: 64px; } .q4 input { font-size: 30px !important; text-align: left !important; }
+  .q5 { position: relative; isolation: isolate; overflow: hidden; border-radius: 16px; padding: 6px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.4); }
+  .q5::before { content: ''; position: absolute; z-index: -1; width: 150px; height: 150px; right: -40px; top: -60px; border-radius: 50%; background: #f59e0b; filter: blur(40px); opacity: .6; }
+  .q8 { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 6px 0 4px; border-radius: 26px; background: #1d3233; border: 1px solid rgba(245,158,11,.6); }
+  .q8 .o-qty { height: 42px; border-radius: 21px; }
+  .q10 { border-radius: 16px; padding: 6px; background: #213839; border: 1px solid rgba(204,222,209,.55); box-shadow: 0 6px 12px rgba(4,13,15,.4), 0 2px 2.5px rgba(1,6,9,.42), inset 0 -3px 3px rgba(6,18,20,.34), inset 0 1px 1px rgba(224,242,227,.36); }
 </style></head>
 <body class="fig"><div class="app"><main id="view" class="view"></main></div>
 <script>
@@ -78,49 +85,52 @@ const NAV = `<nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">
 const SV = [['Грунтовка стен', 100], ['Поклейка флиз. обоев', 330], ['Демонтаж обоев', 150]];
 let V = 1, val = 18, all = true;
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
-const NAMES = ['Экран', 'Стекло', 'В шапке', 'Шаг', 'Кольцо', 'Линейка', 'Липкая', 'Быстрые', 'Стены', 'Скоба'];
+const NAMES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 const HINTS = {
-  1: 'Экран как у калькулятора: светлое утопленное поле во всю ширину, крупные цифры справа, в углу — калькулятор.',
-  2: 'Стеклянная карточка с пятном цвета комнаты, крупные цифры, таблетка «✓ во все работы» вместо переключателя.',
-  3: 'Без отдельного блока: крупная цифра прямо под названием комнаты, как её площадь. Нажал на цифру — ввод.',
-  4: 'Отдельный шаг: сразу после выбора комнаты — «Сколько м² стен?», потом работы уже с этим объёмом.',
-  5: 'Кольцо-счётчик: цифра в круге, по бокам «−» и «+» (по 1 м²), нажал на цифру — ввод с клавиатуры.',
-  6: 'Линейка-рулетка: тянешь пальцем по ленте с делениями, красная риска — значение. Подходит к теме замеров.',
-  7: 'Липкая полоса: узкая цветная капсула, которая едет за тобой при прокрутке — объём всегда на виду.',
-  8: 'Быстрые значения: поле и под ним частые объёмы кнопками (10, 15, 20…). Нажал — подставилось.',
-  9: 'Стены: периметр × высота = площадь. Вводишь размеры комнаты, площадь стен считается сама и идёт во все работы.',
-  10: 'Скоба: цветная скобка слева охватывает все работы, на ней кружок с объёмом — видно, что он льётся во все строки.',
+  1: 'Как строка работы, но с цветной кромкой комнаты слева и лёгким свечением.',
+  2: 'Тёмная утопленная строка, поле в цветной рамке комнаты.',
+  3: 'Обычная наша плашка с заголовком сверху, поле и переключатель — строкой ниже.',
+  4: 'Крупное поле во всю ширину, подпись над ним, переключатель справа.',
+  5: 'Стекло: матовая карточка с пятном цвета комнаты.',
+  6: 'Контур: прозрачная, рамка пунктиром цвета комнаты.',
+  7: 'Плашка с цветной полосой сверху, как у карточки комнаты.',
+  8: 'Компактная тонкая полоса — занимает меньше всего места.',
+  9: 'Залита цветом комнаты, поле тёмное.',
+  10: 'Выпуклая, как наши кнопки, поле утоплено внутрь.',
 };
-function rows(locked) { return `<section class="f-plate o-room o-room--rows">${SV.map(([n, p]) => `<div class="o-svc"><label class="o-qty is-locked"><input value="${val || ''}" placeholder="—" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">${n}</span><small>${p} ₽/м²</small></span><b class="o-svc__s">${val ? fmt(val * p) + ' ₽' : ''}</b></div>`).join('')}</section>`; }
-const inp = (cls = 'big') => `<input class="${cls}" inputmode="decimal" value="${val || ''}" placeholder="—" oninput="setV(this.value)">`;
+const RC = '#f59e0b';
 const CALC = '<span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span>';
+const tog = () => `<button class="o-same__tog" onclick="all=!all;draw()"><span class="o-tog${all ? ' is-on' : ''}" aria-hidden="true"><i></i></span></button>`;
+const fld = (w = 70) => `<label class="o-qty" style="width:${w}px"><input inputmode="decimal" value="${val || ''}" placeholder="—" oninput="setV(this.value)"><span>м²</span></label>`;
+const txt = (dark) => `<span class="o-svc__t"><span class="o-svc__n"${dark ? ' style="color:#13292b"' : ''}>Одинаковый объём</span><small${dark ? ' style="color:rgba(19,41,43,.7)"' : ''}>${all ? 'заливается во все работы' : 'выключен — каждая работа отдельно'}</small></span>`;
+function rows() { return `<section class="f-plate o-room o-room--rows">${SV.map(([n, p]) => `<div class="o-svc svr"><label class="o-qty is-locked"><input value="${val || ''}" placeholder="—" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">${n}</span><small>${p} ₽/м²</small></span><b class="o-svc__s">${val ? fmt(val * p) + ' ₽' : ''}</b></div>`).join('')}</section>`; }
 function block() {
+  const row = (extra = '', w) => `<div class="o-svc" style="${extra}">${fld(w)}${txt()}${tog()}</div>`;
   switch (V) {
-    case 1: return `<div class="v1 blk"><span class="l">Объём на все работы</span><span class="n">${inp()}</span><span class="u">м²</span><button class="ib">${CALC}</button></div>`;
-    case 2: return `<div class="v2 blk"><span class="n">${inp()}<small>м²</small></span><span class="r"><b>Одинаковый объём</b><button class="pill${all ? '' : ' off'}" onclick="all=!all;draw()">${all ? '✓ во все работы' : 'каждая отдельно'}</button></span></div>`;
-    case 4: return '';
-    case 5: return `<section class="f-plate v5 blk"><button class="rb" onclick="val=Math.max(0,val-1);draw()">−</button><div class="dial" style="--p:${Math.min(100, val / 50 * 100)}%"><div><b>${inp()}</b><small>м² во все работы</small></div></div><button class="rb" onclick="val=val+1;draw()">+</button></section>`;
-    case 6: return `<section class="f-plate v6 blk"><div class="top"><span>Объём на все работы</span><b>${val} м²</b></div><div class="ruler"><i class="mark" style="--x:${val / 60 * 100}%"></i><input type="range" min="0" max="60" step="0.5" value="${val}" oninput="val=+this.value;draw()"></div><div class="sc"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span></div></section>`;
-    case 7: return `<div class="v7 blk"><span>Объём на все работы</span><span class="f">${inp()}<small>м²</small></span></div>`;
-    case 8: return `<section class="f-plate v8 blk"><div class="row"><span>Одинаковый объём</span><label class="o-qty"><input inputmode="decimal" value="${val || ''}" placeholder="—" oninput="setV(this.value)"><span>м²</span></label></div><div class="chips">${[10, 12, 15, 18, 20, 25, 30, 40].map((x) => `<button class="${x == val ? 'on' : ''}" onclick="val=${x};draw()">${x} м²</button>`).join('')}</div></section>`;
-    case 9: { const [pp, hh] = (window.ph || [12, 2.7]); return `<section class="f-plate v9 blk"><p>Площадь стен — во все работы</p><div class="f"><label class="cell"><small>Периметр, м</small><input class="big" inputmode="decimal" value="${pp}" oninput="ph=[+this.value.replace(',','.')||0,(window.ph||[12,2.7])[1]];val=Math.round(ph[0]*ph[1]*10)/10;upd()"></label><span class="op">×</span><label class="cell"><small>Высота, м</small><input class="big" inputmode="decimal" value="${String(hh).replace('.', ',')}" oninput="ph=[(window.ph||[12,2.7])[0],+this.value.replace(',','.')||0];val=Math.round(ph[0]*ph[1]*10)/10;upd()"></label><span class="op">=</span><div class="cell res"><small>Стены, м²</small><b id="r9">${String(val).replace('.', ',')}</b></div></div></section>`; }
+    case 1: return `<div class="blk" style="border-radius:12px;box-shadow:-4px 0 0 ${RC}, 0 0 16px rgba(245,158,11,.25)">${row()}</div>`;
+    case 2: return `<div class="blk q2">${row()}</div>`;
+    case 3: return `<section class="f-plate blk" style="padding:12px 12px 10px"><p style="margin:0 4px 8px;font:600 15px/19px var(--font-body);color:#edf0e7">Одинаковый объём</p><div style="display:flex;align-items:center;gap:10px">${fld(110)}<span style="flex:1;font:400 13px/17px var(--font-body);color:rgba(237,240,231,.7)">${all ? 'во все работы' : 'каждая работа отдельно'}</span>${tog()}</div></section>`;
+    case 4: return `<section class="f-plate blk" style="padding:12px"><div style="display:flex;align-items:center;margin:0 4px 8px"><span style="flex:1;font:600 15px/19px var(--font-body);color:#edf0e7">Одинаковый объём <small style="font-weight:400;color:rgba(237,240,231,.6)">· во все работы</small></span>${tog()}</div><label class="o-qty q4"><input inputmode="decimal" value="${val || ''}" placeholder="—" oninput="setV(this.value)"><span>м²</span></label></section>`;
+    case 5: return `<div class="blk q5">${row('background:none;border:0;box-shadow:none')}</div>`;
+    case 6: return `<div class="blk" style="border:1.5px dashed ${RC};border-radius:14px;padding:6px">${row('background:none;border:0;box-shadow:none')}</div>`;
+    case 7: return `<section class="f-plate blk" style="padding:6px;border-top:4px solid ${RC}">${row()}</section>`;
+    case 8: return `<div class="blk q8">${fld(64)}<span style="flex:1;font:600 14px/18px var(--font-body);color:#edf0e7">Одинаковый объём</span>${tog()}</div>`;
+    case 9: return `<div class="blk" style="border-radius:16px;padding:8px;background:linear-gradient(135deg, ${RC}, #b86f06);box-shadow:0 8px 18px rgba(0,0,0,.4)">${row('background:none;border:0;box-shadow:none')}</div>`.replace('<span class="o-svc__n">', '<span class="o-svc__n" style="color:#fff;font-weight:700">').replace('<small>', '<small style="color:rgba(255,255,255,.85)">');
+    case 10: return `<div class="blk q10">${row('background:none;border:0;box-shadow:none')}</div>`;
     default: return '';
   }
 }
 function body() {
   const head = `<div class="rh"><span><b>Гостиная</b><small>1 этаж</small></span><span class="bt"><button class="ib">+</button><button class="ib">${CALC}</button></span></div>`;
-  if (V === 3) return `${head}<div class="v3"><span class="n">${inp()}</span><span class="u">м²</span><small>для всех работ ✎</small></div>${rows()}`;
-  if (V === 4) return `${head}<section class="f-plate v4"><p>Сколько м² стен в гостиной?</p><div class="q">${inp()}<span style="font-size:18px;opacity:.8">м²</span></div><small>Этот объём подставится во все работы — потом любую можно поправить</small><div class="f-btn-row" style="width:calc(50% + 2.5px);margin:0 auto"><button class="f-btn">Дальше — работы</button></div></section>`;
-  if (V === 10) return `${head}<div class="v10"><div class="br"><div class="bub">${inp()}<small>м²</small></div></div>${rows()}</div>`;
   return `${head}${block()}${rows()}`;
 }
 function draw() {
-  document.getElementById('view').innerHTML = `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><div class="o-wrap"><div class="vs">${NAMES.map((n, i) => `<button class="${V === i + 1 ? 'is-on' : ''}" onclick="V=${i + 1};draw()">${n}</button>`).join('')}</div><p class="obh">${V}. ${HINTS[V]}</p>${body()}
+  document.getElementById('view').innerHTML = `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><div class="o-wrap"><div class="vs">${NAMES.map((n, i) => `<button class="${V === i + 1 ? 'is-on' : ''}" onclick="V=${i + 1};draw()">${n}</button>`).join('')}</div><p class="obh">Только внешний вид поля «Одинаковый объём» — работает так же, как сейчас. ${V}: ${HINTS[V]}</p>${body()}
     <section class="o-card o-total" style="margin-top:10px"><div class="o-card__head"><span>Итог комнаты</span></div><div class="o-tiles"><div class="o-tile"><small>Стоимость</small><b id="tot">${fmt(val * 580)} ₽</b></div><div class="o-tile"><small>Срок</small><b>1 день 2 ч</b></div></div></section>
     <div class="f-btn-row" style="width:calc(50% + 2.5px);margin:12px auto"><button class="f-btn">Сохранить</button></div><div style="height:${V === 7 ? 400 : 0}px"></div></div>${NAV}`;
 }
 function setV(v) { val = parseFloat(String(v).replace(',', '.')) || 0; upd(); }
-function upd() { document.querySelectorAll('.o-svc').forEach((r, i) => { r.querySelector('input').value = val || ''; r.querySelector('.o-svc__s').textContent = val ? fmt(val * SV[i][1]) + ' ₽' : ''; });
+function upd() { document.querySelectorAll('.svr').forEach((r, i) => { r.querySelector('input').value = val || ''; r.querySelector('.o-svc__s').textContent = val ? fmt(val * SV[i][1]) + ' ₽' : ''; });
   const t = document.getElementById('tot'); if (t) t.textContent = fmt(val * 580) + ' ₽'; const r9 = document.getElementById('r9'); if (r9) r9.textContent = String(val).replace('.', ','); }
 draw();
 </script></body></html>
