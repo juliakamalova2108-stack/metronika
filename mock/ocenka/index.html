@@ -74,6 +74,50 @@
   .mk-drop .o-floors { margin-bottom: 10px; }
   .mk-blank { padding: 40px 20px; text-align: center; font: 400 15px/22px var(--font-body); color: rgba(237,240,231,.7); }
   .mk-blank b { display: block; font: 600 18px/24px var(--font-body); color: #edf0e7; margin-bottom: 6px; }
+
+  /* ===== Дизайн 2 · Язычки ===== */
+  .d2 .mk-strip { background: none; border: 0; box-shadow: none; gap: 3px; padding-bottom: 0; margin-bottom: 0; align-items: flex-end; }
+  .d2 .mk-plus, .d2 .mk-tab { border-radius: 10px 10px 0 0; border-bottom: 0; height: 44px; box-shadow: none; }
+  .d2 .mk-tab { background: rgba(33,56,57,.75); border-top: 3px solid var(--rc); }
+  .d2 .mk-tab.is-on { height: 52px; background: linear-gradient(180deg, #4a605f, #3f5655); color: #fff; border-color: rgba(204,219,207,.4); border-top: 4px solid var(--rc); box-shadow: none; }
+  .d2 .mk-tab--sum { border-top-color: #e6f2cc; } .d2 .mk-tab--sum.is-on { background: linear-gradient(180deg, #4a605f, #3f5655); color: #e6f2cc; }
+  .d2 .mk-body { border-radius: 0 12px 12px 12px; margin-top: 0; background: linear-gradient(180deg, #3f5655, #33494a); border: 1px solid rgba(204,219,207,.4); border-top: 0; padding: 14px 12px; }
+  .d2 .mk-body .mk-open { border-top: 0 !important; background: none; box-shadow: none; border: 0; padding: 0; }
+  .d2 .mk-drop { position: static; margin: 0; border-radius: 0 12px 12px 12px; animation: none; }
+  /* ===== Дизайн 3 · Кружки ===== */
+  .d3 .mk-strip { gap: 14px; padding: 10px 16px 8px; align-items: flex-start; }
+  .d3 .mk-plus, .d3 .mk-tab { width: 56px; height: auto; flex-direction: column; align-items: center; padding: 0; border: 0; background: none; box-shadow: none; gap: 4px; font: 500 11px/13px var(--font-body); color: rgba(237,240,231,.75); text-align: center; }
+  .d3 .mk-tab .mk-ring, .d3 .mk-plus .mk-ring { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font: 700 20px/1 var(--font-num); color: #fff; }
+  .d3 .mk-tab .mk-ring { background: color-mix(in srgb, var(--rc) 70%, #1b2f31); border: 3px solid #1b2f31; outline: 2px solid color-mix(in srgb, var(--rc) 60%, transparent); }
+  .d3 .mk-tab.is-on .mk-ring { background: var(--rc); outline: 3px solid #fff; box-shadow: 0 0 14px var(--rc); }
+  .d3 .mk-tab.is-on { color: #fff; font-weight: 600; background: none; box-shadow: none; }
+  .d3 .mk-plus .mk-ring { border: 1.5px dashed rgba(230,242,204,.7); color: #e6f2cc; font: 300 30px/1 var(--font-body); }
+  .d3 .mk-plus.is-open .mk-ring { background: #2d4a3a; }
+  .d3 .mk-plus span.mk-ring { transform: none !important; }
+  .d3 .mk-tab small { display: none; }
+  .d3 .mk-tab--sum .mk-ring { background: #e6f2cc; color: #13292b; outline-color: rgba(230,242,204,.5); font-size: 15px; }
+  .d3 .mk-chips { grid-template-columns: repeat(2, 1fr); }
+  .d3 .mk-chip { height: 56px; font-size: 16px; background: color-mix(in srgb, var(--rc) 22%, #1d3233); }
+  .d3 .mk-chip i { width: 26px; height: 26px; border-radius: 50%; }
+  .d3 .mk-open { border-top: 0 !important; }
+  .d3 .mk-open__hd { align-items: center; justify-content: flex-start; gap: 12px; }
+  .d3 .mk-open__hd::before { content: attr(data-l); width: 40px; height: 40px; border-radius: 50%; background: var(--rc); display: grid; place-items: center; font: 700 18px/1 var(--font-num); color: #fff; }
+  .d3 .mk-open__hd small { margin-left: auto; }
+  /* ===== Дизайн 4 · Трек ===== */
+  .d4 .mk-strip { background: none; border: 0; box-shadow: none; margin: 0 0 12px; padding: 0; position: sticky; top: 6px; }
+  .d4 .mk-track { display: flex; gap: 4px; padding: 4px; border-radius: 9px; overflow-x: auto; scrollbar-width: none; width: 100%;
+    border: .9px solid rgba(6,18,20,.78); background: linear-gradient(180deg, #687b7a, #738582); box-shadow: inset 0 -1.2px 1.4px rgba(217,237,207,.33), inset 1px 1.5px 1.8px rgba(1,6,9,.58), inset 0 4px 7px rgba(1,9,11,.66); }
+  .d4 .mk-plus, .d4 .mk-tab { height: 42px; border: 0; background: none; box-shadow: none; color: #edf0e7; }
+  .d4 .mk-plus { width: 42px; color: #13292b; font-weight: 500; }
+  .d4 .mk-tab { flex-direction: row; align-items: center; gap: 7px; border-radius: 6px; }
+  .d4 .mk-tab::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--rc); flex: none; }
+  .d4 .mk-tab small { display: none; }
+  .d4 .mk-tab.is-on { background: #213839; border: 1px solid rgba(204,222,209,.55); box-shadow: 0 2px 2.5px rgba(1,6,9,.27), inset 0 1px 1px rgba(224,242,227,.36); color: #fff; }
+  .d4 .mk-tab--sum::before { background: #e6f2cc; }
+  .d4 .mk-tab--sum.is-on { background: #213839; color: #e6f2cc; }
+  .d4 .mk-drop { top: 62px; }
+  .d4 .mk-open { border-top: 0 !important; border-left: 6px solid var(--rc) !important; }
+  .d4 .mk-list .o-row { cursor: pointer; } .d4 .mk-list .o-row__go { margin-left: auto; color: rgba(237,240,231,.5); font-size: 22px; }
 </style></head>
 <body class="fig"><div class="app"><main id="view" class="view"></main></div>
 <script>
@@ -91,12 +135,14 @@ function mk(n, c) { const k = rooms.filter((r) => r.type === n).length; return {
 const sum = (r) => SVC.reduce((s, [id, , p]) => s + (parseFloat(r.q[id]) || 0) * p, 0);
 const total = () => rooms.reduce((s, r) => s + sum(r), 0);
 const HINT = {
-  4: 'Полоска: сверху полоса, слева «+». Нажал «+» — выкатились плитки комнат, выбрал — комната встала в полосу рядом с «+» и сразу открылась. «+» всегда на месте.',
-  1: 'Лента: всё на одном экране. Нажал на комнату внизу — она раскрылась тут же, заполнил, сохранил — свернулась. Раскрыта всегда только одна.',
-  2: 'Карточка-шаги: одна карточка «Комната N». Шаг 1 — что за комната, шаг 2 — объёмы. «Сохранить и следующая» сразу даёт чистую карточку.',
-  3: 'Шторка: на экране только список готовых комнат. Комната заполняется в шторке снизу — пока она открыта, всё остальное закрыто.',
+  1: 'Плашки: полоса сверху во всю ширину, комнаты — плашки с суммой, выбранная залита цветом комнаты. Плитки выкатываются под полосой.',
+  2: 'Язычки: комнаты — язычки папки. Выбранный язычок срастается с карточкой комнаты под ним, как вкладка в картотеке.',
+  3: 'Кружки: как истории в Telegram — комнаты кружками с буквой и цветным кольцом, «+» — пунктирный кружок. Плитки крупные, в два столбца.',
+  4: 'Трек: полоса — утопленная дорожка, как переключатель этажей. Выбранная комната — выпуклая кнопка. Комнаты выпадают списком, как сейчас «Выбор комнат».',
 };
-function vars() { return `<div class="mk-vars">${[['4','Полоска'],['1','Лента'],['2','Карточка'],['3','Шторка']].map(([n, t]) => `<button class="${V == n ? 'is-on' : ''}" onclick="setV(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[V]}</p>`; }
+function vars() { return `<div class="mk-vars">${[['1','Плашки'],['2','Язычки'],['3','Кружки'],['4','Трек']].map(([n, t]) => `<button class="${D == n ? 'is-on' : ''}" onclick="setD(${n})">${t}</button>`).join('')}</div><p class="mk-hint">${HINT[D]}</p>`; }
+let D = 1;
+function setD(n) { D = n; draw(); }
 const head = (t, s) => `<div class="o-head"><div class="o-cur"><b>${esc(t)}</b>${s ? `<small>${esc(s)}</small>` : ''}</div></div>`;
 const cnt = () => rooms.length ? `${rooms.length} ${plural(rooms.length, 'комната', 'комнаты', 'комнат')} · ${money(total())}` : 'комнат пока нет';
 function chips(on, fn) { return TYPES.map(([n, c]) => `<button type="button" class="mk-chip${on === n ? ' is-on' : ''}" style="--rc:${c}" onclick="${fn}('${n}','${c}')"><i></i>${n}</button>`).join(''); }
@@ -169,24 +215,28 @@ function v3save() { const d = draft; if (!d.edit) rooms.push(d); d.edit = false;
 /* 4 · Полоска */
 let drop = false, fl = 1, tab = null; // tab: id комнаты или 'sum'
 function v4() {
-  const strip = `<div class="mk-strip"><button type="button" class="mk-plus${drop ? ' is-open' : ''}" onclick="drop=!drop;draw()" aria-label="Добавить комнату"><span>+</span></button>
-    ${rooms.map((r) => `<button type="button" class="mk-tab${tab === r.id && !drop ? ' is-on' : ''}" style="--rc:${r.c}" onclick="tab=${r.id};drop=false;draw()">${esc(r.name)}<small id="tb-${r.id}">${money(sum(r))}</small></button>`).join('')}
-    ${rooms.length ? `<button type="button" class="mk-tab mk-tab--sum${tab === 'sum' && !drop ? ' is-on' : ''}" onclick="tab='sum';drop=false;draw()">Итог<small>${money(total())}</small></button>` : ''}</div>`;
-  const dropHtml = drop ? `<section class="f-plate mk-drop"><div class="o-floors">${[1,2,3].map((f) => `<button type="button" class="o-floor${f === fl ? ' is-on' : ''}" onclick="fl=${f};draw()">${f} этаж</button>`).join('')}</div>
-    <div class="mk-chips">${chips(null, 'v4add')}</div></section>` : '';
+  const ring = (t) => D === 3 ? `<span class="mk-ring">${t}</span>` : '';
+  const plus = `<button type="button" class="mk-plus${drop ? ' is-open' : ''}" onclick="drop=!drop;draw()" aria-label="Добавить комнату">${D === 3 ? `<span class="mk-ring">${drop ? '×' : '+'}</span>Комната` : '<span>+</span>'}</button>`;
+  const tabs = rooms.map((r) => `<button type="button" class="mk-tab${tab === r.id && !drop ? ' is-on' : ''}" style="--rc:${r.c}" onclick="tab=${r.id};drop=false;draw()">${ring(esc(r.name[0]))}${esc(r.name)}<small id="tb-${r.id}">${money(sum(r))}</small></button>`).join('')
+    + (rooms.length ? `<button type="button" class="mk-tab mk-tab--sum${tab === 'sum' && !drop ? ' is-on' : ''}" onclick="tab='sum';drop=false;draw()">${ring('∑')}Итог<small>${money(total())}</small></button>` : '');
+  const strip = D === 4 ? `<div class="mk-strip"><div class="mk-track">${plus}${tabs}</div></div>` : `<div class="mk-strip">${plus}${tabs}</div>`;
+  const floors = `<div class="o-floors">${[1,2,3].map((f) => `<button type="button" class="o-floor${f === fl ? ' is-on' : ''}" onclick="fl=${f};draw()">${f} этаж</button>`).join('')}</div>`;
+  const list = D === 4 ? `<div class="o-list mk-list">${TYPES.map(([n, c]) => `<button type="button" class="o-row" onclick="v4add('${n}','${c}')"><span class="o-row__mark" style="background:${c}"></span><span class="o-row__name">${n}</span><span class="o-row__go">›</span></button>`).join('')}</div>` : `<div class="mk-chips">${chips(null, 'v4add')}</div>`;
+  const dropHtml = drop ? `<section class="f-plate ${D === 4 ? 'o-sheet ' : ''}mk-drop">${floors}${list}</section>` : '';
   const r = rooms.find((x) => x.id === tab);
   let body = '';
-  if (!rooms.length && !drop) body = `<section class="f-plate mk-blank"><b>Комнат пока нет</b>Нажмите «+» в полосе сверху и выберите комнату, в которой стоите.</section>`;
+  if (!rooms.length && !drop) body = `<section class="f-plate mk-blank"><b>Комнат пока нет</b>Нажмите «+» и выберите комнату, в которой стоите.</section>`;
   else if (tab === 'sum') body = `<div class="o-stack">${rooms.map((x) => folded(x, 'v4go')).join('')}${grand()}</div>`;
-  else if (r) body = `<section class="f-plate o-room mk-open" style="--rc:${r.c}"><div class="mk-open__hd"><b>${esc(r.name)}</b><small>${r.fl} этаж</small></div>${fields(r)}
+  else if (r) body = `<section class="f-plate o-room mk-open" style="--rc:${r.c}"><div class="mk-open__hd" data-l="${esc(r.name[0])}"><b>${esc(r.name)}</b><small>${r.fl} этаж</small></div>${fields(r)}
       <div class="f-btn-row mk-one"><button class="f-btn" onclick="flash('✓ ${esc(r.name)} сохранена')">Сохранить</button></div></section>`;
-  return strip + dropHtml + (drop ? '' : body);
+  const inner = drop ? dropHtml : body;
+  return `<div class="d${D}">${strip}${D === 2 && (rooms.length || drop) ? `<div class="mk-body">${inner}</div>` : inner}</div>`;
 }
 function v4add(n, c) { const r = mk(n, c); r.fl = fl; rooms.push(r); tab = r.id; drop = false; draw(); window.scrollTo(0, 0);
   requestAnimationFrame(() => { const s = document.querySelector('.mk-strip'); if (s) s.scrollLeft = s.scrollWidth; }); }
 function v4go(id) { tab = id; draw(); window.scrollTo(0, 0); }
 function draw() {
-  const body = V === 4 ? v4() : V === 1 ? v1() : V === 2 ? v2() : v3();
+  const body = v4();
   document.getElementById('view').innerHTML = `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><div class="o-wrap">${vars()}${body}</div>${NAV}` + (note ? `<div class="mk-note">${note}</div>` : '');
 }
 function scrollToEl(s) { requestAnimationFrame(() => { const e = document.querySelector(s); if (e) window.scrollTo(0, e.getBoundingClientRect().top + window.scrollY - 80); }); }
@@ -195,5 +245,5 @@ function setQ(rid, id, v) { const r = find(rid); r.q[id] = v; const p = SVC.find
   document.getElementById(`s-${rid}-${id}`).textContent = money((parseFloat(v) || 0) * p); document.getElementById(`t-${rid}`).textContent = money(sum(r)); const tb = document.getElementById(`tb-${rid}`); if (tb) tb.textContent = money(sum(r)); }
 function setSame(rid, v) { const r = find(rid); r.same = v; SVC.forEach(([id]) => { const el = document.querySelector(`[data-q="${rid}-${id}"]`); if (el) el.value = v; setQ(rid, id, v); }); }
 function flash(h) { note = h; draw(); setTimeout(() => { note = null; draw(); }, 1000); }
-setV(4);
+V = 4; draft = { id: ++uid, q: {}, same: '' }; draw();
 </script></body></html>
