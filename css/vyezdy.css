@@ -1142,30 +1142,6 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-rplate { isolation: isolate; overflow: hidden; border-color: color-mix(in srgb, var(--rc) 55%, transparent); }
 .o-rplate::before { content: ''; left: -60px; top: -40px; bottom: auto; width: 240px; height: 240px; border-radius: 50%; background: var(--rc); filter: blur(60px); opacity: .45; box-shadow: none; z-index: -1; }
 .o-rplate .o-rhead { padding-left: 8px; }
-/* Листок даты выровнен по верху карточки. */
-.bd-leaf { top: 0; transform: none; }
-/* Карточка очереди: верх (клиент, адрес, сумма) — светлый, как листок даты; низ листка = разделительная линия карточки. */
-.bd-card:not(.bd-card--free) { padding: 0; gap: 0; overflow: hidden; justify-content: flex-start; }
-.bd-card:not(.bd-card--free) .bd-top { height: 58px; box-sizing: border-box; padding: 8px 10px 0; background: #edf2e8; color: #162c33; }
-.bd-card .bd-who b { color: #13292b; } .bd-card .bd-who small { color: rgba(22, 44, 51, 0.75); } .bd-card .bd-who em { color: #2d6a46; }
-.bd-card .bd-sum b { color: #13292b; } .bd-card .bd-sum small { color: rgba(22, 44, 51, 0.55); }
-.bd-card:not(.bd-card--free) .bd-foot { flex: 1; padding: 0 10px; border-top: 0; }
-.bd-leaf { height: 58px; } .bd-leaf b { margin-top: 1px; line-height: 24px; font-size: 22px; }
-.bd-card.is-today .bd-top { background: #e6f2cc; }
-/* Листок даты на всю высоту карточки: сверху (как светлый верх карточки) — число и месяц, снизу (как тёмный низ) — день недели. */
-.bd-leaf { height: 96px; justify-content: flex-start; }
-.bd-leaf b { order: 1; margin-top: 9px; font-size: 24px; line-height: 26px; }
-.bd-leaf i { order: 2; margin-bottom: 0; }
-.bd-leaf small { order: 3; margin-top: auto; height: 38px; display: flex; align-items: center; justify-content: center; padding: 0 10px 0 0;
-  background: linear-gradient(180deg, #1b2b2b, #203030); color: #edf2e8; font-size: 11px; border-top: 0; }
-.bd-leaf.is-today small { background: linear-gradient(180deg, #1b2b2b, #203030); color: #e6f2cc; }
-.bd-leaf:has(+ .bd-card.is-today), .bd-slot:has(.bd-card.is-today) .bd-leaf { background: #e6f2cc; }
-/* Листок и карточка — одно целое: без шва и скругления посередине; между ними тонкая пунктирная «перфорация». */
-.bd-slot { padding-left: 50px; }
-.bd-leaf { left: 0; width: 50px; padding-right: 0; border-radius: 14px 0 0 14px; box-shadow: none; border: 0.9px solid rgba(5, 13, 15, 0.75); border-right: 0; }
-.bd-leaf small { width: 100%; margin-right: 0; padding: 0; }
-.bd-card:not(.bd-card--free) { border-radius: 0 14px 14px 0; border-left: 0; }
-.bd-card:not(.bd-card--free)::before { content: ''; position: absolute; left: 0; top: 8px; height: 42px; border-left: 1.5px dashed rgba(19, 41, 43, 0.25); z-index: 3; }
-.bd-slot:has(.bd-card--free) .bd-leaf { border-radius: 14px 0 0 14px; }
-.bd-card--free { border-radius: 0 14px 14px 0; }
-.bd-slot:has(.bd-card.is-today) .bd-leaf { border-color: rgba(230, 242, 204, 0.55); }
+/* Время начала — под месяцем на листке; вторая строка карточки целиком под адрес. */
+.bd-leaf { height: 88px; }
+.bd-leaf em { margin-top: 3px; font-style: normal; font: 700 10.5px/12px var(--font-num); color: #2d6a46; white-space: nowrap; }
