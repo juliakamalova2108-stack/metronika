@@ -1,12 +1,13 @@
 // «Оформить заказ» → вкладка «Оценка». Один в один с секцией «Выезды · 02 · Оценка» в Figma:
-// выбор комнат по этажам → комната → «+» услуги → объёмы → ОК → следующая комната → Итог.
+// «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
+// Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=96';
-import * as S from './store.js?v=96';
-import { SYSTEM_PRICE } from './seed.js?v=96';
-import { shiftsText, hoursFor } from './calc.js?v=96';
-import { esc, toast } from './ui.js?v=96';
-import { logEvent } from './zlog.js?v=96';
+import { actions, rerender } from './core.js?v=97';
+import * as S from './store.js?v=97';
+import { SYSTEM_PRICE } from './seed.js?v=97';
+import { shiftsText, hoursFor } from './calc.js?v=97';
+import { esc, toast } from './ui.js?v=97';
+import { logEvent } from './zlog.js?v=97';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -77,29 +78,28 @@ export function estimateRooms(d) { return (d.est && d.est.rooms) || []; }
 
 // ---------- карусель комнат ----------
 function carouselItems(e) {
-  const items = [{ key: 'pick', title: 'Выбор комнат', label: 'Выбор<br>комнат' }];
-  e.rooms.forEach((r) => items.push({ key: r.key, title: r.name, sub: `${r.floor} этаж`, label: esc(r.name) }));
-  if (e.rooms.length && e.rooms.every((r) => r.status === 'saved')) items.push({ key: 'total', title: 'Итог', sub: `${e.rooms.length} ${plural(e.rooms.length, 'комната', 'комнаты', 'комнат')}`, label: 'Итог' });
+  const items = e.rooms.map((r) => ({ key: r.key, title: r.name, sub: `${r.floor} этаж`, label: esc(r.name) }));
+  if (e.rooms.length) items.push({ key: 'total', title: 'Итог', sub: `${e.rooms.length} ${plural(e.rooms.length, 'комната', 'комнаты', 'комнат')}`, label: 'Итог' });
   return items;
 }
 const plural = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? b : c);
 
+// Полоса сверху: слева «+» (добавить комнату), дальше комнаты карточками-превью «стекло»
+// (название, метры, сумма) и «Итог». Выбранная приподнята и обведена цветом комнаты.
 function carousel(e, tabs) {
-  const items = carouselItems(e);
-  const i = Math.max(0, items.findIndex((x) => x.key === e.view));
-  const cur = items[i];
-  const prev = items[i - 1];
-  const next = items[i + 1];
-  const deeperL = items[i - 2];
-  const deeperR = items[i + 2];
-  return `<div class="o-head${tabs ? ' o-head--tabs' : ''}">
-    ${deeperL ? '<span class="o-back o-back--deep o-back--l" aria-hidden="true"></span>' : ''}
-    ${deeperR ? '<span class="o-back o-back--deep o-back--r" aria-hidden="true"></span>' : ''}
-    ${prev ? `<button type="button" class="o-back o-back--l" data-action="o-view" data-key="${prev.key}"><span>${prev.label}</span></button>` : ''}
-    ${next ? `<button type="button" class="o-back o-back--r" data-action="o-view" data-key="${next.key}"><span>${next.label}</span></button>` : ''}
-    ${tabs || ''}
-    <div class="o-cur"><b>${esc(cur.title)}</b>${cur.sub ? `<small>${esc(cur.sub)}</small>` : ''}</div>
-  </div>`;
+  const adding = e.view === 'pick';
+  const cards = e.rooms.map((r) => {
+    const t = roomTotals(r);
+    const m2 = Math.max(0, ...r.svcs.map((x) => x.qty || 0));
+    return `<button type="button" class="o-pv${e.view === r.key ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="o-view" data-key="${r.key}">
+      <b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${m2 ? numTxt(m2) : '—'}<small> м²</small></span><span class="o-pv__s">${fmt(t.total)} ₽</span>${r.status === 'saved' ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}</button>`;
+  }).join('');
+  const total = e.rooms.length ? (() => { const sum = e.rooms.reduce((a, r) => a + roomTotals(r).total, 0);
+    return `<button type="button" class="o-pv o-pv--sum${e.view === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="o-view" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(sum)}<small> ₽</small></span><span class="o-pv__s">${e.rooms.length} ${plural(e.rooms.length, 'комната', 'комнаты', 'комнат')}</span></button>`; })() : '';
+  const r = roomOf(e, e.view);
+  const head = tabs && r ? `<div class="o-rhead" style="--rc:${r.color || '#7c8f8a'}"><span class="o-rhead__t"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span><span class="o-rhead__b">${tabs}</span></div>` : '';
+  return `<div class="o-pvbar"><button type="button" class="o-pv-add${adding && e.rooms.length ? ' is-open' : ''}" data-action="o-add" aria-label="${adding ? 'Закрыть выбор комнаты' : 'Добавить комнату'}"><span>+</span></button>
+    <div class="o-pvs" id="o-pvs">${cards}${total}</div></div>${head}`;
 }
 
 // ---------- переключатель ----------
@@ -107,22 +107,18 @@ const toggle = (on) => `<span class="o-tog${on ? ' is-on' : ''}" aria-hidden="tr
 
 // ---------- экраны ----------
 function pickView(e) {
-  const list = ROOMS.map(([name, color]) => {
-    const on = e.rooms.some((r) => r.floor === e.floor && r.name === name);
-    return `<button type="button" class="o-row" role="switch" aria-checked="${on}" data-action="o-room-toggle" data-name="${esc(name)}">
-      <span class="o-row__mark" style="background:${color}"></span><span class="o-row__name">${esc(name)}</span>${toggle(on)}</button>`;
-  }).join('');
+  const list = ROOMS.map(([name, color]) => `<button type="button" class="o-chip" style="--rc:${color}" data-action="o-room-add" data-name="${esc(name)}"><i></i>${esc(name)}</button>`).join('');
   return `${carousel(e)}
-    <section class="f-plate o-sheet f-fill">
+    <section class="f-plate o-sheet o-sheet--chips">
+      <p class="o-chips__t">${e.rooms.length ? 'Какую комнату добавить?' : 'В какой комнате вы стоите?'}</p>
       <div class="o-floors" role="tablist">${[1, 2, 3].map((f) => `<button type="button" role="tab" aria-selected="${f === e.floor}" class="o-floor${f === e.floor ? ' is-on' : ''}" data-action="o-floor" data-f="${f}">${f} этаж</button>`).join('')}</div>
-      <div class="o-list">${list}</div>
-      <div class="f-btn-row"><button type="button" class="f-btn" data-action="o-rooms-done">Добавить выбранные</button></div>
+      <div class="o-chips">${list}</div>
     </section>`;
 }
 
 function roomTabs(r) {
-  const calc = r.svcs.length ? `<button type="button" class="o-ear o-ear--calc" data-action="o-calc-open" aria-label="Калькулятор">${CALC_ICON}</button>` : '';
-  return `<button type="button" class="o-ear o-ear--plus${r.svcs.length ? '' : ' is-solo'}" data-action="o-svc-open" aria-label="Добавить услугу">+</button>${calc}`;
+  const calc = r.svcs.length ? `<button type="button" class="o-ib${r.panel === 'calc' ? ' is-on' : ''}" data-action="${r.panel === 'calc' ? 'o-calc-close' : 'o-calc-open'}" aria-label="Калькулятор">${CALC_ICON}</button>` : '';
+  return `<button type="button" class="o-ib o-ib--plus${r.panel === 'services' ? ' is-on' : ''}" data-action="o-svc-open" aria-label="Добавить работу">+</button>${calc}`;
 }
 
 function servicesView(e, r) {
@@ -251,7 +247,7 @@ export function renderEstimate(d) {
     else if (r.panel === 'services') { html = servicesView(e, r); one = true; } // список услуг — как выбор комнат: кнопка всегда внизу
     else if (r.panel === 'calc') html = calcView(e, r);
     else if (r.svcs.length) html = volumesView(e, r);
-    else { html = carousel(e, roomTabs(r)); one = true; }
+    else { html = `${carousel(e, roomTabs(r))}<p class="o-empty">Нажмите «+» справа, чтобы выбрать работы</p>`; one = true; }
   }
   // Внутри комнаты (услуги, объёмы, калькулятор, итог) прокручивается весь экран, а не блок внутри.
   if (!one) html = html.replace(/ f-fill\b/g, '');
@@ -283,7 +279,18 @@ function goView(e, key) {
   e.view = key;
   const r = roomOf(e, e.view); if (r && r.panel === 'calc') r.panel = '';
 }
-actions['o-view'] = (el) => { const e = D(); goView(e, el.dataset.key); save(); window.scrollTo(0, 0); };
+actions['o-view'] = (el) => { const e = D(); goView(e, el.dataset.key); save(); window.scrollTo(0, 0); requestAnimationFrame(scrollStrip); };
+function scrollStrip() { const s = document.getElementById('o-pvs'); const on = s && s.querySelector('.o-pv.is-on'); if (on) s.scrollTo({ left: on.offsetLeft - (s.clientWidth - on.offsetWidth) / 2, behavior: 'smooth' }); }
+// Свайп по комнате влево/вправо — соседняя комната (после последней — «Итог»).
+let sx = null; let sy = null;
+document.addEventListener('touchstart', (ev) => { const w = ev.target.closest && ev.target.closest('.o-wrap'); if (!w || ev.target.closest('.o-pvbar, .kb, input, .o-calc')) { sx = null; return; } sx = ev.touches[0].clientX; sy = ev.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchend', (ev) => {
+  if (sx === null) return; const dx = ev.changedTouches[0].clientX - sx; const dy = ev.changedTouches[0].clientY - sy; sx = null;
+  if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+  const e = D(); if (!e || e.view === 'pick') return;
+  const items = carouselItems(e); const i = items.findIndex((x) => x.key === e.view); const n = items[i + (dx < 0 ? 1 : -1)];
+  if (!n) return; goView(e, n.key); save(); window.scrollTo(0, 0); requestAnimationFrame(scrollStrip);
+});
 // Куда вести после сохранённой комнаты: следующая несохранённая, иначе любая несохранённая, иначе «Итог».
 function nextAfter(e, r) {
   const i = e.rooms.indexOf(r);
@@ -291,18 +298,27 @@ function nextAfter(e, r) {
   return n ? { key: n.key, name: n.name } : { key: 'total', name: 'Итог' };
 }
 actions['o-floor'] = (el) => { D().floor = Number(el.dataset.f); save(); };
-actions['o-room-toggle'] = (el) => {
+// «+» в полосе: открыть выбор комнаты (или закрыть его и вернуться в комнату, где были).
+actions['o-add'] = () => {
   const e = D();
-  const name = el.dataset.name;
-  const ex = e.rooms.find((r) => r.floor === e.floor && r.name === name);
-  if (ex) { e.confirm = { kind: 'room', key: ex.key, title: 'Удалить комнату?', text: `${name} и выбранные для неё услуги будут удалены из нового заказа.` }; save(); return; }
-  const color = (ROOMS.find((x) => x[0] === name) || [])[1];
-  e.rooms.push({ key: 'r' + Math.random().toString(36).slice(2, 8), floor: e.floor, name, color, svcs: [], status: 'new', panel: '' });
-  e.rooms.sort((a, b) => a.floor - b.floor || ROOMS.findIndex((x) => x[0] === a.name) - ROOMS.findIndex((x) => x[0] === b.name));
-  save();
+  if (e.view === 'pick') { if (e.rooms.length) { e.view = roomOf(e, e.back) || e.back === 'total' ? e.back : e.rooms[e.rooms.length - 1].key; } }
+  else { e.back = e.view; e.view = 'pick'; }
+  save(); window.scrollTo(0, 0);
 };
-actions['o-rooms-done'] = () => { const e = D(); if (!e.rooms.length) return; e.view = e.rooms[0].key; save(); window.scrollTo(0, 0); };
-actions['o-svc-open'] = () => { const e = D(); const r = roomOf(e, e.view); r.pick = r.svcs.map((x) => x.id); r.panel = 'services'; save(); };
+// Выбрали комнату — она встаёт в полосу и сразу открывается со списком работ.
+// Вторая такая же комната получает номер: «Спальня 2».
+actions['o-room-add'] = (el) => {
+  const e = D();
+  const base = el.dataset.name;
+  const same = e.rooms.filter((r) => r.base === base || r.name === base).length;
+  const color = (ROOMS.find((x) => x[0] === base) || [])[1];
+  const r = { key: 'r' + Math.random().toString(36).slice(2, 8), floor: e.floor, base, name: same ? `${base} ${same + 1}` : base, color, svcs: [], status: 'new', panel: 'services', pick: [] };
+  e.rooms.push(r);
+  slide = 'next'; e.view = r.key;
+  save(); window.scrollTo(0, 0);
+  requestAnimationFrame(scrollStrip);
+};
+actions['o-svc-open'] = () => { const e = D(); const r = roomOf(e, e.view); if (r.panel === 'services' && r.svcs.length) { r.pick = null; r.panel = ''; save(); return; } r.pick = r.svcs.map((x) => x.id); r.panel = 'services'; save(); };
 actions['o-svc-toggle'] = (el) => {
   const e = D(); const r = roomOf(e, e.view);
   const id = el.dataset.id;
@@ -345,6 +361,8 @@ function refreshRoom(r) {
   const box = document.getElementById('o-room-total'); if (box) box.hidden = !filled;
   const a = document.getElementById('o-room-sum'); if (a) a.textContent = `${fmt(t.total)} ₽`;
   const b = document.getElementById('o-room-time'); if (b) b.textContent = shiftsText(t.hours);
+  const pv = document.querySelector(`.o-pv[data-key="${r.key}"]`);
+  if (pv) { const m2 = Math.max(0, ...r.svcs.map((x) => x.qty || 0)); pv.querySelector('.o-pv__m').innerHTML = `${m2 ? numTxt(m2) : '—'}<small> м²</small>`; pv.querySelector('.o-pv__s').textContent = `${fmt(t.total)} ₽`; }
 }
 export function onLiveEstimate(el) {
   const k = el.dataset.live;
