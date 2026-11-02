@@ -82,6 +82,24 @@
   .lg i { width: 12px; height: 12px; border-radius: 3px; background: var(--wc); }
   .lg small { color: rgba(237,240,231,.6); font-size: 12px; } .lg b { margin-left: auto; font: 700 14px/1 var(--font-num); }
   .lg .xx { width: 24px; height: 24px; border-radius: 6px; border: 0; background: rgba(255,255,255,.06); color: rgba(255,255,255,.6); }
+
+  /* v3: над шкалой — общая площадь, под проёмами — общая скоба с их суммой */
+  .bwrap { position: relative; margin: 0 -4px; }
+  .brk { display: flex; height: 26px; }
+  .brk > div { position: relative; box-sizing: border-box; }
+  .brk .gross { border: 1.5px solid rgba(237,240,231,.45); border-bottom: 0; border-radius: 8px 8px 0 0; height: 10px; margin-top: 16px; }
+  .brk .gross span { position: absolute; left: 50%; top: -16px; transform: translateX(-50%); padding: 0 8px; background: #2f4647; border-radius: 6px; font: 700 12px/16px var(--font-num); color: rgba(237,240,231,.8); white-space: nowrap; }
+  .brk.bot .opsum { border: 2px solid #ff9c9c; border-top: 0; border-radius: 0 0 10px 10px; height: 10px; }
+  .brk.bot .opsum span { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); padding: 3px 10px; border-radius: 10px; background: #ff9c9c; color: #13292b; font: 800 13px/1 var(--font-num); white-space: nowrap; box-shadow: 0 2px 8px rgba(255,156,156,.4); }
+  .brk.bot { height: 34px; }
+  .seg.op { background: linear-gradient(180deg, rgba(230,242,204,.10), rgba(230,242,204,.04)); border-left: 1px solid rgba(255,255,255,.12); gap: 6px; }
+  .seg.op:first-of-type { }
+  .seg.op .sz2 { font: 500 10px/12px var(--font-num); color: rgba(237,240,231,.75); }
+  .seg.op b { color: #ffb3b3; font-size: 12px; }
+  .bar { border-color: rgba(255,255,255,.25); }
+  .lab { display: none; }
+  .seg.net .ttl { top: 50%; transform: translateY(-50%); left: 14px; font-size: 26px; }
+  .seg.net:not(.none) .ttl { top: 12px; transform: none; }
 </style></head>
 <body class="fig"><div class="app"><main class="view"><div class="fig-blobs"><i></i><i></i></div><div class="o-wrap" id="w"></div></main></div><div id="pop"></div>
 <script>
@@ -94,8 +112,11 @@ const money = (n) => Math.round(n).toLocaleString('ru-RU') + ' ₽';
 function draw() {
   const g = gross();
   const layers = wks.map((k) => { const [, n, , c] = WORKS.find((x) => x[0] === k); return `<div class="layer"><i style="--wc:${c}"></i><span>${n}</span></div>`; }).join('');
-  const bar = !L ? '<div class="empty">Введите длину — появится площадь стены</div>' : `<div class="bar"><div class="seg net${wks.length ? '' : ' none'}" style="flex-basis:${(net() / g) * 100}%"><div class="layers">${layers}</div><span class="ttl">${f(net())}<small> м²</small></span></div>${ops.map((o, i) => `<div class="seg op${i === last ? ' fly' : ''}" style="flex-basis:${((o.w * o.h) / g) * 100}%">${IC[TK[o.t]]}<b>−${f(o.w * o.h)}</b></div>`).join('')}</div>
-    <div class="lab"><span>Стена ${f(L)} × ${f(H)} = ${f(g)} м²${ops.length ? ` · проёмы −${f(opA())}` : ''}</span><b>${f(net())} м²</b></div>`;
+  const opW = (opA() / g) * 100;
+  const bar = !L ? '<div class="empty">Введите длину — появится площадь стены</div>' : `<div class="bwrap">
+    <div class="brk"><div class="gross" style="flex-basis:100%"><span>${f(L)} × ${f(H)} = ${f(g)} м²</span></div></div>
+    <div class="bar"><div class="seg net${wks.length ? '' : ' none'}" style="flex-basis:${(net() / g) * 100}%"><div class="layers">${layers}</div><span class="ttl">${f(net())}<small> м²</small></span></div>${ops.map((o, i) => `<div class="seg op${i === last ? ' fly' : ''}" style="flex-basis:${((o.w * o.h) / g) * 100}%">${IC[TK[o.t]]}<span class="sz2">${f(o.w)}×${f(o.h)}</span><b>−${f(o.w * o.h)}</b></div>`).join('')}</div>
+    ${ops.length ? `<div class="brk bot"><div style="flex-basis:${100 - opW}%"></div><div class="opsum" style="flex-basis:${opW}%"><span>−${f(opA())} м²</span></div></div>` : ''}</div>`;
   const wl = wks.map((k, i) => { const [, n, p, c] = WORKS.find((x) => x[0] === k); return `<div class="lg"><i style="--wc:${c}"></i>${n}<small>× ${p} ₽</small><b>${money(net() * p)}</b><button class="xx" onclick="wks.splice(${i},1);draw()">×</button></div>`; }).join('');
   const tot = wks.reduce((a, k) => a + net() * WORKS.find((x) => x[0] === k)[2], 0);
   document.getElementById('w').innerHTML = `<p class="zx">Ввёл длину — появилась шкала площади. Окно, дверь или проём «залетают» в шкалу и забирают свою долю. Работы заливаются прямо в шкалу — слоями по площади.</p>
