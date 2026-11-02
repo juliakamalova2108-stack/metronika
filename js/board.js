@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=124';
-import * as S from './store.js?v=124';
-import { renderOformit, oformitDraft } from './oformit.js?v=124';
-import { roomTotals, svcInfo } from './ocenka.js?v=124';
-import { smetaTotals } from './zakaz.js?v=124';
-import { bookedDays } from './grafik.js?v=124';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=124';
-import { esc, toast } from './ui.js?v=124';
+import { actions, rerender, go } from './core.js?v=125';
+import * as S from './store.js?v=125';
+import { renderOformit, oformitDraft } from './oformit.js?v=125';
+import { roomTotals, svcInfo } from './ocenka.js?v=125';
+import { smetaTotals } from './zakaz.js?v=125';
+import { bookedDays } from './grafik.js?v=125';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=125';
+import { esc, toast } from './ui.js?v=125';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -162,9 +162,9 @@ export function renderBoardOrder(no) {
   const range = days.length ? `${days[0].date.getDate()} ${MONG[days[0].date.getMonth()]} — ${days[days.length - 1].date.getDate()} ${MONG[days[days.length - 1].date.getMonth()]}` : 'даты не назначены';
   const addr = [c.street, c.house && 'д. ' + c.house, c.flat && 'кв. ' + c.flat].filter(Boolean).join(', ');
   // Клиент, номер и этап — сверху экрана; внизу только «назад» (место в нижней панели свободно).
-  const head = `<div class="bd-ohead bd-ohead--top"><span><b>${esc(c.name || '')}</b><small>Заказ №${no} · Очередь</small></span></div>`;
+  const head = '';
   const mid = `<div class="bd-navslot"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="К заказам">${BACK}</button><span class="bd-navfree"></span></div>`;
-  const client = block('Клиент', no, 'client', `<div class="bd-cl"><div><b>${esc(c.phone || '')}</b><small>${esc(addr)}${c.entrance ? ` · подъезд ${esc(c.entrance)}` : ''}${c.floor ? ` · этаж ${esc(c.floor)}` : ''}</small><small>Приезд <em>с ${esc(c.hour || '—')}:${esc(c.min || '00')}</em></small></div>
+  const client = block('Клиент', no, 'client', `<div class="bd-clname"><b>${esc(c.name || '')}</b><small>Заказ №${no} · Очередь</small></div><div class="bd-cl"><div><b>${esc(c.phone || '')}</b><small>${esc(addr)}${c.entrance ? ` · подъезд ${esc(c.entrance)}` : ''}${c.floor ? ` · этаж ${esc(c.floor)}` : ''}</small><small>Приезд <em>с ${esc(c.hour || '—')}:${esc(c.min || '00')}</em></small></div>
     <span class="bd-cl__ic"><a class="f-icon-btn" href="tel:${esc((c.phone || '').replace(/[^+\d]/g, ''))}" aria-label="Позвонить">${PH}</a><a class="f-icon-btn" href="https://yandex.ru/maps/?text=${encodeURIComponent(addr)}" target="_blank" rel="noopener" aria-label="Маршрут">${RT}</a></span></div>${c.comment ? `<p class="bd-note">${esc(c.comment)}</p>` : ''}`);
   const roomsHtml = rooms.map((r) => { const t = roomTotals(r); const on = openRooms.has(r.key);
     return `<div class="o-sroom${on ? ' is-open' : ''}" style="--rc:${r.color}"><button type="button" class="o-sroom__head" data-action="bd-room" data-key="${r.key}" aria-expanded="${on}">

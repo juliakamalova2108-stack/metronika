@@ -1154,3 +1154,4 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .bd-navslot { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 10px; }
 .bd-navslot .f-icon-btn { width: 44px; height: 44px; flex: none; }
 .bd-navfree { flex: 1; }
+.bd-clname { display: flex; flex-direction: column; gap: 2px; } .bd-clname b { font: 700 20px/24px var(--font-body); color: #fff; } .bd-clname small { font: 400 12.5px/16px var(--font-body); color: rgba(237, 242, 232, 0.65); }
