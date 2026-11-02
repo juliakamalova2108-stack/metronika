@@ -2,16 +2,16 @@
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=126';
-import * as S from './store.js?v=126';
-import { WALLPAPER_TYPES } from './seed.js?v=126';
-import { esc, toast } from './ui.js?v=126';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=126';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=126';
-import { country } from './phonecodes.js?v=126';
-import { suggestAddress } from './address.js?v=126';
-import { suggesters } from './kbd.js?v=126';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=126';
+import { actions, changes, rerender } from './core.js?v=127';
+import * as S from './store.js?v=127';
+import { WALLPAPER_TYPES } from './seed.js?v=127';
+import { esc, toast } from './ui.js?v=127';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=127';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=127';
+import { country } from './phonecodes.js?v=127';
+import { suggestAddress } from './address.js?v=127';
+import { suggesters } from './kbd.js?v=127';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=127';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -264,7 +264,7 @@ const lineCard = (l) => `<div class="o-card"><div class="o-card__head"><span>${e
 
 function renderSmeta(d) {
   const rooms = estimateRooms(d);
-  if (!rooms.length) return noRooms('Смета');
+  if (!rooms.length) return noRooms('Замер');
   const s = sm(d);
   const items = [...roomItems(rooms), { key: 'total', title: 'Смета заказа', sub: `${rooms.length} ${rooms.length === 1 ? 'комната' : rooms.length < 5 ? 'комнаты' : 'комнат'}`, label: 'Смета<br>заказа' }];
   if (!items.some((x) => x.key === s.view)) s.view = rooms[0].key;
