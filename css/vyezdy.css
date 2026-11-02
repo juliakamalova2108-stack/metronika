@@ -1054,3 +1054,20 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-line { align-items: center; }
 .o-line__q { display: flex; flex-direction: column; align-items: flex-end; line-height: 16px; }
 .o-line__q small { font: 400 11.5px/15px var(--font-body); color: rgba(230, 242, 204, 0.85); }
+/* Пустая оценка — большая кнопка «Добавить комнату». */
+.o-start { margin: auto 0; align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 300px; padding: 30px 26px;
+  border-radius: 22px; border: 1.5px dashed rgba(230, 242, 204, 0.55); background: rgba(230, 242, 204, 0.05); color: #edf0e7; cursor: pointer; text-align: center; -webkit-tap-highlight-color: transparent; }
+.o-start__plus { width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; font: 300 56px/1 var(--font-body); color: #13292b;
+  background: linear-gradient(180deg, #eef7d9, #cfe0b4); box-shadow: 0 8px 22px rgba(230, 242, 204, 0.3), inset 0 -4px 0 rgba(0, 0, 0, 0.12); margin-bottom: 6px; }
+.o-start b { font: 700 24px/28px var(--font-num); }
+.o-start small { max-width: 260px; font: 400 14px/20px var(--font-body); color: rgba(237, 240, 231, 0.65); }
+.o-start:active .o-start__plus { transform: scale(.95); }
+/* Итог табличкой: Работа · м² · ₽/м² · Сумма. */
+.o-tline { display: grid; grid-template-columns: minmax(0, 1fr) 44px 52px 76px; gap: 8px; align-items: center; padding: 9px 0; border-top: 0.5px solid rgba(191, 214, 204, 0.16);
+  font: 400 13px/17px var(--font-body); color: rgba(237, 242, 232, 0.8); }
+.o-tline > :not(:first-child) { text-align: right; white-space: nowrap; font-family: var(--font-num); }
+.o-tline__n { color: #edf2e8; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o-tline b { font: 700 14px/17px var(--font-num); color: #edf2e8; }
+.o-tline--h { padding: 4px 0 6px; border-top: 0; font: 500 11px/14px var(--font-body); color: rgba(230, 242, 204, 0.7); }
+.o-tline--h > * { font-family: var(--font-body) !important; }
+.o-tline__n { white-space: normal; overflow: visible; line-height: 17px; }
