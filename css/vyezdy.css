@@ -1148,3 +1148,9 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .bd-fine { margin: 2px 2px 0; font: 400 11.5px/15px var(--font-body); color: rgba(237, 242, 232, 0.55); }
 .bd-block__hd > span .bd-sub { display: block; margin-top: 2px; font: 400 11.5px/15px var(--font-body); color: rgba(237, 242, 232, 0.6); text-transform: none; letter-spacing: 0; }
 .g-badge { color: #fff; }
+/* Открытый заказ: клиент, номер и этап — сверху; внизу между «Меню» и «Чатом» — только «назад» и свободное место. */
+.bd-ohead--top { margin: 2px 4px 12px; }
+.bd-ohead--top b { font-size: 22px; line-height: 27px; } .bd-ohead--top small { font-size: 13px; }
+.bd-navslot { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 10px; }
+.bd-navslot .f-icon-btn { width: 44px; height: 44px; flex: none; }
+.bd-navfree { flex: 1; }

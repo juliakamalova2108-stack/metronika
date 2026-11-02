@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=123';
-import * as S from './store.js?v=123';
-import { renderOformit, oformitDraft } from './oformit.js?v=123';
-import { roomTotals, svcInfo } from './ocenka.js?v=123';
-import { smetaTotals } from './zakaz.js?v=123';
-import { bookedDays } from './grafik.js?v=123';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=123';
-import { esc, toast } from './ui.js?v=123';
+import { actions, rerender, go } from './core.js?v=124';
+import * as S from './store.js?v=124';
+import { renderOformit, oformitDraft } from './oformit.js?v=124';
+import { roomTotals, svcInfo } from './ocenka.js?v=124';
+import { smetaTotals } from './zakaz.js?v=124';
+import { bookedDays } from './grafik.js?v=124';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=124';
+import { esc, toast } from './ui.js?v=124';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -161,8 +161,9 @@ export function renderBoardOrder(no) {
   const days = workDays(d);
   const range = days.length ? `${days[0].date.getDate()} ${MONG[days[0].date.getMonth()]} — ${days[days.length - 1].date.getDate()} ${MONG[days[days.length - 1].date.getMonth()]}` : 'даты не назначены';
   const addr = [c.street, c.house && 'д. ' + c.house, c.flat && 'кв. ' + c.flat].filter(Boolean).join(', ');
-  const head = '';
-  const mid = `<div class="bd-ohead bd-ohead--nav"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="К заказам">${BACK}</button><span><b>${esc(c.name || '')}</b><small>Заказ №${no} · Очередь</small></span></div>`;
+  // Клиент, номер и этап — сверху экрана; внизу только «назад» (место в нижней панели свободно).
+  const head = `<div class="bd-ohead bd-ohead--top"><span><b>${esc(c.name || '')}</b><small>Заказ №${no} · Очередь</small></span></div>`;
+  const mid = `<div class="bd-navslot"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="К заказам">${BACK}</button><span class="bd-navfree"></span></div>`;
   const client = block('Клиент', no, 'client', `<div class="bd-cl"><div><b>${esc(c.phone || '')}</b><small>${esc(addr)}${c.entrance ? ` · подъезд ${esc(c.entrance)}` : ''}${c.floor ? ` · этаж ${esc(c.floor)}` : ''}</small><small>Приезд <em>с ${esc(c.hour || '—')}:${esc(c.min || '00')}</em></small></div>
     <span class="bd-cl__ic"><a class="f-icon-btn" href="tel:${esc((c.phone || '').replace(/[^+\d]/g, ''))}" aria-label="Позвонить">${PH}</a><a class="f-icon-btn" href="https://yandex.ru/maps/?text=${encodeURIComponent(addr)}" target="_blank" rel="noopener" aria-label="Маршрут">${RT}</a></span></div>${c.comment ? `<p class="bd-note">${esc(c.comment)}</p>` : ''}`);
   const roomsHtml = rooms.map((r) => { const t = roomTotals(r); const on = openRooms.has(r.key);
@@ -223,7 +224,7 @@ export function renderBoardEdit(no, t) {
   S.setDraftKey('ord-' + no);
   if (startEdit === t) { startEdit = ''; beginEdit(oformitDraft(), t); }
   const c = CL[no];
-  const mid = `<div class="bd-ohead bd-ohead--nav"><button type="button" class="f-icon-btn bd-back" data-action="bd-to-order" data-no="${no}" aria-label="К заказу">${BACK}</button><span><b>${esc(c.n)}</b><small>Заказ №${no} · Очередь</small></span></div>`;
+  const mid = `<div class="bd-navslot"><button type="button" class="f-icon-btn bd-back" data-action="bd-to-order" data-no="${no}" aria-label="К заказу">${BACK}</button><span class="bd-navfree"></span></div>`;
   const navHtml = ''; // шапка (назад, раздел, клиент) — в нижней навигации между «Меню» и «Чатом»
   const dd = oformitDraft();
   if (t === 'chat') { (dd.chat || []).forEach((m) => { m.read = true; }); S.save(); }
@@ -318,7 +319,7 @@ function renderBoardChat(no) {
   const parts = PARTS[no] || [];
   const AV_C = ['#5b5f8f', '#8a6a3f', '#4f7a8f'];
   const tile = (n, r) => `<span class="ch-part"><b>${esc(n)}</b><small>${esc(r)}</small></span>`;
-  const mid = `<div class="bd-ohead bd-ohead--nav"><button type="button" class="f-icon-btn bd-back" data-action="bd-to-order" data-no="${no}" aria-label="К заказу">${BACK}</button><span><b>${esc(c.n)}</b><small>Заказ №${no} · Очередь</small></span></div>`;
+  const mid = `<div class="bd-navslot"><button type="button" class="f-icon-btn bd-back" data-action="bd-to-order" data-no="${no}" aria-label="К заказу">${BACK}</button><span class="bd-navfree"></span></div>`;
   const nav = `<nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${mid}<button type="button" class="f-nav__tab f-nav__chat is-active" aria-current="page" aria-label="Чат заказа">${CHAT}<span>Чат</span></button></nav>`;
   if (showParts) {
     return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><section class="f-plate ch-head"><p class="ch-t">Участники заказа</p>
