@@ -1,61 +1,69 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Палочка комнаты — варианты</title>
+<title>Шапка комнаты — варианты</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Manrope:wght@400;500;600;700&family=Onest:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/app.css"><link rel="stylesheet" href="../../css/vyezdy.css">
 <style>
   body.fig .view { padding-bottom: 40px; }
-  .kt { margin: 22px 4px 10px; font: 700 17px/22px var(--font-body); color: #e6f2cc; }
-  .kt:first-child { margin-top: 6px; }
-  .kv::before { display: none !important; }
-  .kv { align-items: stretch; } .kv > * { align-self: stretch; } .kv .o-rhead__t { display: flex; flex-direction: column; align-items: flex-start; text-align: left; } .kv .o-same-wrap, .kv .o-same { width: auto; }
-  .kv .o-rhead { display: flex; align-items: center; } .kv .o-rhead__t { flex: 1; min-width: 0; }
-  .kv .o-rhead { padding-left: 22px !important; position: relative; }
-  /* кромка карточки — у всех трёх */
-  .kv .o-same.o-same--v2 .o-svc { border-left: 5px solid var(--rc); padding-left: 7px; }
-  /* 1: стебелёк из кромки вверх до названия */
-  .kv1 .o-rhead::after { content: ''; position: absolute; left: 0; top: 6px; bottom: -10px; width: 5px; border-radius: 3px 3px 0 0; background: var(--rc); box-shadow: 0 0 8px color-mix(in srgb, var(--rc) 60%, transparent); }
-  /* 2: стебелёк + кружок-булавка наверху */
-  .kv2 .o-rhead::after { content: ''; position: absolute; left: 0; top: 14px; bottom: -10px; width: 5px; background: var(--rc); box-shadow: 0 0 8px color-mix(in srgb, var(--rc) 60%, transparent); }
-  .kv2 .o-rhead::before { content: ''; display: block !important; position: absolute; left: -4.5px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: var(--rc); box-shadow: 0 0 10px var(--rc); }
-  /* 3: без соединения — короткая палочка у названия на той же вертикали */
-  .kv3 .o-rhead::after { content: ''; position: absolute; left: 0; top: 6px; height: 40px; width: 5px; border-radius: 3px; background: var(--rc); box-shadow: 0 0 8px color-mix(in srgb, var(--rc) 60%, transparent); }
+  .kt { margin: 26px 4px 4px; font: 700 17px/22px var(--font-body); color: #e6f2cc; } .kt:first-of-type { margin-top: 6px; }
+  .kx { margin: 0 4px 10px; font: 400 13px/18px var(--font-body); color: rgba(237,240,231,.7); }
+  .o-room { margin-top: 10px; }
+  .hd { display: flex; align-items: center; gap: 10px; } .hd .o-rhead__b { margin-left: auto; display: flex; gap: 6px; }
+  .nm b { display: block; font: 700 22px/26px var(--font-num); color: #fff; } .nm small { font: 400 12px/15px var(--font-body); color: rgba(237,240,231,.65); }
+  .o-same.o-same--v2 { margin: 0 !important; }
+  /* 1 */
+  .p1 { position: relative; isolation: isolate; overflow: hidden; padding: 10px 8px 8px; gap: 8px; border-color: color-mix(in srgb, var(--rc) 55%, transparent); }
+  .p1::before { content: ''; position: absolute; z-index: -1; left: -60px; top: -40px; width: 240px; height: 240px; border-radius: 50%; background: var(--rc); filter: blur(60px); opacity: .45; }
+  .p1 .hd { padding: 0 2px 0 8px; }
+  /* 2 */
+  .p2 { position: relative; padding-top: 34px; }
+  .p2 .tab { position: absolute; left: 0; top: 0; height: 40px; padding: 8px 16px 0; border-radius: 12px 12px 0 0; background: var(--rc); color: #fff; font: 700 18px/22px var(--font-num); box-shadow: 0 0 14px color-mix(in srgb, var(--rc) 50%, transparent); }
+  .p2 .tab small { font: 500 12px/1 var(--font-body); opacity: .85; margin-left: 6px; }
+  .p2 .btns { position: absolute; right: 0; top: -12px; } .p2 .btns .o-rhead__b { display: flex; gap: 6px; }
+  .p2 .o-same.o-same--v2 { border-top-left-radius: 0; box-shadow: 0 0 0 2px var(--rc), 0 0 16px color-mix(in srgb, var(--rc) 35%, transparent) !important; position: relative; z-index: 1; }
+  .p2 .o-same .o-svc { border-top-left-radius: 0; }
+  /* 3 */
+  .p3 { padding: 0; gap: 0; overflow: hidden; }
+  .p3 .hd { padding: 10px 10px 10px 16px; background: linear-gradient(135deg, var(--rc), color-mix(in srgb, var(--rc) 55%, #13292b)); }
+  .p3 .hd .nm small { color: rgba(255,255,255,.85); }
+  .p3 .bd { padding: 8px; }
+  /* 4 */
+  .p4 { padding: 8px; }
+  .p4 .card { border-radius: 14px; border: .9px solid rgba(5,13,15,.75); background: linear-gradient(180deg,#182829,#203030); box-shadow: inset 0 1.5px 2px rgba(1,6,9,.55), inset 0 4px 10px rgba(1,8,10,.7), 0 0 14px color-mix(in srgb, var(--rc) 22%, transparent); overflow: hidden; }
+  .p4 .hd { padding: 10px 10px 8px 12px; } .p4 .hd > i { width: 14px; height: 14px; border-radius: 50%; background: var(--rc); box-shadow: 0 0 10px var(--rc); flex: none; }
+  .p4 .ln { height: 1px; margin: 0 12px; background: rgba(237,240,231,.12); }
+  .p4 .o-same.o-same--v2 { box-shadow: none !important; border-radius: 0; } .p4 .o-same .o-svc { border: 0; background: none; box-shadow: none; }
+  /* 5 */
+  .p5 { padding: 10px 8px 8px 18px; gap: 8px; border-left: 10px solid var(--rc); box-shadow: -2px 0 14px color-mix(in srgb, var(--rc) 40%, transparent); }
 </style></head>
-<body class="fig"><div class="app"><main class="view"><div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><div class="o-wrap">
-<p class="kt">1. Стебелёк из кромки карточки</p>
-<section class="f-plate o-rplate kv kv1" style="--rc:#3b82f6">
-  <div class="o-rhead"><span class="o-rhead__t"><b>Спальня</b><small>1 этаж</small></span><span class="o-rhead__b"><button class="o-ib">+</button><button class="o-ib"><span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span></button></span></div>
-  <div class="o-same-wrap"><section class="o-same o-same--v2" style="--rc:#3b82f6"><div class="o-svc">
+<body class="fig"><div class="app"><main class="view"><div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><div class="o-wrap"><p class="kt">1. Пластина в цвете комнаты</p><p class="kx">Вся пластина комнаты чуть окрашена в её цвет — свечение слева. Палочки нет: и название, и объём «внутри» одного цвета.</p><div style="--rc:#3b82f6"><section class="f-plate p1"><div class="hd"><span class="nm"><b>Спальня</b><small>1 этаж</small></span><span class="o-rhead__b"><button class="o-ib">+</button><button class="o-ib"><span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span></button></span></div><section class="o-same o-same--v2" style="--rc:#3b82f6"><div class="o-svc">
     <label class="o-qty"><input value="18" readonly><span>м²</span></label>
     <span class="o-svc__t"><span class="o-svc__n">Одинаковый объём</span><small>заливается во все услуги</small></span>
-    <span class="o-same__tog"><span class="o-tog is-on"><i></i></span></span></div></section></div>
-</section>
-<section class="f-plate o-room o-room--rows is-same" style="--rc:#3b82f6">
+    <span class="o-same__tog"><span class="o-tog is-on"><i></i></span></span></div></section></section></div><section class="f-plate o-room o-room--rows is-same" style="--rc:#3b82f6">
   <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Грунтовка стен</span><small>100 ₽/м² · 3 ч</small></span><b class="o-svc__s">1 800 ₽</b></div>
   <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Поклейка флиз. обоев</span><small>330 ₽/м² · 1 день</small></span><b class="o-svc__s">5 940 ₽</b></div>
-</section>
-<p class="kt">2. Стебелёк с кружком-булавкой</p>
-<section class="f-plate o-rplate kv kv2" style="--rc:#3b82f6">
-  <div class="o-rhead"><span class="o-rhead__t"><b>Спальня</b><small>1 этаж</small></span><span class="o-rhead__b"><button class="o-ib">+</button><button class="o-ib"><span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span></button></span></div>
-  <div class="o-same-wrap"><section class="o-same o-same--v2" style="--rc:#3b82f6"><div class="o-svc">
+</section><p class="kt">2. Название — ярлык на карточке</p><p class="kx">Отдельной шапки нет. Название комнаты — цветной ярлык, приклеенный к верхнему краю карточки объёма, как вкладка папки.</p><div style="--rc:#3b82f6"><div class="p2"><div class="tab">Спальня <small>1 этаж</small></div><div class="btns"><span class="o-rhead__b"><button class="o-ib">+</button><button class="o-ib"><span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span></button></span></div><section class="o-same o-same--v2" style="--rc:#3b82f6"><div class="o-svc">
     <label class="o-qty"><input value="18" readonly><span>м²</span></label>
     <span class="o-svc__t"><span class="o-svc__n">Одинаковый объём</span><small>заливается во все услуги</small></span>
-    <span class="o-same__tog"><span class="o-tog is-on"><i></i></span></span></div></section></div>
-</section>
-<section class="f-plate o-room o-room--rows is-same" style="--rc:#3b82f6">
+    <span class="o-same__tog"><span class="o-tog is-on"><i></i></span></span></div></section></div></div><section class="f-plate o-room o-room--rows is-same" style="--rc:#3b82f6">
   <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Грунтовка стен</span><small>100 ₽/м² · 3 ч</small></span><b class="o-svc__s">1 800 ₽</b></div>
   <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Поклейка флиз. обоев</span><small>330 ₽/м² · 1 день</small></span><b class="o-svc__s">5 940 ₽</b></div>
-</section>
-<p class="kt">3. Без соединения — палочка и кромка на одной линии</p>
-<section class="f-plate o-rplate kv kv3" style="--rc:#3b82f6">
-  <div class="o-rhead"><span class="o-rhead__t"><b>Спальня</b><small>1 этаж</small></span><span class="o-rhead__b"><button class="o-ib">+</button><button class="o-ib"><span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span></button></span></div>
-  <div class="o-same-wrap"><section class="o-same o-same--v2" style="--rc:#3b82f6"><div class="o-svc">
+</section><p class="kt">3. Цветная шапка пластины</p><p class="kx">Верх пластины — полоса цвета комнаты с названием белым. Ниже, на тёмном, — карточка объёма.</p><div style="--rc:#3b82f6"><section class="f-plate p3"><div class="hd"><span class="nm"><b>Спальня</b><small>1 этаж</small></span><span class="o-rhead__b"><button class="o-ib">+</button><button class="o-ib"><span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span></button></span></div><div class="bd"><section class="o-same o-same--v2" style="--rc:#3b82f6"><div class="o-svc">
     <label class="o-qty"><input value="18" readonly><span>м²</span></label>
     <span class="o-svc__t"><span class="o-svc__n">Одинаковый объём</span><small>заливается во все услуги</small></span>
-    <span class="o-same__tog"><span class="o-tog is-on"><i></i></span></span></div></section></div>
-</section>
-<section class="f-plate o-room o-room--rows is-same" style="--rc:#3b82f6">
+    <span class="o-same__tog"><span class="o-tog is-on"><i></i></span></span></div></section></div></section></div><section class="f-plate o-room o-room--rows is-same" style="--rc:#3b82f6">
   <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Грунтовка стен</span><small>100 ₽/м² · 3 ч</small></span><b class="o-svc__s">1 800 ₽</b></div>
   <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Поклейка флиз. обоев</span><small>330 ₽/м² · 1 день</small></span><b class="o-svc__s">5 940 ₽</b></div>
-</section>
-</div></main></div></body></html>
+</section><p class="kt">4. Всё в одной карточке</p><p class="kx">Название и объём — одна карточка: сверху «Спальня · 1 этаж» с цветной точкой, под разделителем — поле и переключатель.</p><div style="--rc:#3b82f6"><section class="f-plate p4"><div class="card"><div class="hd"><i></i><span class="nm"><b>Спальня</b><small>1 этаж</small></span><span class="o-rhead__b"><button class="o-ib">+</button><button class="o-ib"><span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span></button></span></div><div class="ln"></div><section class="o-same o-same--v2" style="--rc:#3b82f6"><div class="o-svc">
+    <label class="o-qty"><input value="18" readonly><span>м²</span></label>
+    <span class="o-svc__t"><span class="o-svc__n">Одинаковый объём</span><small>заливается во все услуги</small></span>
+    <span class="o-same__tog"><span class="o-tog is-on"><i></i></span></span></div></section></div></section></div><section class="f-plate o-room o-room--rows is-same" style="--rc:#3b82f6">
+  <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Грунтовка стен</span><small>100 ₽/м² · 3 ч</small></span><b class="o-svc__s">1 800 ₽</b></div>
+  <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Поклейка флиз. обоев</span><small>330 ₽/м² · 1 день</small></span><b class="o-svc__s">5 940 ₽</b></div>
+</section><p class="kt">5. Цветной корешок пластины</p><p class="kx">Левый край самой пластины залит цветом комнаты — как корешок у тетради. Всё, что внутри, — про эту комнату.</p><div style="--rc:#3b82f6"><section class="f-plate p5"><div class="hd"><span class="nm"><b>Спальня</b><small>1 этаж</small></span><span class="o-rhead__b"><button class="o-ib">+</button><button class="o-ib"><span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span></button></span></div><section class="o-same o-same--v2" style="--rc:#3b82f6"><div class="o-svc">
+    <label class="o-qty"><input value="18" readonly><span>м²</span></label>
+    <span class="o-svc__t"><span class="o-svc__n">Одинаковый объём</span><small>заливается во все услуги</small></span>
+    <span class="o-same__tog"><span class="o-tog is-on"><i></i></span></span></div></section></section></div><section class="f-plate o-room o-room--rows is-same" style="--rc:#3b82f6">
+  <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Грунтовка стен</span><small>100 ₽/м² · 3 ч</small></span><b class="o-svc__s">1 800 ₽</b></div>
+  <div class="o-svc"><label class="o-qty is-locked"><input value="18" readonly><span>м²</span></label><span class="o-svc__t"><span class="o-svc__n">Поклейка флиз. обоев</span><small>330 ₽/м² · 1 день</small></span><b class="o-svc__s">5 940 ₽</b></div>
+</section></div></main></div></body></html>
