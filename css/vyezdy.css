@@ -1112,3 +1112,9 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .g-plate:has(.g-hint-s) { }
 /* Поле «Одинаковый объём» строго над полями работ: тот же отступ, что у строк внутри плашки работ. */
 .o-same.o-same--v2 { margin-left: 9px; margin-right: 9px; }
+/* Палочка цвета комнаты у названия продолжается вниз и «вводит» в поле «Одинаковый объём». */
+.o-same-wrap { position: relative; padding-left: 22px; }
+.o-same-wrap::before { content: ''; position: absolute; left: 2px; top: -25px; width: 20px; height: calc(50% + 25px - 2px); border-left: 4px solid var(--rc); border-bottom: 4px solid var(--rc);
+  border-bottom-left-radius: 12px; box-shadow: -2px 2px 8px color-mix(in srgb, var(--rc) 45%, transparent); pointer-events: none; }
+.o-same-wrap .o-same.o-same--v2 { margin-left: 0; margin-right: 9px; }
+.o-rhead { margin-bottom: 12px; }
