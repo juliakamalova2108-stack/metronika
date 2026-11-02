@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=104';
-import * as S from './store.js?v=104';
-import { SYSTEM_PRICE } from './seed.js?v=104';
-import { shiftsText, hoursFor } from './calc.js?v=104';
-import { esc, toast } from './ui.js?v=104';
-import { logEvent } from './zlog.js?v=104';
+import { actions, rerender } from './core.js?v=105';
+import * as S from './store.js?v=105';
+import { SYSTEM_PRICE } from './seed.js?v=105';
+import { shiftsText, hoursFor } from './calc.js?v=105';
+import { esc, toast } from './ui.js?v=105';
+import { logEvent } from './zlog.js?v=105';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -177,7 +177,7 @@ function volumesView(e, r) {
   const status = locked ? '<span class="f-status f-status--ok o-status"><i></i>сохранено</span>' : '<span class="f-status f-status--warn o-status"><i></i>редактирование</span>';
   return `${carousel(e, roomTabs(r))}
     ${sameCard(r, locked)}
-    <section class="f-plate o-room o-room--rows f-fill">
+    <section class="f-plate o-room o-room--rows f-fill${sameOn(r) ? ' is-same' : ''}" style="--rc:${r.color || '#7c8f8a'}">
       <div class="o-room__bar">${status}</div>
       ${t.lines.map((l) => svcCard(l, locked, qtyChanged(r, l.id), !l.qty && (r.qtyErr || []).includes(l.id))).join('')}
     </section>

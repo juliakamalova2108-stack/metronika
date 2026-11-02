@@ -1103,3 +1103,8 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-svc .o-qty input, .o-svc .o-qty.is-locked input, .o-qty.is-locked { color: #fff; }
 .o-svc .o-qty span { color: rgba(237, 242, 232, 0.7); }
 .o-qty.is-locked input { -webkit-text-fill-color: #fff; opacity: 1; }
+/* «Одинаковый объём» включён: поле объёма и поля всех работ обведены цветом комнаты — видно, что объём везде один. */
+.o-same.o-same--v2 { box-shadow: 0 0 14px color-mix(in srgb, var(--rc) 22%, transparent); }
+.o-same.o-same--v2.is-off { box-shadow: none; }
+.o-same.o-same--v2:not(.is-off) .o-qty,
+.o-room.is-same .o-qty:not(.is-error) { border-color: var(--rc); box-shadow: 0 0 0 1.5px var(--rc), 0 0 8px color-mix(in srgb, var(--rc) 55%, transparent), inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.58), inset 0 4px 7px rgba(1, 9, 11, 0.66); }
