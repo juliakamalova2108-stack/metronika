@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Стена — колонки</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Manrope:wght@400;500;600;700&family=Onest:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/app.css"><link rel="stylesheet" href="../../css/vyezdy.css">
+<style>
+  :root { --rc: #f59e0b; }
+  body.fig .view { padding-bottom: 60px; }
+  .zx { margin: 0 2px 12px; font: 400 13px/18px var(--font-body); color: rgba(230,242,204,.85); }
+  .rs { border: 0; background: none; color: #e6f2cc; text-decoration: underline; font: 500 12px/1 var(--font-body); cursor: pointer; }
+  .card { padding: 12px; gap: 10px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.2); box-shadow: 0 20px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.18); }
+  .hd { display: flex; align-items: center; gap: 10px; } .hd b { font: 700 18px/22px var(--font-body); color: #fff; } .hd small { font: 400 12px/15px var(--font-body); color: rgba(237,240,231,.6); }
+  .Lin { display: flex; align-items: center; gap: 10px; } .Lin label { font: 500 13px/1 var(--font-body); color: rgba(237,240,231,.75); }
+  .fld { display: inline-flex; align-items: baseline; gap: 3px; height: 46px; padding: 0 12px; border-radius: 8px; border: 1.5px solid var(--rc); background: linear-gradient(180deg,#687b7a,#738582); box-shadow: 0 0 8px rgba(245,158,11,.45), inset 0 3px 6px rgba(1,9,11,.5); }
+  .fld input { width: 64px; border: 0; background: none; outline: none; color: #fff; font: 700 22px/46px var(--font-num); text-align: right; }
+  .fld small { font: 500 12px/1 var(--font-body); color: rgba(255,255,255,.75); }
+  /* общая шкала стены */
+  .gross { position: relative; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
+    background: radial-gradient(120% 160% at 0% 0%, rgba(245,158,11,.6), rgba(245,158,11,.15) 70%); border: 1px solid rgba(255,255,255,.3); box-shadow: 0 0 24px rgba(245,158,11,.2), inset 0 1px 0 rgba(255,255,255,.25); }
+  .gross b { font: 800 24px/1 var(--font-num); color: #fff; } .gross b small { font-size: 13px; color: rgba(255,255,255,.8); }
+  .gross span { font: 600 13px/1 var(--font-num); color: rgba(255,255,255,.85); }
+  /* колонки */
+  .cols { display: grid; grid-template-columns: 1fr 76px 76px; gap: 6px; }
+  .sum { height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font: 800 16px/1 var(--font-num); }
+  .sum small { font-size: 11px; margin-left: 2px; opacity: .8; }
+  .sum.net { justify-content: flex-start; padding-left: 14px; background: rgba(255,255,255,.08); color: #fff; border: 1px solid rgba(255,255,255,.2); }
+  .sum.op { background: rgba(255,156,156,.14); color: #ffb3b3; border: 1px solid rgba(255,156,156,.4); }
+  .stack { display: flex; flex-direction: column-reverse; gap: 5px; min-height: 104px; padding: 6px; border-radius: 14px; background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.08); }
+  .wk { height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; color: #fff; font: 600 13px/1 var(--font-body);
+    background: linear-gradient(90deg, var(--wc), color-mix(in srgb, var(--wc) 65%, #13292b)); animation: pop .4s cubic-bezier(.2,1.3,.4,1); cursor: pointer; }
+  .wk b { font: 700 13px/1 var(--font-num); white-space: nowrap; } .wk { gap: 6px; } .wk > :first-child { min-width: 0; }
+  .op { height: 40px; border-radius: 10px; display: grid; place-items: center; background: linear-gradient(180deg, rgba(143,211,255,.25), rgba(143,211,255,.08)); border: 1px solid rgba(255,255,255,.25); color: #ffb3b3; font: 700 14px/1 var(--font-num); animation: pop .4s cubic-bezier(.2,1.3,.4,1); cursor: pointer; }
+  .op.door { background: linear-gradient(180deg, rgba(241,215,184,.22), rgba(241,215,184,.06)); }
+  @keyframes pop { from { transform: translateY(-24px) scale(.7); opacity: 0; } }
+  .btn { height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; font: 600 14px/1 var(--font-body); box-shadow: inset 0 1px 0 rgba(255,255,255,.18); }
+  .btn svg { width: 30px; height: 30px; }
+  .btn.w { border: 0; color: #13292b; background: linear-gradient(180deg, #f8b94a, #f59e0b); box-shadow: 0 6px 16px rgba(245,158,11,.35); }
+  .total { display: flex; justify-content: space-between; margin: 2px 4px 0; font: 600 15px/1 var(--font-body); color: #fff; } .total b { font: 800 19px/1 var(--font-num); color: #e6f2cc; }
+  .empty { display: grid; place-items: center; height: 54px; border-radius: 16px; border: 1.5px dashed rgba(230,242,204,.4); font: 400 13px/1 var(--font-body); color: rgba(237,240,231,.55); }
+  .shade { position: fixed; inset: 0; z-index: 80; background: rgba(4,12,14,.6); }
+  .sheet2 { position: fixed; z-index: 81; left: 0; right: 0; bottom: 0; padding: 10px 14px 24px; border-radius: 18px 18px 0 0; background: linear-gradient(180deg, #2a4142, #213536); border-top: 1px solid rgba(204,222,209,.4); }
+  .grab { width: 44px; height: 5px; border-radius: 3px; background: rgba(237,240,231,.35); margin: 0 auto 12px; }
+  .sheet2 h3, .ed h3 { margin: 0 4px 12px; font: 700 19px/24px var(--font-num); color: #fff; display: flex; align-items: center; gap: 8px; }
+  .wl { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 14px; }
+  .wl button { height: 52px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(204,222,209,.4); background: #213839; color: #fff; text-align: left; font: 500 13.5px/16px var(--font-body); cursor: pointer; }
+  .wl button small { display: block; font: 400 11px/13px var(--font-body); color: rgba(237,240,231,.6); }
+  .wl button.on { border-color: var(--wc); box-shadow: 0 0 0 1.5px var(--wc); background: color-mix(in srgb, var(--wc) 30%, #213839); }
+  .ed { position: fixed; z-index: 81; left: 50%; top: 40%; transform: translate(-50%, -50%); width: 280px; padding: 16px; border-radius: 18px; background: #2a4142; border: 1px solid rgba(204,222,209,.4); box-shadow: 0 20px 40px rgba(0,0,0,.5); }
+  .ed h3 svg { width: 26px; height: 26px; }
+  .sz { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; } .sz .fld { justify-content: center; } .sz .fld input { width: 60px; text-align: center; }
+  .szl { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; margin: 4px 0 12px; font: 400 11px/14px var(--font-body); color: rgba(237,240,231,.6); text-align: center; }
+  .r2 { display: flex; gap: 6px; } .del { flex: 1; height: 42px; border-radius: 8px; border: 1px solid rgba(255,120,120,.6); background: none; color: #ff9c9c; font: 600 13px/1 var(--font-body); }
+
+  .vs { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 8px; padding: 3px; border-radius: 10px; background: rgba(0,0,0,.28); }
+  .vs button { flex: 1 0 calc(20% - 4px); height: 32px; border: 0; border-radius: 8px; background: none; color: rgba(237,240,231,.6); font: 600 12px/1 var(--font-body); cursor: pointer; }
+  .vs button.is-on { background: #e6f2cc; color: #13292b; }
+  .cols { align-items: stretch; }
+
+  /* 2 · Неон */
+  .T2 .card { background: #0f1c1e; border: 1px solid rgba(245,158,11,.35); box-shadow: 0 0 30px rgba(245,158,11,.12); }
+  .T2 .gross { background: none; border: 1.5px solid #f59e0b; box-shadow: 0 0 14px rgba(245,158,11,.6), inset 0 0 14px rgba(245,158,11,.25); }
+  .T2 .gross b { color: #ffd27a; text-shadow: 0 0 10px rgba(245,158,11,.8); }
+  .T2 .sum.net { background: none; border-color: #4ade80; color: #bbf7d0; box-shadow: 0 0 10px rgba(74,222,128,.4); }
+  .T2 .sum.op { background: none; border-color: #fb7185; color: #fecdd3; box-shadow: 0 0 10px rgba(251,113,133,.4); }
+  .T2 .stack { background: none; border: 1px dashed rgba(255,255,255,.15); }
+  .T2 .wk { background: none; border: 1.5px solid var(--wc); box-shadow: 0 0 10px var(--wc), inset 0 0 10px color-mix(in srgb, var(--wc) 40%, transparent); color: #fff; }
+  .T2 .op { background: none; border: 1.5px solid #fb7185; box-shadow: 0 0 8px rgba(251,113,133,.5); color: #fecdd3; }
+  .T2 .btn { background: none; border: 1.5px solid rgba(255,255,255,.4); } .T2 .btn.w { background: none; border: 1.5px solid #f59e0b; color: #ffd27a; box-shadow: 0 0 14px rgba(245,158,11,.6); }
+
+  /* 3 · Неоморфизм */
+  .T3 .card { background: #22383a; border: 0; box-shadow: 10px 10px 24px #142425, -8px -8px 20px #304c4e; border-radius: 26px; }
+  .T3 .gross, .T3 .sum, .T3 .btn { background: #22383a; border: 0; box-shadow: 6px 6px 14px #142425, -5px -5px 12px #304c4e; }
+  .T3 .gross b { color: #f8b94a; } .T3 .gross span { color: rgba(237,240,231,.6); }
+  .T3 .sum.net { color: #fff; } .T3 .sum.op { color: #ff9c9c; }
+  .T3 .stack { background: #22383a; border: 0; box-shadow: inset 5px 5px 12px #142425, inset -5px -5px 12px #304c4e; }
+  .T3 .wk { box-shadow: 3px 3px 8px #142425; } .T3 .op { background: #22383a; border: 0; box-shadow: 3px 3px 8px #142425, -3px -3px 8px #304c4e; }
+  .T3 .btn.w { background: #22383a; color: #f8b94a; box-shadow: 6px 6px 14px #142425, -5px -5px 12px #304c4e; }
+
+  /* 4 · Material You */
+  .T4 .card { background: #2a3d3a; border: 0; box-shadow: none; border-radius: 28px; }
+  .T4 .gross { border: 0; border-radius: 28px; background: #ffdcae; } .T4 .gross b { color: #2b1700; } .T4 .gross b small, .T4 .gross span { color: #5a3f1d; }
+  .T4 .sum { border: 0; border-radius: 20px; } .T4 .sum.net { background: #c8ebd6; color: #0f3a24; } .T4 .sum.op { background: #ffd9dc; color: #6b0f1a; }
+  .T4 .stack { background: #22332f; border: 0; border-radius: 20px; }
+  .T4 .wk { border-radius: 16px; background: var(--wc); }
+  .T4 .op { border: 0; border-radius: 16px; background: #ffd9dc; color: #6b0f1a; } .T4 .op.door { background: #f6e3cc; color: #4a2b05; }
+  .T4 .btn { border: 0; border-radius: 26px; background: #3b524d; box-shadow: none; } .T4 .btn.w { border-radius: 26px; background: #ffb94a; box-shadow: none; }
+
+  /* 5 · Чертёж */
+  .T5 .card { background-color: #12324a; background-image: linear-gradient(rgba(150,200,230,.10) 1px, transparent 1px), linear-gradient(90deg, rgba(150,200,230,.10) 1px, transparent 1px); background-size: 14px 14px; border: 1.5px solid #8cc6ea; border-radius: 6px; box-shadow: none; }
+  .T5 * { font-family: ui-monospace, 'SF Mono', Menlo, monospace !important; }
+  .T5 .gross { background: none; border: 1.5px solid #e6f4ff; border-radius: 2px; box-shadow: none; } .T5 .gross b { color: #e6f4ff; font-weight: 600; }
+  .T5 .sum, .T5 .stack, .T5 .btn, .T5 .op, .T5 .wk { border-radius: 2px; box-shadow: none; }
+  .T5 .sum.net { background: none; border: 1px solid #8cc6ea; color: #e6f4ff; } .T5 .sum.op { background: none; border: 1px dashed #ff9c9c; }
+  .T5 .stack { background: none; border: 1px dashed rgba(140,198,234,.5); }
+  .T5 .wk { background: none; border: 1.5px solid var(--wc); } .T5 .op { background: rgba(255,156,156,.08); border: 1px dashed #ff9c9c; }
+  .T5 .btn { background: none; border: 1px solid #8cc6ea; } .T5 .btn.w { background: #e6f4ff; color: #12324a; box-shadow: none; }
+
+  /* 6 · Бенто */
+  .T6 .card { background: #0f1b1c; border: 0; border-radius: 30px; }
+  .T6 .gross { height: 92px; border-radius: 24px; border: 0; background: linear-gradient(135deg, #f59e0b, #f97316); box-shadow: none; }
+  .T6 .gross b { font-size: 40px; color: #fff; } .T6 .gross span { align-self: flex-end; margin-bottom: 14px; color: rgba(255,255,255,.85); }
+  .T6 .sum { height: 64px; border-radius: 20px; border: 0; font-size: 22px; } .T6 .sum.net { background: #1f2f30; } .T6 .sum.op { background: #2a1d20; }
+  .T6 .stack { background: #172526; border: 0; border-radius: 20px; } .T6 .wk, .T6 .op { border-radius: 14px; border: 0; } .T6 .op { background: #2a1d20; }
+  .T6 .btn { border: 0; border-radius: 20px; background: #1f2f30; box-shadow: none; height: 60px; } .T6 .btn.w { background: #fff; color: #0f1b1c; }
+
+  /* 7 · Светлая карточка */
+  .T7 .card { background: #f5f3ec; border: 0; box-shadow: 0 20px 40px rgba(0,0,0,.4); border-radius: 22px; }
+  .T7 .hd b, .T7 .total span { color: #13292b; } .T7 .hd small, .T7 .Lin label { color: #6b7a70; } .T7 .total b { color: #b45309; }
+  .T7 .fld { background: #fff; box-shadow: 0 0 0 3px rgba(245,158,11,.25); } .T7 .fld input { color: #13292b; } .T7 .fld small { color: #6b7a70; }
+  .T7 .gross { background: #13292b; border: 0; box-shadow: none; } .T7 .gross b { color: #fff; }
+  .T7 .sum.net { background: #fff; color: #13292b; border: 1px solid #e3e0d5; } .T7 .sum.op { background: #fde8e8; color: #b42318; border: 0; }
+  .T7 .stack { background: #ebe8de; border: 0; } .T7 .op { background: #fff; color: #b42318; border: 1px solid #f3c2c2; } .T7 .op.door { background: #fff; }
+  .T7 .btn { background: #fff; border: 1px solid #e3e0d5; box-shadow: 0 2px 6px rgba(0,0,0,.06); } .T7 .btn.w { background: #13292b; color: #fff; box-shadow: none; }
+  .T7 .btn svg rect, .T7 .btn svg path, .T7 .btn svg circle { stroke: #13292b; } .T7 .btn svg rect[height="2.5"] { fill: #13292b; }
+
+  /* 8 · Градиент */
+  .T8 .card { background: linear-gradient(160deg, #3b2a5c, #1f3a4a 55%, #1b3a32); border: 1px solid rgba(255,255,255,.18); }
+  .T8 .gross { background: linear-gradient(90deg, #f59e0b, #ec4899, #8b5cf6); border: 0; }
+  .T8 .sum.net { background: rgba(255,255,255,.12); } .T8 .sum.op { background: rgba(236,72,153,.2); color: #fbcfe8; border-color: rgba(236,72,153,.5); }
+  .T8 .stack { background: rgba(0,0,0,.22); } .T8 .op { background: rgba(236,72,153,.18); color: #fbcfe8; border-color: rgba(236,72,153,.5); }
+  .T8 .btn { background: rgba(255,255,255,.1); } .T8 .btn.w { background: linear-gradient(90deg, #f59e0b, #ec4899); color: #fff; }
+
+  /* 9 · Тонкие линии */
+  .T9 .card { background: none; border: 1px solid rgba(237,240,231,.25); box-shadow: none; }
+  .T9 .gross { background: none; border: 0; border-bottom: 2px solid #f59e0b; border-radius: 0; box-shadow: none; padding: 0 2px; } .T9 .gross b { font-weight: 300; font-size: 34px; }
+  .T9 .sum { background: none; border: 0; border-radius: 0; border-bottom: 1px solid rgba(237,240,231,.3); font-weight: 400; } .T9 .sum.op { color: #ff9c9c; }
+  .T9 .stack { background: none; border: 0; border-left: 1px solid rgba(237,240,231,.15); border-radius: 0; }
+  .T9 .wk { background: none; border-left: 3px solid var(--wc); border-radius: 0; font-weight: 400; } .T9 .op { background: none; border: 0; border-left: 3px solid #ff9c9c; border-radius: 0; font-weight: 400; }
+  .T9 .btn { background: none; border: 1px solid rgba(237,240,231,.35); border-radius: 26px; box-shadow: none; } .T9 .btn.w { background: none; border: 1px solid #f59e0b; color: #f8b94a; box-shadow: none; }
+
+  /* 10 · Клавиши */
+  .T10 .card { background: #1d2f31; border: 1px solid rgba(0,0,0,.4); }
+  .T10 .gross { background: linear-gradient(180deg, #2a4446, #203638); border: 1px solid rgba(0,0,0,.5); box-shadow: inset 0 2px 0 rgba(255,255,255,.08), 0 3px 0 #0f1d1f; } .T10 .gross b { color: #f8b94a; }
+  .T10 .sum { box-shadow: inset 0 2px 6px rgba(0,0,0,.5); border: 0; } .T10 .sum.net { background: #172728; } .T10 .sum.op { background: #241a1c; }
+  .T10 .stack { background: #142224; box-shadow: inset 0 3px 8px rgba(0,0,0,.6); border: 0; }
+  .T10 .wk { box-shadow: 0 3px 0 color-mix(in srgb, var(--wc) 50%, #000); } .T10 .op { background: #2a3b3d; border: 0; box-shadow: 0 3px 0 #0f1d1f; }
+  .T10 .btn { background: linear-gradient(180deg, #34504f, #273d3e); border: 0; box-shadow: 0 5px 0 #0f1d1f, 0 8px 12px rgba(0,0,0,.4); transform: translateY(-3px); }
+  .T10 .btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #0f1d1f; } .T10 .btn.w { background: linear-gradient(180deg, #fbbf4a, #e08e06); box-shadow: 0 5px 0 #8a5300, 0 8px 12px rgba(0,0,0,.4); }
+</style></head>
+<body class="fig"><div class="app"><main class="view"><div class="fig-blobs"><i></i><i></i></div><div class="o-wrap" id="w"></div></main></div><div id="pop"></div>
+<script>
+const H = 2.7;
+let D = 1;
+const NM = ['Стекло', 'Неон', 'Неоморф', 'Material', 'Чертёж', 'Бенто', 'Светлая', 'Градиент', 'Линии', 'Клавиши'];
+const DS = ['матовое стекло со свечением цвета комнаты', 'тёмный фон и светящиеся контуры', 'мягкие выпуклые и вдавленные формы из одного материала', 'как Android: тональные заливки, всё скруглено', 'синяя миллиметровка, моноширинный шрифт — как чертёж', 'крупные плитки-блоки, огромные цифры', 'светлая карточка на тёмном фоне, как лист', 'яркий градиент от оранжевого к фиолетовому', 'только тонкие линии и лёгкий шрифт, без заливок', 'настоящие нажимаемые клавиши, как на калькуляторе'];
+let L = 4.2, ops = [{ t: 'win', w: 1.5, h: 1.4 }, { t: 'door', w: 0.9, h: 2.1 }], wks = ['prime', 'fliz'], wpick = [], ei = -1, ow = 0, oh = 0;
+const WORKS = [['prime', 'Грунтовка', 100, '#5b8def'], ['fliz', 'Поклейка флиз.', 330, '#22c55e'], ['strip', 'Демонтаж обоев', 150, '#ef4444'], ['putty', 'Шпаклёвка', 200, '#a855f7']];
+const IC = {
+  win: '<svg viewBox="0 0 32 32" fill="none"><rect x="5" y="4" width="22" height="22" rx="2" fill="#8fd3ff" fill-opacity=".25" stroke="#cfeeff" stroke-width="1.8"/><path d="M16 4v22M5 15h22" stroke="#cfeeff" stroke-width="1.6"/><rect x="3" y="26" width="26" height="2.5" rx="1" fill="#cfeeff"/></svg>',
+  door: '<svg viewBox="0 0 32 32" fill="none"><rect x="8" y="3" width="16" height="26" rx="1.5" fill="#c8a27a" fill-opacity=".25" stroke="#f1d7b8" stroke-width="1.8"/><circle cx="20" cy="16.5" r="1.5" fill="#f1d7b8"/><path d="M4 29h24" stroke="#f1d7b8" stroke-width="1.8" stroke-linecap="round"/></svg>',
+};
+const PRE = { win: [1.5, 1.4], door: [0.9, 2.1] };
+const f = (n) => String(Math.round(n * 100) / 100).replace('.', ',');
+const money = (n) => Math.round(n).toLocaleString('ru-RU') + ' ₽';
+const gross = () => L * H; const sumOf = (t) => ops.filter((o) => o.t === t).reduce((a, o) => a + o.w * o.h, 0);
+const net = () => Math.max(0, gross() - sumOf('win') - sumOf('door'));
+function draw() {
+  const tot = wks.reduce((a, k) => a + net() * WORKS.find((x) => x[0] === k)[2], 0);
+  const stack = (t) => ops.map((o, i) => o.t === t ? `<div class="op ${t}" onclick="edit(${i})">−${f(o.w * o.h)}</div>` : '').join('');
+  document.getElementById('w').innerHTML = `<div class="vs">${NM.map((n, i) => `<button class="${D === i + 1 ? 'is-on' : ''}" onclick="D=${i + 1};draw()">${n}</button>`).join('')}</div><p class="zx"><b>${D}. ${NM[D - 1]}</b> — ${DS[D - 1]}. <button class="rs" onclick="L=0;ops=[];wks=[];draw()">начать заново</button></p>
+  <div class="T${D}"><section class="f-plate card"><div class="hd"><b>Стена 1</b><small>высота 2,7 м — одинаковая</small></div>
+    <div class="Lin"><label>Длина</label><span class="fld"><input id="L" inputmode="decimal" value="${L ? f(L) : ''}" placeholder="—" oninput="setL(this.value)"><small>м</small></span></div>
+    ${!L ? '<div class="empty">Введите длину — появится площадь стены</div>' : `
+    <div class="gross"><b>${f(gross())}<small> м²</small></b><span>${f(L)} × ${f(H)}</span></div>
+    <div class="cols">
+      <div class="sum net">${f(net())}<small> м²</small></div><div class="sum op">${sumOf('win') ? '−' + f(sumOf('win')) : '0'}</div><div class="sum op">${sumOf('door') ? '−' + f(sumOf('door')) : '0'}</div>
+      <div class="stack">${wks.map((k, i) => { const [, n, p, c] = WORKS.find((x) => x[0] === k); return `<div class="wk" style="--wc:${c}" onclick="wks.splice(${i},1);draw()">${n}<b>${money(net() * p)}</b></div>`; }).join('')}</div>
+      <div class="stack">${stack('win')}</div><div class="stack">${stack('door')}</div>
+      <button class="btn w" onclick="openW()">+ работа</button><button class="btn" onclick="add('win')" aria-label="окно">${IC.win}</button><button class="btn" onclick="add('door')" aria-label="дверь">${IC.door}</button>
+    </div>
+    ${wks.length ? `<div class="total"><span>Стена 1 итого</span><b>${money(tot)}</b></div>` : ''}`}
+  </section></div>`;
+}
+function setL(v) { L = parseFloat(String(v).replace(',', '.')) || 0; draw(); const el = document.getElementById('L'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+function add(t) { ops.push({ t, w: PRE[t][0], h: PRE[t][1] }); draw(); }
+function edit(i) { ei = i; ow = ops[i].w; oh = ops[i].h;
+  document.getElementById('pop').innerHTML = `<div class="shade" onclick="closePop()"></div><div class="ed"><h3>${IC[ops[i].t]} ${ops[i].t === 'win' ? 'Окно' : 'Дверь'}</h3>
+    <div class="sz"><span class="fld"><input inputmode="decimal" value="${f(ow)}" oninput="ow=parseFloat(this.value.replace(',','.'))||0"><small>м</small></span><span>×</span><span class="fld"><input inputmode="decimal" value="${f(oh)}" oninput="oh=parseFloat(this.value.replace(',','.'))||0"><small>м</small></span></div>
+    <div class="szl"><span>ширина</span><span></span><span>высота</span></div>
+    <div class="r2"><button class="del" onclick="ops.splice(ei,1);closePop();draw()">Удалить</button><button class="f-btn" style="flex:1;height:42px" onclick="ops[ei].w=ow;ops[ei].h=oh;closePop();draw()">ОК</button></div></div>`; }
+function openW() { wpick = []; drawW(); }
+function drawW() {
+  document.getElementById('pop').innerHTML = `<div class="shade" onclick="closePop()"></div><div class="sheet2"><div class="grab"></div><h3>Работы на стене</h3>
+    <div class="wl">${WORKS.filter(([k]) => !wks.includes(k)).map(([k, n, p, c]) => `<button class="${wpick.includes(k) ? 'on' : ''}" style="--wc:${c}" onclick="wpick.includes('${k}')?wpick.splice(wpick.indexOf('${k}'),1):wpick.push('${k}');drawW()">${n}<small>${p} ₽/м²</small></button>`).join('')}</div>
+    <div class="f-btn-row" style="width:calc(50% + 2.5px);margin:0 auto"><button class="f-btn" onclick="wks.push(...wpick);closePop();draw()">${wpick.length ? 'Добавить · ' + wpick.length : 'Готово'}</button></div></div>`; }
+function closePop() { document.getElementById('pop').innerHTML = ''; }
+draw();
+</script></body></html>
