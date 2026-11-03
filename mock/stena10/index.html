@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Стена — 10 форм</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/app.css"><link rel="stylesheet" href="../../css/vyezdy.css">
+<style>
+  :root { --rc: #f59e0b; --red: #ff9c9c; --lt: #e6f2cc; --tx: #edf0e7; --mu: rgba(237,240,231,.6); --pl: #213839; }
+  body.fig .view { padding-bottom: 60px; }
+  .vs { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 8px; padding: 3px; border-radius: 10px; background: rgba(0,0,0,.28); }
+  .vs button { flex: 1 0 calc(20% - 4px); height: 32px; border: 0; border-radius: 8px; background: none; color: rgba(237,240,231,.6); font: 600 12px/1 var(--font-body); cursor: pointer; }
+  .vs button.is-on { background: var(--lt); color: #13292b; }
+  .zx { margin: 0 2px 12px; font: 400 13px/18px var(--font-body); color: rgba(230,242,204,.85); }
+  .rs { border: 0; background: none; color: var(--lt); text-decoration: underline; font: 500 12px/1 var(--font-body); cursor: pointer; }
+  .card { padding: 14px; gap: 12px; }
+  .hd { display: flex; align-items: center; gap: 10px; } .hd b { font: 700 18px/22px var(--font-body); color: #fff; } .hd small { font: 400 12px/15px var(--font-body); color: var(--mu); }
+  .Lin { display: flex; align-items: center; gap: 10px; } .Lin label { font: 500 13px/1 var(--font-body); color: rgba(237,240,231,.75); }
+  .fld { display: inline-flex; align-items: baseline; gap: 3px; height: 46px; padding: 0 12px; border-radius: 8px; border: 1.5px solid var(--rc); background: linear-gradient(180deg,#687b7a,#738582); box-shadow: 0 0 8px rgba(245,158,11,.45), inset 0 3px 6px rgba(1,9,11,.5); }
+  .fld input { width: 64px; border: 0; background: none; outline: none; color: #fff; font: 700 22px/46px var(--font-num); text-align: right; }
+  .fld small { font: 500 12px/1 var(--font-body); color: rgba(255,255,255,.75); }
+  .num { font-family: var(--font-num); }
+  button { -webkit-tap-highlight-color: transparent; }
+  @keyframes pop { from { transform: translateY(-18px) scale(.7); opacity: 0; } }
+  .pop { animation: pop .4s cubic-bezier(.2,1.3,.4,1); }
+  .IC svg { width: 100%; height: 100%; }
+  .total { display: flex; justify-content: space-between; align-items: baseline; margin: 2px 2px 0; font: 600 15px/1 var(--font-body); color: #fff; } .total b { font: 800 20px/1 var(--font-num); color: var(--lt); }
+
+  /* ==== 1 БАНК: огромная цифра, тонкая полоса долей, лёгкие строки ==== */
+  .v1 .big { font: 800 52px/1 var(--font-num); color: #fff; letter-spacing: -.02em; } .v1 .big small { font-size: 18px; color: var(--mu); font-weight: 600; margin-left: 4px; }
+  .v1 .sub { font: 500 13px/1 var(--font-body); color: var(--mu); margin-top: 6px; }
+  .v1 .split { display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px; margin-top: 4px; }
+  .v1 .split i { display: block; } .v1 .split .n { background: var(--rc); } .v1 .split .w { background: #8fd3ff; } .v1 .split .d { background: #f1d7b8; }
+  .v1 .cols { display: grid; grid-template-columns: 1fr 64px 64px; gap: 12px; }
+  .v1 .t { font: 700 17px/1 var(--font-num); color: #fff; } .v1 .t.r { color: var(--red); text-align: center; } .v1 .t small { font-size: 11px; color: var(--mu); }
+  .v1 .tl { display: block; font: 500 10.5px/1 var(--font-body); color: var(--mu); margin-top: 4px; text-transform: lowercase; } .v1 .t.r .tl { text-align: center; }
+  .v1 .stk { display: flex; flex-direction: column-reverse; gap: 6px; min-height: 80px; justify-content: flex-start; }
+  .v1 .wk { display: flex; align-items: center; gap: 8px; height: 32px; font: 600 13px/1 var(--font-body); color: #fff; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .v1 .wk::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--wc); box-shadow: 0 0 8px var(--wc); }
+  .v1 .wk b { margin-left: auto; font: 700 13px/1 var(--font-num); }
+  .v1 .op { align-self: center; height: 26px; padding: 0 10px; border-radius: 13px; background: rgba(255,156,156,.14); color: var(--red); font: 700 12px/26px var(--font-num); cursor: pointer; }
+  .v1 .bt { display: grid; grid-template-columns: 1fr 64px 64px; gap: 12px; }
+  .v1 .bw { height: 52px; border-radius: 26px; border: 0; background: var(--rc); color: #13292b; font: 700 15px/1 var(--font-body); box-shadow: 0 8px 20px rgba(245,158,11,.35); cursor: pointer; }
+  .v1 .bi { justify-self: center; width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06); padding: 13px; cursor: pointer; }
+
+  /* ==== 2 СХЕМА: стена — линейный чертёж с размерами ==== */
+  .v2 svg.wall { width: 100%; height: auto; display: block; }
+  .v2 .row { display: grid; grid-template-columns: 1fr 70px 70px; gap: 8px; align-items: end; }
+  .v2 .lb { font: 500 11px/1 var(--font-body); color: var(--mu); } .v2 .val { font: 700 20px/1 var(--font-num); color: #fff; margin-top: 4px; } .v2 .val.r { color: var(--red); }
+  .v2 .row > div { padding-bottom: 8px; border-bottom: 2px solid var(--c); } 
+  .v2 .stk { display: flex; flex-direction: column-reverse; gap: 4px; min-height: 76px; }
+  .v2 .wk { font: 600 13px/30px var(--font-body); color: #fff; display: flex; justify-content: space-between; padding: 0 2px; border-left: 3px solid var(--wc); padding-left: 8px; }
+  .v2 .wk b { font: 700 13px/30px var(--font-num); }
+  .v2 .op { font: 700 13px/30px var(--font-num); color: var(--red); text-align: center; cursor: pointer; }
+  .v2 .bw { height: 46px; border: 1.5px solid var(--rc); background: none; color: #ffd27a; border-radius: 10px; font: 600 14px/1 var(--font-body); cursor: pointer; }
+  .v2 .bi { height: 46px; border: 1.5px solid rgba(255,255,255,.25); background: none; border-radius: 10px; padding: 9px 20px; cursor: pointer; }
+
+  /* ==== 3 КАРТА: площадь — карта цвета комнаты, ниже «трубки» ==== */
+  .v3 .cc { position: relative; height: 128px; border-radius: 22px; padding: 16px 18px; background: linear-gradient(135deg, #f8b94a, #c46f05 70%, #8a4a02); box-shadow: 0 16px 30px rgba(245,158,11,.25); color: #fff; overflow: hidden; }
+  .v3 .cc::after { content: ''; position: absolute; right: -40px; top: -60px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,.12); }
+  .v3 .cc small { font: 600 12px/1 var(--font-body); opacity: .85; } .v3 .cc b { display: block; margin-top: 14px; font: 800 40px/1 var(--font-num); } .v3 .cc span { position: absolute; left: 18px; bottom: 14px; font: 600 13px/1 var(--font-num); opacity: .9; }
+  .v3 .cc .ch { position: absolute; left: auto !important; right: 18px; bottom: 14px; display: flex; gap: 10px; font: 700 13px/1 var(--font-num); }
+  .v3 .tubes { display: grid; grid-template-columns: 1fr 64px 64px; gap: 10px; align-items: end; }
+  .v3 .tube { position: relative; display: flex; flex-direction: column-reverse; gap: 3px; min-height: 120px; padding: 4px; border-radius: 18px; background: rgba(0,0,0,.25); box-shadow: inset 0 3px 8px rgba(0,0,0,.4); }
+  .v3 .tube .h { position: absolute; top: 8px; left: 0; right: 0; text-align: center; font: 700 14px/1 var(--font-num); color: #fff; } .v3 .tube .h.r { color: var(--red); }
+  .v3 .wk { height: 34px; border-radius: 14px; background: var(--wc); display: flex; align-items: center; justify-content: space-between; padding: 0 10px; color: #fff; font: 600 12px/1 var(--font-body); } .v3 .wk b { font: 700 12px/1 var(--font-num); }
+  .v3 .op { height: 28px; border-radius: 14px; background: rgba(255,156,156,.25); color: #fff; font: 700 11px/28px var(--font-num); text-align: center; cursor: pointer; }
+  .v3 .bt { display: grid; grid-template-columns: 1fr 64px 64px; gap: 10px; }
+  .v3 .bw { height: 48px; border-radius: 24px; border: 0; background: #fff; color: #13292b; font: 700 14px/1 var(--font-body); cursor: pointer; }
+  .v3 .bi { height: 48px; border-radius: 24px; border: 0; background: var(--pl); padding: 10px 18px; cursor: pointer; }
+
+  /* ==== 4 КОЛЬЦО: площадь в кольцевой диаграмме ==== */
+  .v4 .ring { display: flex; align-items: center; gap: 16px; }
+  .v4 .ring svg { width: 132px; height: 132px; flex: none; }
+  .v4 .leg { display: flex; flex-direction: column; gap: 10px; }
+  .v4 .leg div { display: flex; align-items: center; gap: 8px; font: 500 13px/1 var(--font-body); color: var(--mu); } .v4 .leg i { width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+  .v4 .leg b { font: 700 16px/1 var(--font-num); color: #fff; margin-left: 4px; }
+  .v4 .cols { display: grid; grid-template-columns: 1fr 60px 60px; gap: 8px; }
+  .v4 .stk { display: flex; flex-direction: column-reverse; gap: 6px; min-height: 60px; }
+  .v4 .wk { height: 36px; border-radius: 10px; background: color-mix(in srgb, var(--wc) 22%, #213839); border: 1px solid color-mix(in srgb, var(--wc) 60%, transparent); display: flex; align-items: center; justify-content: space-between; padding: 0 10px; color: #fff; font: 600 12.5px/1 var(--font-body); } .v4 .wk b { font: 700 12.5px/1 var(--font-num); }
+  .v4 .op { width: 44px; height: 44px; justify-self: center; align-self: center; border-radius: 50%; background: rgba(255,156,156,.16); border: 1px solid rgba(255,156,156,.5); color: var(--red); font: 700 11px/44px var(--font-num); text-align: center; cursor: pointer; }
+  .v4 .bw { height: 48px; border-radius: 12px; border: 0; background: var(--rc); color: #13292b; font: 700 14px/1 var(--font-body); cursor: pointer; }
+  .v4 .bi { height: 48px; border-radius: 12px; border: 1px solid rgba(255,255,255,.2); background: var(--pl); padding: 10px 14px; cursor: pointer; }
+
+  /* ==== 5 ТИПОГРАФИКА: без коробок, только цифры и воздух ==== */
+  .v5 .card { background: none; border: 0; box-shadow: none; padding: 6px 2px; }
+  .v5 .eq { font: 300 16px/1 var(--font-num); color: var(--mu); } .v5 .big { font: 200 64px/1 var(--font-num); color: #fff; letter-spacing: -.03em; margin: 6px 0 2px; } .v5 .big small { font-size: 20px; color: var(--mu); }
+  .v5 .cols { display: grid; grid-template-columns: 1fr 60px 60px; column-gap: 14px; }
+  .v5 .h { font: 500 26px/1 var(--font-num); color: var(--rc); padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.15); } .v5 .h.r { color: var(--red); font-size: 18px; text-align: center; padding-top: 8px; }
+  .v5 .stk { display: flex; flex-direction: column-reverse; min-height: 70px; }
+  .v5 .wk { display: flex; justify-content: space-between; font: 400 15px/36px var(--font-body); color: #fff; border-bottom: 1px solid rgba(255,255,255,.07); } .v5 .wk span::before { content: '— '; color: var(--wc); font-weight: 800; } .v5 .wk b { font: 500 15px/36px var(--font-num); }
+  .v5 .op { font: 400 14px/36px var(--font-num); color: var(--red); text-align: center; border-bottom: 1px solid rgba(255,255,255,.07); cursor: pointer; }
+  .v5 .bw { height: 44px; border: 0; background: none; color: var(--rc); font: 600 16px/1 var(--font-body); text-align: left; cursor: pointer; padding: 0; }
+  .v5 .bi { height: 44px; border: 0; background: none; padding: 8px 14px; opacity: .9; cursor: pointer; }
+
+  /* ==== 6 ЯРЛЫКИ НА РЕЙКЕ: площадь — рейка, всё «висит» на ней ==== */
+  .v6 .rail { position: relative; height: 62px; border-radius: 12px; background: linear-gradient(180deg, #2c4446, #1f3335); border: 1px solid rgba(255,255,255,.15); display: flex; align-items: center; padding: 0 16px; gap: 10px; }
+  .v6 .rail b { font: 800 30px/1 var(--font-num); color: #fff; } .v6 .rail span { margin-left: auto; font: 600 13px/1 var(--font-num); color: var(--mu); }
+  .v6 .cols { display: grid; grid-template-columns: 1fr 64px 64px; gap: 10px; }
+  .v6 .col { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding-top: 14px; }
+  .v6 .col::before { content: ''; position: absolute; top: -12px; left: 50%; height: 24px; border-left: 2px dotted rgba(237,240,231,.35); }
+  .v6 .tag { align-self: center; padding: 6px 12px; border-radius: 6px; font: 700 14px/1 var(--font-num); background: var(--lt); color: #13292b; position: relative; }
+  .v6 .tag.r { background: var(--red); }
+  .v6 .tag::before { content: ''; position: absolute; left: 50%; top: -4px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #1b3133; }
+  .v6 .stk { display: flex; flex-direction: column; gap: 6px; min-height: 60px; }
+  .v6 .wk { position: relative; height: 34px; border-radius: 8px 8px 8px 2px; background: var(--wc); color: #fff; font: 600 12.5px/34px var(--font-body); padding: 0 10px; display: flex; justify-content: space-between; } .v6 .wk b { font-family: var(--font-num); }
+  .v6 .op { align-self: center; padding: 5px 10px; border-radius: 4px; background: rgba(255,156,156,.15); border: 1px dashed var(--red); color: var(--red); font: 700 12px/1 var(--font-num); cursor: pointer; }
+  .v6 .bw { height: 46px; border-radius: 23px; border: 1.5px dashed var(--rc); background: rgba(245,158,11,.12); color: #ffd27a; font: 700 14px/1 var(--font-body); cursor: pointer; }
+  .v6 .bi { height: 46px; border-radius: 23px; border: 1.5px dashed rgba(255,255,255,.3); background: none; padding: 9px 16px; cursor: pointer; }
+
+  /* ==== 7 КОЛБЫ: колонки как сосуды, работы наливаются ==== */
+  .v7 .lid { display: flex; align-items: baseline; gap: 10px; padding: 0 4px; } .v7 .lid b { font: 800 34px/1 var(--font-num); color: #fff; } .v7 .lid small { font: 500 14px/1 var(--font-body); color: var(--mu); }
+  .v7 .jars { display: grid; grid-template-columns: 1fr 70px 70px; gap: 10px; }
+  .v7 .jar { position: relative; height: 170px; border-radius: 16px 16px 26px 26px; border: 1.5px solid rgba(255,255,255,.3); background: linear-gradient(90deg, rgba(255,255,255,.08), rgba(255,255,255,.02) 40%, rgba(255,255,255,.08)); overflow: hidden; display: flex; flex-direction: column-reverse; }
+  .v7 .jar .h { position: absolute; top: 10px; left: 0; right: 0; text-align: center; font: 700 15px/1 var(--font-num); color: #fff; z-index: 2; } .v7 .jar .h.r { color: var(--red); }
+  .v7 .liq { flex: 0 0 auto; height: 38px; background: linear-gradient(180deg, color-mix(in srgb, var(--wc) 100%, #fff 20%), var(--wc)); display: flex; align-items: center; justify-content: space-between; padding: 0 10px; color: #fff; font: 600 12px/1 var(--font-body); border-top: 2px solid rgba(255,255,255,.35); animation: rise .6s ease-out; } .v7 .liq b { font-family: var(--font-num); }
+  @keyframes rise { from { height: 0; } }
+  .v7 .bub { flex: 0 0 auto; width: 46px; height: 46px; margin: 4px auto; border-radius: 50%; background: rgba(255,156,156,.2); border: 1px solid rgba(255,156,156,.6); color: #fff; font: 700 11px/46px var(--font-num); text-align: center; cursor: pointer; }
+  .v7 .bt { display: grid; grid-template-columns: 1fr 70px 70px; gap: 10px; }
+  .v7 .bw { height: 48px; border-radius: 24px; border: 0; background: var(--rc); color: #13292b; font: 700 14px/1 var(--font-body); cursor: pointer; }
+  .v7 .bi { width: 48px; height: 48px; justify-self: center; border-radius: 50%; border: 1px solid rgba(255,255,255,.3); background: var(--pl); padding: 11px; cursor: pointer; }
+
+  /* ==== 8 ПАНЕЛИ-СЕГМЕНТЫ: стена как широкая панель-плитка, ниже «шторки» ==== */
+  .v8 .pnl { display: grid; grid-template-columns: 1fr auto; align-items: end; padding: 16px 16px 12px; border-radius: 18px; background: linear-gradient(180deg, #edf0e7, #cdd9c0); color: #13292b; }
+  .v8 .pnl b { font: 800 38px/1 var(--font-num); } .v8 .pnl b small { font-size: 16px; } .v8 .pnl span { font: 600 13px/1 var(--font-num); color: #3a4d4e; }
+  .v8 .tabs { display: grid; grid-template-columns: 1fr 70px 70px; gap: 0; margin-top: -6px; }
+  .v8 .tab { padding: 10px 10px 8px; background: #213839; border-right: 1px solid #1b2e30; font: 700 16px/1 var(--font-num); color: #fff; } .v8 .tab:first-child { border-radius: 0 0 0 14px; } .v8 .tab:last-child { border-radius: 0 0 14px 0; border-right: 0; } .v8 .tab.r { color: var(--red); text-align: center; font-size: 14px; }
+  .v8 .cols { display: grid; grid-template-columns: 1fr 70px 70px; gap: 0; }
+  .v8 .stk { display: flex; flex-direction: column-reverse; gap: 0; min-height: 70px; padding: 8px 0; }
+  .v8 .wk { margin: 0 8px 6px 0; height: 34px; border-radius: 8px; background: var(--wc); color: #fff; font: 600 12.5px/34px var(--font-body); padding: 0 10px; display: flex; justify-content: space-between; } .v8 .wk b { font-family: var(--font-num); }
+  .v8 .op { margin: 0 6px 6px; height: 30px; border-radius: 15px; background: rgba(255,156,156,.15); color: var(--red); font: 700 12px/30px var(--font-num); text-align: center; cursor: pointer; }
+  .v8 .bt { display: grid; grid-template-columns: 1fr 70px 70px; gap: 6px; }
+  .v8 .bw { height: 50px; border-radius: 14px; border: 1px solid rgba(204,222,209,.55); background: #213839; color: var(--lt); font: 600 14px/1 var(--font-body); box-shadow: 0 4px 7px rgba(4,13,15,.24), inset 0 1px 1px rgba(224,242,227,.36); cursor: pointer; }
+  .v8 .bi { height: 50px; border-radius: 14px; border: 1px solid rgba(204,222,209,.55); background: #213839; padding: 12px 18px; box-shadow: 0 4px 7px rgba(4,13,15,.24), inset 0 1px 1px rgba(224,242,227,.36); cursor: pointer; }
+
+  /* ==== 9 ЧИПЫ: всё в одну ленту чипов, крупная цифра ==== */
+  .v9 .top { display: flex; align-items: center; justify-content: space-between; }
+  .v9 .top b { font: 800 44px/1 var(--font-num); color: #fff; } .v9 .top b small { font-size: 16px; color: var(--mu); }
+  .v9 .eqp { padding: 6px 12px; border-radius: 16px; background: rgba(255,255,255,.08); font: 600 12px/1 var(--font-num); color: var(--mu); }
+  .v9 .cols { display: grid; grid-template-columns: 1fr 66px 66px; gap: 8px; }
+  .v9 .h { height: 34px; border-radius: 17px; display: flex; align-items: center; justify-content: center; gap: 4px; font: 700 14px/1 var(--font-num); background: rgba(245,158,11,.18); color: #ffd27a; } .v9 .h.r { background: rgba(255,156,156,.15); color: var(--red); font-size: 12.5px; }
+  .v9 .h .IC { width: 16px; height: 16px; }
+  .v9 .stk { display: flex; flex-wrap: wrap-reverse; align-content: flex-start; gap: 6px; min-height: 40px; } .v9 .stk.o { flex-direction: column-reverse; flex-wrap: nowrap; align-items: center; }
+  .v9 .wk { height: 30px; padding: 0 12px; border-radius: 15px; background: var(--wc); color: #fff; font: 600 12px/30px var(--font-body); } .v9 .wk b { font: 700 12px/30px var(--font-num); margin-left: 6px; opacity: .9; }
+  .v9 .op { height: 26px; padding: 0 10px; border-radius: 13px; border: 1px solid rgba(255,156,156,.5); color: var(--red); font: 700 11px/24px var(--font-num); cursor: pointer; }
+  .v9 .bt { display: flex; gap: 8px; align-items: center; }
+  .v9 .bw { flex: 1; height: 44px; border-radius: 22px; border: 0; background: var(--lt); color: #13292b; font: 700 14px/1 var(--font-body); cursor: pointer; }
+  .v9 .bi { width: 66px; height: 44px; border-radius: 22px; border: 1px solid rgba(255,255,255,.25); background: none; padding: 9px 20px; cursor: pointer; }
+
+  /* ==== 10 СЛОИ СТЕНЫ: стена в разрезе, работы — слои отделки ==== */
+  .v10 .sect { display: grid; grid-template-columns: 1fr 66px 66px; gap: 8px; }
+  .v10 .wallbox { position: relative; height: 190px; border-radius: 6px; background: repeating-linear-gradient(0deg, #3a4f50 0 14px, #34494a 14px 15px); border: 1px solid rgba(255,255,255,.12); overflow: hidden; display: flex; flex-direction: column; }
+  .v10 .wallbox .ar { position: absolute; left: 12px; top: 10px; z-index: 2; font: 800 30px/1 var(--font-num); color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.5); } .v10 .wallbox .ar small { font-size: 13px; }
+  .v10 .wallbox .eqx { position: absolute; left: 12px; top: 46px; z-index: 2; font: 600 12px/1 var(--font-num); color: rgba(255,255,255,.8); }
+  .v10 .layers { margin-top: auto; display: flex; flex-direction: column-reverse; }
+  .v10 .lay { height: 30px; background: var(--wc); display: flex; align-items: center; justify-content: space-between; padding: 0 10px; color: #fff; font: 600 12px/1 var(--font-body); box-shadow: 0 -2px 0 rgba(0,0,0,.2); } .v10 .lay b { font-family: var(--font-num); }
+  .v10 .holes { height: 190px; border-radius: 6px; border: 1px dashed rgba(255,156,156,.45); display: flex; flex-direction: column-reverse; align-items: center; gap: 6px; padding: 8px 0; position: relative; }
+  .v10 .holes .h { position: absolute; top: 8px; font: 700 13px/1 var(--font-num); color: var(--red); }
+  .v10 .hole { width: 44px; height: 36px; border-radius: 4px; background: #13292b; border: 1.5px solid rgba(255,255,255,.35); color: var(--red); font: 700 10.5px/34px var(--font-num); text-align: center; cursor: pointer; box-shadow: inset 0 4px 8px rgba(0,0,0,.6); }
+  .v10 .hole.d { height: 52px; line-height: 50px; }
+  .v10 .bt { display: grid; grid-template-columns: 1fr 66px 66px; gap: 8px; }
+  .v10 .bw { height: 48px; border-radius: 8px; border: 0; background: var(--rc); color: #13292b; font: 700 14px/1 var(--font-body); cursor: pointer; }
+  .v10 .bi { height: 48px; border-radius: 8px; border: 1px solid rgba(255,255,255,.25); background: var(--pl); padding: 9px 16px; cursor: pointer; }
+
+  .shade { position: fixed; inset: 0; z-index: 80; background: rgba(4,12,14,.6); }
+  .sheet2 { position: fixed; z-index: 81; left: 0; right: 0; bottom: 0; padding: 10px 14px 24px; border-radius: 18px 18px 0 0; background: linear-gradient(180deg, #2a4142, #213536); border-top: 1px solid rgba(204,222,209,.4); }
+  .grab { width: 44px; height: 5px; border-radius: 3px; background: rgba(237,240,231,.35); margin: 0 auto 12px; }
+  .sheet2 h3, .ed h3 { margin: 0 4px 12px; font: 700 19px/24px var(--font-num); color: #fff; display: flex; align-items: center; gap: 8px; }
+  .wl { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 14px; }
+  .wl button { height: 52px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(204,222,209,.4); background: #213839; color: #fff; text-align: left; font: 500 13.5px/16px var(--font-body); cursor: pointer; }
+  .wl button small { display: block; font: 400 11px/13px var(--font-body); color: rgba(237,240,231,.6); }
+  .wl button.on { border-color: var(--wc); box-shadow: 0 0 0 1.5px var(--wc); background: color-mix(in srgb, var(--wc) 30%, #213839); }
+  .ed { position: fixed; z-index: 81; left: 50%; top: 40%; transform: translate(-50%, -50%); width: 280px; padding: 16px; border-radius: 18px; background: #2a4142; border: 1px solid rgba(204,222,209,.4); box-shadow: 0 20px 40px rgba(0,0,0,.5); }
+  .ed h3 .IC { width: 26px; height: 26px; }
+  .sz { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; color: #fff; } .sz .fld { justify-content: center; } .sz .fld input { width: 60px; text-align: center; }
+  .szl { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; margin: 4px 0 12px; font: 400 11px/14px var(--font-body); color: rgba(237,240,231,.6); text-align: center; }
+  .r2 { display: flex; gap: 6px; } .del { flex: 1; height: 42px; border-radius: 8px; border: 1px solid rgba(255,120,120,.6); background: none; color: #ff9c9c; font: 600 13px/1 var(--font-body); }
+</style></head>
+<body class="fig"><div class="app"><main class="view"><div class="fig-blobs"><i></i><i></i></div><div class="o-wrap" id="w"></div></main></div><div id="pop"></div>
+<script>
+const H = 2.7;
+let D = 1, L = 4.2, ops = [{ t: 'win', w: 1.5, h: 1.4 }, { t: 'win', w: 1.5, h: 1.4 }, { t: 'door', w: 0.9, h: 2.1 }], wks = ['prime', 'fliz'], wpick = [], ei = -1, ow = 0, oh = 0, lastO = -1, lastW = -1;
+const WORKS = [['prime', 'Грунтовка', 100, '#5b8def'], ['fliz', 'Поклейка флиз.', 330, '#22c55e'], ['strip', 'Демонтаж', 150, '#ef4444'], ['putty', 'Шпаклёвка', 200, '#a855f7']];
+const IC = {
+  win: '<span class="IC"><svg viewBox="0 0 32 32" fill="none"><rect x="5" y="4" width="22" height="22" rx="2" fill="#8fd3ff" fill-opacity=".25" stroke="#cfeeff" stroke-width="1.8"/><path d="M16 4v22M5 15h22" stroke="#cfeeff" stroke-width="1.6"/><rect x="3" y="26" width="26" height="2.5" rx="1" fill="#cfeeff"/></svg></span>',
+  door: '<span class="IC"><svg viewBox="0 0 32 32" fill="none"><rect x="8" y="3" width="16" height="26" rx="1.5" fill="#c8a27a" fill-opacity=".25" stroke="#f1d7b8" stroke-width="1.8"/><circle cx="20" cy="16.5" r="1.5" fill="#f1d7b8"/><path d="M4 29h24" stroke="#f1d7b8" stroke-width="1.8" stroke-linecap="round"/></svg></span>',
+};
+const PRE = { win: [1.5, 1.4], door: [0.9, 2.1] };
+const f = (n) => String(Math.round(n * 100) / 100).replace('.', ',');
+const money = (n) => Math.round(n).toLocaleString('ru-RU') + ' ₽';
+const G = () => L * H; const S = (t) => ops.filter((o) => o.t === t).reduce((a, o) => a + o.w * o.h, 0); const N = () => Math.max(0, G() - S('win') - S('door'));
+const W = () => wks.map((k, i) => { const [, n, p, c] = WORKS.find((x) => x[0] === k); return { i, n, c, s: money(N() * p), cls: i === lastW ? ' pop' : '' }; });
+const O = (t) => ops.map((o, i) => ({ ...o, i, a: f(o.w * o.h), cls: i === lastO ? ' pop' : '' })).filter((o) => o.t === t);
+const tot = () => wks.reduce((a, k) => a + N() * WORKS.find((x) => x[0] === k)[2], 0);
+const BW = (cls = 'bw', txt = '+ работа') => `<button class="${cls}" onclick="openW()">${txt}</button>`;
+const BI = (t, cls = 'bi') => `<button class="${cls}" onclick="add('${t}')" aria-label="${t === 'win' ? 'окно' : 'дверь'}">${IC[t]}</button>`;
+const opE = (o, cls) => `<div class="${cls}${o.cls}" onclick="edit(${o.i})">−${o.a}</div>`;
+const wkE = (w, cls, inner) => `<div class="${cls}${w.cls}" style="--wc:${w.c}" onclick="wks.splice(${w.i},1);draw()">${inner || `<span>${w.n}</span><b>${w.s}</b>`}</div>`;
+const TOT = () => wks.length ? `<div class="total"><span>Стена 1 итого</span><b>${money(tot())}</b></div>` : '';
+const V = {
+  1: ['Банк', 'Огромная цифра без коробки, под ней тонкая полоса долей. Работы — лёгкие строки с цветной точкой, окна и двери — маленькие капсулы. «+ работа» — главная широкая кнопка, окно и дверь — круглые.',
+    () => `<div><div class="big">${f(G())}<small>м²</small></div><div class="sub">${f(L)} × ${f(H)} м</div></div>
+      <div class="split"><i class="n" style="flex:${N()}"></i><i class="w" style="flex:${S('win')}"></i><i class="d" style="flex:${S('door')}"></i></div>
+      <div class="cols"><div class="t">${f(N())}<small> м²</small><span class="tl">под работы</span></div><div class="t r">−${f(S('win'))}<span class="tl">окна</span></div><div class="t r">−${f(S('door'))}<span class="tl">двери</span></div>
+        <div class="stk">${W().map((w) => wkE(w, 'wk')).join('')}</div><div class="stk">${O('win').map((o) => opE(o, 'op')).join('')}</div><div class="stk">${O('door').map((o) => opE(o, 'op')).join('')}</div></div>
+      <div class="bt">${BW()}${BI('win')}${BI('door')}</div>${TOT()}`],
+  2: ['Схема', 'Стена нарисована линией-чертежом с размерными стрелками. Под ней три подчёркнутых итога, ниже строки работ с цветной чертой. Кнопки контурные.',
+    () => { const w = 300, h = 96, ow2 = (S('win') + S('door')) / G() * w; return `<svg class="wall" viewBox="-20 -24 ${w + 40} ${h + 40}"><g stroke="rgba(237,240,231,.55)" stroke-width="1"><line x1="0" y1="-12" x2="${w}" y2="-12"/><line x1="0" y1="-17" x2="0" y2="-7"/><line x1="${w}" y1="-17" x2="${w}" y2="-7"/><line x1="${w + 12}" y1="0" x2="${w + 12}" y2="${h}"/></g>
+      <text x="${w / 2}" y="-16" text-anchor="middle" font-size="12" fill="#edf0e7" font-family="Onest, Manrope, sans-serif" font-weight="700">${f(L)} м</text><text x="${w + 16}" y="${h / 2}" font-size="11" fill="#edf0e7" font-family="Onest, Manrope, sans-serif" transform="rotate(90 ${w + 16} ${h / 2})">${f(H)}</text>
+      <rect x="0" y="0" width="${w}" height="${h}" fill="rgba(245,158,11,.10)" stroke="#f59e0b" stroke-width="2"/>${ops.map((o, i) => { const x = 30 + i * 62; const ww = o.t === 'door' ? 34 : 46, hh = o.t === 'door' ? 72 : 40, y = o.t === 'door' ? h - hh : 18; return x + ww < w ? `<rect x="${x}" y="${y}" width="${ww}" height="${hh}" fill="#1b2f31" stroke="#ff9c9c" stroke-dasharray="4 3"/>` : ''; }).join('')}
+      <text x="${w - 10}" y="${h - 12}" text-anchor="end" font-size="26" font-weight="800" fill="#fff" font-family="Onest, Manrope, sans-serif">${f(G())} м²</text></svg>
+      <div class="row"><div style="--c:var(--rc)"><div class="lb">под работы</div><div class="val">${f(N())}</div></div><div style="--c:#8fd3ff"><div class="lb">окна</div><div class="val r">−${f(S('win'))}</div></div><div style="--c:#f1d7b8"><div class="lb">двери</div><div class="val r">−${f(S('door'))}</div></div>
+        <div class="stk">${W().map((w) => wkE(w, 'wk')).join('')}</div><div class="stk">${O('win').map((o) => opE(o, 'op')).join('')}</div><div class="stk">${O('door').map((o) => opE(o, 'op')).join('')}</div>
+        ${BW()}${BI('win')}${BI('door')}</div>${TOT()}`; }],
+  3: ['Карта', 'Площадь стены — яркая «карта» цвета комнаты, как банковская. Ниже три вытянутые «трубки», в которые складываются работы, окна и двери; под трубками круглые кнопки.',
+    () => `<div class="cc"><small>Стена 1</small><b>${f(G())} м²</b><span>${f(L)} × ${f(H)}</span><span class="ch">${f(N())} м² под работы</span></div>
+      <div class="tubes"><div class="tube"><span class="h">${f(N())} м²</span>${W().map((w) => wkE(w, 'wk')).join('')}</div><div class="tube"><span class="h r">−${f(S('win'))}</span>${O('win').map((o) => opE(o, 'op')).join('')}</div><div class="tube"><span class="h r">−${f(S('door'))}</span>${O('door').map((o) => opE(o, 'op')).join('')}</div></div>
+      <div class="bt">${BW()}${BI('win')}${BI('door')}</div>${TOT()}`],
+  4: ['Кольцо', 'Площадь — кольцевая диаграмма: оранжевое — под работы, голубое — окна, бежевое — двери, в центре вся площадь. Окна и двери — круглые значки с площадью.',
+    () => { const r = 52, C = 2 * Math.PI * r; let off = 0; const seg = (v, c) => { const l = v / G() * C; const s = `<circle cx="66" cy="66" r="${r}" fill="none" stroke="${c}" stroke-width="14" stroke-dasharray="${l - 2} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 66 66)" stroke-linecap="round"/>`; off += l; return s; };
+      return `<div class="ring"><svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="14"/>${seg(N(), '#f59e0b')}${seg(S('win'), '#8fd3ff')}${seg(S('door'), '#f1d7b8')}<text x="66" y="66" text-anchor="middle" font-size="24" font-weight="800" fill="#fff" font-family="Onest, Manrope, sans-serif">${f(G())}</text><text x="66" y="84" text-anchor="middle" font-size="11" fill="rgba(237,240,231,.6)" font-family="Onest, Manrope, sans-serif">${f(L)} × ${f(H)} м</text></svg>
+        <div class="leg"><div style="--c:#f59e0b"><i></i>под работы<b>${f(N())}</b></div><div style="--c:#8fd3ff"><i></i>окна<b>−${f(S('win'))}</b></div><div style="--c:#f1d7b8"><i></i>двери<b>−${f(S('door'))}</b></div></div></div>
+        <div class="cols"><div class="stk">${W().map((w) => wkE(w, 'wk')).join('')}</div><div class="stk">${O('win').map((o) => opE(o, 'op')).join('')}</div><div class="stk">${O('door').map((o) => opE(o, 'op')).join('')}</div>${BW()}${BI('win')}${BI('door')}</div>${TOT()}`; }],
+  5: ['Типографика', 'Никаких коробок: тонкий крупный шрифт, линии-разделители и воздух. Кнопки — просто текст и иконки. Самый лёгкий и «журнальный» вид.',
+    () => `<div><div class="eq">${f(L)} × ${f(H)} м</div><div class="big">${f(G())}<small> м²</small></div></div>
+      <div class="cols"><div class="h">${f(N())} м²</div><div class="h r">−${f(S('win'))}</div><div class="h r">−${f(S('door'))}</div>
+        <div class="stk">${W().map((w) => wkE(w, 'wk')).join('')}</div><div class="stk">${O('win').map((o) => opE(o, 'op')).join('')}</div><div class="stk">${O('door').map((o) => opE(o, 'op')).join('')}</div>
+        ${BW('bw', '+ добавить работу')}${BI('win')}${BI('door')}</div>${TOT()}`],
+  6: ['Рейка', 'Стена — рейка сверху, всё «подвешено» к ней пунктиром: ярлыки-бирки с итогами, ниже работы и окна. Кнопки пунктирные — «место для нового».',
+    () => `<div class="rail"><b>${f(G())} м²</b><span>${f(L)} × ${f(H)}</span></div>
+      <div class="cols"><div class="col"><span class="tag">${f(N())} м²</span><div class="stk">${W().map((w) => wkE(w, 'wk')).join('')}</div>${BW()}</div>
+        <div class="col"><span class="tag r">−${f(S('win'))}</span><div class="stk">${O('win').map((o) => opE(o, 'op')).join('')}</div>${BI('win')}</div>
+        <div class="col"><span class="tag r">−${f(S('door'))}</span><div class="stk">${O('door').map((o) => opE(o, 'op')).join('')}</div>${BI('door')}</div></div>${TOT()}`],
+  7: ['Колбы', 'Три стеклянных сосуда: в левый «наливаются» работы слоями, в окна и двери падают «пузыри» с площадью. Сверху вся площадь стены.',
+    () => `<div class="lid"><b>${f(G())} м²</b><small>${f(L)} × ${f(H)}</small></div>
+      <div class="jars"><div class="jar"><span class="h">${f(N())} м²</span>${W().map((w) => wkE(w, 'liq')).join('')}</div><div class="jar"><span class="h r">−${f(S('win'))}</span>${O('win').map((o) => opE(o, 'bub')).join('')}</div><div class="jar"><span class="h r">−${f(S('door'))}</span>${O('door').map((o) => opE(o, 'bub')).join('')}</div></div>
+      <div class="bt">${BW()}${BI('win')}${BI('door')}</div>${TOT()}`],
+  8: ['Плита', 'Площадь стены — светлая плита, к низу которой «пристёгнута» тёмная полоса с итогами по колонкам, как вкладки. Кнопки — наши выпуклые.',
+    () => `<div><div class="pnl"><b>${f(G())}<small> м²</small></b><span>${f(L)} × ${f(H)}</span></div>
+      <div class="tabs"><div class="tab">${f(N())} м²</div><div class="tab r">−${f(S('win'))}</div><div class="tab r">−${f(S('door'))}</div></div></div>
+      <div class="cols"><div class="stk">${W().map((w) => wkE(w, 'wk')).join('')}</div><div class="stk">${O('win').map((o) => opE(o, 'op')).join('')}</div><div class="stk">${O('door').map((o) => opE(o, 'op')).join('')}</div></div>
+      <div class="bt">${BW()}${BI('win')}${BI('door')}</div>${TOT()}`],
+  9: ['Чипы', 'Всё — скруглённые чипы: итоги, работы, окна. Работы ложатся облаком чипов, окна и двери — стопкой. Самый компактный вариант.',
+    () => `<div class="top"><b>${f(G())}<small> м²</small></b><span class="eqp">${f(L)} × ${f(H)}</span></div>
+      <div class="cols"><div class="h">${f(N())} м²</div><div class="h r">${IC.win}−${f(S('win'))}</div><div class="h r">${IC.door}−${f(S('door'))}</div>
+        <div class="stk">${W().map((w) => wkE(w, 'wk', `${w.n}<b>${w.s}</b>`)).join('')}</div><div class="stk o">${O('win').map((o) => opE(o, 'op')).join('')}</div><div class="stk o">${O('door').map((o) => opE(o, 'op')).join('')}</div></div>
+      <div class="bt">${BW()}${BI('win')}${BI('door')}</div>${TOT()}`],
+  10: ['Разрез', 'Стена показана в разрезе, как кладка; работы ложатся на неё снизу слоями отделки. Рядом — колонки-«проёмы», где окна и двери как утопленные дыры.',
+    () => `<div class="sect"><div class="wallbox"><span class="ar">${f(N())}<small> м²</small></span><span class="eqx">из ${f(G())} м² · ${f(L)} × ${f(H)}</span><div class="layers">${W().map((w) => wkE(w, 'lay')).join('')}</div></div>
+        <div class="holes"><span class="h">−${f(S('win'))}</span>${O('win').map((o) => opE(o, 'hole')).join('')}</div><div class="holes"><span class="h">−${f(S('door'))}</span>${O('door').map((o) => opE(o, 'hole d')).join('')}</div></div>
+      <div class="bt">${BW()}${BI('win')}${BI('door')}</div>${TOT()}`],
+};
+function draw() {
+  const [n, d, fn] = V[D];
+  document.getElementById('w').innerHTML = `<div class="vs">${Object.keys(V).map((k) => `<button class="${D == k ? 'is-on' : ''}" onclick="D=${k};draw()">${k}. ${V[k][0]}</button>`).join('')}</div>
+    <p class="zx"><b>${D}. ${n}.</b> ${d} <button class="rs" onclick="L=0;ops=[];wks=[];draw()">начать заново</button></p>
+    <div class="v${D}"><section class="f-plate card"><div class="hd"><b>Стена 1</b><small>высота 2,7 м — одинаковая</small></div>
+      <div class="Lin"><label>Длина</label><span class="fld"><input id="L" inputmode="decimal" value="${L ? f(L) : ''}" placeholder="—" oninput="setL(this.value)"><small>м</small></span></div>
+      ${L ? fn() : '<p class="zx" style="margin:0">Введите длину стены</p>'}</section></div>`;
+  lastO = -1; lastW = -1;
+}
+function setL(v) { L = parseFloat(String(v).replace(',', '.')) || 0; draw(); const el = document.getElementById('L'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+function add(t) { ops.push({ t, w: PRE[t][0], h: PRE[t][1] }); lastO = ops.length - 1; draw(); }
+function edit(i) { ei = i; ow = ops[i].w; oh = ops[i].h;
+  document.getElementById('pop').innerHTML = `<div class="shade" onclick="closePop()"></div><div class="ed"><h3>${IC[ops[i].t]} ${ops[i].t === 'win' ? 'Окно' : 'Дверь'}</h3>
+    <div class="sz"><span class="fld"><input inputmode="decimal" value="${f(ow)}" oninput="ow=parseFloat(this.value.replace(',','.'))||0"><small>м</small></span><span>×</span><span class="fld"><input inputmode="decimal" value="${f(oh)}" oninput="oh=parseFloat(this.value.replace(',','.'))||0"><small>м</small></span></div>
+    <div class="szl"><span>ширина</span><span></span><span>высота</span></div>
+    <div class="r2"><button class="del" onclick="ops.splice(ei,1);closePop();draw()">Удалить</button><button class="f-btn" style="flex:1;height:42px" onclick="ops[ei].w=ow;ops[ei].h=oh;closePop();draw()">ОК</button></div></div>`; }
+function openW() { wpick = []; drawW(); }
+function drawW() {
+  document.getElementById('pop').innerHTML = `<div class="shade" onclick="closePop()"></div><div class="sheet2"><div class="grab"></div><h3>Работы на стене</h3>
+    <div class="wl">${WORKS.filter(([k]) => !wks.includes(k)).map(([k, n, p, c]) => `<button class="${wpick.includes(k) ? 'on' : ''}" style="--wc:${c}" onclick="wpick.includes('${k}')?wpick.splice(wpick.indexOf('${k}'),1):wpick.push('${k}');drawW()">${n}<small>${p} ₽/м²</small></button>`).join('')}</div>
+    <div class="f-btn-row" style="width:calc(50% + 2.5px);margin:0 auto"><button class="f-btn" onclick="lastW=wks.length;wks.push(...wpick);closePop();draw()">${wpick.length ? 'Добавить · ' + wpick.length : 'Готово'}</button></div></div>`; }
+function closePop() { document.getElementById('pop').innerHTML = ''; }
+draw();
+</script></body></html>
