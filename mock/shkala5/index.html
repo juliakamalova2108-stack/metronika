@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Стена — шкала площади</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Manrope:wght@400;500;600;700&family=Onest:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/app.css"><link rel="stylesheet" href="../../css/vyezdy.css">
+<style>
+  :root { --rc: #f59e0b; }
+  body.fig .view { padding-bottom: 60px; }
+  .zx { margin: 0 2px 12px; font: 400 13px/18px var(--font-body); color: rgba(230,242,204,.85); }
+  .card { padding: 12px; gap: 12px; margin-bottom: 10px; }
+  .hd { display: flex; align-items: center; gap: 10px; } .hd b { font: 700 18px/22px var(--font-body); color: #fff; }
+  .hd small { font: 400 12px/15px var(--font-body); color: rgba(237,240,231,.6); }
+  .Lin { display: flex; align-items: center; gap: 10px; }
+  .Lin label { font: 500 13px/1 var(--font-body); color: rgba(237,240,231,.75); }
+  .fld { display: inline-flex; align-items: baseline; gap: 3px; height: 46px; padding: 0 12px; border-radius: 8px; border: 1.5px solid var(--rc); background: linear-gradient(180deg,#687b7a,#738582); box-shadow: 0 0 8px rgba(245,158,11,.45), inset 0 3px 6px rgba(1,9,11,.5); }
+  .fld input { width: 64px; border: 0; background: none; outline: none; color: #fff; font: 700 22px/46px var(--font-num); text-align: right; }
+  .fld small { font: 500 12px/1 var(--font-body); color: rgba(255,255,255,.75); }
+  .hint2 { margin-left: auto; text-align: right; font: 400 12px/15px var(--font-body); color: rgba(237,240,231,.6); }
+  /* шкала */
+  .lab { display: flex; justify-content: space-between; margin: 0 2px 6px; font: 500 12px/1 var(--font-body); color: rgba(237,240,231,.7); }
+  .lab b { font: 700 14px/1 var(--font-num); color: #fff; }
+  .bar { position: relative; display: flex; height: 54px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.25); box-shadow: inset 0 3px 8px rgba(0,0,0,.45); }
+  .seg { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; box-sizing: border-box; overflow: hidden; white-space: nowrap; transition: flex-basis .45s cubic-bezier(.3,1.2,.4,1); }
+  .seg b { font: 800 17px/20px var(--font-num); color: #fff; } .seg small { font: 500 11px/13px var(--font-body); color: rgba(255,255,255,.85); }
+  .seg.net { background: linear-gradient(180deg, color-mix(in srgb, var(--rc) 85%, #fff 0%), color-mix(in srgb, var(--rc) 60%, #13292b)); }
+  .seg.op { background: repeating-linear-gradient(135deg, rgba(255,120,120,.35) 0 6px, rgba(40,20,20,.35) 6px 12px); border-left: 2px solid #1b2f31; align-items: center; padding: 0 4px; }
+  .seg.op b { font-size: 12px; line-height: 14px; } .seg.op small { font-size: 10px; }
+  .seg.op .ic { font-size: 15px; line-height: 16px; }
+  .seg.fly { animation: fly .55s cubic-bezier(.2,1.3,.4,1); }
+  @keyframes fly { 0% { transform: translateY(-60px) scale(.6); opacity: 0; } 60% { opacity: 1; } 100% { transform: none; } }
+  .empty { display: grid; place-items: center; height: 54px; border-radius: 12px; border: 1.5px dashed rgba(230,242,204,.4); font: 400 13px/1 var(--font-body); color: rgba(237,240,231,.55); }
+  .row2 { display: flex; gap: 6px; } .row2 .f-btn { flex: 1; height: 42px; font-size: 13px; }
+  /* работы — заливаются в шкалу */
+  .wk { display: flex; flex-direction: column; gap: 6px; }
+  .wrow { position: relative; height: 44px; border-radius: 10px; background: rgba(0,0,0,.22); overflow: hidden; border: 1px solid rgba(255,255,255,.1); }
+  .wfill { position: absolute; left: 0; top: 0; bottom: 0; width: var(--w); background: linear-gradient(90deg, var(--wc), color-mix(in srgb, var(--wc) 55%, transparent)); animation: fill .8s cubic-bezier(.3,1,.4,1); }
+  @keyframes fill { from { width: 0; } }
+  .wtxt { position: relative; display: flex; align-items: center; height: 100%; padding: 0 10px; gap: 8px; font: 600 13.5px/1 var(--font-body); color: #fff; }
+  .wtxt small { font: 400 11.5px/1 var(--font-body); color: rgba(255,255,255,.75); } .wtxt b { margin-left: auto; font: 700 14px/1 var(--font-num); }
+  .wtxt .xx { width: 26px; height: 26px; border-radius: 7px; border: 0; background: rgba(0,0,0,.25); color: rgba(255,255,255,.7); font-size: 14px; }
+  .total { display: flex; justify-content: space-between; margin: 2px 4px 0; font: 600 15px/1 var(--font-body); color: #fff; } .total b { font: 800 19px/1 var(--font-num); color: #e6f2cc; }
+  /* выпадающая форма */
+  .shade { position: fixed; inset: 0; z-index: 80; background: rgba(4,12,14,.6); }
+  .sheet2 { position: fixed; z-index: 81; left: 0; right: 0; bottom: 0; padding: 10px 14px 24px; border-radius: 18px 18px 0 0; background: linear-gradient(180deg, #2a4142, #213536); border-top: 1px solid rgba(204,222,209,.4); animation: up .22s ease-out; }
+  @keyframes up { from { transform: translateY(40%); opacity: .3; } }
+  .grab { width: 44px; height: 5px; border-radius: 3px; background: rgba(237,240,231,.35); margin: 0 auto 12px; }
+  .sheet2 h3 { margin: 0 4px 12px; font: 700 19px/24px var(--font-num); color: #fff; }
+  .tp { display: flex; gap: 6px; margin-bottom: 12px; padding: 3px; border-radius: 10px; background: rgba(0,0,0,.25); }
+  .tp button { flex: 1; height: 42px; border: 0; border-radius: 8px; background: none; color: rgba(237,240,231,.7); font: 600 14px/1 var(--font-body); cursor: pointer; }
+  .tp button.on { background: #213839; color: #fff; box-shadow: 0 0 0 1.5px var(--rc); }
+  .sz { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .sz .fld { justify-content: center; } .sz .fld input { width: 70px; text-align: center; }
+  .sz .op { color: rgba(237,240,231,.6); font: 400 20px/1 var(--font-body); }
+  .szl { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; margin: 0 0 14px; font: 400 11px/14px var(--font-body); color: rgba(237,240,231,.6); text-align: center; }
+  .wl { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 14px; }
+  .wl button { height: 52px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(204,222,209,.4); background: #213839; color: #fff; text-align: left; font: 500 13.5px/16px var(--font-body); cursor: pointer; }
+  .wl button small { display: block; font: 400 11px/13px var(--font-body); color: rgba(237,240,231,.6); }
+  .wl button.on { border-color: var(--wc); box-shadow: 0 0 0 1.5px var(--wc); background: color-mix(in srgb, var(--wc) 30%, #213839); }
+
+  /* v2: широкая шкала, работы заливаются в неё, красивые иконки проёмов */
+  .bar { height: 120px; border-radius: 14px; margin: 0 -4px; }
+  .seg.net { position: relative; background: rgba(245,158,11,.14); border-right: 0; padding: 0; }
+  .seg.net .ttl { position: absolute; z-index: 2; left: 12px; top: 10px; font: 800 22px/24px var(--font-num); color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+  .seg.net .ttl small { font: 600 13px/1 var(--font-body); color: rgba(255,255,255,.8); }
+  .layers { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  .layer { flex: 1; position: relative; overflow: hidden; border-top: 1px solid rgba(0,0,0,.25); }
+  .layer i { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: linear-gradient(90deg, var(--wc), color-mix(in srgb, var(--wc) 70%, #13292b)); animation: fill .9s cubic-bezier(.3,1,.4,1); font-style: normal; }
+  .layer span { position: absolute; right: 8px; bottom: 4px; font: 600 11px/1 var(--font-body); color: rgba(255,255,255,.9); }
+  .seg.net.none .layers { display: none; }
+  .seg.net.none { background: repeating-linear-gradient(90deg, rgba(245,158,11,.22) 0 1px, transparent 1px 22px), rgba(245,158,11,.10); }
+  .seg.op { background: #13292b; border-left: 2px solid #1b2f31; flex-direction: column; justify-content: center; gap: 4px; }
+  .seg.op svg { width: 30px; height: 30px; }
+  .seg.op b { font: 700 12px/1 var(--font-num); color: #ff9c9c; }
+  .lab { margin-top: 2px; }
+  .opbtns { display: grid; grid-template-columns: repeat(3, 1fr) 1.4fr; gap: 6px; }
+  .ob { height: 56px; border-radius: 10px; border: 1px solid rgba(204,222,209,.45); background: #213839; color: #e6f2cc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font: 600 11px/1 var(--font-body); cursor: pointer;
+    box-shadow: 0 4px 7px rgba(4,13,15,.24), inset 0 -2px 2px rgba(6,18,20,.34), inset 0 1px 1px rgba(224,242,227,.36); }
+  .ob svg { width: 24px; height: 24px; }
+  .ob.w { background: linear-gradient(180deg, color-mix(in srgb, var(--rc) 55%, #213839), #213839); color: #fff; font-size: 13px; }
+  .legend2 { display: flex; flex-direction: column; gap: 4px; }
+  .lg { display: flex; align-items: center; gap: 8px; padding: 6px 4px; font: 500 13.5px/1 var(--font-body); color: #fff; border-bottom: .5px solid rgba(255,255,255,.08); }
+  .lg i { width: 12px; height: 12px; border-radius: 3px; background: var(--wc); }
+  .lg small { color: rgba(237,240,231,.6); font-size: 12px; } .lg b { margin-left: auto; font: 700 14px/1 var(--font-num); }
+  .lg .xx { width: 24px; height: 24px; border-radius: 6px; border: 0; background: rgba(255,255,255,.06); color: rgba(255,255,255,.6); }
+
+  /* v3: над шкалой — общая площадь, под проёмами — общая скоба с их суммой */
+  .bwrap { position: relative; margin: 0 -4px; }
+  .brk { display: flex; height: 26px; }
+  .brk > div { position: relative; box-sizing: border-box; }
+  .brk .gross { border: 1.5px solid rgba(237,240,231,.45); border-bottom: 0; border-radius: 8px 8px 0 0; height: 10px; margin-top: 16px; }
+  .brk .gross span { position: absolute; left: 50%; top: -16px; transform: translateX(-50%); padding: 0 8px; background: #2f4647; border-radius: 6px; font: 700 12px/16px var(--font-num); color: rgba(237,240,231,.8); white-space: nowrap; }
+  .brk.bot .opsum { border: 2px solid #ff9c9c; border-top: 0; border-radius: 0 0 10px 10px; height: 10px; }
+  .brk.bot .opsum span { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); padding: 3px 10px; border-radius: 10px; background: #ff9c9c; color: #13292b; font: 800 13px/1 var(--font-num); white-space: nowrap; box-shadow: 0 2px 8px rgba(255,156,156,.4); }
+  .brk.bot { height: 34px; }
+  .seg.op { background: linear-gradient(180deg, rgba(230,242,204,.10), rgba(230,242,204,.04)); border-left: 1px solid rgba(255,255,255,.12); gap: 6px; }
+  .seg.op:first-of-type { }
+  .seg.op .sz2 { font: 500 10px/12px var(--font-num); color: rgba(237,240,231,.75); }
+  .seg.op b { color: #ffb3b3; font-size: 12px; }
+  .bar { border-color: rgba(255,255,255,.25); }
+  .lab { display: none; }
+  .seg.net .ttl { top: 50%; transform: translateY(-50%); left: 14px; font-size: 26px; }
+  .seg.net:not(.none) .ttl { top: 12px; transform: none; }
+
+  /* ===== 5 вариантов оформления (механика одна) ===== */
+  .vs { display: flex; gap: 4px; margin: 0 0 8px; padding: 3px; border-radius: 10px; background: rgba(0,0,0,.28); }
+  .vs button { flex: 1; height: 34px; border: 0; border-radius: 8px; background: none; color: rgba(237,240,231,.6); font: 600 12px/1 var(--font-body); cursor: pointer; }
+  .vs button.is-on { background: #e6f2cc; color: #13292b; }
+  .rs { border: 0; background: none; color: #e6f2cc; text-decoration: underline; font: 500 12px/1 var(--font-body); cursor: pointer; padding: 0 2px; }
+  .pills { display: none; }
+
+  /* 1 · Стекло и свет */
+  .V1 .card { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.2); backdrop-filter: blur(14px); box-shadow: 0 20px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.18); }
+  .V1 .bar { border-radius: 20px; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.05); box-shadow: 0 0 30px rgba(245,158,11,.18), inset 0 1px 0 rgba(255,255,255,.2); }
+  .V1 .seg.net { background: radial-gradient(120% 140% at 0% 0%, rgba(245,158,11,.55), rgba(245,158,11,.12) 70%); }
+  .V1 .seg.net.none { background: radial-gradient(120% 140% at 0% 0%, rgba(245,158,11,.45), rgba(245,158,11,.08) 70%); }
+  .V1 .layer i { opacity: .75; filter: saturate(1.2); }
+  .V1 .seg.op { background: linear-gradient(180deg, rgba(143,211,255,.22), rgba(143,211,255,.05)); border-left: 1px solid rgba(255,255,255,.25); box-shadow: inset 0 0 18px rgba(143,211,255,.25); }
+  .V1 .brk .gross { border-color: rgba(230,242,204,.7); box-shadow: 0 -2px 8px rgba(230,242,204,.35); }
+  .V1 .brk .gross span { background: rgba(30,50,52,.9); color: #e6f2cc; box-shadow: 0 0 10px rgba(230,242,204,.25); }
+  .V1 .brk.bot .opsum { border-color: #8fd3ff; box-shadow: 0 2px 10px rgba(143,211,255,.45); }
+  .V1 .brk.bot .opsum span { background: #8fd3ff; box-shadow: 0 0 14px rgba(143,211,255,.6); }
+  .V1 .ob { border-radius: 16px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.22); box-shadow: inset 0 1px 0 rgba(255,255,255,.18); }
+  .V1 .ob.w { background: linear-gradient(135deg, rgba(245,158,11,.7), rgba(245,158,11,.25)); }
+
+  /* 2 · Минимализм */
+  .V2 .card { background: #1b2e30; border: 0; box-shadow: none; border-radius: 24px; }
+  .V2 .bar { height: 104px; border: 0; border-radius: 22px; background: #243a3c; box-shadow: none; gap: 0; }
+  .V2 .seg.net { background: #f59e0b; } .V2 .seg.net.none { background: #f59e0b; }
+  .V2 .seg.net .ttl { text-shadow: none; color: #13292b; font-weight: 800; } .V2 .seg.net .ttl small { color: rgba(19,41,43,.7); }
+  .V2 .seg.net:not(.none) .ttl { color: #fff; }
+  .V2 .layer { border-top: 0; } .V2 .layer + .layer { border-top: 2px solid #1b2e30; }
+  .V2 .layer i { background: var(--wc); } .V2 .layer span { font-weight: 700; }
+  .V2 .seg.op { background: #2e4547; border-left: 2px solid #1b2e30; }
+  .V2 .seg.op svg path, .V2 .seg.op svg rect, .V2 .seg.op svg circle { stroke: #edf0e7; fill-opacity: 0; }
+  .V2 .seg.op svg rect[height="2.5"] { fill: #edf0e7; fill-opacity: 1; }
+  .V2 .seg.op b { color: #edf0e7; }
+  .V2 .brk .gross { border: 0; } .V2 .brk .gross span { position: static; transform: none; display: block; text-align: left; background: none; padding: 0 4px; font: 600 13px/16px var(--font-body); color: rgba(237,240,231,.55); }
+  .V2 .brk { height: 22px; } .V2 .brk .gross { margin-top: 0; height: auto; }
+  .V2 .brk.bot .opsum { border: 0; } .V2 .brk.bot .opsum span { background: none; box-shadow: none; color: rgba(237,240,231,.6); font: 700 13px/1 var(--font-num); top: 8px; }
+  .V2 .ob { border: 0; border-radius: 14px; background: #243a3c; box-shadow: none; } .V2 .ob.w { background: #f59e0b; color: #13292b; }
+  .V2 .lg { border-bottom: 0; padding: 8px 4px; } .V2 .lg i { border-radius: 50%; }
+
+  /* 3 · Инфографика */
+  .V3 .bar { gap: 4px; border: 0; background: none; box-shadow: none; height: 112px; overflow: visible; }
+  .V3 .seg { border-radius: 12px; }
+  .V3 .seg.net { background: rgba(245,158,11,.18); border: 1px solid rgba(245,158,11,.6); }
+  .V3 .seg.net.none { background: rgba(245,158,11,.22); }
+  .V3 .layers { padding: 40px 8px 8px; gap: 5px; } .V3 .layer { border: 0; border-radius: 6px; background: rgba(0,0,0,.25); }
+  .V3 .layer i { border-radius: 6px; } .V3 .layer span { left: 8px; right: auto; bottom: 50%; transform: translateY(50%); }
+  .V3 .seg.op { background: rgba(255,255,255,.04); border: 1px dashed rgba(255,156,156,.7); }
+  .V3 .brk .gross { border-color: rgba(237,240,231,.35); border-width: 1px; } .V3 .brk .gross span { background: #e6f2cc; color: #13292b; border-radius: 10px; }
+  .V3 .brk.bot .opsum { border-width: 1px; border-style: dashed; }
+  .V3 .ob { border-radius: 12px; background: none; border: 1px solid rgba(230,242,204,.45); box-shadow: none; } .V3 .ob.w { background: rgba(245,158,11,.2); border-color: #f59e0b; }
+
+  /* 4 · Объёмная */
+  .V4 .bwrap { perspective: 700px; }
+  .V4 .bar { transform: rotateX(18deg); transform-origin: 50% 100%; border-radius: 10px; border: 0; height: 116px;
+    background: linear-gradient(180deg, #2c4244, #1f3335); box-shadow: 0 12px 0 #132426, 0 22px 26px rgba(0,0,0,.5); }
+  .V4 .seg.net { background: linear-gradient(180deg, rgba(245,158,11,.5), rgba(245,158,11,.25)); }
+  .V4 .layer i { background: linear-gradient(180deg, color-mix(in srgb, var(--wc) 100%, #fff 15%), var(--wc)); box-shadow: inset 0 -3px 0 rgba(0,0,0,.25); }
+  .V4 .seg.op { background: #0f1f21; box-shadow: inset 0 8px 14px rgba(0,0,0,.75), inset 0 -2px 0 rgba(255,255,255,.08); border-left: 0; margin: 10px 3px; border-radius: 6px; }
+  .V4 .brk.bot { margin-top: 10px; }
+  .V4 .ob { box-shadow: 0 5px 0 #132426, 0 8px 12px rgba(0,0,0,.4); transform: translateY(-3px); } .V4 .ob.w { box-shadow: 0 5px 0 #7a4f06, 0 8px 12px rgba(0,0,0,.4); }
+
+  /* 5 · Пилюли */
+  .V5 .seg.op { background: repeating-linear-gradient(135deg, rgba(255,156,156,.25) 0 6px, rgba(255,156,156,.08) 6px 12px); }
+  .V5 .seg.op svg, .V5 .seg.op .sz2, .V5 .seg.op b { display: none; }
+  .V5 .pills { display: flex; margin-top: 4px; }
+  .V5 .pills > div { position: relative; display: flex; justify-content: center; padding-top: 18px; }
+  .V5 .pills > div.p::before { content: ''; position: absolute; top: 0; left: 50%; height: 18px; border-left: 1.5px dashed rgba(255,156,156,.8); }
+  .V5 .pill { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 58px; padding: 6px 0; border-radius: 22px; background: #213839; border: 1px solid rgba(255,156,156,.6); box-shadow: 0 6px 14px rgba(0,0,0,.35); }
+  .V5 .pill svg { width: 22px; height: 22px; } .V5 .pill small { font: 500 9.5px/11px var(--font-num); color: rgba(237,240,231,.7); } .V5 .pill b { font: 700 11px/1 var(--font-num); color: #ffb3b3; }
+  .V5 .brk.bot .opsum { border-color: rgba(255,156,156,.6); }
+  .V5 .ob { border-radius: 30px; }
+</style></head>
+<body class="fig"><div class="app"><main class="view"><div class="fig-blobs"><i></i><i></i></div><div class="o-wrap" id="w"></div></main></div><div id="pop"></div>
+<script>
+const H = 2.7;
+let L = 4.2, ops = [{ t: 'Окно', w: 1.5, h: 1.4 }, { t: 'Дверь', w: 0.9, h: 2.1 }], wks = ['prime', 'fliz'], last = -1, popT = '', pick = 'win', ow = '', oh = '', wpick = [];
+const WORKS = [['prime', 'Грунтовка', 100, '#5b8def'], ['fliz', 'Поклейка флиз.', 330, '#22c55e'], ['strip', 'Демонтаж обоев', 150, '#ef4444'], ['putty', 'Шпаклёвка', 200, '#a855f7']];
+const f = (n) => String(Math.round(n * 100) / 100).replace('.', ',');
+const gross = () => L * H, opA = () => ops.reduce((a, o) => a + o.w * o.h, 0), net = () => Math.max(0, gross() - opA());
+const money = (n) => Math.round(n).toLocaleString('ru-RU') + ' ₽';
+let D = 1;
+const DESC = {
+  1: '<b>1. Стекло и свет.</b> Шкала из матового стекла со свечением цвета комнаты, проёмы — «окошки», сквозь которые светит; скобки — светящиеся линии.',
+  2: '<b>2. Минимализм.</b> Плоско и чисто, как в iOS: без рамок и теней, крупные цифры, подписи бледные, работы — ровные слои.',
+  3: '<b>3. Инфографика.</b> Как график в банковском приложении: сегменты с зазорами, работы — полоски-прогрессы внутри площади.',
+  4: '<b>4. Объём.</b> Шкала — объёмная панель в лёгкой перспективе, проёмы утоплены внутрь, работы ложатся слоями, как краска.',
+  5: '<b>5. Пилюли.</b> Проёмы — пилюли под шкалой, каждая пунктиром «вливается» в свой кусок; сверху общая площадь, снизу сумма проёмов.',
+};
+function draw() {
+  const g = gross();
+  const layers = wks.map((k) => { const [, n, , c] = WORKS.find((x) => x[0] === k); return `<div class="layer"><i style="--wc:${c}"></i><span>${n}</span></div>`; }).join('');
+  const opW = (opA() / g) * 100;
+  const bar = !L ? '<div class="empty">Введите длину — появится площадь стены</div>' : `<div class="bwrap">
+    <div class="brk"><div class="gross" style="flex-basis:100%"><span>${f(L)} × ${f(H)} = ${f(g)} м²</span></div></div>
+    <div class="bar"><div class="seg net${wks.length ? '' : ' none'}" style="flex-basis:${(net() / g) * 100}%"><div class="layers">${layers}</div><span class="ttl">${f(net())}<small> м²</small></span></div>${ops.map((o, i) => `<div class="seg op${i === last ? ' fly' : ''}" style="flex-basis:${((o.w * o.h) / g) * 100}%">${IC[TK[o.t]]}<span class="sz2">${f(o.w)}×${f(o.h)}</span><b>−${f(o.w * o.h)}</b></div>`).join('')}</div>
+    ${ops.length ? `<div class="pills"><div style="flex-basis:${(net() / g) * 100}%"></div>${ops.map((o) => `<div class="p" style="flex-basis:${((o.w * o.h) / g) * 100}%"><span class="pill">${IC[TK[o.t]]}<small>${f(o.w)}×${f(o.h)}</small><b>−${f(o.w * o.h)}</b></span></div>`).join('')}</div>` : ''}
+    ${ops.length ? `<div class="brk bot"><div style="flex-basis:${100 - opW}%"></div><div class="opsum" style="flex-basis:${opW}%"><span>−${f(opA())} м²</span></div></div>` : ''}</div>`;
+  const wl = wks.map((k, i) => { const [, n, p, c] = WORKS.find((x) => x[0] === k); return `<div class="lg"><i style="--wc:${c}"></i>${n}<small>× ${p} ₽</small><b>${money(net() * p)}</b><button class="xx" onclick="wks.splice(${i},1);draw()">×</button></div>`; }).join('');
+  const tot = wks.reduce((a, k) => a + net() * WORKS.find((x) => x[0] === k)[2], 0);
+  document.getElementById('w').innerHTML = `<div class="vs">${['Стекло', 'Минимал', 'Инфографика', 'Объём', 'Пилюли'].map((n, i) => `<button class="${D === i + 1 ? 'is-on' : ''}" onclick="D=${i + 1};draw()">${n}</button>`).join('')}</div>
+    <p class="zx">${DESC[D]} <button class="rs" onclick="L=0;ops=[];wks=[];draw()">начать заново</button></p>
+    <div class="V${D}"><section class="f-plate card"><div class="hd"><b>Стена 1</b><small>высота 2,7 м — одинаковая</small></div>
+      <div class="Lin"><label>Длина</label><span class="fld"><input id="L" inputmode="decimal" value="${L ? f(L) : ''}" placeholder="—" oninput="setL(this.value)"><small>м</small></span><span class="hint2">${L ? `${ops.length} проём${ops.length === 1 ? '' : ops.length > 1 && ops.length < 5 ? 'а' : 'ов'}` : 'например 4,2'}</span></div>
+      <div id="barbox">${bar}</div>
+      ${L ? `<div class="opbtns"><button class="ob" onclick="openOp('win')">${IC.win}+ окно</button><button class="ob" onclick="openOp('door')">${IC.door}+ дверь</button><button class="ob" onclick="openOp('arch')">${IC.arch}+ проём</button><button class="ob w" onclick="openW()">+ Работы</button></div>` : ''}
+      ${wks.length ? `<div class="legend2">${wl}</div><div class="total"><span>Стена 1 итого</span><b>${money(tot)}</b></div>` : ''}
+    </section></div>`;
+  last = -1;
+}
+function setL(v) { L = parseFloat(String(v).replace(',', '.')) || 0; const pos = 1; draw(); const el = document.getElementById('L'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+const IC = {
+  win: '<svg viewBox="0 0 32 32" fill="none"><rect x="5" y="4" width="22" height="22" rx="2" fill="#8fd3ff" fill-opacity=".25" stroke="#cfeeff" stroke-width="1.8"/><path d="M16 4v22M5 15h22" stroke="#cfeeff" stroke-width="1.6"/><rect x="3" y="26" width="26" height="2.5" rx="1" fill="#cfeeff"/></svg>',
+  door: '<svg viewBox="0 0 32 32" fill="none"><rect x="8" y="3" width="16" height="26" rx="1.5" fill="#c8a27a" fill-opacity=".25" stroke="#f1d7b8" stroke-width="1.8"/><circle cx="20" cy="16.5" r="1.5" fill="#f1d7b8"/><path d="M4 29h24" stroke="#f1d7b8" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  arch: '<svg viewBox="0 0 32 32" fill="none"><path d="M8 29V13a8 8 0 0 1 16 0v16" stroke="#e6f2cc" stroke-width="1.8" stroke-dasharray="3 2.5"/><path d="M4 29h24" stroke="#e6f2cc" stroke-width="1.8" stroke-linecap="round"/></svg>',
+};
+const TK = { 'Окно': 'win', 'Дверь': 'door', 'Проём': 'arch' };
+const PRE = { win: ['Окно', 1.5, 1.4], door: ['Дверь', 0.9, 2.1], arch: ['Проём', 1.2, 2.1] };
+function openOp(t = 'win') { pick = t; ow = PRE[t][1]; oh = PRE[t][2]; drawOp(); }
+function drawOp() {
+  document.getElementById('pop').innerHTML = `<div class="shade" onclick="closePop()"></div><div class="sheet2"><div class="grab"></div><h3>${PRE[pick][0]} в стене</h3>
+    <div class="tp">${Object.entries(PRE).map(([k, [n]]) => `<button class="${pick === k ? 'on' : ''}" onclick="pick='${k}';ow=PRE.${k}[1];oh=PRE.${k}[2];drawOp()"><span style="display:inline-flex;align-items:center;gap:6px">${IC[k].replace('<svg', '<svg width=\"20\" height=\"20\"')} ${n}</span></button>`).join('')}</div>
+    <div class="sz"><span class="fld"><input inputmode="decimal" value="${f(ow)}" oninput="ow=parseFloat(this.value.replace(',','.'))||0"><small>м</small></span><span class="op">×</span><span class="fld"><input inputmode="decimal" value="${f(oh)}" oninput="oh=parseFloat(this.value.replace(',','.'))||0"><small>м</small></span></div>
+    <div class="szl"><span>ширина</span><span></span><span>высота</span></div>
+    <div class="f-btn-row" style="width:calc(50% + 2.5px);margin:0 auto"><button class="f-btn" onclick="addOp()">Добавить</button></div></div>`;
+}
+function addOp() { ops.push({ t: PRE[pick][0], w: ow, h: oh }); last = ops.length - 1; closePop(); draw(); }
+function openW() { wpick = []; drawW(); }
+function drawW() {
+  document.getElementById('pop').innerHTML = `<div class="shade" onclick="closePop()"></div><div class="sheet2"><div class="grab"></div><h3>Работы на стене</h3>
+    <div class="wl">${WORKS.filter(([k]) => !wks.includes(k)).map(([k, n, p, c]) => `<button class="${wpick.includes(k) ? 'on' : ''}" style="--wc:${c}" onclick="wpick.includes('${k}')?wpick.splice(wpick.indexOf('${k}'),1):wpick.push('${k}');drawW()">${n}<small>${p} ₽/м²</small></button>`).join('')}</div>
+    <div class="f-btn-row" style="width:calc(50% + 2.5px);margin:0 auto"><button class="f-btn" onclick="wks.push(...wpick);closePop();draw()">${wpick.length ? 'Добавить · ' + wpick.length : 'Готово'}</button></div></div>`;
+}
+function closePop() { document.getElementById('pop').innerHTML = ''; }
+draw();
+</script></body></html>
