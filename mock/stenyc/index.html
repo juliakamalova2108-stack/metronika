@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Стены — компактно</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/app.css"><link rel="stylesheet" href="../../css/vyezdy.css">
+<style>
+  :root { --rc: #f59e0b; --red: #ff9c9c; --lt: #e6f2cc; --mu: rgba(237,240,231,.6); --pl: #213839; }
+  body.fig .view { padding-bottom: 60px; }
+  .vs { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 8px; padding: 3px; border-radius: 10px; background: rgba(0,0,0,.28); }
+  .vs button { flex: 1 0 calc(25% - 4px); height: 30px; border: 0; border-radius: 8px; background: none; color: var(--mu); font: 600 11.5px/1 var(--font-body); cursor: pointer; }
+  .vs button.is-on { background: var(--lt); color: #13292b; }
+  .zx { margin: 0 2px 10px; font: 400 12.5px/17px var(--font-body); color: rgba(230,242,204,.85); }
+  .room { display: flex; align-items: center; gap: 10px; margin: 0 2px 8px; font: 700 18px/1 var(--font-body); color: #fff; }
+  .room small { font: 500 12px/1 var(--font-body); color: var(--mu); } .room b { margin-left: auto; font: 800 17px/1 var(--font-num); color: var(--lt); }
+  .list { display: flex; flex-direction: column; gap: 6px; }
+  .nm { font-family: var(--font-num); }
+  .IC { display: inline-flex; width: 20px; height: 20px; } .IC svg { width: 100%; height: 100%; }
+  .Lf { display: inline-flex; align-items: baseline; gap: 2px; height: 30px; padding: 0 8px; border-radius: 7px; border: 1.5px solid var(--rc); background: linear-gradient(180deg,#687b7a,#738582); box-shadow: inset 0 2px 4px rgba(1,9,11,.5); }
+  .Lf input { width: 38px; border: 0; background: none; outline: none; color: #fff; font: 700 15px/30px var(--font-num); text-align: right; padding: 0; } .Lf small { font: 500 10px/1 var(--font-body); color: rgba(255,255,255,.75); }
+  .addwall { height: 40px; border-radius: 12px; border: 1.5px dashed rgba(230,242,204,.45); background: none; color: var(--lt); font: 600 13px/1 var(--font-body); cursor: pointer; }
+  button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } } .pop { animation: pop .35s cubic-bezier(.2,1.4,.4,1); }
+  .sb { height: 32px; border-radius: 16px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06); color: #fff; font: 600 12px/1 var(--font-body); display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 10px; }
+  .sb.pr { background: var(--rc); border: 0; color: #13292b; }
+  .ib { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.06); display: inline-grid; place-items: center; padding: 0; }
+  .ib .IC { width: 18px; height: 18px; }
+  .tg { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 10px; font: 700 10.5px/1 var(--font-num); }
+  .tg.o { background: rgba(255,156,156,.16); color: var(--red); cursor: pointer; }
+  .tg.wk { background: var(--wc); color: #fff; font-family: var(--font-body); font-weight: 600; cursor: pointer; }
+  .row { display: flex; align-items: center; gap: 6px; }
+  .sp { margin-left: auto; }
+
+  /* 1 Полоса */
+  .a1 .w { border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); padding: 8px 10px; display: flex; flex-direction: column; gap: 7px; }
+  .a1 .w.on { border-color: rgba(245,158,11,.6); background: rgba(245,158,11,.07); }
+  .a1 .t { font: 700 14px/1 var(--font-body); color: #fff; } .a1 .a { font: 800 15px/1 var(--font-num); color: #fff; } .a1 .a small { font-size: 10px; color: var(--mu); }
+  .a1 .bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px; background: rgba(0,0,0,.25); }
+  .a1 .bar i { display: block; } .a1 .bar .o { background: repeating-linear-gradient(135deg, var(--red) 0 3px, transparent 3px 6px); }
+  .a1 .meta { font: 500 11.5px/1 var(--font-body); color: var(--mu); } .a1 .meta b { color: #fff; font-family: var(--font-num); }
+
+  /* 2 Пилюля-ползунок */
+  .a2 .w { position: relative; height: 46px; border-radius: 23px; background: #13292b; border: 1px solid rgba(255,255,255,.14); display: flex; align-items: center; padding: 0 5px 0 14px; gap: 8px; overflow: hidden; }
+  .a2 .w .fill { position: absolute; left: 0; top: 0; bottom: 0; display: flex; } .a2 .w .fill i { display: block; opacity: .55; }
+  .a2 .w > :not(.fill) { position: relative; }
+  .a2 .w .t { font: 700 13px/1 var(--font-body); color: #fff; } .a2 .w .a { font: 800 15px/1 var(--font-num); color: #fff; }
+  .a2 .ex { display: flex; flex-wrap: wrap; gap: 5px; padding: 2px 8px 6px; }
+
+  /* 3 Билет */
+  .a3 .w { display: grid; grid-template-columns: 1fr 92px; border-radius: 12px; overflow: hidden; background: #e9eee0; color: #13292b; }
+  .a3 .w > div { padding: 8px 10px; } .a3 .w .r { position: relative; background: #d4dec6; border-left: 2px dashed #9fb09a; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .a3 .w .r::before, .a3 .w .r::after { content: ''; position: absolute; left: -8px; width: 14px; height: 14px; border-radius: 50%; background: #1d3233; } .a3 .w .r::before { top: -7px; } .a3 .w .r::after { bottom: -7px; }
+  .a3 .t { font: 700 13px/1 var(--font-body); } .a3 .a { font: 800 22px/1 var(--font-num); margin: 3px 0 5px; } .a3 .a small { font-size: 11px; color: #4b5d5e; }
+  .a3 .r .o { font: 800 15px/1 var(--font-num); color: #b42318; } .a3 .r small { font: 500 10px/1 var(--font-body); color: #4b5d5e; }
+  .a3 .Lf { border-color: #13292b; background: #fff; } .a3 .Lf input { color: #13292b; } .a3 .Lf small { color: #4b5d5e; }
+  .a3 .ib { border-color: rgba(19,41,43,.25); background: #fff; } .a3 .sb.pr { color: #13292b; }
+  .a3 .tg.o { background: #fde8e8; color: #b42318; }
+
+  /* 4 Шаги */
+  .a4 .list { gap: 0; }
+  .a4 .w { position: relative; display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding-bottom: 10px; }
+  .a4 .w::before { content: ''; position: absolute; left: 13px; top: 26px; bottom: 0; border-left: 2px solid rgba(255,255,255,.12); }
+  .a4 .n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--pl); border: 1.5px solid rgba(255,255,255,.3); font: 800 13px/1 var(--font-num); color: #fff; }
+  .a4 .w.on .n { background: var(--rc); border-color: var(--rc); color: #13292b; }
+  .a4 .b { padding-top: 5px; display: flex; flex-direction: column; gap: 6px; }
+  .a4 .t { font: 600 13.5px/1 var(--font-body); color: #fff; } .a4 .t b { font-family: var(--font-num); }
+  .a4 .mini { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: rgba(0,0,0,.3); }
+
+  /* 5 Батарейка */
+  .a5 .w { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: rgba(255,255,255,.04); }
+  .a5 .bat { position: relative; flex: 1; height: 40px; border-radius: 8px; border: 2px solid rgba(255,255,255,.5); padding: 3px; display: flex; gap: 2px; }
+  .a5 .bat::after { content: ''; position: absolute; right: -7px; top: 11px; width: 4px; height: 14px; border-radius: 0 3px 3px 0; background: rgba(255,255,255,.5); }
+  .a5 .bat i { display: block; border-radius: 3px; } .a5 .bat .lb { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font: 800 14px/1 var(--font-num); color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+  .a5 .t { width: 48px; font: 700 12px/14px var(--font-body); color: #fff; } .a5 .t small { display: block; font: 500 10px/12px var(--font-num); color: var(--mu); }
+
+  /* 6 Пиксели */
+  .a6 .w { padding: 8px 10px; border-radius: 12px; background: rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 6px; }
+  .a6 .grid { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; } .a6 .grid i { aspect-ratio: 1; border-radius: 2px; background: rgba(255,255,255,.08); }
+  .a6 .t { font: 700 13px/1 var(--font-body); color: #fff; } .a6 .a { font: 800 14px/1 var(--font-num); color: #fff; }
+
+  /* 7 Мини-чертёж */
+  .a7 .w { display: grid; grid-template-columns: 1fr 34px; gap: 6px; padding: 8px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); }
+  .a7 svg.dr { width: 100%; height: 62px; display: block; }
+  .a7 .side { display: flex; flex-direction: column; gap: 4px; } .a7 .side .ib { width: 34px; height: 29px; border-radius: 8px; }
+  .a7 .side .ib.pr { background: var(--rc); border: 0; color: #13292b; font: 800 16px/1 var(--font-body); }
+
+  /* 8 Таблица */
+  .a8 .hdr, .a8 .w { display: grid; grid-template-columns: 22px 58px 1fr 46px 46px; align-items: center; gap: 4px; }
+  .a8 .hdr { padding: 0 8px; font: 500 10px/1 var(--font-body); color: var(--mu); margin-bottom: 2px; }
+  .a8 .w { padding: 6px 8px; border-radius: 10px; background: rgba(255,255,255,.04); font: 700 13px/1 var(--font-num); color: #fff; }
+  .a8 .w.on { background: rgba(245,158,11,.1); box-shadow: inset 3px 0 0 var(--rc); } .a8 .w .r { color: var(--red); text-align: center; }
+  .a8 .sub { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; padding-top: 6px; }
+
+  /* 9 Карусель */
+  .a9 .list { flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; padding-bottom: 6px; scrollbar-width: none; }
+  .a9 .w { flex: 0 0 78%; scroll-snap-align: center; padding: 10px; border-radius: 16px; background: linear-gradient(160deg, rgba(245,158,11,.22), rgba(255,255,255,.04)); border: 1px solid rgba(255,255,255,.18); display: flex; flex-direction: column; gap: 6px; }
+  .a9 .t { font: 700 13px/1 var(--font-body); color: #fff; } .a9 .a { font: 800 26px/1 var(--font-num); color: #fff; } .a9 .a small { font-size: 12px; color: var(--mu); }
+  .a9 .dots { display: flex; justify-content: center; gap: 6px; } .a9 .dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.25); } .a9 .dots i.on { width: 18px; background: var(--rc); }
+
+  /* 10 Кольца-мини */
+  .a10 .w { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 14px; background: rgba(255,255,255,.04); }
+  .a10 .w > svg { width: 52px; height: 52px; flex: none; }
+  .a10 .mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  .a10 .t { font: 700 13px/1 var(--font-body); color: #fff; } .a10 .t small { font: 500 11px/1 var(--font-num); color: var(--mu); margin-left: 4px; }
+
+
+  /* 11 Схема: работы внутри стены */
+  .a11 .w { padding: 8px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); }
+  .a11 .hd { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font: 700 13px/1 var(--font-body); color: #fff; }
+  .a11 .body { display: grid; grid-template-columns: 14px 1fr 34px; gap: 6px; }
+  .a11 .hgt { writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font: 600 10px/14px var(--font-num); color: var(--mu); border-left: 1px solid rgba(255,255,255,.25); }
+  .a11 .wall { position: relative; min-height: 120px; border: 1.5px solid #f59e0b; border-radius: 4px; background: rgba(245,158,11,.1); overflow: hidden; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+  .a11 .opn { position: absolute; bottom: 0; border: 1.5px dashed rgba(255,156,156,.55); background: rgba(10,20,22,.45); display: grid; place-items: center; font: 700 10px/1 var(--font-num); color: rgba(255,156,156,.75); cursor: pointer; z-index: 0; }
+  .a11 .opn.win { bottom: auto; }
+  .a11 .wk, .a11 .ar { position: relative; z-index: 1; }
+  .a11 .ar { align-self: flex-end; font: 800 17px/1 var(--font-num); color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+  .a11 .ar small { font-size: 10px; color: var(--mu); font-weight: 600; }
+  .a11 .wk { display: flex; align-items: center; gap: 6px; width: fit-content; max-width: 100%; height: 26px; padding: 0 10px 0 8px; border-radius: 13px; background: rgba(19,41,43,.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid color-mix(in srgb, var(--wc) 70%, transparent); font: 600 12px/1 var(--font-body); color: #fff; cursor: pointer; }
+  .a11 .wk i { width: 8px; height: 8px; border-radius: 50%; background: var(--wc); }
+  .a11 .wk b { font: 700 12px/1 var(--font-num); color: var(--lt); margin-left: 4px; }
+  .a11 .wk.add { border: 1px dashed rgba(245,158,11,.8); color: #f59e0b; background: rgba(19,41,43,.6); }
+  .a11 .len { grid-column: 2; display: flex; align-items: center; justify-content: center; gap: 6px; border-top: 1px solid rgba(255,255,255,.25); padding-top: 4px; font: 500 10px/1 var(--font-body); color: var(--mu); }
+  .a11 .side { display: flex; flex-direction: column; gap: 4px; } .a11 .side .ib { width: 34px; height: 34px; border-radius: 8px; }
+  .a11 .ft { display: flex; justify-content: space-between; margin-top: 6px; font: 500 11.5px/1 var(--font-body); color: var(--mu); } .a11 .ft b { color: #fff; font-family: var(--font-num); }
+  .shade { position: fixed; inset: 0; z-index: 80; background: rgba(4,12,14,.6); }
+  .sheet2 { position: fixed; z-index: 81; left: 0; right: 0; bottom: 0; padding: 10px 14px 24px; border-radius: 18px 18px 0 0; background: linear-gradient(180deg, #2a4142, #213536); }
+  .grab { width: 44px; height: 5px; border-radius: 3px; background: rgba(237,240,231,.35); margin: 0 auto 12px; }
+  .sheet2 h3, .ed h3 { margin: 0 4px 12px; font: 700 18px/22px var(--font-num); color: #fff; display: flex; align-items: center; gap: 8px; }
+  .wl { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 14px; }
+  .wl button { height: 48px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(204,222,209,.4); background: #213839; color: #fff; text-align: left; font: 500 13px/16px var(--font-body); }
+  .wl button small { display: block; font: 400 11px/13px var(--font-body); color: var(--mu); }
+  .wl button.on { border-color: var(--wc); box-shadow: 0 0 0 1.5px var(--wc); background: color-mix(in srgb, var(--wc) 30%, #213839); }
+  .ed { position: fixed; z-index: 81; left: 50%; top: 40%; transform: translate(-50%, -50%); width: 270px; padding: 14px; border-radius: 16px; background: #2a4142; border: 1px solid rgba(204,222,209,.4); }
+  .sz { display: flex; gap: 8px; align-items: center; justify-content: center; color: #fff; margin-bottom: 12px; } .sz .Lf { height: 40px; } .sz .Lf input { font-size: 18px; line-height: 40px; width: 48px; }
+  .r2 { display: flex; gap: 6px; } .del { flex: 1; height: 40px; border-radius: 8px; border: 1px solid rgba(255,120,120,.6); background: none; color: #ff9c9c; font: 600 13px/1 var(--font-body); }
+</style></head>
+<body class="fig"><div class="app"><main class="view"><div class="fig-blobs"><i></i><i></i></div><div class="o-wrap" id="w"></div></main></div><div id="pop"></div>
+<script>
+const H = 2.7;
+const WORKS = [['prime', 'Грунтовка', 100, '#5b8def'], ['fliz', 'Флизелин', 330, '#22c55e'], ['strip', 'Демонтаж', 150, '#ef4444'], ['putty', 'Шпаклёвка', 200, '#a855f7']];
+const PRE = { win: [1.5, 1.4], door: [0.9, 2.1] };
+const IC = {
+  win: '<span class="IC"><svg viewBox="0 0 32 32" fill="none"><rect x="5" y="4" width="22" height="22" rx="2" fill="#8fd3ff" fill-opacity=".25" stroke="#cfeeff" stroke-width="2"/><path d="M16 4v22M5 15h22" stroke="#cfeeff" stroke-width="1.8"/></svg></span>',
+  door: '<span class="IC"><svg viewBox="0 0 32 32" fill="none"><rect x="8" y="3" width="16" height="26" rx="1.5" fill="#c8a27a" fill-opacity=".25" stroke="#f1d7b8" stroke-width="2"/><circle cx="20" cy="16.5" r="1.6" fill="#f1d7b8"/></svg></span>',
+};
+let D = 11, act = 0, last = '', ws = [
+  { L: 4.2, ops: [{ t: 'win', w: 1.5, h: 1.4 }], wks: ['prime', 'fliz'] },
+  { L: 3.6, ops: [], wks: ['prime', 'fliz'] },
+  { L: 4.2, ops: [{ t: 'win', w: 1.5, h: 1.4 }, { t: 'win', w: 1.5, h: 1.4 }], wks: ['prime', 'fliz'] },
+  { L: 3.6, ops: [{ t: 'door', w: 0.9, h: 2.1 }], wks: ['prime', 'fliz'] },
+];
+const f = (n) => String(Math.round(n * 100) / 100).replace('.', ',');
+const money = (n) => Math.round(n).toLocaleString('ru-RU') + ' ₽';
+const G = (w) => w.L * H, S = (w, t) => w.ops.filter((o) => !t || o.t === t).reduce((a, o) => a + o.w * o.h, 0), N = (w) => Math.max(0, G(w) - S(w));
+const SUM = (w) => w.wks.reduce((a, k) => a + N(w) * WORKS.find((x) => x[0] === k)[2], 0);
+const col = (k) => WORKS.find((x) => x[0] === k)[3], nm = (k) => WORKS.find((x) => x[0] === k)[1];
+const Lf = (i) => `<span class="Lf" onclick="event.stopPropagation()"><input inputmode="decimal" value="${ws[i].L ? f(ws[i].L) : ''}" placeholder="—" onchange="setL(${i},this.value)"><small>м</small></span>`;
+const tags = (i, kind) => { const w = ws[i]; return (kind !== 'o' ? w.wks.map((k, j) => `<span class="tg wk${last === 'w' + i + j ? ' pop' : ''}" style="--wc:${col(k)}" onclick="event.stopPropagation();ws[${i}].wks.splice(${j},1);draw()">${nm(k)}</span>`).join('') : '') + (kind !== 'w' ? w.ops.map((o, j) => `<span class="tg o${last === 'o' + i + j ? ' pop' : ''}" onclick="event.stopPropagation();edit(${i},${j})">−${f(o.w * o.h)}</span>`).join('') : ''); };
+const BTNS = (i) => `<button class="sb pr" onclick="event.stopPropagation();openW(${i})">+ работа</button><button class="ib" onclick="event.stopPropagation();add(${i},'win')">${IC.win}</button><button class="ib" onclick="event.stopPropagation();add(${i},'door')">${IC.door}</button>`;
+const segs = (w) => `${w.wks.length ? w.wks.map((k) => `<i style="flex:${N(w) / w.wks.length};background:${col(k)}"></i>`).join('') : `<i style="flex:${N(w)};background:rgba(245,158,11,.5)"></i>`}${w.ops.map((o) => `<i class="o" style="flex:${o.w * o.h}"></i>`).join('')}`;
+const op = (i) => `onclick="act=${i};draw()"`;
+const V = {
+  1: ['Полоса', 'Строка, под ней тонкая полоса долей и одна строка: работы, вычеты, кнопки. Закрытая стена — одна строка.',
+    (w, i, on) => `<div class="w${on ? ' on' : ''}" ${op(i)}><div class="row"><span class="t">Стена ${i + 1}</span>${on ? Lf(i) : `<span class="meta"><b>${f(w.L)}</b> м</span>`}<span class="a sp">${f(N(w))}<small> / ${f(G(w))} м²</small></span>${on ? '' : `<span class="meta" style="margin-left:6px"><b>${money(SUM(w))}</b></span>`}</div>
+      <div class="bar">${segs(w)}</div>${on ? `<div class="row" style="flex-wrap:wrap">${tags(i)}<span class="sp"></span>${BTNS(i)}</div>` : ''}</div>`],
+  2: ['Пилюля', 'Стена — одна пилюля 46 px, залитая долями работ и вычетов, с длиной и площадью внутри. Открытая — под ней метки и кнопки.',
+    (w, i, on) => `<div><div class="w" ${op(i)}><span class="fill" style="width:100%">${segs(w)}</span><span class="t">${i + 1}</span>${on ? Lf(i) : `<span class="t nm">${f(w.L)} м</span>`}<span class="a sp">${f(N(w))} м²</span>${on ? BTNS(i) : `<span class="t nm" style="margin-right:8px">${money(SUM(w))}</span>`}</div>${on ? `<div class="ex">${tags(i)}</div>` : ''}</div>`],
+  3: ['Билет', 'Каждая стена — билетик: слева площадь и работы, справа за перфорацией — вычет окон и дверей. Светлый на тёмном.',
+    (w, i, on) => `<div class="w" ${op(i)}><div><div class="row"><span class="t">Стена ${i + 1}</span>${on ? Lf(i) : `<span class="t nm" style="opacity:.6">${f(w.L)} м</span>`}</div><div class="a">${f(N(w))}<small> м² · ${money(SUM(w))}</small></div>${on ? `<div class="row" style="flex-wrap:wrap">${tags(i, 'w')}<button class="sb pr" onclick="event.stopPropagation();openW(${i})">+</button></div>` : ''}</div>
+      <div class="r"><small>из ${f(G(w))}</small>${on ? '' : `<span class="o">−${f(S(w))}</span>`}${on ? `<div class="row">${tags(i, 'o')}</div><div class="row"><button class="ib" onclick="event.stopPropagation();add(${i},'win')">${IC.win}</button><button class="ib" onclick="event.stopPropagation();add(${i},'door')">${IC.door}</button></div>` : ''}</div></div>`],
+  4: ['Шаги', 'Стены идут шагами по вертикальной линии с номерами. Закрытая — строка и мини-полоса, открытая — ещё метки и кнопки.',
+    (w, i, on) => `<div class="w${on ? ' on' : ''}" ${op(i)}><span class="n">${i + 1}</span><div class="b"><div class="row"><span class="t">${on ? '' : `<b>${f(w.L)}</b> м · `}<b>${f(N(w))}</b> м²</span>${on ? Lf(i) : ''}<span class="t sp nm">${money(SUM(w))}</span></div><div class="mini">${segs(w)}</div>${on ? `<div class="row" style="flex-wrap:wrap">${tags(i)}<span class="sp"></span>${BTNS(i)}</div>` : ''}</div></div>`],
+  5: ['Батарейка', 'Стена — «батарейка»: заряжается работами, вычеты — красная штриховка в конце. Слева номер и длина.',
+    (w, i, on) => `<div><div class="w" ${op(i)}><span class="t">Стена ${i + 1}<small>${f(w.L)} × 2,7</small></span><span class="bat">${segs(w)}<span class="lb">${f(N(w))} м²</span></span>${on ? '' : `<span class="t nm" style="width:auto">${money(SUM(w))}</span>`}</div>${on ? `<div class="row" style="flex-wrap:wrap;padding:4px 6px">${Lf(i)}${tags(i)}<span class="sp"></span>${BTNS(i)}</div>` : ''}</div>`],
+  6: ['Пиксели', 'Площадь — сетка квадратиков по 0,5 м²: заливаются цветом работ, окна и двери — красные квадратики. Сразу видно соотношение.',
+    (w, i, on) => { const tot = Math.ceil(G(w) / 0.5), o = Math.round(S(w) / 0.5), wn = w.wks.length; let g = ''; for (let k = 0; k < tot; k++) g += `<i style="${k >= tot - o ? 'background:rgba(255,156,156,.7)' : wn ? `background:${col(w.wks[k % wn])}` : 'background:rgba(245,158,11,.4)'}"></i>`;
+      return `<div class="w" ${op(i)}><div class="row"><span class="t">Стена ${i + 1}</span>${on ? Lf(i) : `<span class="t nm" style="opacity:.6">${f(w.L)} м</span>`}<span class="a sp">${f(N(w))} м²</span><span class="t nm" style="margin-left:8px">${money(SUM(w))}</span></div>${on ? `<div class="grid">${g}</div><div class="row" style="flex-wrap:wrap">${tags(i)}<span class="sp"></span>${BTNS(i)}</div>` : ''}</div>`; }],
+  7: ['Мини-чертёж', 'Стена маленьким чертежом: прямоугольник, окна и двери нарисованы на своих местах, цифры поверх. Кнопки — колонкой справа.',
+    (w, i, on) => { const ww = 280, hh = 60; let x = 20; const rs = w.ops.map((o) => { const rw = o.w / w.L * ww, rh = o.h / H * hh, r = `<rect x="${x}" y="${hh - rh - (o.t === 'win' ? 12 : 0)}" width="${rw}" height="${rh}" fill="#1b2f31" stroke="#ff9c9c" stroke-dasharray="3 2"/>`; x += rw + 14; return r; }).join('');
+      return on ? `<div class="w"><div><div class="row" style="margin-bottom:4px"><span class="t" style="font:700 13px var(--font-body);color:#fff">Стена ${i + 1}</span>${Lf(i)}<span class="sp nm" style="color:#fff;font-weight:800">${money(SUM(w))}</span></div>
+        <svg class="dr" viewBox="0 0 ${ww} ${hh}" preserveAspectRatio="none"><rect x="0" y="0" width="${ww}" height="${hh}" fill="rgba(245,158,11,.14)" stroke="#f59e0b" stroke-width="1.5"/>${w.wks.map((k, j) => `<rect x="0" y="${hh - (j + 1) * 6}" width="${ww}" height="5" fill="${col(k)}" opacity=".8"/>`).join('')}${rs}<text x="${ww - 8}" y="22" text-anchor="end" font-size="18" font-weight="800" fill="#fff" font-family="Onest, sans-serif">${f(N(w))} м²</text></svg>
+        <div class="row" style="flex-wrap:wrap;margin-top:4px">${tags(i)}</div></div><div class="side"><button class="ib pr" onclick="openW(${i})">+</button><button class="ib" onclick="add(${i},'win')">${IC.win}</button><button class="ib" onclick="add(${i},'door')">${IC.door}</button></div></div>`
+      : `<div class="w" style="grid-template-columns:1fr" ${op(i)}><div class="row" style="color:#fff;font:600 13px var(--font-body)">Стена ${i + 1}<span class="nm" style="opacity:.6">${f(w.L)} м</span><span class="sp nm" style="font-weight:800">${f(N(w))} м²</span><span class="nm" style="margin-left:8px">${money(SUM(w))}</span></div></div>`; }],
+  8: ['Таблица', 'Все стены — строки одной таблицы: №, длина, работы, окна, двери. Открытая строка разворачивает метки и кнопки. Самая плотная.',
+    (w, i, on) => `<div class="w${on ? ' on' : ''}" ${op(i)}><span>${i + 1}</span>${on ? Lf(i) : `<span>${f(w.L)}</span>`}<span>${f(N(w))} <small style="font-size:10px;opacity:.6">· ${money(SUM(w))}</small></span><span class="r">${S(w, 'win') ? '−' + f(S(w, 'win')) : '—'}</span><span class="r">${S(w, 'door') ? '−' + f(S(w, 'door')) : '—'}</span>${on ? `<div class="sub">${tags(i)}<span class="sp"></span>${BTNS(i)}</div>` : ''}</div>`],
+  9: ['Карусель', 'Стены листаются вбок карточками, соседние видны по краям. Экран по высоте — одна карточка, сколько бы стен ни было.',
+    (w, i, on) => `<div class="w" ${op(i)}><div class="row"><span class="t">Стена ${i + 1}</span>${Lf(i)}<span class="t sp nm">${money(SUM(w))}</span></div><div class="a">${f(N(w))}<small> / ${f(G(w))} м²</small></div><div class="row" style="flex-wrap:wrap">${tags(i)}</div><div class="row">${BTNS(i)}</div></div>`],
+  10: ['Мини-кольца', 'У каждой стены маленькое кольцо-диаграмма: доли работ и вычетов, в центре площадь. Справа название, метки и кнопки.',
+    (w, i, on) => { const r = 20, C = 2 * Math.PI * r; let off = 0; const sg = (v, c) => { const l = v / G(w) * C; const s = `<circle cx="26" cy="26" r="${r}" fill="none" stroke="${c}" stroke-width="6" stroke-dasharray="${Math.max(0, l - 1.5)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 26 26)"/>`; off += l; return s; };
+      const ring = `<svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="6"/>${w.wks.length ? w.wks.map((k) => sg(N(w) / w.wks.length, col(k))).join('') : sg(N(w), '#f59e0b')}${w.ops.map((o) => sg(o.w * o.h, '#ff9c9c')).join('')}<text x="26" y="30" text-anchor="middle" font-size="11" font-weight="800" fill="#fff" font-family="Onest, sans-serif">${f(N(w))}</text></svg>`;
+      return `<div class="w" ${op(i)}>${ring}<div class="mid"><div class="row"><span class="t">Стена ${i + 1}<small>${on ? '' : f(w.L) + ' м'}</small></span>${on ? Lf(i) : ''}<span class="t sp nm">${money(SUM(w))}</span></div>${on ? `<div class="row" style="flex-wrap:wrap">${tags(i)}</div><div class="row">${BTNS(i)}</div>` : ''}</div></div>`; }],
+  11: ['Схема', 'Стена — чертёж: высота слева, длина снизу. Окна и двери уходят на задний план, а на переднем плане внутри стены — работы с их стоимостью.',
+    (w, i, on) => { if (!on) return `<div class="w" ${op(i)}><div class="row" style="color:#fff;font:600 13px var(--font-body)">Стена ${i + 1}<span class="nm" style="opacity:.6">${f(w.L)} м</span><span class="sp nm" style="font-weight:800">${f(N(w))} м²</span><span class="nm" style="margin-left:8px">${money(SUM(w))}</span></div></div>`;
+      let x = 8; const ops = w.ops.map((o, j) => { const lw = Math.min(40, o.w / w.L * 100), r = `<span class="opn ${o.t}" onclick="event.stopPropagation();edit(${i},${j})" style="right:${x}%;width:${lw}%;height:${o.h / H * 100}%;${o.t === 'win' ? 'top:22%;' : ''}">−${f(o.w * o.h)}</span>`; x += lw + 6; return r; }).join('');
+      const wk = w.wks.map((k, j) => `<span class="wk" style="--wc:${col(k)}" onclick="event.stopPropagation();ws[${i}].wks.splice(${j},1);draw()"><i></i>${nm(k)}<b>${money(N(w) * WORKS.find((q) => q[0] === k)[2])}</b></span>`).join('');
+      return `<div class="w"><div class="hd">Стена ${i + 1}<span class="sp nm" style="font-weight:800">${money(SUM(w))}</span></div>
+        <div class="body"><span class="hgt">2,7 м</span><div class="wall">${ops}<span class="ar">${f(N(w))} м²<small> из ${f(G(w))}</small></span>${wk}<span class="wk add" onclick="event.stopPropagation();openW(${i})">+ работа</span></div>
+        <div class="side"><button class="ib" onclick="add(${i},'win')">${IC.win}</button><button class="ib" onclick="add(${i},'door')">${IC.door}</button></div>
+        <div class="len">длина ${Lf(i)}</div></div>
+        <div class="ft"><span>окна <b>−${f(S(w, 'win'))}</b> · двери <b>−${f(S(w, 'door'))}</b> м²</span><span>к работам <b>${f(N(w))} м²</b></span></div></div>`; }],
+};
+function draw() {
+  const [n, d, fn] = V[D]; const tot = ws.reduce((a, w) => a + SUM(w), 0);
+  const list = D === 9 ? `${ws.map((w, i) => fn(w, i, true)).join('')}` : ws.map((w, i) => fn(w, i, i === act)).join('');
+  document.getElementById('w').innerHTML = `<div class="vs">${Object.keys(V).map((k) => `<button class="${D == k ? 'is-on' : ''}" onclick="D=${k};draw()">${k}. ${V[k][0]}</button>`).join('')}</div>
+    <p class="zx"><b>${D}. ${n}.</b> ${d}${D !== 9 ? ' Нажмите на стену — она раскроется.' : ''}</p>
+    <div class="room">Гостиная <small>${ws.length} стены · 2,7 м</small><b>${money(tot)}</b></div>
+    <div class="a${D}">${D === 8 ? '<div class="hdr"><span>№</span><span>длина</span><span>м² · работы</span><span>окна</span><span>двери</span></div>' : ''}<div class="list">${list}</div>${D === 9 ? `<div class="dots">${ws.map((_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>` : ''}</div>
+    <div style="height:8px"></div><button class="addwall" style="width:100%" onclick="ws.push({L:3,ops:[],wks:[]});act=ws.length-1;draw()">+ стена</button>`;
+  last = '';
+}
+function setL(i, v) { ws[i].L = parseFloat(String(v).replace(',', '.')) || 0; draw(); }
+function add(i, t) { ws[i].ops.push({ t, w: PRE[t][0], h: PRE[t][1] }); last = 'o' + i + (ws[i].ops.length - 1); act = i; draw(); }
+let ei = [0, 0], ow = 0, oh = 0, wi = 0, wpick = [];
+function edit(i, j) { ei = [i, j]; const o = ws[i].ops[j]; ow = o.w; oh = o.h;
+  document.getElementById('pop').innerHTML = `<div class="shade" onclick="closePop()"></div><div class="ed"><h3>${IC[o.t]} ${o.t === 'win' ? 'Окно' : 'Дверь'}</h3>
+    <div class="sz"><span class="Lf"><input inputmode="decimal" value="${f(ow)}" oninput="ow=parseFloat(this.value.replace(',','.'))||0"><small>м</small></span>×<span class="Lf"><input inputmode="decimal" value="${f(oh)}" oninput="oh=parseFloat(this.value.replace(',','.'))||0"><small>м</small></span></div>
+    <div class="r2"><button class="del" onclick="ws[ei[0]].ops.splice(ei[1],1);closePop();draw()">Удалить</button><button class="f-btn" style="flex:1;height:40px" onclick="Object.assign(ws[ei[0]].ops[ei[1]],{w:ow,h:oh});closePop();draw()">ОК</button></div></div>`; }
+function openW(i) { wi = i; wpick = []; drawW(); }
+function drawW() {
+  document.getElementById('pop').innerHTML = `<div class="shade" onclick="closePop()"></div><div class="sheet2"><div class="grab"></div><h3>Работы · стена ${wi + 1}</h3>
+    <div class="wl">${WORKS.filter(([k]) => !ws[wi].wks.includes(k)).map(([k, n, p, c]) => `<button class="${wpick.includes(k) ? 'on' : ''}" style="--wc:${c}" onclick="wpick.includes('${k}')?wpick.splice(wpick.indexOf('${k}'),1):wpick.push('${k}');drawW()">${n}<small>${p} ₽/м²</small></button>`).join('')}</div>
+    <div class="f-btn-row" style="width:calc(50% + 2.5px);margin:0 auto"><button class="f-btn" onclick="ws[wi].wks.push(...wpick);act=wi;closePop();draw()">${wpick.length ? 'Добавить · ' + wpick.length : 'Готово'}</button></div></div>`; }
+function closePop() { document.getElementById('pop').innerHTML = ''; }
+draw();
+</script></body></html>
