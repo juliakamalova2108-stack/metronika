@@ -1,17 +1,18 @@
+import { renderMeasurement } from './measurement.js?v=128';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=127';
-import * as S from './store.js?v=127';
-import { WALLPAPER_TYPES } from './seed.js?v=127';
-import { esc, toast } from './ui.js?v=127';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=127';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=127';
-import { country } from './phonecodes.js?v=127';
-import { suggestAddress } from './address.js?v=127';
-import { suggesters } from './kbd.js?v=127';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=127';
+import { actions, changes, rerender } from './core.js?v=128';
+import * as S from './store.js?v=128';
+import { WALLPAPER_TYPES } from './seed.js?v=128';
+import { esc, toast } from './ui.js?v=128';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=128';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=128';
+import { country } from './phonecodes.js?v=128';
+import { suggestAddress } from './address.js?v=128';
+import { suggesters } from './kbd.js?v=128';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=128';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -262,7 +263,8 @@ export function smetaTotals(d) {
 const lineCard = (l) => `<div class="o-card"><div class="o-card__head"><span>${esc(l.name)}</span><small>${l.time}</small></div>
   <div class="o-card__row"><span class="o-qty is-locked z-qty"><span>${n2(l.qty)}</span><span>м²</span></span><span class="o-x">×</span><span class="o-price">${fmt(l.price)} ₽/м²</span><b class="o-sum">= ${fmt(l.sum)} ₽</b></div></div>`;
 
-function renderSmeta(d) {
+function renderSmeta(d) { return renderMeasurement(d); }
+function renderLegacySmeta(d) {
   const rooms = estimateRooms(d);
   if (!rooms.length) return noRooms('Замер');
   const s = sm(d);

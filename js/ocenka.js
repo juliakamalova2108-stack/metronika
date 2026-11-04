@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=127';
-import * as S from './store.js?v=127';
-import { SYSTEM_PRICE } from './seed.js?v=127';
-import { shiftsText, hoursFor } from './calc.js?v=127';
-import { esc, toast } from './ui.js?v=127';
-import { logEvent } from './zlog.js?v=127';
+import { actions, rerender } from './core.js?v=128';
+import * as S from './store.js?v=128';
+import { SYSTEM_PRICE } from './seed.js?v=128';
+import { shiftsText, hoursFor } from './calc.js?v=128';
+import { esc, toast } from './ui.js?v=128';
+import { logEvent } from './zlog.js?v=128';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -472,3 +472,63 @@ actions['o-key'] = (el) => {
   save();
 };
 actions['o-pdf'] = () => { try { window.print(); } catch (err) { /* печать недоступна */ } };
+
+// Shared room selection markup for the measurement section.
+export function measurementRoomPicker(d, s) {
+  const e = est(d);
+  return pickView({...e, view:'pick', floor:s.floor||1})
+    .replace(/data-action="o-view"/g,'data-action="mw-room"')
+    .replace(/data-action="o-add"/g,'data-action="mw-pick"')
+    .replace(/data-action="o-floor"/g,'data-action="mw-floor"')
+    .replace(/data-action="o-room-add"/g,'data-action="mw-add-room"')
+    .replace(/<button[^>]*data-action="o-room-del"[\s\S]*?<\/button>/g,'');
+}
+actions['mw-floor'] = el => { const d=S.get().oformit[S.draftKey()]; d.sm.floor=Number(el.dataset.f); S.save(); rerender(); };
+actions['mw-add-room'] = el => {
+  const d=S.get().oformit[S.draftKey()],e=est(d),s=d.sm;
+  const existing=e.rooms.find(r=>(r.base||r.name)===el.dataset.name&&r.floor===(s.floor||1));
+  if(existing){s.view=existing.key;S.save();rerender();return;}
+  e.floor=s.floor||1;
+  actions['o-room-add'](el);
+  s.view=e.view;S.save();rerender();
+};
+
+
+// Reuse the exact estimate service tiles and room strip in measurement.
+export function measurementServices(d, s, w) {
+  const e=est(d), original=roomOf(e,s.view);
+  const r={...original, panel:'services', svcs:w.svcs.map(id=>({id,qty:0})), pick:w.pick||w.svcs.slice()};
+  return servicesView({...e,view:s.view},r)
+    .replace(carousel({...e,view:s.view}),measurementStrip(d,s))
+    .replace(/data-action="o-view"/g,'data-action="mw-room"')
+    .replace(/data-action="o-add"/g,'data-action="mw-pick"')
+    .replace(/data-action="o-svc-open"/g,'data-action="mw-close"')
+    .replace(/data-action="o-svc-toggle"/g,'data-action="mw-service"')
+    .replace(/data-action="o-svc-done"/g,'data-action="mw-services-done"')
+    .replace(/<button[^>]*aria-label="Калькулятор"[\s\S]*?<\/button>/g,'');
+}
+export function measurementStrip(d,s) {
+  const e=est(d);
+  const rooms=e.rooms.map(r=>{const R=s.rooms[r.key], quantities=new Map();
+    if(R)R.walls.forEach(w=>{const q=Math.max(0,w.len*(R.sameH?R.h:w.h)-w.opens.reduce((a,o)=>a+o.area,0));w.svcs.forEach(id=>quantities.set(id,(quantities.get(id)||0)+q));});
+    return {...r,status:'new',svcs:Array.from(quantities,([id,qty])=>({id,qty}))};});
+  return carousel({...e,rooms,view:s.view}).replace(/data-action="o-view"/g,'data-action="mw-room"').replace(/data-action="o-add"/g,'data-action="mw-pick"');
+}
+
+export function measurementSettings(original, r) {
+  const base={color:original.color};
+  const height=sameCard({...base,same:r.sameH,sameQty:r.h},false)
+    .replace('id="o-same-q"','id="mw-room-height"')
+    .replace('data-live="o-same"','data-change="mw-roomheight"')
+    .replace('data-action="o-same-tog"','data-action="mw-toggle" data-key="sameH"')
+    .replace('<span>м²</span>','<span>м</span>')
+    .replace('заливается во все работы','для всех стен комнаты')
+    .replace('выключена — каждая работа отдельно','высота каждой стены отдельно');
+  const services=sameCard({...base,same:r.sameSvc},false)
+    .replace(/<label class="o-qty[\s\S]*?<\/label>/,'')
+    .replace('class="o-svc"','class="o-svc mw-same-services"').replace(/Одинаковая высота/g,'Одинаковые услуги')
+    .replace('data-action="o-same-tog"','data-action="mw-toggle" data-key="sameSvc"')
+    .replace('заливается во все работы','для всех стен комнаты')
+    .replace('выключена — каждая работа отдельно','услуги каждой стены отдельно');
+  return height+services;
+}
