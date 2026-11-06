@@ -111,6 +111,41 @@
 .modern .mw .job { font-size: 12px; } .modern .mw .job b { font-size: 12px; }
 
   .mk .f-nav { display: none; }
+/* ===== Проёмы на рисунке стены ===== */
+/* Вариант А · «как на стройке»: пол внизу, общая линия перемычки сверху (пунктир).
+   Дверь стоит на полу и доходит до перемычки, окно висит под той же перемычкой, внизу подоконник. */
+body.op-a.modern .v-new .opening-columns { position: relative; grid-template-columns: 3fr 2fr; gap: 14px; padding: 0 14px 0 0; align-items: start; }
+body.op-a.modern .v-new .opening-columns::before { content: ''; position: absolute; left: -6px; right: 4px; top: 44px; border-top: 1px dashed rgba(237, 242, 232, 0.28); }
+body.op-a.modern .v-new .opening-shape { position: relative; margin: 44px 0 0; padding: 8px 4px; border-radius: 2px; align-self: start; }
+body.op-a.modern .v-new .opening-shape.win { min-height: 96px; height: auto;
+  border: 1.5px solid rgba(214, 229, 194, 0.8); border-bottom-width: 4px;
+  background: linear-gradient(rgba(214, 229, 194, 0.35), rgba(214, 229, 194, 0.35)) 50% 0 / 1.5px 100% no-repeat,
+              linear-gradient(rgba(214, 229, 194, 0.35), rgba(214, 229, 194, 0.35)) 0 45% / 100% 1.5px no-repeat,
+              rgba(120, 175, 190, 0.10); }
+body.op-a.modern .v-new .opening-shape.door { align-self: stretch; min-height: 0; margin-bottom: -1px; border: 1.5px solid rgba(214, 229, 194, 0.8); border-bottom: 0;
+  background: rgba(9, 26, 27, 0.72); }
+body.op-a.modern .v-new .opening-shape.door::after { content: ''; position: absolute; right: 7px; top: 56%; width: 3px; height: 12px; border-radius: 2px; background: rgba(214, 229, 194, 0.85); }
+body.op-a.modern .v-new .opening-values { gap: 4px; align-items: center; }
+body.op-a.modern .v-new .opening-values > span { background: rgba(9, 26, 27, 0.82); font-size: 11px; }
+body.op-a.modern .v-new .under__ops { grid-template-columns: 3fr 2fr; gap: 14px; padding-right: 14px; }
+
+/* Вариант Б · «карточки»: окна и двери — две одинаковые карточки с крупным значком и списком площадей */
+body.op-b.modern .v-new .opening-columns { grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 12px 12px 0; align-items: stretch; }
+body.op-b.modern .v-new .opening-shape { margin: 0; min-height: 0; padding: 50px 6px 8px; border-radius: 14px; border: 1px solid rgba(214, 229, 194, 0.45);
+  background-color: rgba(9, 26, 27, 0.6); background-repeat: no-repeat; background-position: 50% 12px; background-size: 30px 30px; }
+body.op-b.modern .v-new .opening-shape.win { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 3.5h16v17H4zM12 3.5v17M4 11.5h16' fill='none' stroke='%23d6e5c2' stroke-width='1.5'/%3E%3C/svg%3E"); }
+body.op-b.modern .v-new .opening-shape.door { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 21V3.5h12V21M3 21h18M14.5 12v2' fill='none' stroke='%23d6e5c2' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); }
+body.op-b.modern .v-new .opening-values { gap: 4px; align-items: center; }
+body.op-b.modern .v-new .opening-values > span { font-size: 11px; }
+body.op-b.modern .v-new .under__ops { grid-template-columns: 1fr 1fr; gap: 10px; padding-right: 12px; }
+
+/* Переключатель вариантов проёмов */
+.vs2 { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(6, 18, 20, 0.55); }
+.vs2 span { align-self: center; padding: 0 8px; font: 600 12px/1 Inter, sans-serif; color: rgba(237, 240, 231, 0.7); }
+.vs2 button { flex: 1; height: 32px; border: 0; border-radius: 8px; background: none; color: rgba(237, 240, 231, 0.65); font: 600 12px/1 Inter, sans-serif; cursor: pointer; }
+.vs2 button.is-on { background: #f2cf6b; color: #13292b; }
+body:not(.modern) .vs2 { display: none; }
+
 /* Кнопки под своими колонками: «Услуги» — под работами, окно — под окнами, дверь — под дверями */
 .modern .mw .under { display: grid; grid-template-columns: 53% 47%; margin: 12px 0 0; }
 .modern .mw .under__ops { display: grid; grid-template-columns: 3fr 2fr; gap: 18px; padding-right: 18px; }
@@ -140,11 +175,12 @@
 body.modern .v-old, body:not(.modern) .v-new { display: none; }
 
 </style></head>
-<body class="fig modern"><div class="fig-blobs"><i></i><i></i></div>
+<body class="fig modern op-a"><div class="fig-blobs"><i></i><i></i></div>
 <div class="mk">
   <div class="vs" role="tablist"><button type="button" data-v="old">Сейчас</button><button type="button" class="is-on" data-v="new">Современно</button></div>
   <p class="zn">Раскладка, закладки стен, порядок блоков и кнопки — как в замере Codex. Меняются только формы: поля, плашки, закладки, кнопки, рисунок стены. Переключатель сверху — сравнить. В «Современно» кнопки стоят под своими колонками: нажмите «Услуги», окно или дверь — ярлык полетит в свою колонку. В приложении перед полётом будет окно размеров, после «ОК».</p>
   <p class="zh">1 · Стена</p>
+  <div class="vs2"><span>Окна и двери:</span><button type="button" class="is-on" data-op="op-a">А · как на стройке</button><button type="button" data-op="op-b">Б · карточки</button></div>
   <div class="v-old"><div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     <div class="o-pvbar"><button type="button" class="o-pv-add" data-action="mw-pick" aria-label="Добавить комнату"><span>+</span></button>
     <div class="o-pvs" id="o-pvs"><button type="button" class="o-pv is-on" style="--rc:#3b82f6" data-action="mw-room" data-key="remdcwi">
@@ -218,6 +254,10 @@ body.modern .v-old, body:not(.modern) .v-new { display: none; }
 document.querySelectorAll('.vs button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.vs button').forEach(x => x.classList.toggle('is-on', x === b));
   document.body.classList.toggle('modern', b.dataset.v === 'new');
+}));
+document.querySelectorAll('.vs2 button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.vs2 button').forEach(x => x.classList.toggle('is-on', x === b));
+  document.body.classList.remove('op-a', 'op-b'); document.body.classList.add(b.dataset.op);
 }));
 </script>
 <script>// Макет: ярлык вылетает из кнопки и приземляется в свою колонку; площади и суммы пересчитываются.
