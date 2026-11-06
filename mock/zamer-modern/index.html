@@ -384,6 +384,22 @@ body:not(.modern) .vs3 { display: none; }
 .modern .v-new .mw .eqplate { transform: translateY(-5px); }
 .modern .v-new .mw .equation { padding-bottom: 22px; }
 
+
+/* Стена — миллиметровка, рабочая площадь залита зелёными полосами (как «S рабочая»); окна и двери — вырезы */
+.modern .v-new .mw .drawing { border: 1px solid rgba(111, 214, 162, 0.65); background:
+  repeating-linear-gradient(135deg, rgba(111, 214, 162, 0.20) 0 5px, transparent 5px 11px),
+  linear-gradient(rgba(111, 214, 162, 0.24) 1px, transparent 1px) 0 0 / 30px 30px,
+  linear-gradient(90deg, rgba(111, 214, 162, 0.24) 1px, transparent 1px) 0 0 / 30px 30px,
+  linear-gradient(rgba(111, 214, 162, 0.09) 1px, transparent 1px) 0 0 / 6px 6px,
+  linear-gradient(90deg, rgba(111, 214, 162, 0.09) 1px, transparent 1px) 0 0 / 6px 6px,
+  rgba(111, 214, 162, 0.07) !important; }
+body.op-a.modern .v-new .opening-shape.win { background: linear-gradient(rgba(214, 229, 194, 0.35), rgba(214, 229, 194, 0.35)) 50% 0 / 1.5px 100% no-repeat,
+  linear-gradient(rgba(214, 229, 194, 0.35), rgba(214, 229, 194, 0.35)) 0 45% / 100% 1.5px no-repeat, #1a2a2c; }
+body.op-a.modern .v-new .opening-shape.door { background: #182628; }
+/* Работы — без цветных меток слева */
+.modern .v-new .mw .job i { display: none; }
+.modern .v-new .mw .job { padding-left: 2px; text-shadow: 0 1px 3px rgba(6, 20, 18, 0.9), 0 0 8px rgba(6, 20, 18, 0.7); }
+
 /* Переключатель вариантов проёмов */
 .vs2 { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(6, 18, 20, 0.55); }
 .vs2 span { align-self: center; padding: 0 8px; font: 600 12px/1 Inter, sans-serif; color: rgba(237, 240, 231, 0.7); }
