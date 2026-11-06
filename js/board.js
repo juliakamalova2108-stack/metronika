@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=131';
-import * as S from './store.js?v=131';
-import { renderOformit, oformitDraft } from './oformit.js?v=131';
-import { roomTotals, svcInfo } from './ocenka.js?v=131';
-import { smetaTotals } from './zakaz.js?v=131';
-import { bookedDays } from './grafik.js?v=131';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=131';
-import { esc, toast } from './ui.js?v=131';
+import { actions, rerender, go } from './core.js?v=132';
+import * as S from './store.js?v=132';
+import { renderOformit, oformitDraft } from './oformit.js?v=132';
+import { roomTotals, svcInfo } from './ocenka.js?v=132';
+import { smetaTotals } from './zakaz.js?v=132';
+import { bookedDays } from './grafik.js?v=132';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=132';
+import { esc, toast } from './ui.js?v=132';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -123,7 +123,7 @@ function seedOrder(no) {
   // Что ещё есть в примерных заказах (показывается в сводке только то, что заполнено).
   const o = st.oformit[key];
   if (no === '007') o.mat = { view: '', scans: 1, rooms: { [rooms[0].key]: { items: [], panel: '', tab: 'added', res: null, note: 'Передал продавец магазина «Обои+»', added: { brand: 'Erismann', type: 'Обои флиз. 106 см' } } } };
-  if (no === '014') o.sm = { view: '', rooms: { [rooms[0].key]: { sameH: true, h: 2.7, sameSvc: true, dlg: null, walls: [4.2, 3.6, 4.2, 3.6].map((len, i) => ({ len, h: 2.7, opens: i === 1 ? [{ type: 'Окно', width: 1.5, height: 1.4, area: 2.1 }] : i === 3 ? [{ type: 'Дверь', width: 0.9, height: 2, area: 1.8 }] : [], svcs: ['prime', 'paste-flizelin'] })) } } };
+  if (no === '014') o.sm = { view: '', rooms: { [rooms[0].key]: { sameH: true, h: 2.7, sameSvc: true, dlg: null, walls: [4.2, 3.6, 4.2, 3.6].map((len, i) => ({ len, h: 2.7, opens: i === 1 ? [{ name: 'Окно', area: 2.1 }] : i === 3 ? [{ name: 'Дверь', area: 1.8 }] : [], svcs: ['prime', 'paste-flizelin'] })) } } };
   if (no === '004') { o.fin = { pays: [{ kind: 'Аванс', amount: 5000, date: iso(-2), method: 'Перевод' }], exps: [] }; o.chat = [{ who: 'u-agent', text: 'Клиент просил начать в 9:30 — будет дома с 9:20.', at: new Date(Date.now() - 36e5).toISOString() }, { who: S.me().id, text: 'Хорошо, приеду к 9:30.', at: new Date(Date.now() - 30e5).toISOString(), read: true }]; }
   S.save();
 }

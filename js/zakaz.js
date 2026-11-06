@@ -1,18 +1,18 @@
-import { renderMeasurement, measurementState } from './measurement.js?v=131';
+import { renderMeasurement } from './measurement.js?v=132';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=131';
-import * as S from './store.js?v=131';
-import { WALLPAPER_TYPES } from './seed.js?v=131';
-import { esc, toast } from './ui.js?v=131';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=131';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=131';
-import { country } from './phonecodes.js?v=131';
-import { suggestAddress } from './address.js?v=131';
-import { suggesters } from './kbd.js?v=131';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=131';
+import { actions, changes, rerender } from './core.js?v=132';
+import * as S from './store.js?v=132';
+import { WALLPAPER_TYPES } from './seed.js?v=132';
+import { esc, toast } from './ui.js?v=132';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=132';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=132';
+import { country } from './phonecodes.js?v=132';
+import { suggestAddress } from './address.js?v=132';
+import { suggesters } from './kbd.js?v=132';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=132';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -241,6 +241,7 @@ actions['z-howto'] = () => { mat(D()).howto = true; save(); };
 actions['z-howto-close'] = () => { mat(D()).howto = false; save(); };
 
 // ======================= 05 · Смета =======================
+const OPEN_TYPES = ['Окно', 'Дверь', 'Проём', 'Ниша'];
 function sm(d) { if (!d.sm) d.sm = { view: '', rooms: {} }; return d.sm; }
 function smRoom(s, key) { if (!s.rooms[key]) s.rooms[key] = { sameH: true, h: 2.7, sameSvc: false, walls: [], dlg: null }; return s.rooms[key]; }
 const wallArea = (w, R) => Math.max(0, Math.round(((w.len || 0) * (R.sameH ? R.h : w.h || 0) - w.opens.reduce((a, o) => a + o.area, 0)) * 100) / 100);
@@ -259,7 +260,91 @@ export function smetaTotals(d) {
   const minutes = lines.reduce((a, l) => a + (l.qty / l.norm) * 60, 0);
   return { rooms, lines, total: lines.reduce((a, l) => a + l.sum, 0), minutes };
 }
-// Экран «Замер» (стены, проёмы, работы) — в measurement.js. Здесь только подсчёт сметы для Финансов и доски.
+const lineCard = (l) => `<div class="o-card"><div class="o-card__head"><span>${esc(l.name)}</span><small>${l.time}</small></div>
+  <div class="o-card__row"><span class="o-qty is-locked z-qty"><span>${n2(l.qty)}</span><span>м²</span></span><span class="o-x">×</span><span class="o-price">${fmt(l.price)} ₽/м²</span><b class="o-sum">= ${fmt(l.sum)} ₽</b></div></div>`;
+
+function renderSmeta(d) { return renderMeasurement(d); }
+function renderLegacySmeta(d) {
+  const rooms = estimateRooms(d);
+  if (!rooms.length) return noRooms('Замер');
+  const s = sm(d);
+  const items = [...roomItems(rooms), { key: 'total', title: 'Смета заказа', sub: `${rooms.length} ${rooms.length === 1 ? 'комната' : rooms.length < 5 ? 'комнаты' : 'комнат'}`, label: 'Смета<br>заказа' }];
+  if (!items.some((x) => x.key === s.view)) s.view = rooms[0].key;
+  if (s.view === 'total') {
+    const t = smetaTotals(d);
+    const mins = Math.round(t.minutes);
+    return `${carousel(items, 'total', '', 'z-sm-view')}
+      ${t.rooms.map((x) => `<section class="f-plate o-room o-room--sum"><div class="o-room__head"><span>${esc(x.room.name)} · ${x.room.floor} этаж</span><span>${fmt(x.total)} ₽</span></div>${x.lines.map(lineCard).join('') || '<p class="z-muted">Стен со услугами пока нет</p>'}</section>`).join('')}
+      <section class="f-plate o-room o-room--sum"><div class="o-room__head"><span>Итого по видам работ</span></div>${t.lines.map(lineCard).join('')}
+        <div class="o-card o-total"><div class="o-card__head"><span>Общий итог</span></div><div class="o-tiles"><div class="o-tile"><small>Стоимость</small><b>${fmt(t.total)} ₽</b></div><div class="o-tile"><small>Срок</small><b>${hm(mins, 60)}</b></div></div></div></section>
+      ${row(btn('Скачать PDF', 'o-pdf'))}`;
+  }
+  const room = rooms.find((r) => r.key === s.view);
+  const R = smRoom(s, room.key);
+  const tog = (on, action, label, value, inputHtml) => `<div class="z-set"><span class="z-set__l">${label}</span><span class="z-set__r"><button type="button" class="z-tog-btn" role="switch" aria-checked="${on}" data-action="${action}" aria-label="${label}"><span class="o-tog${on ? ' is-on' : ''}"><i></i></span></button>${inputHtml || `<span class="f-input z-mini${on ? '' : ' is-off'}"><span class="f-input__value">${value}</span></span>`}</span></div>`;
+  const walls = R.walls.map((w, i) => {
+    const a = wallArea(w, R);
+    const lines = wallLines(w, R);
+    return `<section class="f-plate z-wall"><p class="z-title">Стена ${i + 1}</p>
+      <button type="button" class="z-x" data-action="z-wall-del" data-i="${i}" aria-label="Удалить стену ${i + 1}">×</button>
+      <div class="o-card z-dims">
+        <div class="z-dims__row">
+          <label class="f-field"><span class="f-field__label">Длина L, м</span><span class="f-input"><input inputmode="decimal" value="${w.len ? n2(w.len) : ''}" placeholder="0,00" data-change="z-wall:len" data-i="${i}"/></span></label>
+          <label class="f-field"><span class="f-field__label">Высота H, м</span><span class="f-input"><input inputmode="decimal" value="${n2(R.sameH ? R.h : w.h || 0)}" ${R.sameH ? 'readonly' : ''} data-change="z-wall:h" data-i="${i}"/></span></label>
+          <div class="f-field"><span class="f-field__label">Площадь S, м² · расчёт</span><span class="f-input z-calcd"><span class="f-input__value">${n2(a)}</span></span></div>
+        </div>
+        ${w.opens.length ? `<div class="z-chips">${w.opens.map((o, k) => `<span class="z-chip">${esc(o.type)} · ${numTxt(o.area)} м² <button type="button" data-action="z-open-del" data-i="${i}" data-k="${k}" aria-label="Убрать">×</button></span>`).join('')}</div>` : ''}
+      </div>
+      ${row(btn('Окна и проёмы', 'z-open-add', { data: `data-i="${i}"` }), btn('Добавить услуги', 'z-wsvc-open', { data: `data-i="${i}"` }))}
+      ${w.pick ? `<div class="o-list o-list--svc z-wsvc">${SVC_LIST.map((x) => { const on = w.pick.includes(x.id); const s0 = svcInfo(x.id); return `<button type="button" class="o-row o-row--svc" role="switch" aria-checked="${on}" data-action="z-wsvc-toggle" data-i="${i}" data-id="${x.id}"><span class="o-row__text"><span>${esc(s0.name)}</span><small>от ${fmt(s0.price)} ₽/м²</small></span><span class="o-tog${on ? ' is-on' : ''}"><i></i></span></button>`; }).join('')}</div>
+        ${row(btn('Готово', 'z-wsvc-done', { data: `data-i="${i}"` }))}` : ''}
+      ${lines.map(lineCard).join('')}
+    </section>`;
+  }).join('');
+  const dlg = R.dlg ? `<div class="o-overlay"></div><div class="f-plate o-dialog z-odlg" role="dialog"><p class="o-dialog__t">Окна и проёмы</p>
+      <div class="o-card">${selectField('z-otype', 'Тип', R.dlg.type, OPEN_TYPES.map((x) => ({ value: x, label: x })), false)}
+      ${input('z-oarea', 'Площадь, м²', R.dlg.area, { mode: 'decimal', live: 'z-oarea' })}</div>
+      ${row(btn('Назад', 'z-open-cancel'), btn('Добавить', 'z-open-save'))}</div>` : '';
+  return `${carousel(items, s.view, '', 'z-sm-view')}
+    <section class="o-card z-sets">${tog(R.sameH, 'z-sameh', 'Одинаковая высота', '', `<span class="f-input z-mini${R.sameH ? '' : ' is-off'}"><input inputmode="decimal" value="${R.sameH ? n2(R.h) + ' м' : '—'}" ${R.sameH ? '' : 'readonly'} data-change="z-roomh" aria-label="Высота стен"/></span>`)}
+      <i class="z-sets__div"></i>${tog(R.sameSvc, 'z-samesvc', 'Одинаковые услуги', R.sameSvc && R.walls[0] ? `${R.walls[0].svcs.length} усл.` : '—')}</section>
+    ${walls}
+    ${row(btn('+ Добавить стену', 'z-wall-add'))}${dlg}`;
+}
+const SR = () => { const s = sm(D()); return smRoom(s, s.view); };
+actions['z-sm-view'] = (el) => { sm(D()).view = el.dataset.key; save(); window.scrollTo(0, 0); };
+actions['z-sameh'] = () => { const R = SR(); R.sameH = !R.sameH; if (!R.sameH) R.walls.forEach((w) => { w.h = w.h || R.h; }); save(); };
+actions['z-samesvc'] = () => { const R = SR(); R.sameSvc = !R.sameSvc; save(); };
+changes['z-roomh'] = (el) => { const v = parse(el.value); if (v > 0) SR().h = v; S.save(); };
+actions['z-wall-add'] = () => {
+  const d = D(); const s = sm(d); const R = smRoom(s, s.view);
+  const prev = R.walls[R.walls.length - 1];
+  const room = estimateRooms(d).find((r) => r.key === s.view);
+  // Первая стена — услуги комнаты из «Оценки»; дальше — как у прошлой, если включено «Одинаковые услуги».
+  const svcs = R.sameSvc && prev ? prev.svcs.slice() : !prev && room ? room.svcs.map((x) => x.id) : [];
+  R.walls.push({ len: 0, h: R.h, opens: [], svcs });
+  save();
+};
+actions['z-wall-del'] = (el) => { SR().walls.splice(Number(el.dataset.i), 1); save(); };
+changes['z-wall:len'] = (el) => { SR().walls[Number(el.dataset.i)].len = parse(el.value); S.save(); };
+changes['z-wall:h'] = (el) => { SR().walls[Number(el.dataset.i)].h = parse(el.value); S.save(); };
+actions['z-open-add'] = (el) => { SR().dlg = { wall: Number(el.dataset.i), type: 'Окно', area: '' }; save(); };
+pickers['z-otype'] = (v) => { SR().dlg.type = v; };
+actions['z-open-cancel'] = () => { SR().dlg = null; save(); };
+actions['z-open-save'] = () => {
+  const R = SR(); const a = parse(R.dlg.area);
+  if (!(a > 0)) { toast('Введите площадь проёма'); return; }
+  R.walls[R.dlg.wall].opens.push({ type: R.dlg.type, area: a }); R.dlg = null; save();
+};
+actions['z-open-del'] = (el) => { SR().walls[Number(el.dataset.i)].opens.splice(Number(el.dataset.k), 1); save(); };
+actions['z-wsvc-open'] = (el) => { const w = SR().walls[Number(el.dataset.i)]; w.pick = w.pick ? null : w.svcs.slice(); save(); };
+actions['z-wsvc-toggle'] = (el) => { const w = SR().walls[Number(el.dataset.i)]; const id = el.dataset.id; w.pick = w.pick.includes(id) ? w.pick.filter((x) => x !== id) : [...w.pick, id]; save(); };
+actions['z-wsvc-done'] = (el) => {
+  const d = D(); const R = SR(); const w = R.walls[Number(el.dataset.i)];
+  w.svcs = SVC_LIST.map((x) => x.id).filter((id) => w.pick.includes(id)); w.pick = null;
+  logEvent(d, 'Обновлена смета', `Стоимость работ: ${fmt(smetaTotals(d).total)} ₽`);
+  save();
+};
 
 // ======================= Чат =======================
 function renderChat(d) {
@@ -451,7 +536,7 @@ function refocus(el) {
 
 registerSection('client', renderClient, (d) => (!d.cl ? '' : d.cl.dirty || (d.cl.saved && d.cl.editing) ? 'warn' : d.cl.saved ? 'ok' : ''));
 registerSection('material', renderMaterial);
-registerSection('smeta', renderMeasurement, measurementState);
+registerSection('smeta', renderSmeta);
 registerSection('chat', renderChat);
 registerSection('tasks', renderTasks);
 registerSection('finance', renderFinance);

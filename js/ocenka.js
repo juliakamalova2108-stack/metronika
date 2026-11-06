@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=131';
-import * as S from './store.js?v=131';
-import { SYSTEM_PRICE } from './seed.js?v=131';
-import { shiftsText, hoursFor } from './calc.js?v=131';
-import { esc, toast } from './ui.js?v=131';
-import { logEvent } from './zlog.js?v=131';
+import { actions, rerender } from './core.js?v=132';
+import * as S from './store.js?v=132';
+import { SYSTEM_PRICE } from './seed.js?v=132';
+import { shiftsText, hoursFor } from './calc.js?v=132';
+import { esc, toast } from './ui.js?v=132';
+import { logEvent } from './zlog.js?v=132';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -53,7 +53,7 @@ const numTxt = (n) => String(n).replace('.', ',');
 const TRASH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 7h15M10 4h4M6.5 7l.9 12a1.5 1.5 0 0 0 1.5 1.4h6.2a1.5 1.5 0 0 0 1.5-1.4l.9-12M10 11v5.5M14 11v5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const CALC_ICON = '<span class="o-calc-ico" aria-hidden="true"><i></i><b></b><b></b><b></b><b></b></span>';
 
-export function est(d) {
+function est(d) {
   if (!d.est) d.est = { rooms: [], view: 'pick', floor: 1, confirm: null };
   return d.est;
 }
@@ -87,23 +87,19 @@ const plural = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : [2, 3, 4].i
 
 // Полоса сверху: слева «+» (добавить комнату), дальше комнаты карточками-превью «стекло»
 // (название, метры, сумма) и «Итог». Выбранная приподнята и обведена цветом комнаты.
-// opt — для «Замера»: свои имена действий и своя сумма комнаты (из стен), без отметки «сохранена» оценки.
-export function carousel(e, tabs, inner = '', opt = {}) {
-  const A = { view: opt.view || 'o-view', add: opt.add || 'o-add' };
-  const sumOf = opt.sumOf || ((r) => roomTotals(r).total);
-  const okOf = opt.okOf || ((r) => r.status === 'saved');
+function carousel(e, tabs, inner = '') {
   const adding = e.view === 'pick';
   const cards = e.rooms.map((r) => {
-    const t = { total: sumOf(r) };
-    return `<button type="button" class="o-pv${e.view === r.key ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="${A.view}" data-key="${r.key}">
-      <b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span>${okOf(r) ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}</button>`;
+    const t = roomTotals(r);
+    return `<button type="button" class="o-pv${e.view === r.key ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="o-view" data-key="${r.key}">
+      <b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span>${r.status === 'saved' ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}</button>`;
   }).join('');
-  const total = e.rooms.length ? (() => { const sum = e.rooms.reduce((a, r) => a + sumOf(r), 0);
-    return `<button type="button" class="o-pv o-pv--sum${e.view === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="${A.view}" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(sum)}<small> ₽</small></span></button>`; })() : '';
+  const total = e.rooms.length ? (() => { const sum = e.rooms.reduce((a, r) => a + roomTotals(r).total, 0);
+    return `<button type="button" class="o-pv o-pv--sum${e.view === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="o-view" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(sum)}<small> ₽</small></span></button>`; })() : '';
   const r = roomOf(e, e.view);
   // Пластина комнаты: сверху палочка цвета комнаты, название, «+ работа» и калькулятор; внутри — поле «Одинаковый объём».
   const head = tabs && r ? `<section class="f-plate o-rplate" style="--rc:${r.color || '#7c8f8a'}"><div class="o-rhead"><span class="o-rhead__t"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span><span class="o-rhead__b">${tabs}</span></div>${inner}</section>` : '';
-  return `<div class="o-pvbar"><button type="button" class="o-pv-add${adding ? ' is-open' : ''}" data-action="${A.add}" aria-label="${adding ? 'Закрыть выбор комнаты' : 'Добавить комнату'}"><span>+</span></button>
+  return `<div class="o-pvbar"><button type="button" class="o-pv-add${adding ? ' is-open' : ''}" data-action="o-add" aria-label="${adding ? 'Закрыть выбор комнаты' : 'Добавить комнату'}"><span>+</span></button>
     <div class="o-pvs" id="o-pvs">${cards}${total}</div></div>${head}`;
 }
 
@@ -117,18 +113,16 @@ function startView(e) {
 }
 actions['o-start'] = () => { const e = D(); e.picking = true; save(); };
 
-// opt — для «Замера»: свои действия, без удаления комнат (комнаты удаляются в «Оценке»).
-export function pickView(e, opt = {}) {
-  const A = { floor: opt.floor || 'o-floor', roomAdd: opt.roomAdd || 'o-room-add' };
+function pickView(e) {
   // Комната уже есть на этом этаже — плитка горит цветом комнаты, справа корзина (удалить).
   const list = ROOMS.map(([name, color]) => {
     const has = e.rooms.filter((r) => r.floor === e.floor && (r.base || r.name) === name);
-    return `<div class="o-chip${has.length ? ' is-on' : ''}" style="--rc:${color}"><button type="button" class="o-chip__add" data-action="${A.roomAdd}" data-name="${esc(name)}"><i></i><span>${esc(name)}${has.length > 1 ? ` <small>×${has.length}</small>` : ''}</span></button>${has.length && !opt.noDelete ? `<button type="button" class="o-chip__del" data-action="o-room-del" data-key="${has[has.length - 1].key}" aria-label="Удалить ${esc(has[has.length - 1].name)}">${TRASH}</button>` : ''}</div>`;
+    return `<div class="o-chip${has.length ? ' is-on' : ''}" style="--rc:${color}"><button type="button" class="o-chip__add" data-action="o-room-add" data-name="${esc(name)}"><i></i><span>${esc(name)}${has.length > 1 ? ` <small>×${has.length}</small>` : ''}</span></button>${has.length ? `<button type="button" class="o-chip__del" data-action="o-room-del" data-key="${has[has.length - 1].key}" aria-label="Удалить ${esc(has[has.length - 1].name)}">${TRASH}</button>` : ''}</div>`;
   }).join('');
-  return `${carousel(e, '', '', opt.carousel)}
+  return `${carousel(e)}
     <section class="f-plate o-sheet o-sheet--chips">
       <p class="o-chips__t">${e.rooms.length ? 'Какую комнату добавить?' : 'В какой комнате вы стоите?'}</p>
-      <div class="o-floors" role="tablist">${[1, 2, 3].map((f) => `<button type="button" role="tab" aria-selected="${f === e.floor}" class="o-floor${f === e.floor ? ' is-on' : ''}" data-action="${A.floor}" data-f="${f}">${f} этаж</button>`).join('')}</div>
+      <div class="o-floors" role="tablist">${[1, 2, 3].map((f) => `<button type="button" role="tab" aria-selected="${f === e.floor}" class="o-floor${f === e.floor ? ' is-on' : ''}" data-action="o-floor" data-f="${f}">${f} этаж</button>`).join('')}</div>
       <div class="o-chips">${list}</div>
     </section>`;
 }
@@ -155,7 +149,7 @@ function servicesView(e, r) {
 }
 
 // Короткие названия для строк ввода: строки одной высоты, название в одну строку.
-export const SHORT = { 'paste-flizelin': 'Поклейка флиз. обоев', 'paste-paper': 'Поклейка бум. обоев', strip: 'Демонтаж обоев', 'strip-paint': 'Снятие краски', 'strip-plaster': 'Снятие штукатурки', mesh: 'Малярная сетка', 'paste-glass': 'Поклейка стеклообоев', 'paste-photo': 'Поклейка фотообоев' };
+const SHORT = { 'paste-flizelin': 'Поклейка флиз. обоев', 'paste-paper': 'Поклейка бум. обоев', strip: 'Демонтаж обоев', 'strip-paint': 'Снятие краски', 'strip-plaster': 'Снятие штукатурки', mesh: 'Малярная сетка', 'paste-glass': 'Поклейка стеклообоев', 'paste-photo': 'Поклейка фотообоев' };
 // Строка услуги: слева поле м² (под левую руку), в середине название и цена, справа сумма.
 function svcCard(l, locked, changed = false, err = false) {
   return `<div class="o-svc">
@@ -478,3 +472,63 @@ actions['o-key'] = (el) => {
   save();
 };
 actions['o-pdf'] = () => { try { window.print(); } catch (err) { /* печать недоступна */ } };
+
+// Shared room selection markup for the measurement section.
+export function measurementRoomPicker(d, s) {
+  const e = est(d);
+  return pickView({...e, view:'pick', floor:s.floor||1})
+    .replace(/data-action="o-view"/g,'data-action="mw-room"')
+    .replace(/data-action="o-add"/g,'data-action="mw-pick"')
+    .replace(/data-action="o-floor"/g,'data-action="mw-floor"')
+    .replace(/data-action="o-room-add"/g,'data-action="mw-add-room"')
+    .replace(/<button[^>]*data-action="o-room-del"[\s\S]*?<\/button>/g,'');
+}
+actions['mw-floor'] = el => { const d=S.get().oformit[S.draftKey()]; d.sm.floor=Number(el.dataset.f); S.save(); rerender(); };
+actions['mw-add-room'] = el => {
+  const d=S.get().oformit[S.draftKey()],e=est(d),s=d.sm;
+  const existing=e.rooms.find(r=>(r.base||r.name)===el.dataset.name&&r.floor===(s.floor||1));
+  if(existing){s.view=existing.key;S.save();rerender();return;}
+  e.floor=s.floor||1;
+  actions['o-room-add'](el);
+  s.view=e.view;S.save();rerender();
+};
+
+
+// Reuse the exact estimate service tiles and room strip in measurement.
+export function measurementServices(d, s, w) {
+  const e=est(d), original=roomOf(e,s.view);
+  const r={...original, panel:'services', svcs:w.svcs.map(id=>({id,qty:0})), pick:w.pick||w.svcs.slice()};
+  return servicesView({...e,view:s.view},r)
+    .replace(carousel({...e,view:s.view}),measurementStrip(d,s))
+    .replace(/data-action="o-view"/g,'data-action="mw-room"')
+    .replace(/data-action="o-add"/g,'data-action="mw-pick"')
+    .replace(/data-action="o-svc-open"/g,'data-action="mw-close"')
+    .replace(/data-action="o-svc-toggle"/g,'data-action="mw-service"')
+    .replace(/data-action="o-svc-done"/g,'data-action="mw-services-done"')
+    .replace(/<button[^>]*aria-label="Калькулятор"[\s\S]*?<\/button>/g,'');
+}
+export function measurementStrip(d,s) {
+  const e=est(d);
+  const rooms=e.rooms.map(r=>{const R=s.rooms[r.key], quantities=new Map();
+    if(R)R.walls.forEach(w=>{const q=Math.max(0,w.len*(R.sameH?R.h:w.h)-w.opens.reduce((a,o)=>a+o.area,0));w.svcs.forEach(id=>quantities.set(id,(quantities.get(id)||0)+q));});
+    return {...r,status:'new',svcs:Array.from(quantities,([id,qty])=>({id,qty}))};});
+  return carousel({...e,rooms,view:s.view}).replace(/data-action="o-view"/g,'data-action="mw-room"').replace(/data-action="o-add"/g,'data-action="mw-pick"');
+}
+
+export function measurementSettings(original, r) {
+  const base={color:original.color};
+  const height=sameCard({...base,same:r.sameH,sameQty:r.h},false)
+    .replace('id="o-same-q"','id="mw-room-height"')
+    .replace('data-live="o-same"','data-change="mw-roomheight"')
+    .replace('data-action="o-same-tog"','data-action="mw-toggle" data-key="sameH"')
+    .replace('<span>м²</span>','<span>м</span>')
+    .replace('заливается во все работы','для всех стен комнаты')
+    .replace('выключена — каждая работа отдельно','высота каждой стены отдельно');
+  const services=sameCard({...base,same:r.sameSvc},false)
+    .replace(/<label class="o-qty[\s\S]*?<\/label>/,'')
+    .replace('class="o-svc"','class="o-svc mw-same-services"').replace(/Одинаковая высота/g,'Одинаковые услуги')
+    .replace('data-action="o-same-tog"','data-action="mw-toggle" data-key="sameSvc"')
+    .replace('заливается во все работы','для всех стен комнаты')
+    .replace('выключена — каждая работа отдельно','услуги каждой стены отдельно');
+  return height+services;
+}
