@@ -210,6 +210,50 @@ body.modern { --rc: #3b82f6; --amber: color-mix(in srgb, var(--rc) 62%, #fff); }
 .modern .v-new .mw .measurement { padding-right: 10px; }
 .modern .v-new .mw .job span { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; min-width: 0; line-height: 15px; hyphens: none; }
 
+/* ===== Пластина стены, закладки и «+» — три предложения ===== */
+body[class*="tb-"].modern .v-new .mw .wall-tab, body[class*="tb-"].modern .v-new .mw .new-wall { clip-path: none; margin: 0; }
+body[class*="tb-"].modern .v-new .mw .wall-tab.selected::before { display: none; }
+
+/* А · Папка: закладка и пластина — одно целое, без шва; соседние стены — тёмные закладки позади */
+body.tb-a.modern .v-new .mw .wall-tabs { gap: 3px; padding: 0 0 0 2px; align-items: flex-end; overflow: visible; }
+body.tb-a.modern .v-new .mw .wall-tab { position: relative; height: 38px; min-width: 44px; padding: 0 14px; border-radius: 12px 12px 0 0; border: 1px solid rgba(226, 238, 230, 0.16); border-bottom: 0;
+  background: #24403e; color: rgba(237, 242, 232, 0.55); font: 600 14px/1 var(--font-num); }
+body.tb-a.modern .v-new .mw .wall-tab.selected { z-index: 3; height: 46px; min-width: 104px; color: #fff; font-size: 16px; border-color: rgba(255, 249, 235, 0.3); background: #47665f; }
+body.tb-a.modern .v-new .mw .wall-tab.selected::after { content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 3px; background: #47665f; }
+body.tb-a.modern .v-new .mw .wall-tab.selected .tb-dot, body.tb-a.modern .v-new .mw .wall-tab.selected { box-shadow: inset 0 2px 0 var(--amber); }
+body.tb-a.modern .v-new .mw .new-wall { width: 38px; height: 38px; border-radius: 12px 12px 0 0; border: 1px dashed color-mix(in srgb, var(--amber) 70%, transparent); border-bottom: 0;
+  background: color-mix(in srgb, var(--amber) 10%, transparent); color: var(--amber); font: 400 22px/1 var(--font-body); margin-left: 3px; }
+body.tb-a.modern .v-new .mw .wall-tab.total-tab { margin-left: auto; }
+body.tb-a.modern .v-new .mw .wallbody { border-radius: 0 20px 20px 20px; border-color: rgba(255, 249, 235, 0.3); background: linear-gradient(180deg, #47665f 0, #3a5a54 90px, #2e4c48 100%); }
+
+/* Б · Сегменты: стены — переключатель над пластиной (как этажи); пластина целиком скруглена */
+body.tb-b.modern .v-new .mw .wall-tabs { gap: 4px; padding: 4px; margin: 0 0 10px; align-items: center; border-radius: 12px; border: 0.9px solid rgba(6, 18, 20, 0.78);
+  background: linear-gradient(180deg, #687b7a 0%, #6d807e 28%, #738582 100%);
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.33), inset 1px 1.5px 1.8px rgba(1, 6, 9, 0.58), inset 0 4px 7px rgba(1, 9, 11, 0.66); }
+body.tb-b.modern .v-new .mw .wall-tab { height: 38px; min-width: 40px; padding: 0 12px; border: 1px solid transparent; border-radius: 8px; background: none; color: rgba(237, 242, 232, 0.8); font: 600 14px/1 var(--font-num); }
+body.tb-b.modern .v-new .mw .wall-tab.selected { height: 38px; min-width: 92px; font-size: 15px; color: #fff; border-color: rgba(204, 222, 209, 0.55); background: #213839;
+  box-shadow: 0 4px 7px rgba(4, 13, 15, 0.16), inset 0 -2px 0 var(--amber), inset 0 1px 1px rgba(224, 242, 227, 0.36); }
+body.tb-b.modern .v-new .mw .new-wall { width: 38px; height: 38px; border-radius: 8px; border: 0; background: none; color: #fff; font: 400 24px/1 var(--font-body); margin-left: 2px; }
+body.tb-b.modern .v-new .mw .new-wall::before { content: ''; }
+body.tb-b.modern .v-new .mw .wall-tab.total-tab { margin-left: auto; border-left: 1px solid rgba(6, 18, 20, 0.3); border-radius: 0 8px 8px 0; }
+body.tb-b.modern .v-new .mw .wallbody { border-radius: 22px; }
+
+/* В · Шапка: стены — чипы внутри пластины, рядом с корзиной; закладок нет */
+body.tb-c.modern .v-new .mw { position: relative; }
+body.tb-c.modern .v-new .mw .wall-tabs { position: absolute; z-index: 4; top: 12px; left: 56px; right: 12px; gap: 6px; padding: 0; margin: 0; align-items: center; }
+body.tb-c.modern .v-new .mw .wall-tab { height: 32px; min-width: 32px; padding: 0 11px; border-radius: 16px; border: 1px solid rgba(226, 238, 230, 0.2); background: rgba(10, 26, 27, 0.35); color: rgba(237, 242, 232, 0.75); font: 600 13px/1 var(--font-num); }
+body.tb-c.modern .v-new .mw .wall-tab.selected { height: 32px; min-width: 0; color: #0f1f33; border-color: transparent; background: var(--amber); font-size: 14px; }
+body.tb-c.modern .v-new .mw .new-wall { width: 32px; height: 32px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--amber) 75%, transparent); background: none; color: var(--amber); font: 400 20px/1 var(--font-body); }
+body.tb-c.modern .v-new .mw .wall-tab.total-tab { margin-left: auto; }
+body.tb-c.modern .v-new .mw .wallbody { border-radius: 22px; }
+body.tb-c.modern .v-new .mw .equation { padding-top: 58px; }
+
+.vs3 { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(6, 18, 20, 0.55); }
+.vs3 span { align-self: center; padding: 0 8px; font: 600 12px/1 Inter, sans-serif; color: rgba(237, 240, 231, 0.7); }
+.vs3 button { flex: 1; height: 32px; border: 0; border-radius: 8px; background: none; color: rgba(237, 240, 231, 0.65); font: 600 12px/1 Inter, sans-serif; cursor: pointer; }
+.vs3 button.is-on { background: #8fb6ff; color: #0f1f33; }
+body:not(.modern) .vs3 { display: none; }
+
 /* Переключатель вариантов проёмов */
 .vs2 { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(6, 18, 20, 0.55); }
 .vs2 span { align-self: center; padding: 0 8px; font: 600 12px/1 Inter, sans-serif; color: rgba(237, 240, 231, 0.7); }
@@ -246,11 +290,12 @@ body:not(.modern) .vs2 { display: none; }
 body.modern .v-old, body:not(.modern) .v-new { display: none; }
 
 </style></head>
-<body class="fig modern op-a"><div class="fig-blobs"><i></i><i></i></div>
+<body class="fig modern op-a tb-a"><div class="fig-blobs"><i></i><i></i></div>
 <div class="mk">
   <div class="vs" role="tablist"><button type="button" data-v="old">Сейчас</button><button type="button" class="is-on" data-v="new">Современно</button></div>
   <p class="zn">Раскладка, закладки стен, порядок блоков и кнопки — как в замере Codex. Меняются только формы: поля, плашки, закладки, кнопки, рисунок стены. Переключатель сверху — сравнить. В «Современно» кнопки стоят под своими колонками: нажмите «Услуги», окно или дверь — ярлык полетит в свою колонку. В приложении перед полётом будет окно размеров, после «ОК».</p>
   <p class="zh">1 · Стена</p>
+  <div class="vs3"><span>Пластина:</span><button type="button" class="is-on" data-tb="tb-a">А · папка</button><button type="button" data-tb="tb-b">Б · сегменты</button><button type="button" data-tb="tb-c">В · шапка</button></div>
   <div class="vs2"><span>Окна и двери:</span><button type="button" class="is-on" data-op="op-a">А · как на стройке</button><button type="button" data-op="op-b">Б · карточки</button></div>
   <div class="v-old"><div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     <div class="o-pvbar"><button type="button" class="o-pv-add" data-action="mw-pick" aria-label="Добавить комнату"><span>+</span></button>
@@ -286,7 +331,7 @@ body.modern .v-old, body:not(.modern) .v-new { display: none; }
       <span class="o-svc__t"><span class="o-svc__n">Одинаковые услуги</span><small>услуги каждой стены отдельно</small></span>
       <button type="button" class="o-same__tog" role="switch" aria-checked="false" aria-label="Одинаковые услуги" data-action="mw-toggle" data-key="sameSvc"><span class="o-tog" aria-hidden="true"><i></i></span></button>
     </div>
-  </section></div><div class="mw"><nav class="wall-tabs"><button type="button" data-action="mw-wall" class="wall-tab selected" data-i="0">Стена 1</button><button type="button" data-action="mw-add-wall" class="new-wall" aria-label="Добавить стену">+</button><button type="button" data-action="mw-total" class="wall-tab total-tab ">Итог</button></nav><div class="wallbody"><div class="wall-card-tools"><button type="button" data-action="mw-delete-wall" class="wall-delete" aria-label="Удалить стену"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 4h6M6 7l1 13h10l1-13M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></button></div><section class="equation"><div class="eqplate gross"><b>S общая</b><strong>11,34 м²</strong></div><div class="opgroup"><div class="caption">S проёмов 3,70 м²</div><div class="operators"><span>−</span><span class="IC"><svg viewBox="0 0 32 32"><path d="M5 4H27V27H5ZM16 4V27M5 15H27" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg></span><span>−</span><span class="IC"><svg viewBox="0 0 32 32"><path d="M8 29V3H24V29M4 29H28M20 15V18" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg></span><span>=</span></div></div><div class="eqplate net"><div class="nettext"><b>S рабочая</b><strong>7,64 м²</strong></div><div class="netgraphic"><svg viewBox="0 0 160 140" preserveAspectRatio="none"><defs><pattern id="mw-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M0 7L7 0" stroke="#d5dec3"></path></pattern></defs><path d="M0 139H160" stroke="#c9daca"></path><rect x="12" y="30" width="60" height="70" fill="url(#mw-hatch)" stroke="#c9daca"></rect><path d="M42 30V100M12 65H72" stroke="#c9daca"></path><rect x="104" y="34" width="40" height="105" fill="url(#mw-hatch)" stroke="#c9daca"></rect></svg></div></div></section><section class="measurement"><div class="dimension"><i class="dimline"></i> <label class="lengthfield"><input aria-label="Длина стены, см" inputmode="numeric" value="420" placeholder="0"><span>см</span></label></div><div class="drawing"><div class="heightdim"><label class="lengthfield hfield"><input aria-label="Высота стены, см" inputmode="numeric" value="270" placeholder="0"><span>см</span></label></div><div class="joblist"><button class="job" style="--wc:#22c55e" data-action="mw-services"><i></i><span>Грунтовка стен</span><b>764 ₽</b></button><button class="job" style="--wc:#5b8def" data-action="mw-services"><i></i><span>Поклейка флиз. обоев</span><b>2&nbsp;521 ₽</b></button></div><div class="opening-columns"><button class="opening-shape win" data-action="mw-openings" data-type="Окно" aria-label="Окна: открыть список"><span class="opening-values"><span>2,10 м²</span></span></button><button class="opening-shape door" data-action="mw-openings" data-type="Дверь" aria-label="Двери и проёмы: открыть список"><span class="opening-values"><span>1,60 м²</span></span></button></div></div><div class="under">
+  </section></div><div class="mw"><nav class="wall-tabs"><button type="button" data-action="mw-wall" class="wall-tab selected" data-i="0">Стена 1</button><button type="button" data-action="mw-wall" class="wall-tab" data-i="1">2</button><button type="button" data-action="mw-wall" class="wall-tab" data-i="2">3</button><button type="button" data-action="mw-add-wall" class="new-wall" aria-label="Добавить стену">+</button><button type="button" data-action="mw-total" class="wall-tab total-tab ">Итог</button></nav><div class="wallbody"><div class="wall-card-tools"><button type="button" data-action="mw-delete-wall" class="wall-delete" aria-label="Удалить стену"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 4h6M6 7l1 13h10l1-13M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></button></div><section class="equation"><div class="eqplate gross"><b>S общая</b><strong>11,34 м²</strong></div><div class="opgroup"><div class="caption">S проёмов 3,70 м²</div><div class="operators"><span>−</span><span class="IC"><svg viewBox="0 0 32 32"><path d="M5 4H27V27H5ZM16 4V27M5 15H27" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg></span><span>−</span><span class="IC"><svg viewBox="0 0 32 32"><path d="M8 29V3H24V29M4 29H28M20 15V18" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg></span><span>=</span></div></div><div class="eqplate net"><div class="nettext"><b>S рабочая</b><strong>7,64 м²</strong></div><div class="netgraphic"><svg viewBox="0 0 160 140" preserveAspectRatio="none"><defs><pattern id="mw-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M0 7L7 0" stroke="#d5dec3"></path></pattern></defs><path d="M0 139H160" stroke="#c9daca"></path><rect x="12" y="30" width="60" height="70" fill="url(#mw-hatch)" stroke="#c9daca"></rect><path d="M42 30V100M12 65H72" stroke="#c9daca"></path><rect x="104" y="34" width="40" height="105" fill="url(#mw-hatch)" stroke="#c9daca"></rect></svg></div></div></section><section class="measurement"><div class="dimension"><i class="dimline"></i> <label class="lengthfield"><input aria-label="Длина стены, см" inputmode="numeric" value="420" placeholder="0"><span>см</span></label></div><div class="drawing"><div class="heightdim"><label class="lengthfield hfield"><input aria-label="Высота стены, см" inputmode="numeric" value="270" placeholder="0"><span>см</span></label></div><div class="joblist"><button class="job" style="--wc:#22c55e" data-action="mw-services"><i></i><span>Грунтовка стен</span><b>764 ₽</b></button><button class="job" style="--wc:#5b8def" data-action="mw-services"><i></i><span>Поклейка флиз. обоев</span><b>2&nbsp;521 ₽</b></button></div><div class="opening-columns"><button class="opening-shape win" data-action="mw-openings" data-type="Окно" aria-label="Окна: открыть список"><span class="opening-values"><span>2,10 м²</span></span></button><button class="opening-shape door" data-action="mw-openings" data-type="Дверь" aria-label="Двери и проёмы: открыть список"><span class="opening-values"><span>1,60 м²</span></span></button></div></div><div class="under">
   <button type="button" class="u-btn u-svc" data-fly="svc"><span class="u-plus">+</span>Услуги</button>
   <div class="under__ops">
     <button type="button" class="u-btn u-op" data-fly="win" aria-label="Добавить окно"><svg viewBox="0 0 32 32"><path d="M5 4H27V27H5ZM16 4V27M5 15H27" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg><span class="u-plus">+</span></button>
@@ -325,6 +370,10 @@ body.modern .v-old, body:not(.modern) .v-new { display: none; }
 document.querySelectorAll('.vs button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.vs button').forEach(x => x.classList.toggle('is-on', x === b));
   document.body.classList.toggle('modern', b.dataset.v === 'new');
+}));
+document.querySelectorAll('.vs3 button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.vs3 button').forEach(x => x.classList.toggle('is-on', x === b));
+  document.body.classList.remove('tb-a', 'tb-b', 'tb-c'); document.body.classList.add(b.dataset.tb);
 }));
 document.querySelectorAll('.vs2 button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.vs2 button').forEach(x => x.classList.toggle('is-on', x === b));
