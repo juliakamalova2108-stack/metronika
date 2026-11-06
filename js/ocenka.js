@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=132';
-import * as S from './store.js?v=132';
-import { SYSTEM_PRICE } from './seed.js?v=132';
-import { shiftsText, hoursFor } from './calc.js?v=132';
-import { esc, toast } from './ui.js?v=132';
-import { logEvent } from './zlog.js?v=132';
+import { actions, rerender } from './core.js?v=133';
+import * as S from './store.js?v=133';
+import { SYSTEM_PRICE } from './seed.js?v=133';
+import { shiftsText, hoursFor } from './calc.js?v=133';
+import { esc, toast } from './ui.js?v=133';
+import { logEvent } from './zlog.js?v=133';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -150,6 +150,7 @@ function servicesView(e, r) {
 
 // Короткие названия для строк ввода: строки одной высоты, название в одну строку.
 const SHORT = { 'paste-flizelin': 'Поклейка флиз. обоев', 'paste-paper': 'Поклейка бум. обоев', strip: 'Демонтаж обоев', 'strip-paint': 'Снятие краски', 'strip-plaster': 'Снятие штукатурки', mesh: 'Малярная сетка', 'paste-glass': 'Поклейка стеклообоев', 'paste-photo': 'Поклейка фотообоев' };
+export const SHORT_NAMES = SHORT;
 // Строка услуги: слева поле м² (под левую руку), в середине название и цена, справа сумма.
 function svcCard(l, locked, changed = false, err = false) {
   return `<div class="o-svc">
@@ -517,11 +518,11 @@ export function measurementStrip(d,s) {
 
 export function measurementSettings(original, r) {
   const base={color:original.color};
-  const height=sameCard({...base,same:r.sameH,sameQty:r.h},false)
+  const height=sameCard({...base,same:r.sameH,sameQty:Math.round(r.h*100)},false)
     .replace('id="o-same-q"','id="mw-room-height"')
     .replace('data-live="o-same"','data-change="mw-roomheight"')
     .replace('data-action="o-same-tog"','data-action="mw-toggle" data-key="sameH"')
-    .replace('<span>м²</span>','<span>м</span>')
+    .replace('<span>м²</span>','<span>см</span>').replace('inputmode="decimal"','inputmode="numeric"')
     .replace('заливается во все работы','для всех стен комнаты')
     .replace('выключена — каждая работа отдельно','высота каждой стены отдельно');
   const services=sameCard({...base,same:r.sameSvc},false)
