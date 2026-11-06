@@ -422,6 +422,16 @@ body.op-a.modern .v-new .opening-shape.door { background: #182628; }
 .modern .v-new .mw .net { background: repeating-linear-gradient(135deg, rgba(111, 214, 162, 0.26) 0 5px, transparent 5px 11px), linear-gradient(160deg, #2f6651, #224a3a) !important; }
 .modern .v-new .mw .nettext strong { text-shadow: 0 1px 4px rgba(6, 25, 18, 0.9); }
 
+
+/* Значки окна и двери между плашками — такие же, как на стене */
+.modern .v-new .mw .operators .IC { position: relative; display: block; box-sizing: border-box; color: transparent; }
+.modern .v-new .mw .operators .IC svg { display: none; }
+.modern .v-new .mw .operators .IC:nth-child(2) { width: 20px; height: 20px; border: 1.5px solid rgba(214, 229, 194, 0.85); border-bottom-width: 3px; border-radius: 1px;
+  background: linear-gradient(rgba(214, 229, 194, 0.45), rgba(214, 229, 194, 0.45)) 50% 0 / 1px 100% no-repeat, linear-gradient(rgba(214, 229, 194, 0.45), rgba(214, 229, 194, 0.45)) 0 45% / 100% 1px no-repeat, #1a2a2c; }
+.modern .v-new .mw .operators .IC:nth-child(4) { width: 15px; height: 26px; border: 1.5px solid rgba(214, 229, 194, 0.85); border-bottom: 0; border-radius: 1px; background: #182628; }
+.modern .v-new .mw .operators .IC:nth-child(4)::after { content: ''; position: absolute; right: 2px; top: 52%; width: 2px; height: 5px; border-radius: 1px; background: rgba(214, 229, 194, 0.85); }
+.modern .v-new .mw .operators { align-items: flex-end; }
+
 /* Переключатель вариантов проёмов */
 .vs2 { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(6, 18, 20, 0.55); }
 .vs2 span { align-self: center; padding: 0 8px; font: 600 12px/1 Inter, sans-serif; color: rgba(237, 240, 231, 0.7); }
