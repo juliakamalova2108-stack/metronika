@@ -369,6 +369,21 @@ body:not(.modern) .vs3 { display: none; }
 .modern .v-new .mw .wall-card-tools { top: auto; bottom: 23px; left: 24px; z-index: 3; }
 .modern .v-new .mw .footer--sum { padding-left: 56px; }
 
+
+/* S общая / S рабочая парят над пластиной: свой плотный фон, блик сверху, тень под ними */
+.modern .v-new .mw .equation { padding-bottom: 18px; }
+.modern .v-new .mw .eqplate { transform: translateY(-3px); }
+.modern .v-new .mw .gross { background: linear-gradient(160deg, #4a6fa3, #2e4866) !important; border: 1px solid rgba(143, 182, 255, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 2px 3px rgba(2, 10, 12, 0.45), 0 16px 22px -8px rgba(2, 10, 12, 0.85), 0 18px 26px -14px rgba(59, 130, 246, 0.55) !important; }
+.modern .v-new .mw .net { background: linear-gradient(160deg, #3a7a61, #275441) !important; border: 1px solid rgba(111, 214, 162, 0.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 2px 3px rgba(2, 10, 12, 0.45), 0 16px 22px -8px rgba(2, 10, 12, 0.85), 0 18px 26px -14px rgba(111, 214, 162, 0.45) !important; }
+
+
+.modern .v-new .mw .eqplate::after { content: ''; position: absolute; left: 12%; right: 12%; bottom: -14px; height: 12px; border-radius: 50%; background: rgba(0, 0, 0, 0.6); filter: blur(6px); pointer-events: none; }
+.modern .v-new .mw .gross::after { background: rgba(10, 30, 70, 0.7); }
+.modern .v-new .mw .eqplate { transform: translateY(-5px); }
+.modern .v-new .mw .equation { padding-bottom: 22px; }
+
 /* Переключатель вариантов проёмов */
 .vs2 { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(6, 18, 20, 0.55); }
 .vs2 span { align-self: center; padding: 0 8px; font: 600 12px/1 Inter, sans-serif; color: rgba(237, 240, 231, 0.7); }
