@@ -14,7 +14,7 @@
   .mk [data-action], .mk input { pointer-events: none; }
   .vs button { pointer-events: auto; }
 /* ===== Замер · «современно»: раскладка та же, меняются только формы ===== */
-.modern .mw { --amber: #f2cf6b; --mint: #6fd6a2; --glass: rgba(220, 232, 226, 0.10); --line: rgba(226, 238, 230, 0.20); }
+.modern .mw { --mint: #6fd6a2; --glass: rgba(220, 232, 226, 0.10); --line: rgba(226, 238, 230, 0.20); }
 
 /* Закладки стен: те же папки, только мягче и легче */
 .modern .mw .wall-tabs { gap: 4px; padding: 0 2px; margin-bottom: -1px; }
@@ -23,7 +23,7 @@
 .modern .mw .wall-tab.selected { height: 48px; min-width: 104px; color: #fff; font-size: 16px; border-color: rgba(255, 249, 235, 0.34);
   background: linear-gradient(180deg, rgba(150, 175, 165, 0.42), rgba(104, 133, 126, 0.34)); }
 .modern .mw .wall-tab.selected::before { content: ''; position: absolute; left: 16px; right: 16px; top: 0; height: 2px; border-radius: 0 0 2px 2px; background: var(--amber); }
-.modern .mw .new-wall { width: 34px; height: 34px; margin: 0 6px 7px 8px; border-radius: 50%; border: 1px dashed rgba(242, 207, 107, 0.7); background: rgba(242, 207, 107, 0.08); color: var(--amber); font: 400 22px/1 var(--font-body); }
+.modern .mw .new-wall { width: 34px; height: 34px; margin: 0 6px 7px 8px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--amber) 70%, transparent); background: color-mix(in srgb, var(--amber) 8%, transparent); color: var(--amber); font: 400 22px/1 var(--font-body); }
 .modern .mw .wall-tab.total-tab { margin-left: auto; }
 
 /* Карточка стены — стеклянная пластина приложения */
@@ -37,7 +37,7 @@
 /* S общая − окна − двери = S рабочая */
 .modern .mw .equation { padding: 52px 16px 22px; gap: 6px; border-bottom: 1px solid rgba(226, 238, 230, 0.10); }
 .modern .mw .eqplate { height: 86px; border-radius: 16px; padding: 12px; }
-.modern .mw .gross { border: 1px solid rgba(242, 207, 107, 0.55); background: linear-gradient(160deg, rgba(242, 207, 107, 0.20), rgba(242, 207, 107, 0.06)); box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.18); }
+.modern .mw .gross { border: 1px solid color-mix(in srgb, var(--amber) 55%, transparent); background: linear-gradient(160deg, color-mix(in srgb, var(--amber) 20%, transparent), color-mix(in srgb, var(--amber) 6%, transparent)); box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.18); }
 .modern .mw .net { border: 1px solid rgba(111, 214, 162, 0.6); background: linear-gradient(160deg, rgba(111, 214, 162, 0.24), rgba(111, 214, 162, 0.07)); box-shadow: inset 0 1px 0 rgba(210, 255, 230, 0.18); }
 .modern .mw .gross b, .modern .mw .nettext b { display: block; font: 600 11px/14px var(--font-body); letter-spacing: 0.04em; text-transform: uppercase; }
 .modern .mw .gross b { color: var(--amber); }
@@ -52,14 +52,14 @@
 .modern .mw .dimline { background: rgba(237, 242, 232, 0.45); }
 .modern .mw .dimline::before, .modern .mw .dimline::after { background: rgba(237, 242, 232, 0.45); height: 14px; top: -7px; }
 .modern .mw .lengthfield { height: 42px; padding: 0 14px; border-radius: 14px; border: 1.5px solid var(--amber); color: #fff;
-  background: rgba(10, 28, 29, 0.78); box-shadow: 0 0 0 4px rgba(242, 207, 107, 0.12), 0 6px 14px rgba(3, 14, 15, 0.45); }
+  background: rgba(10, 28, 29, 0.78); box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 12%, transparent), 0 6px 14px rgba(3, 14, 15, 0.45); }
 .modern .mw .lengthfield input { color: #fff; font: 700 22px/1 var(--font-num); }
 .modern .mw .lengthfield input::placeholder { color: rgba(237, 242, 232, 0.4); }
 .modern .mw .lengthfield span { font: 500 14px var(--font-num); color: rgba(237, 242, 232, 0.6); }
 
 /* Рисунок стены: та же схема, тонкие линии, проёмы — стеклом */
 .modern .mw .drawing { border: 1px solid rgba(237, 242, 232, 0.35); border-radius: 4px 4px 0 0;
-  background: repeating-linear-gradient(135deg, rgba(111, 214, 162, 0.06) 0 6px, transparent 6px 12px); }
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--amber) 9%, transparent) 0 6px, transparent 6px 12px); }
 .modern .mw .heightdim::before { background: rgba(237, 242, 232, 0.45); }
 .modern .mw .heightdim span { padding: 3px 6px; border-radius: 8px; background: rgba(10, 28, 29, 0.85); font: 600 12px/1 var(--font-num); color: #fff; }
 .modern .mw .joblist { gap: 8px; }
@@ -82,7 +82,7 @@
 .modern .mw .room-summary { padding: 20px 16px; }
 .modern .mw .sum-heading small { color: var(--amber); letter-spacing: 0.12em; }
 .modern .mw .summary-areas span { border-radius: 14px; border: 1px solid var(--line); background: rgba(8, 24, 25, 0.32); }
-.modern .mw .summary-areas span:first-child { border-color: rgba(242, 207, 107, 0.55); background: rgba(242, 207, 107, 0.10); }
+.modern .mw .summary-areas span:first-child { border-color: color-mix(in srgb, var(--amber) 55%, transparent); background: color-mix(in srgb, var(--amber) 10%, transparent); }
 .modern .mw .summary-areas span:last-child { border-color: rgba(111, 214, 162, 0.6); background: rgba(111, 214, 162, 0.12); }
 .modern .mw .summary-areas b { font: 700 16px/20px var(--font-num); }
 .modern .mw .sum-wall { border-radius: 16px; border: 1px solid rgba(226, 238, 230, 0.14); background: rgba(8, 24, 25, 0.32); }
@@ -96,8 +96,8 @@
 .modern .mw-opening-form h3 { font: 700 20px/24px var(--font-num); }
 .modern .mw-size-drawing label { background: none; padding: 0; }
 .modern .mw-size-drawing label span { font: 500 11px/14px var(--font-body); color: rgba(237, 242, 232, 0.65); text-align: center; }
-.modern .mw-size-drawing input { height: 42px; border-radius: 14px; border: 1.5px solid #f2cf6b; background: rgba(10, 28, 29, 0.85); color: #fff;
-  font: 700 18px/1 var(--font-num); box-shadow: 0 0 0 4px rgba(242, 207, 107, 0.12); }
+.modern .mw-size-drawing input { height: 42px; border-radius: 14px; border: 1.5px solid var(--amber); background: rgba(10, 28, 29, 0.85); color: #fff;
+  font: 700 18px/1 var(--font-num); box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 12%, transparent); }
 .modern .mw-size-drawing input::placeholder { color: rgba(237, 242, 232, 0.4); }
 .modern .mw-size-figure { border-radius: 10px 10px 0 0; border: 1.5px solid rgba(214, 229, 194, 0.75); background: rgba(9, 26, 27, 0.72); }
 .modern .mw-size-top, .modern .mw-size-left { border-color: rgba(237, 242, 232, 0.4); }
@@ -154,7 +154,7 @@ body.op-a.modern .v-new .under { grid-template-columns: 58% 42%; }
 body.op-a.modern .v-new .under__ops { padding-right: 0; }
 
 /* Длина и высота — одинаковые капсулы, поменьше, в сантиметрах */
-.modern .v-new .mw .lengthfield { height: 34px; padding: 0 10px; gap: 3px; border-radius: 12px; border-width: 1.5px; box-shadow: 0 0 0 3px rgba(242, 207, 107, 0.12), 0 4px 10px rgba(3, 14, 15, 0.4); }
+.modern .v-new .mw .lengthfield { height: 34px; padding: 0 10px; gap: 3px; border-radius: 12px; border-width: 1.5px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 12%, transparent), 0 4px 10px rgba(3, 14, 15, 0.4); }
 .modern .v-new .mw .lengthfield input { width: 40px; text-align: right; font: 700 18px/1 var(--font-num); }
 .modern .v-new .mw .lengthfield span { font: 500 12px var(--font-num); color: rgba(237, 242, 232, 0.6); }
 .modern .v-new .mw .measurement { padding-left: 70px; }
@@ -181,7 +181,7 @@ body.op-a.modern .v-new .under__ops { padding-right: 0; }
 .modern .v-new .mw .measurement { padding-left: 54px; }
 .modern .v-new .mw .heightdim { left: -46px; width: 38px; }
 .modern .v-new .mw .hfield { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-90deg); transition: transform 0.25s cubic-bezier(.3, 1.4, .5, 1), box-shadow 0.2s; }
-.modern .v-new .mw .hfield:focus-within { transform: translate(-28%, -50%) rotate(0deg); z-index: 6; box-shadow: 0 0 0 4px rgba(242, 207, 107, 0.25), 0 8px 18px rgba(3, 14, 15, 0.55); }
+.modern .v-new .mw .hfield:focus-within { transform: translate(-28%, -50%) rotate(0deg); z-index: 6; box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 25%, transparent), 0 8px 18px rgba(3, 14, 15, 0.55); }
 .mk .v-new .hfield input, .mk .v-new .lengthfield input { pointer-events: auto; }
 
 /* Размерные линии как в чертеже: тонкая линия, засечки 45° на концах, выносные линии от углов стены. Одинаково для длины и высоты. */
@@ -199,6 +199,12 @@ body.op-a.modern .v-new .under__ops { padding-right: 0; }
   linear-gradient(var(--dim), var(--dim)) 50% 50% / 1px calc(100% - 12px) no-repeat; }
 .modern .v-new .mw .heightdim::after { content: ''; position: absolute; left: calc(50% - 6px); right: -6px; top: 0; bottom: 0; border-top: 1px solid var(--dim); border-bottom: 1px solid var(--dim); pointer-events: none; }
 
+
+/* Цвет — цвет комнаты (Спальня — синяя), а не жёлтый */
+body.modern { --rc: #3b82f6; --amber: color-mix(in srgb, var(--rc) 62%, #fff); }
+.fly { background: var(--amber); }
+/* Капсулы непрозрачные — линия за ними не просвечивает */
+.modern .v-new .mw .lengthfield, .modern .v-new .mw-size-drawing .lengthfield { background: #142a2c; }
 /* Переключатель вариантов проёмов */
 .vs2 { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(6, 18, 20, 0.55); }
 .vs2 span { align-self: center; padding: 0 8px; font: 600 12px/1 Inter, sans-serif; color: rgba(237, 240, 231, 0.7); }
@@ -216,7 +222,7 @@ body:not(.modern) .vs2 { display: none; }
 .modern .mw .u-op { border: 1px solid rgba(226, 238, 230, 0.2); background: rgba(220, 232, 226, 0.08); color: #e6f2cc; padding: 0; }
 .modern .mw .u-op svg { width: 24px; height: 28px; }
 .modern .mw .u-op .u-plus { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
-  background: var(--amber); color: #13292b; font: 700 15px/1 var(--font-body); box-shadow: 0 2px 6px rgba(3, 14, 15, 0.5); }
+  background: var(--amber); color: #0f1f33; font: 700 15px/1 var(--font-body); box-shadow: 0 2px 6px rgba(3, 14, 15, 0.5); }
 .modern .mw .u-btn:active { transform: scale(0.96); }
 .modern .mw .footer--sum { justify-content: space-between; align-items: baseline; padding: 12px 16px; margin-top: 16px; }
 .modern .mw .footer--sum span { font: 500 12px/16px var(--font-body); color: rgba(237, 242, 232, 0.65); text-transform: uppercase; letter-spacing: 0.04em; }
@@ -225,12 +231,12 @@ body:not(.modern) .vs2 { display: none; }
 
 /* Летящий ярлык и посадка */
 .fly { position: fixed; z-index: 200; pointer-events: none; padding: 5px 10px; border-radius: 10px; white-space: nowrap;
-  background: #f2cf6b; color: #13292b; font: 700 13px/1.2 Manrope, sans-serif; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45); }
+  background: var(--amber); color: #0f1f33; font: 700 13px/1.2 Manrope, sans-serif; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45); }
 .fly--svc { background: #e6f2cc; }
 .land { animation: land 0.45s cubic-bezier(.2, 1.6, .4, 1) both; }
-@keyframes land { 0% { transform: scale(1.5); background: rgba(242, 207, 107, 0.6) !important; } 100% { transform: scale(1); } }
+@keyframes land { 0% { transform: scale(1.5); background: color-mix(in srgb, var(--amber) 60%, transparent) !important; } 100% { transform: scale(1); } }
 .hit { animation: hit 0.6s ease-out; }
-@keyframes hit { 0% { box-shadow: 0 0 0 0 rgba(242, 207, 107, 0.8); } 100% { box-shadow: 0 0 0 14px rgba(242, 207, 107, 0); } }
+@keyframes hit { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 80%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
 .v-old, .v-new { display: contents; }
 body.modern .v-old, body:not(.modern) .v-new { display: none; }
 
