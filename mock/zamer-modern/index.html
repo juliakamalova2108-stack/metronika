@@ -435,6 +435,26 @@ body.op-a.modern .v-new .opening-shape.door { background: #182628; }
 
 .modern .v-new .mw .nettext b { color: #fff !important; text-shadow: 0 1px 3px rgba(6, 25, 18, 0.9); }
 
+
+/* Ряд кнопок: «+ Услуги» — зелёная (работы зелёные), окно и дверь — графитовые плитки с теми же значками, что на стене; «+» нарисован ровно по центру */
+.modern .v-new .mw .u-btn { height: 46px; border-radius: 14px; transition: transform .12s ease-out, box-shadow .12s ease-out; }
+.modern .v-new .mw .u-svc { margin-right: 10px; gap: 8px; border: 1px solid rgba(111, 214, 162, 0.65); color: #fff; font: 600 15px/1 var(--font-body);
+  background: linear-gradient(160deg, #3a7a61, #26503f);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 3px rgba(2, 10, 12, 0.45), 0 12px 18px -8px rgba(2, 10, 12, 0.85), 0 14px 22px -14px rgba(111, 214, 162, 0.5); }
+.modern .v-new .mw .u-svc .u-plus { position: static; flex: none; width: 18px; height: 18px; border-radius: 50%; font-size: 0; box-shadow: none;
+  background: linear-gradient(#26503f, #26503f) center / 8px 2px no-repeat, linear-gradient(#26503f, #26503f) center / 2px 8px no-repeat, #bff0d6; }
+.modern .v-new .mw .u-op { border: 1px solid rgba(255, 255, 255, 0.16); background: linear-gradient(160deg, #3a4b4d, #273537);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 3px rgba(2, 10, 12, 0.45), 0 12px 18px -8px rgba(2, 10, 12, 0.85); }
+.modern .v-new .mw .u-op svg { display: none; }
+.modern .v-new .mw .u-op::before { content: ''; display: block; box-sizing: border-box; border: 1.5px solid rgba(214, 229, 194, 0.9); border-radius: 1px; }
+.modern .v-new .mw .u-op[data-fly="win"]::before { width: 22px; height: 22px; border-bottom-width: 3px;
+  background: linear-gradient(rgba(214, 229, 194, 0.5), rgba(214, 229, 194, 0.5)) 50% 0 / 1px 100% no-repeat, linear-gradient(rgba(214, 229, 194, 0.5), rgba(214, 229, 194, 0.5)) 0 45% / 100% 1px no-repeat, #1a2a2c; }
+.modern .v-new .mw .u-op[data-fly="door"]::before { width: 16px; height: 26px; margin-top: 4px; border-bottom: 0; background: linear-gradient(rgba(214, 229, 194, 0.9), rgba(214, 229, 194, 0.9)) right 2px top 52% / 2px 5px no-repeat, #182628; }
+.modern .v-new .mw .u-op .u-plus { top: -6px; right: -6px; width: 18px; height: 18px; font-size: 0; border: 2px solid #1f2b2d; box-sizing: content-box;
+  background: linear-gradient(#0f1f33, #0f1f33) center / 8px 2px no-repeat, linear-gradient(#0f1f33, #0f1f33) center / 2px 8px no-repeat, #8fb6ff;
+  box-shadow: 0 2px 5px rgba(2, 10, 12, 0.6); }
+.modern .v-new .mw .u-btn:active { transform: translateY(1px) scale(0.98); }
+
 /* Переключатель вариантов проёмов */
 .vs2 { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(6, 18, 20, 0.55); }
 .vs2 span { align-self: center; padding: 0 8px; font: 600 12px/1 Inter, sans-serif; color: rgba(237, 240, 231, 0.7); }
