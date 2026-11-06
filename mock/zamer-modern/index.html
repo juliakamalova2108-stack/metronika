@@ -139,6 +139,13 @@ body.op-b.modern .v-new .opening-values { gap: 4px; align-items: center; }
 body.op-b.modern .v-new .opening-values > span { font-size: 11px; }
 body.op-b.modern .v-new .under__ops { grid-template-columns: 1fr 1fr; gap: 10px; padding-right: 12px; }
 
+/* А · поправка: дверь шире, ниже и прижата к окну */
+body.op-a.modern .v-new .opening-columns { grid-template-columns: 1.2fr 1fr; gap: 6px; padding-right: 10px; }
+body.op-a.modern .v-new .opening-columns::before { display: none; }
+body.op-a.modern .v-new .opening-shape.door { margin-top: 62px; }
+body.op-a.modern .v-new .opening-shape.door::after { right: 8px; top: 52%; }
+body.op-a.modern .v-new .under__ops { grid-template-columns: 1.2fr 1fr; gap: 6px; padding-right: 10px; }
+
 /* Переключатель вариантов проёмов */
 .vs2 { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(6, 18, 20, 0.55); }
 .vs2 span { align-self: center; padding: 0 8px; font: 600 12px/1 Inter, sans-serif; color: rgba(237, 240, 231, 0.7); }
