@@ -111,13 +111,41 @@
 .modern .mw .job { font-size: 12px; } .modern .mw .job b { font-size: 12px; }
 
   .mk .f-nav { display: none; }
+/* Кнопки под своими колонками: «Услуги» — под работами, окно — под окнами, дверь — под дверями */
+.modern .mw .under { display: grid; grid-template-columns: 53% 47%; margin: 12px 0 0; }
+.modern .mw .under__ops { display: grid; grid-template-columns: 3fr 2fr; gap: 18px; padding-right: 18px; }
+.modern .mw .u-btn { position: relative; height: 50px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.modern .mw .u-svc { margin-right: 12px; border: 0; background: linear-gradient(180deg, #eef7d9, #d3e4b3); color: #13292b; font: 700 15px/1 var(--font-body);
+  box-shadow: 0 6px 14px rgba(3, 14, 15, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6); }
+.modern .mw .u-svc .u-plus { font: 400 20px/1 var(--font-body); color: #3c6a3a; }
+.modern .mw .u-op { border: 1px solid rgba(226, 238, 230, 0.2); background: rgba(220, 232, 226, 0.08); color: #e6f2cc; padding: 0; }
+.modern .mw .u-op svg { width: 24px; height: 28px; }
+.modern .mw .u-op .u-plus { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--amber); color: #13292b; font: 700 15px/1 var(--font-body); box-shadow: 0 2px 6px rgba(3, 14, 15, 0.5); }
+.modern .mw .u-btn:active { transform: scale(0.96); }
+.modern .mw .footer--sum { justify-content: space-between; align-items: baseline; padding: 12px 16px; margin-top: 16px; }
+.modern .mw .footer--sum span { font: 500 12px/16px var(--font-body); color: rgba(237, 242, 232, 0.65); text-transform: uppercase; letter-spacing: 0.04em; }
+.modern .mw .footer--sum b { font: 700 24px/30px var(--font-num); color: #fff; }
+@media (max-width: 480px) { .modern .mw .under__ops { gap: 10px; padding-right: 10px; } }
+
+/* Летящий ярлык и посадка */
+.fly { position: fixed; z-index: 200; pointer-events: none; padding: 5px 10px; border-radius: 10px; white-space: nowrap;
+  background: #f2cf6b; color: #13292b; font: 700 13px/1.2 Manrope, sans-serif; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45); }
+.fly--svc { background: #e6f2cc; }
+.land { animation: land 0.45s cubic-bezier(.2, 1.6, .4, 1) both; }
+@keyframes land { 0% { transform: scale(1.5); background: rgba(242, 207, 107, 0.6) !important; } 100% { transform: scale(1); } }
+.hit { animation: hit 0.6s ease-out; }
+@keyframes hit { 0% { box-shadow: 0 0 0 0 rgba(242, 207, 107, 0.8); } 100% { box-shadow: 0 0 0 14px rgba(242, 207, 107, 0); } }
+.v-old, .v-new { display: contents; }
+body.modern .v-old, body:not(.modern) .v-new { display: none; }
+
 </style></head>
 <body class="fig modern"><div class="fig-blobs"><i></i><i></i></div>
 <div class="mk">
   <div class="vs" role="tablist"><button type="button" data-v="old">Сейчас</button><button type="button" class="is-on" data-v="new">Современно</button></div>
-  <p class="zn">Раскладка, закладки стен, порядок блоков и кнопки — как в замере Codex. Меняются только формы: поля, плашки, закладки, кнопки, рисунок стены. Переключатель сверху — сравнить.</p>
+  <p class="zn">Раскладка, закладки стен, порядок блоков и кнопки — как в замере Codex. Меняются только формы: поля, плашки, закладки, кнопки, рисунок стены. Переключатель сверху — сравнить. В «Современно» кнопки стоят под своими колонками: нажмите «Услуги», окно или дверь — ярлык полетит в свою колонку. В приложении перед полётом будет окно размеров, после «ОК».</p>
   <p class="zh">1 · Стена</p>
-  <div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
+  <div class="v-old"><div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     <div class="o-pvbar"><button type="button" class="o-pv-add" data-action="mw-pick" aria-label="Добавить комнату"><span>+</span></button>
     <div class="o-pvs" id="o-pvs"><button type="button" class="o-pv is-on" style="--rc:#3b82f6" data-action="mw-room" data-key="remdcwi">
       <b class="o-pv__n">Спальня</b><span class="o-pv__m">3&nbsp;285<small> ₽</small></span></button><button type="button" class="o-pv o-pv--sum" style="--rc:#c8d9a8" data-action="mw-room" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">3&nbsp;285<small> ₽</small></span></button></div></div><div class="o-same-wrap" style="--rc:#3b82f6"><section class="o-same o-same--v2" style="--rc:#3b82f6">
@@ -136,7 +164,32 @@
     <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">
     <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"></rect><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"></rect><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"></rect></svg><span>Меню</span></button>
     <div class="f-topnav f-botnav f-botnav--many"><div class="f-topnav__track" role="tablist"><button type="button" role="tab" aria-selected="false" class="f-tab" data-action="f-tab" data-tab="estimate">Оценка<i class="f-tab__dot" aria-label="редактирование"></i></button><button type="button" role="tab" aria-selected="false" class="f-tab" data-action="f-tab" data-tab="schedule">План</button><button type="button" role="tab" aria-selected="false" class="f-tab" data-action="f-tab" data-tab="client">Клиент</button><button type="button" role="tab" aria-selected="false" class="f-tab" data-action="f-tab" data-tab="channel">Источник</button><button type="button" role="tab" aria-selected="true" class="f-tab is-active" data-action="f-tab" data-tab="smeta">Замер</button></div></div>
-  </nav>
+  </nav></div><div class="v-new"><div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
+    <div class="o-pvbar"><button type="button" class="o-pv-add" data-action="mw-pick" aria-label="Добавить комнату"><span>+</span></button>
+    <div class="o-pvs" id="o-pvs"><button type="button" class="o-pv is-on" style="--rc:#3b82f6" data-action="mw-room" data-key="remdcwi">
+      <b class="o-pv__n">Спальня</b><span class="o-pv__m">3&nbsp;285<small> ₽</small></span></button><button type="button" class="o-pv o-pv--sum" style="--rc:#c8d9a8" data-action="mw-room" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">3&nbsp;285<small> ₽</small></span></button></div></div><div class="o-same-wrap" style="--rc:#3b82f6"><section class="o-same o-same--v2" style="--rc:#3b82f6">
+    <div class="o-svc">
+      <label class="o-qty"><input id="mw-room-height" inputmode="none" value="2,7" placeholder="—" data-change="mw-roomheight" aria-label="Одинаковая высота" data-kb="num" data-kb-mode="decimal" autocomplete="off"><span>м</span></label>
+      <span class="o-svc__t"><span class="o-svc__n">Одинаковая высота</span><small>для всех стен комнаты</small></span>
+      <button type="button" class="o-same__tog" role="switch" aria-checked="true" aria-label="Одинаковая высота" data-action="mw-toggle" data-key="sameH"><span class="o-tog is-on" aria-hidden="true"><i></i></span></button>
+    </div>
+  </section></div><div class="o-same-wrap" style="--rc:#3b82f6"><section class="o-same o-same--v2 is-off" style="--rc:#3b82f6">
+    <div class="o-svc mw-same-services">
+      
+      <span class="o-svc__t"><span class="o-svc__n">Одинаковые услуги</span><small>услуги каждой стены отдельно</small></span>
+      <button type="button" class="o-same__tog" role="switch" aria-checked="false" aria-label="Одинаковые услуги" data-action="mw-toggle" data-key="sameSvc"><span class="o-tog" aria-hidden="true"><i></i></span></button>
+    </div>
+  </section></div><div class="mw"><nav class="wall-tabs"><button type="button" data-action="mw-wall" class="wall-tab selected" data-i="0">Стена 1</button><button type="button" data-action="mw-add-wall" class="new-wall" aria-label="Добавить стену">+</button><button type="button" data-action="mw-total" class="wall-tab total-tab ">Итог</button></nav><div class="wallbody"><div class="wall-card-tools"><button type="button" data-action="mw-delete-wall" class="wall-delete" aria-label="Удалить стену"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 4h6M6 7l1 13h10l1-13M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></button></div><section class="equation"><div class="eqplate gross"><b>S общая</b><strong>11,34 м²</strong></div><div class="opgroup"><div class="caption">S проёмов 3,70 м²</div><div class="operators"><span>−</span><span class="IC"><svg viewBox="0 0 32 32"><path d="M5 4H27V27H5ZM16 4V27M5 15H27" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg></span><span>−</span><span class="IC"><svg viewBox="0 0 32 32"><path d="M8 29V3H24V29M4 29H28M20 15V18" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg></span><span>=</span></div></div><div class="eqplate net"><div class="nettext"><b>S рабочая</b><strong>7,64 м²</strong></div><div class="netgraphic"><svg viewBox="0 0 160 140" preserveAspectRatio="none"><defs><pattern id="mw-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M0 7L7 0" stroke="#d5dec3"></path></pattern></defs><path d="M0 139H160" stroke="#c9daca"></path><rect x="12" y="30" width="60" height="70" fill="url(#mw-hatch)" stroke="#c9daca"></rect><path d="M42 30V100M12 65H72" stroke="#c9daca"></path><rect x="104" y="34" width="40" height="105" fill="url(#mw-hatch)" stroke="#c9daca"></rect></svg></div></div></section><section class="measurement"><div class="dimension"><i class="dimline"></i><label class="lengthfield"><input aria-label="Длина стены, м" inputmode="none" value="4,20" placeholder="0,00" data-change="mw-length" id="kb-mw-length-" data-kb="num" data-kb-mode="decimal" autocomplete="off"><span>м</span></label></div><div class="drawing"><div class="heightdim"><span>2,70 м</span></div><div class="joblist"><button class="job" style="--wc:#22c55e" data-action="mw-services"><i></i><span>Грунтовка стен</span><b>764 ₽</b></button><button class="job" style="--wc:#5b8def" data-action="mw-services"><i></i><span>Поклейка флизелиновых обоев</span><b>2&nbsp;521 ₽</b></button></div><div class="opening-columns"><button class="opening-shape win" data-action="mw-openings" data-type="Окно" aria-label="Окна: открыть список"><span class="opening-values"><span>2,10 м²</span></span></button><button class="opening-shape door" data-action="mw-openings" data-type="Дверь" aria-label="Двери и проёмы: открыть список"><span class="opening-values"><span>1,60 м²</span></span></button></div></div><div class="under">
+  <button type="button" class="u-btn u-svc" data-fly="svc"><span class="u-plus">+</span>Услуги</button>
+  <div class="under__ops">
+    <button type="button" class="u-btn u-op" data-fly="win" aria-label="Добавить окно"><svg viewBox="0 0 32 32"><path d="M5 4H27V27H5ZM16 4V27M5 15H27" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg><span class="u-plus">+</span></button>
+    <button type="button" class="u-btn u-op" data-fly="door" aria-label="Добавить дверь"><svg viewBox="0 0 32 32"><path d="M8 29V3H24V29M4 29H28M20 15V18" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg><span class="u-plus">+</span></button>
+  </div>
+</div></section><footer class="footer footer--sum"><span>Итого по стене</span><b class="js-total">3 285 ₽</b></footer></div></div>
+    <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">
+    <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"></rect><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"></rect><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"></rect></svg><span>Меню</span></button>
+    <div class="f-topnav f-botnav f-botnav--many"><div class="f-topnav__track" role="tablist"><button type="button" role="tab" aria-selected="false" class="f-tab" data-action="f-tab" data-tab="estimate">Оценка<i class="f-tab__dot" aria-label="редактирование"></i></button><button type="button" role="tab" aria-selected="false" class="f-tab" data-action="f-tab" data-tab="schedule">План</button><button type="button" role="tab" aria-selected="false" class="f-tab" data-action="f-tab" data-tab="client">Клиент</button><button type="button" role="tab" aria-selected="false" class="f-tab" data-action="f-tab" data-tab="channel">Источник</button><button type="button" role="tab" aria-selected="true" class="f-tab is-active" data-action="f-tab" data-tab="smeta">Замер</button></div></div>
+  </nav></div>
   <p class="zh">2 · Окно или дверь — размеры</p>
   <div class="mw"><section class="f-plate o-dialog mw-opening-form" role="dialog" aria-label="Дверь — размеры"><h3>Дверь</h3><div class="mw-size-drawing"><div class="mw-size-top"><label><span>Ширина, м</span><input id="mw-new-width" aria-label="Ширина нового проёма, м" inputmode="none" placeholder="0,00" value="" data-change="mw-new-width" data-kb="num" data-kb-mode="decimal" autocomplete="off"></label></div><div class="mw-size-left"><label><span>Высота, м</span><input id="mw-new-height" aria-label="Высота нового проёма, м" inputmode="none" placeholder="0,00" value="" data-change="mw-new-height" data-kb="num" data-kb-mode="decimal" autocomplete="off"></label></div><div class="mw-size-figure is-door"><svg viewBox="0 0 32 32"><path d="M8 29V3H24V29M4 29H28M20 15V18" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg></div></div><div class="f-btn-row"><button type="button" data-action="mw-cancel-opening" class="f-btn">Отмена</button><button type="button" data-action="mw-confirm-opening" class="f-btn">ОК</button></div></section></div>
   <p class="zh">3 · Итог по комнате</p>
@@ -166,5 +219,55 @@ document.querySelectorAll('.vs button').forEach(b => b.addEventListener('click',
   document.querySelectorAll('.vs button').forEach(x => x.classList.toggle('is-on', x === b));
   document.body.classList.toggle('modern', b.dataset.v === 'new');
 }));
+</script>
+<script>// Макет: ярлык вылетает из кнопки и приземляется в свою колонку; площади и суммы пересчитываются.
+(function () {
+  const root = document.querySelector('.v-new');
+  const fmt = (x) => x.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const rub = (x) => Math.round(x).toLocaleString('ru-RU') + ' ₽';
+  const st = { gross: 11.34, opens: [2.10, 1.60], jobs: [100, 330] };
+  const WIN = [[1.2, 1.2], [1.4, 1.5], [0.9, 1.2]]; const DOOR = [[0.8, 2.0], [0.9, 2.1]];
+  const SVC = [['Шпаклёвка стен', 200, '#e6a75a'], ['Демонтаж обоев', 150, '#ad91df'], ['Покраска стен', 250, '#5bc0c8']];
+  let wi = 0, di = 0, si = 0;
+  function recalc() {
+    const holes = st.opens.reduce((a, x) => a + x, 0); const net = Math.max(0, st.gross - holes);
+    root.querySelector('.opgroup .caption').textContent = `S проёмов ${fmt(holes)} м²`;
+    root.querySelector('.nettext strong').textContent = `${fmt(net)} м²`;
+    root.querySelectorAll('.job b').forEach((b, i) => { b.textContent = rub(net * st.jobs[i]); });
+    root.querySelector('.js-total').textContent = rub(st.jobs.reduce((a, p) => a + net * p, 0));
+  }
+  function fly(from, to, html, cls, land) {
+    const a = from.getBoundingClientRect(); const b = to.getBoundingClientRect();
+    const f = document.createElement('div'); f.className = 'fly ' + cls; f.innerHTML = html; document.body.appendChild(f);
+    const x0 = a.left + a.width / 2 - f.offsetWidth / 2; const y0 = a.top + a.height / 2 - f.offsetHeight / 2;
+    const x1 = b.left + b.width / 2 - f.offsetWidth / 2; const y1 = b.top + Math.min(b.height / 2, 40) - f.offsetHeight / 2;
+    f.style.left = x0 + 'px'; f.style.top = y0 + 'px';
+    const dx = x1 - x0; const dy = y1 - y0;
+    f.animate([
+      { transform: 'translate(0,0) scale(.5)', opacity: 0 },
+      { transform: 'translate(0,-14px) scale(1.1)', opacity: 1, offset: 0.18 },
+      { transform: `translate(${dx * 0.55}px, ${dy * 0.55 - 70}px) scale(1.05)`, opacity: 1, offset: 0.6 },
+      { transform: `translate(${dx}px, ${dy}px) scale(.85)`, opacity: 1 },
+    ], { duration: 780, easing: 'cubic-bezier(.35,.6,.3,1)' }).onfinish = () => { f.remove(); land(); };
+  }
+  root.querySelectorAll('[data-fly]').forEach((btn) => btn.addEventListener('click', () => {
+    const k = btn.dataset.fly;
+    if (k === 'svc') {
+      const [name, price, color] = SVC[si++ % SVC.length]; const list = root.querySelector('.joblist');
+      fly(btn, list, '+ ' + name, 'fly--svc', () => {
+        const row = document.createElement('button'); row.type = 'button'; row.className = 'job land'; row.style.setProperty('--wc', color);
+        row.innerHTML = `<i></i><span>${name}</span><b></b>`; list.appendChild(row); st.jobs.push(price); recalc();
+      });
+      return;
+    }
+    const [w, h] = k === 'win' ? WIN[wi++ % WIN.length] : DOOR[di++ % DOOR.length]; const area = Math.round(w * h * 100) / 100;
+    const shape = root.querySelector(k === 'win' ? '.opening-shape.win' : '.opening-shape.door');
+    fly(btn, shape, `${k === 'win' ? 'Окно' : 'Дверь'} ${fmt(area)} м²`, '', () => {
+      const v = document.createElement('span'); v.className = 'land'; v.textContent = `${fmt(area)} м²`;
+      shape.querySelector('.opening-values').appendChild(v); shape.classList.remove('hit'); void shape.offsetWidth; shape.classList.add('hit');
+      st.opens.push(area); recalc();
+    });
+  }));
+})();
 </script>
 </body></html>
