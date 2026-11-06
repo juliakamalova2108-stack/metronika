@@ -146,6 +146,13 @@ body.op-a.modern .v-new .opening-shape.door { margin-top: 62px; }
 body.op-a.modern .v-new .opening-shape.door::after { right: 8px; top: 52%; }
 body.op-a.modern .v-new .under__ops { grid-template-columns: 1.2fr 1fr; gap: 6px; padding-right: 10px; }
 
+/* А · дверь вплотную к краю стены, окно рядом с ней — под работы остаётся больше места */
+body.op-a.modern .v-new .drawing { grid-template-columns: 58% 42%; }
+body.op-a.modern .v-new .opening-columns { padding-right: 0; }
+body.op-a.modern .v-new .opening-shape.door { margin-right: -1px; }
+body.op-a.modern .v-new .under { grid-template-columns: 58% 42%; }
+body.op-a.modern .v-new .under__ops { padding-right: 0; }
+
 /* Переключатель вариантов проёмов */
 .vs2 { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(6, 18, 20, 0.55); }
 .vs2 span { align-self: center; padding: 0 8px; font: 600 12px/1 Inter, sans-serif; color: rgba(237, 240, 231, 0.7); }
