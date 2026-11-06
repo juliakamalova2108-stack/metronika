@@ -184,6 +184,21 @@ body.op-a.modern .v-new .under__ops { padding-right: 0; }
 .modern .v-new .mw .hfield:focus-within { transform: translate(-28%, -50%) rotate(0deg); z-index: 6; box-shadow: 0 0 0 4px rgba(242, 207, 107, 0.25), 0 8px 18px rgba(3, 14, 15, 0.55); }
 .mk .v-new .hfield input, .mk .v-new .lengthfield input { pointer-events: auto; }
 
+/* Размерные линии как в чертеже: тонкая линия, засечки 45° на концах, выносные линии от углов стены. Одинаково для длины и высоты. */
+.modern .v-new .mw { --dim: rgba(237, 242, 232, 0.6); --slash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M1 11L11 1' stroke='rgba(237,242,232,0.85)' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E"); }
+/* длина — сверху */
+.modern .v-new .mw .dimline { top: 17px; left: -6px; right: -6px; height: 12px; background:
+  var(--slash) 0 50% / 12px 12px no-repeat, var(--slash) 100% 50% / 12px 12px no-repeat,
+  linear-gradient(var(--dim), var(--dim)) 50% 50% / calc(100% - 12px) 1px no-repeat; }
+.modern .v-new .mw .dimline::before, .modern .v-new .mw .dimline::after { top: 0; height: 34px; width: 1px; background: var(--dim); }
+.modern .v-new .mw .dimline::before { left: 6px; }
+.modern .v-new .mw .dimline::after { right: 6px; left: auto; }
+/* высота — слева */
+.modern .v-new .mw .heightdim::before { left: calc(50% - 6px); top: -6px; bottom: -6px; width: 12px; background:
+  var(--slash) 50% 0 / 12px 12px no-repeat, var(--slash) 50% 100% / 12px 12px no-repeat,
+  linear-gradient(var(--dim), var(--dim)) 50% 50% / 1px calc(100% - 12px) no-repeat; }
+.modern .v-new .mw .heightdim::after { content: ''; position: absolute; left: calc(50% - 6px); right: -6px; top: 0; bottom: 0; border-top: 1px solid var(--dim); border-bottom: 1px solid var(--dim); pointer-events: none; }
+
 /* Переключатель вариантов проёмов */
 .vs2 { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(6, 18, 20, 0.55); }
 .vs2 span { align-self: center; padding: 0 8px; font: 600 12px/1 Inter, sans-serif; color: rgba(237, 240, 231, 0.7); }
