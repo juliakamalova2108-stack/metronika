@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=213';
-import * as S from './store.js?v=213';
-import { renderOformit, oformitDraft } from './oformit.js?v=213';
-import { roomTotals, svcInfo } from './ocenka.js?v=213';
-import { smetaTotals } from './zakaz.js?v=213';
-import { bookedDays } from './grafik.js?v=213';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=213';
-import { esc, toast } from './ui.js?v=213';
+import { actions, rerender, go } from './core.js?v=217';
+import * as S from './store.js?v=217';
+import { renderOformit, oformitDraft } from './oformit.js?v=217';
+import { roomTotals, svcInfo } from './ocenka.js?v=217';
+import { smetaTotals } from './zakaz.js?v=217';
+import { bookedDays } from './grafik.js?v=217';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=217';
+import { esc, toast } from './ui.js?v=217';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -474,20 +474,36 @@ export function renderHome() {
   const TIERS = ['Старт', 'Мастера', 'Профи', 'Эксперты', 'Вершина'];
   const ranksSheet = () => {
     const left = nextR ? nextR[1] - described : 0;
-    const ladder = TIERS.map((tn, ti) => `<div class="rk-tier rk-tier--t${ti + 1}"><p class="rk-tier__t"><i></i>${tn}</p>${RANKS.map((r, i) => [r, i]).filter(([r]) => r[2] === ti + 1).map(([r, i]) =>
-      `<div class="rk-row${i < ri ? ' is-done' : i === ri ? ' is-cur' : ''}"><span class="rk-row__n">${i + 1}</span><b>${esc(r[0])}</b><span class="rk-row__v">${i < ri ? '✓' : i === ri ? 'вы здесь' : `${fmt(r[1])}`}</span></div>`).join('')}</div>`).join('');
+    // Лестница: 5 пролётов по 5 ступенек, снизу вверх зигзагом; между пролётами — площадка с названием ступени.
+    // Пройденные — светятся цветом ступени, текущая — с аватаром мастера, будущие — тёмные с замком.
+    const LOCK = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
+    const CROWN = '<svg viewBox="0 0 32 24" aria-hidden="true"><path d="M3 20h26l2-14-8 6-7-10-7 10-8-6z" fill="url(#crG)" stroke="#f6d58f" stroke-width="1.2" stroke-linejoin="round"/><defs><linearGradient id="crG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d58f"/><stop offset=".5" stop-color="#e3eed3"/><stop offset="1" stop-color="#9fd3e8"/></linearGradient></defs></svg>';
+    // Лестница вбок: 25 ступенек растут слева направо, листается пальцем; под ступеньками — полосы ступеней (Старт…Вершина).
+    const STEP_W = 78, STEP_GAP = 6;
+    const cols = RANKS.map((r, i) => {
+      const t = r[2]; const st = i < ri ? 'is-done' : i === ri ? 'is-cur' : 'is-lock';
+      const h = 30 + i * 4;
+      return `<div class="ld-col ld-t${t} ${st}">
+        ${i === ri ? `<span class="ld-me"><b>${esc(initials)}</b><em>вы здесь</em></span>` : ''}${i === RANKS.length - 1 ? `<div class="ld-crown">${CROWN}</div>` : ''}
+        <span class="ld-col__name">${esc(r[0])}</span>
+        <span class="ld-col__blk" style="height:${h}px"><span class="ld-col__n">${i + 1}</span><span class="ld-col__v">${i < ri ? '✓' : i === ri ? `${described}` : `${LOCK}${fmt(r[1])}`}</span></span></div>`;
+    }).join('');
+    const bands = TIERS.map((tn, ti) => `<span class="ld-band ld-t${ti + 1}" style="width:${5 * STEP_W + 4 * STEP_GAP}px"><i></i>${tn}</span>`).join('');
+    const flights = `<div class="ld-row">${cols}</div><div class="ld-bands">${bands}</div>`;
+    const ladder = `<div class="ld">${flights}</div>`;
     return `<div class="rk-scrim" data-action="home-ranks-close"></div><section class="rk" role="dialog" aria-label="Ранги мастера">
       <div class="rk__hd"><h2>Ранги мастера</h2><button type="button" class="rk__x" data-action="home-ranks-close" aria-label="Закрыть">×</button></div>
       <div class="rk-me"><span class="h-rate h-rate--t${tier}">${esc(rank)}</span>
         <div class="rk-me__big">${nextR ? `<b>${left}</b><span>${plural(left, 'материал', 'материала', 'материалов')} до ранга «${esc(nextR[0])}»</span>` : '<b>★</b><span>Высший ранг — вы Легенда</span>'}</div>
         <div class="h-rank__bar"><i style="width:${rankPct}%"></i></div>
         <div class="rk-me__row"><span>описано обоев: <b>${described}</b></span>${nextR ? `<span>нужно: <b>${fmt(nextR[1])}</b></span>` : ''}</div></div>
+      <div class="rk-ladder">${ladder}</div>
       <div class="rk-rules"><p class="rk-rules__t">Как растёт ранг</p>
         <p>• Ранг даётся за <b>опыт</b>: сколько разных обоев вы описали в «Моём опыте» (закладка в «Материале»).</p>
         <p>• Одни обои (один штрихкод) засчитываются один раз — сколько бы записей о них ни было.</p>
         <p>• Квадратура «Поклеено» на ранг не влияет.</p>
         <p>• До «Мастера» — быстро, до «Профи» — сложнее, со «Знатока» — очень сложно. «Легенда» — 1000 описанных обоев.</p></div>
-      <div class="rk-ladder">${ladder}</div></section>`;
+</section>`;
   };
 
   // ── Шапка ──
@@ -582,7 +598,7 @@ export function renderHome() {
     <button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
 }
 let homeRanks = false;
-actions['home-ranks'] = () => { homeRanks = true; rerender(); };
+actions['home-ranks'] = () => { homeRanks = true; rerender(); setTimeout(() => { const c = document.querySelector('.ld-col.is-cur'); const box = document.querySelector('.ld'); if (c && box) box.scrollLeft = Math.max(0, c.offsetLeft - box.clientWidth / 2 + c.offsetWidth / 2); }, 30); };
 actions['home-ranks-close'] = () => { homeRanks = false; rerender(); };
 actions['home-day'] = (el) => { homeDay = Number(el.dataset.off); rerender(); };
 actions['home-task'] = (el) => { const o = homeOrder(el.dataset.no); const t = (o.tasks || []).find((x) => x.id === el.dataset.id); if (!t) return;
