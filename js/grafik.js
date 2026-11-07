@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=240';
-import * as S from './store.js?v=240';
-import { SHIFT_HOURS } from './calc.js?v=240';
-import { esc, toast } from './ui.js?v=240';
-import { logEvent } from './zlog.js?v=240';
-import { estimateRooms, roomTotals } from './ocenka.js?v=240';
+import { actions, rerender } from './core.js?v=241';
+import * as S from './store.js?v=241';
+import { SHIFT_HOURS } from './calc.js?v=241';
+import { esc, toast } from './ui.js?v=241';
+import { logEvent } from './zlog.js?v=241';
+import { estimateRooms, roomTotals } from './ocenka.js?v=241';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -135,6 +135,47 @@ function calendar(s, rooms, lay, locked, hint) {
   }
   return `<div class="g-month"><button type="button" class="f-icon-btn g-prev" data-action="g-month" data-d="-1" aria-label="Предыдущий месяц">${CHEV}</button>
       <span>${MONTHS[M - 1]} ${Y}</span><button type="button" class="f-icon-btn g-next" data-action="g-month" data-d="1" aria-label="Следующий месяц">${CHEV}</button></div>
+    <div class="g-dow">${DOW.map((x) => `<span>${x}</span>`).join('')}</div>
+    <div class="g-grid" style="--weeks:${Math.ceil((lead + days) / 7)}">${cells.join('')}</div>`;
+}
+
+// ── Главная: тот же календарь, что в «Графике», но по всем заказам мастера (только просмотр) ──
+// orders: [{ no, d }] — черновики заказов; дни комнат складываются в один день подряд.
+export function homeLayout(orders) {
+  const all = {};
+  orders.forEach(({ no, d }) => {
+    const rooms = estimateRooms(d).filter((r) => roomTotals(r).hours > 0);
+    const lay = layout({ place: (d.sched && d.sched.place) || {} }, rooms);
+    Object.entries(lay).forEach(([date, segs]) => { all[date] = [...(all[date] || []), ...segs.map((x) => ({ ...x, no }))]; });
+  });
+  Object.values(all).forEach((segs) => { let f = 0; segs.forEach((x) => { const h = Math.min(x.hours, Math.max(0, SHIFT_HOURS - f)); x.from = f; x.vis = h; f += x.hours; }); });
+  return all;
+}
+export function homeCalendarHtml(month, lay, meas, sel, today) {
+  const [Y, M] = month.split('-').map(Number);
+  const lead = (new Date(Y, M - 1, 1).getDay() + 6) % 7;
+  const days = new Date(Y, M, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < lead; i++) cells.push('<span class="g-cell g-cell--void"></span>');
+  for (let dd = 1; dd <= days; dd++) {
+    const date = iso(Y, M - 1, dd);
+    const act = `data-action="home-cal-day" data-date="${date}"`;
+    const m = meas[date] || 0;
+    const badge = m ? `<i class="g-badge" aria-label="замер${m > 1 ? ': ' + m : ''}">З</i>` : '';
+    const mark = `${date === sel ? ' is-sel' : ''}${date === today ? ' is-today' : ''}${date < today ? ' is-past' : ''}`;
+    if (lay[date]) {
+      const segs = lay[date];
+      const one = segs.length === 1 && segs[0].hours >= SHIFT_HOURS - EPS;
+      const bars = one ? '' : segs.map((x) => `<i class="g-chip__fill" style="background:${x.room.color};left:${((x.from / SHIFT_HOURS) * 100).toFixed(1)}%;width:${((x.vis / SHIFT_HOURS) * 100).toFixed(1)}%"></i>`).join('');
+      const style = one ? `background:${segs[0].room.color}` : `background:${hexA(segs[segs.length - 1].room.color, 0.18)}`;
+      const text = segs.length === 1 ? `<span>${esc(segs[0].room.name)}</span><span>${fmt(segs[0].cost)}</span>` : segs.map((x) => `<span>${esc(x.room.name)}</span>`).join('');
+      cells.push(`<button type="button" class="g-cell g-cell--work${segs.length > 1 ? ' g-cell--multi' : ''}${mark}" style="${style}" ${act} aria-label="${dd}, ${esc(segs.map((x) => x.room.name).join(' и '))}${m ? ', замер' : ''}">${bars}<b>${dd}</b>${text}${badge}</button>`);
+    } else {
+      cells.push(`<button type="button" class="g-cell${mark}" ${act} aria-label="${dd}${m ? ', замер' : ''}"><b>${dd}</b>${badge}</button>`);
+    }
+  }
+  return `<div class="g-month"><button type="button" class="f-icon-btn g-prev" data-action="home-cal-m" data-d="-1" aria-label="Предыдущий месяц">${CHEV}</button>
+      <span>${MONTHS[M - 1]} ${Y}</span><button type="button" class="f-icon-btn g-next" data-action="home-cal-m" data-d="1" aria-label="Следующий месяц">${CHEV}</button></div>
     <div class="g-dow">${DOW.map((x) => `<span>${x}</span>`).join('')}</div>
     <div class="g-grid" style="--weeks:${Math.ceil((lead + days) / 7)}">${cells.join('')}</div>`;
 }

@@ -1876,3 +1876,15 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .h-cal__day { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.08); }
 .h-cal__dt { margin: 0 0 6px; font: 600 13px Inter, sans-serif; color: rgba(237,242,232,.6); }
 .h-cal__dt::first-letter { text-transform: uppercase; }
+
+/* Главная: календарь «Записи» — как во вкладке «График» */
+.h-cal2__in .g-cell.is-sel { outline: 2px solid #edf2e8; outline-offset: 1px; z-index: 1; }
+.h-cal2__in .g-cell.is-today b { color: #7ee2a3; }
+.h-cal2__in .g-cell.g-cell--work.is-today b { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.h-cal2__in .g-cell.is-past:not(.g-cell--work) b { opacity: .45; }
+
+.h-cal2__in.g-plate { margin: 0; padding: 8px; gap: 6px; display: flex; flex-direction: column; }
+.h-cal2__in .g-month { height: 42px; }
+.h-cal2__in .g-month .f-icon-btn { width: 36px; height: 36px; }
+.h-cal2__in .g-dow { margin-top: -2px; }
+.h-cal2__in .g-grid { margin-top: -2px; gap: 3px; grid-template-rows: repeat(var(--weeks), 52px); }
