@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=174';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=176';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=174';
-import * as S from './store.js?v=174';
-import { WALLPAPER_TYPES } from './seed.js?v=174';
-import { esc, toast } from './ui.js?v=174';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=174';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=174';
-import { country } from './phonecodes.js?v=174';
-import { suggestAddress } from './address.js?v=174';
-import { suggesters } from './kbd.js?v=174';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=174';
+import { actions, changes, rerender } from './core.js?v=176';
+import * as S from './store.js?v=176';
+import { WALLPAPER_TYPES } from './seed.js?v=176';
+import { esc, toast } from './ui.js?v=176';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=176';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=176';
+import { country } from './phonecodes.js?v=176';
+import { suggestAddress } from './address.js?v=176';
+import { suggesters } from './kbd.js?v=176';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=176';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -200,9 +200,11 @@ function renderMaterial(d) {
   // Отзыв пишется на штрихкод: материал «с отзывом», если этот мастер хоть раз оставил отзыв на его штрихкод.
   const reviewed = (code) => S.reviewsOf(code).some((v) => v.authorId === S.me().id);
   const stat = Object.fromEntries(rooms.map((er) => { const codes = matRoom(m, er.key).items.map((it) => it.code);
-    return [er.key, { n: codes.length, miss: codes.filter((c) => !reviewed(c)).length }]; }));
+    const list = matRoom(m, er.key).items.map((it) => ({ code: it.code, rolls: Number(it.rolls) || 0 }));
+    return [er.key, { n: codes.length, miss: codes.filter((c) => !reviewed(c)).length, list }]; }));
   const allCodes = [...new Set(rooms.flatMap((er) => matRoom(m, er.key).items.map((it) => it.code)))];
-  stat.total = { n: allCodes.length, miss: allCodes.filter((c) => !reviewed(c)).length };
+  const sumBy = (c) => rooms.reduce((a, er) => a + matRoom(m, er.key).items.filter((it) => it.code === c).reduce((b, it) => b + (Number(it.rolls) || 0), 0), 0);
+  stat.total = { n: allCodes.length, miss: allCodes.filter((c) => !reviewed(c)).length, list: allCodes.map((c) => ({ code: c, rolls: sumBy(c) })) };
 
   if (m.view === 'total') {
     const by = new Map();

@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=174';
-import * as S from './store.js?v=174';
-import { SYSTEM_PRICE } from './seed.js?v=174';
-import { shiftsText, hoursFor } from './calc.js?v=174';
-import { esc, toast } from './ui.js?v=174';
-import { logEvent } from './zlog.js?v=174';
+import { actions, changes, rerender } from './core.js?v=176';
+import * as S from './store.js?v=176';
+import { SYSTEM_PRICE } from './seed.js?v=176';
+import { shiftsText, hoursFor } from './calc.js?v=176';
+import { esc, toast } from './ui.js?v=176';
+import { logEvent } from './zlog.js?v=176';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -578,10 +578,12 @@ export function materialStrip(d, view, stat, right, inner = '') {
     .replace(/data-action="o-view"/g, 'data-action="z-mat-view"')
     .replace(/<button type="button" class="o-pv-add[\s\S]*?<\/button>/, '')
     .replace(/<i class="o-pv__ok"[^>]*>✓<\/i>/g, '');
-  const word = (n) => (n % 10 === 1 && n % 100 !== 11 ? 'материал' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'материала' : 'материалов');
-  const cnt = (x) => (x && x.n ? `${x.n}<small> ${word(x.n)}</small>` : '—');
+  // На плитке — строки «последние 4 цифры штрихкода — сколько рулонов»: «7890 — 4». Больше двух — «+N ещё».
+  const cnt = (x) => { if (!x || !x.list || !x.list.length) return '—';
+    const ln = (l) => `<span class="z-pvl"><b>${esc(l.code.slice(-4))}</b> — ${l.rolls || 0}<small> шт.</small></span>`;
+    return x.list.slice(0, 2).map(ln).join('') + (x.list.length > 2 ? `<span class="z-pvl z-pvl--more">+${x.list.length - 2} ещё</span>` : ''); };
   const badge = (x) => (!x || !x.n ? '' : x.miss ? `<i class="z-rvbadge" aria-label="Без отзыва: ${x.miss}">${x.miss}</i>` : '<i class="z-rvbadge z-rvbadge--ok" aria-label="Отзывы оставлены">✓</i>');
-  return html.replace(/(data-key="([^"]+)">)([\s\S]*?<span class="o-pv__m">)[\s\S]*?(<\/span>)/g, (m0, a, key, mid, c) => a + badge(stat[key]) + mid + cnt(stat[key]) + c);
+  return html.replace(/(data-key="([^"]+)">)([\s\S]*?<span class="o-pv__m">)[\s\S]*?(<\/span>)/g, (m0, a, key, mid, c) => a + badge(stat[key]) + mid.replace('class="o-pv__m"', 'class="o-pv__m z-pvm"') + cnt(stat[key]) + c);
 }
 
 export function measurementSettings(original, r) {
