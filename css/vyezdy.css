@@ -1827,3 +1827,14 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .gcs.is-lock .gc__spark, .gcs.is-lock .gc__holo { display: none; }
 .gcs.is-lock .gc__blob { animation: none; }
 @media (prefers-reduced-motion: reduce) { .gc *, .gcs *, .gc::before, .gc::after, .gcs::before, .gcs::after { animation: none !important; } }
+
+/* Главная: замеры в блоке «Задачи и замеры» */
+.h-meas { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+.h-meas__ic { flex: none; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; color: #e8d27a; background: rgba(232,210,122,.12); box-shadow: inset 0 0 0 1px rgba(232,210,122,.25); }
+.h-meas__ic svg { width: 20px; height: 20px; }
+.h-meas__t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.h-meas__t b { font: 700 15px Manrope, sans-serif; color: #edf2e8; }
+.h-meas__t b em { font-style: normal; font-weight: 600; font-size: 12px; margin-left: 4px; padding: 2px 7px; border-radius: 10px; background: rgba(232,210,122,.14); color: #e8d27a; }
+.h-meas__t small { font: 500 12.5px Inter, sans-serif; color: rgba(237,242,232,.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.h-meas__a { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #edf2e8; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.h-meas__a svg { width: 18px; height: 18px; }
