@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»). Функции и раскладка — как у Codex;
 // вид — по согласованному макету «Замер — осовременить формы»: графитовый лист с закладками-каскадом, парящие плашки площадей,
 // стена-миллиметровка с зелёной штриховкой, кнопки под своими колонками, размеры в сантиметрах, полёт ярлыка.
-import {actions,changes,rerender,afterRender} from './core.js?v=143';
-import * as S from './store.js?v=143';
-import {oformitDraft} from './oformit.js?v=143';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=143';
-import {esc} from './ui.js?v=143';
+import {actions,changes,rerender,afterRender} from './core.js?v=144';
+import * as S from './store.js?v=144';
+import {oformitDraft} from './oformit.js?v=144';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=144';
+import {esc} from './ui.js?v=144';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -44,7 +44,7 @@ function tabs(r,color){
   const TW=62, PW=64;                                    // ширина невыбранной закладки и «+»
   const w=i=>i===sel?SEL_W:TW;
   const xs=[];let x=0;for(let i=0;i<n0;i++){xs.push(x);x+=w(i)-SL+2;}
-  const plusX=x, innerW=plusX+PW+2;
+  const plusX=x, innerW=plusX+PW;
   const flag=(x0,ww)=>`M${x0+.5} ${H} L${x0+.5} 4.5 Q${x0+.5} .5 ${x0+4.5} .5 L${x0+ww-SL} .5 L${x0+ww-.5} ${H} Z`;
   const order=[...Array(n0).keys()].filter(i=>i!==sel).sort((a,b)=>Math.abs(b-(sel<0?n0:sel))-Math.abs(a-(sel<0?n0:sel)));
   const back=`<path class="gt-back" d="${flag(plusX,PW)}"/>`+order.map(i=>`<path class="gt-back" d="${flag(xs[i],w(i))}"/>`).join('');
@@ -53,12 +53,17 @@ function tabs(r,color){
   const base=sel<0?`<path class="gt-base" d="M0 ${H-.5} L${innerW} ${H-.5}"/>`:`<path class="gt-base" d="M0 ${H-.5} L${xs[sel]} ${H-.5} M${xs[sel]+SEL_W} ${H-.5} L${innerW} ${H-.5}"/>`;
   const front=sel<0?'':`<path class="gt-sel" d="M${xs[sel]} ${H+1} L${xs[sel]} 4 Q${xs[sel]} 0 ${xs[sel]+4} 0 L${xs[sel]+SEL_W-SL} 0 L${xs[sel]+SEL_W} ${H+1} Z"/>`+
     `<path class="gt-hl" d="M${xs[sel]+.8} ${H} L${xs[sel]+.8} 4.5 Q${xs[sel]+.8} .8 ${xs[sel]+4.5} .8 L${xs[sel]+SEL_W-SL} .8 L${xs[sel]+SEL_W} ${H}" fill="none" stroke="url(#gtLite)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`;
-  const btn=i=>{const l=i===0||i===sel?xs[i]:Math.max(xs[i],xs[i-1]+w(i-1)-SL*.5);const rr=xs[i]+w(i)-SL*.55;
-    return `<button type="button" class="gt-b${i===sel?' on':''}" data-action="mw-wall" data-i="${i}" style="left: ${Math.round(l)}px; width: ${Math.max(14,Math.round(rr-l))}px">${i===sel?'Стена ':''}${i+1}</button>`;};
-  const plusL=n0?xs[n0-1]+w(n0-1)-SL*.5:0;
+  // Кнопка = видимая часть закладки, цифра по её центру: левее выбранной закладку закрывает соседка справа,
+  // правее — соседка слева (до середины её наклона).
+  const btn=i=>{let l,ww;
+    if(i===sel){l=xs[i];ww=SEL_W-SL*.5;}
+    else if(sel<0||i<sel){l=xs[i];ww=(i+1<n0?xs[i+1]:xs[i]+TW-SL*.5)-xs[i];}
+    else {l=xs[i]+SL*.5;ww=TW-SL;}
+    return `<button type="button" class="gt-b${i===sel?' on':''}" data-action="mw-wall" data-i="${i}" style="left: ${Math.round(l)}px; width: ${Math.round(ww)}px">${i===sel?'Стена ':''}${i+1}</button>`;};
+  const plusL=n0?plusX+SL*.5:0, plusBW=n0?PW-SL:PW-SL*.5;
   const left=`<div class="gt-scroll"><div class="gt-inner" style="width: ${innerW}px"><svg class="gt-svg" width="${innerW}" height="${H+1}" viewBox="0 0 ${innerW} ${H+1}" aria-hidden="true">${lite}${back}${base}${front}</svg>`+
     r.walls.map((_,i)=>btn(i)).join('')+
-    `<button type="button" class="gt-b add" data-action="mw-add-wall" aria-label="Добавить стену" style="left: ${Math.round(plusL)}px; width: ${Math.round(plusX+PW-SL*.55-plusL)}px">+</button></div></div>`;
+    `<button type="button" class="gt-b add" data-action="mw-add-wall" aria-label="Добавить стену" style="left: ${Math.round(plusL)}px; width: ${Math.round(plusBW)}px">+</button></div></div>`;
   // «Итог»: левый край с наклоном, как правый край закладок (сверху внизу-вправо); справа — край листа
   const sumD=`M${SL} ${H} L1.5 2 Q.8 .5 3 .5 L${SUM_W-6.5} .5 Q${SUM_W-.5} .5 ${SUM_W-.5} 6.5 L${SUM_W-.5} ${H}`;
   const right=`<div class="gt-right${r.total?' on':''}" style="width: ${SUM_W}px"><svg class="gt-svg" width="${SUM_W}" height="${H+1}" viewBox="0 0 ${SUM_W} ${H+1}" aria-hidden="true">`+
