@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=185';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=186';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=185';
-import * as S from './store.js?v=185';
-import { WALLPAPER_TYPES } from './seed.js?v=185';
-import { esc, toast } from './ui.js?v=185';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=185';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=185';
-import { country } from './phonecodes.js?v=185';
-import { suggestAddress } from './address.js?v=185';
-import { suggesters } from './kbd.js?v=185';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=185';
+import { actions, changes, rerender } from './core.js?v=186';
+import * as S from './store.js?v=186';
+import { WALLPAPER_TYPES } from './seed.js?v=186';
+import { esc, toast } from './ui.js?v=186';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=186';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=186';
+import { country } from './phonecodes.js?v=186';
+import { suggestAddress } from './address.js?v=186';
+import { suggesters } from './kbd.js?v=186';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=186';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -524,8 +524,7 @@ function renderFinance(d) {
       <div class="z-kind">${['Аванс', 'Оплата'].map((k) => `<button type="button" class="${p.kind === k ? 'is-on' : ''}" data-action="z-pay-kind" data-v="${k}">${k}</button>`).join('')}</div>
       ${input('z-p-sum', 'Сумма', p.sum, { ph: '0 ₽', mode: 'numeric', live: 'z-p:sum', changed: !!p.sum, err: (ui.err || {}).sum })}
       <label class="f-field" for="z-p-date"><span class="f-field__label">Дата</span><span class="f-input"><input id="z-p-date" type="date" value="${p.date}" data-live="z-p:date"/></span></label>
-      ${selectField('z-p-method', 'Способ оплаты', p.method, ['Перевод', 'Наличные', 'Карта'].map((x) => ({ value: x, label: x })), false)}
-      ${row(btn('Прикрепить подтверждение', 'z-attach'))}</section>
+      ${selectField('z-p-method', 'Способ оплаты', p.method, ['Перевод', 'Наличные', 'Карта'].map((x) => ({ value: x, label: x })), false)}</section>
       ${dock(row(btn('Отмена', 'z-form-close'), btn('Сохранить', 'z-pay-save')))}`;
   }
   if (ui.form === 'exp') {
