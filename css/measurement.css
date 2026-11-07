@@ -419,7 +419,7 @@
 
 /* ===== Замер в цветах «Очереди» (как доска заказов и карточка заказа) ===== */
 /* Акцент вместо цвета комнаты — светло-оливковый, как подсвеченные кнопки приложения */
-.mw { --rc: #a9bf86 !important; --amber: #e6f2cc !important; }
+/* (акцент — цвет комнаты, см. --amber выше) */
 /* Основная пластина — как стеклянная пластина карточки заказа */
 .mw .gt-sheet { background: linear-gradient(180deg, #4a5d5c 0, #4a5d5c 44px, #3d5152 340px, #33484a 100%) !important; }
 .mw .gt-svg path { fill: #203030; stroke: rgba(255, 249, 235, 0.22); }
@@ -439,9 +439,9 @@
   box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.16), inset 0 1.5px 2px rgba(1, 6, 9, 0.55), inset 0 4px 10px rgba(1, 8, 10, 0.7) !important; }
 .mw .od2-drawing { border: 0 !important; background: none !important; box-shadow: none !important; }
 .mw .opening-shape.win, .mw .opening-shape.door { background-color: #152324 !important; }
-.mw #gtLite stop { stop-color: #e6f2cc !important; }
+
 /* «Одинаковая высота / услуги» в замере — акцент без синего; плитки комнат сверху — как в «Оценке» (с цветным отблеском комнаты) */
-.mw-screen .o-same-wrap, .mw-screen .o-same { --rc: #a9bf86 !important; }
+
 /* Кнопки под стеной — как кнопки приложения (.f-btn): тёмные, светлая рамка, полоска-индикатор внизу */
 .mw .u-btn { border-radius: 6px !important; border: 1px solid rgba(204, 222, 209, 0.55) !important; background: #213839 !important; color: #edf0e7 !important;
   box-shadow: 0 4px 7px rgba(4, 13, 15, 0.16), 0 2px 2.5px rgba(1, 6, 9, 0.27), inset 0 -2px 2px rgba(6, 18, 20, 0.34), inset 0 1px 1px rgba(224, 242, 227, 0.36) !important; }
@@ -488,3 +488,46 @@
 .mw .under { grid-template-columns: 58% 42% !important; padding: 0 0.9px !important; box-sizing: border-box; }
 .mw .u-svc { margin-right: 8px !important; }
 .mw .under__ops { grid-template-columns: 1.2fr 1fr !important; gap: 6px !important; padding-right: 0 !important; }
+
+/* ===== Основной цвет — графит; всё цветное — от цвета комнаты (--rc), светлый оттенок — --amber ===== */
+.mw { --gr-sheet: #3b3b3c; --gr-sheet2: #2c2c2d; --gr-back: #262627; --gr-deep: #1d1d1e; --gr-deep2: #232324; --gr-line: rgba(255, 255, 255, 0.22); }
+.mw .gt-sheet { background: linear-gradient(180deg, var(--gr-sheet) 0, var(--gr-sheet) 44px, #333334 340px, var(--gr-sheet2) 100%) !important; }
+.mw .gt-svg .gt-sel { fill: var(--gr-sheet) !important; }
+.mw .gt-svg .gt-back { fill: var(--gr-back) !important; stroke: var(--gr-line) !important; }
+.mw .gt-tabs::before { background: var(--gr-line); }
+.mw.mw--plain .wallbody { background: linear-gradient(180deg, var(--gr-sheet), var(--gr-sheet2)) !important; border-color: var(--gr-line) !important; }
+.mw .gt-b.add { color: var(--amber) !important; }
+/* S общая — светлый графит с рамкой цвета комнаты */
+.mw .gross { background: linear-gradient(180deg, #555557, #4a4a4c) !important; border: 1px solid color-mix(in srgb, var(--rc) 55%, transparent) !important; }
+.mw .gross b { color: var(--amber) !important; }
+/* S рабочая и стена — тёмный графит с миллиметровкой */
+.mw .net, .mw .drawing { background:
+  linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px) 0 0 / 30px 30px,
+  linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px) 0 0 / 30px 30px,
+  linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 6px 6px,
+  linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 6px 6px,
+  linear-gradient(180deg, var(--gr-deep), var(--gr-deep2)) !important;
+  border: 1px solid color-mix(in srgb, var(--rc) 45%, transparent) !important;
+  box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.55), inset 0 4px 10px rgba(0, 0, 0, 0.6) !important; }
+.mw .od2-drawing { border: 0 !important; background: none !important; box-shadow: none !important; }
+.mw .opening-shape.win, .mw .opening-shape.door { background-color: #19191a !important; border-color: color-mix(in srgb, var(--rc) 50%, #ddd) !important; }
+/* Кнопки — графит, рамка и полоска-индикатор цвета комнаты */
+.mw .u-btn { background: #2b2b2c !important; border-color: color-mix(in srgb, var(--rc) 40%, rgba(255, 255, 255, 0.35)) !important;
+  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.2), 0 2px 2.5px rgba(0, 0, 0, 0.3), inset 0 -2px 2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important; }
+.mw .u-svc::after { background: linear-gradient(90deg, var(--rc), var(--amber) 45%, var(--amber) 55%, var(--rc)) !important; }
+.mw .u-plus { background: linear-gradient(#232324, #232324) center / 9px 2px no-repeat, linear-gradient(#232324, #232324) center / 2px 9px no-repeat, linear-gradient(180deg, var(--amber), color-mix(in srgb, var(--rc) 70%, #fff)) !important; }
+.mw .u-op .u-plus { border-color: var(--gr-sheet2) !important; }
+.mw .wall-delete { background: #2b2b2c !important; border-color: rgba(255, 255, 255, 0.3) !important; }
+.mw .footer--sum { background: rgba(0, 0, 0, 0.18) !important; border-color: rgba(255, 255, 255, 0.12) !important; }
+/* Мелочи, что оставались зелёными: поля размеров, значки окна/двери, переключатель «Одинаковая высота» */
+.mw .lengthfield, .mw-size-drawing .lengthfield { background: #1f1f20 !important; }
+.mw .operators .IC:nth-child(2), .mw .operators .IC:nth-child(4) { border-color: var(--amber) !important; background-color: #1d1d1e !important; }
+.mw .operators .IC:nth-child(4)::after { background: var(--amber) !important; }
+.mw .operators .IC:nth-child(2) { background-image: linear-gradient(var(--amber), var(--amber)), linear-gradient(var(--amber), var(--amber)) !important; background-size: 1px 100%, 100% 1px !important; background-position: 50% 0, 0 45% !important; background-repeat: no-repeat !important; }
+.mw .u-op::before { border-color: var(--amber) !important; }
+.mw .u-op[data-fly="win"]::before { background: linear-gradient(var(--amber), var(--amber)) 50% 0 / 1px 100% no-repeat, linear-gradient(var(--amber), var(--amber)) 0 45% / 100% 1px no-repeat, #1d1d1e !important; }
+.mw .u-op[data-fly="door"]::before { background: linear-gradient(var(--amber), var(--amber)) right 2px top 52% / 2px 5px no-repeat, #1d1d1e !important; }
+.mw-screen .o-same.o-same--v2 .o-tog.is-on, .mw-screen .o-same .o-tog.is-on { background: var(--rc) !important; }
+.mw .opening-shape.door::after { background: var(--amber) !important; }
+.mw .opening-shape.win { background-image: linear-gradient(color-mix(in srgb, var(--amber) 60%, transparent), color-mix(in srgb, var(--amber) 60%, transparent)), linear-gradient(color-mix(in srgb, var(--amber) 60%, transparent), color-mix(in srgb, var(--amber) 60%, transparent)) !important;
+  background-size: 1.5px 100%, 100% 1.5px !important; background-position: 50% 0, 0 45% !important; background-repeat: no-repeat !important; }
