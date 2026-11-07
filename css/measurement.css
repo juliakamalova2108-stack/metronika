@@ -334,3 +334,10 @@
 .mw .z-xp.is-ok .z-xp__st { background: #3c8f5f; color: #fff; }
 .mw .z-xp .z-rvshare { margin-top: 12px; }
 .mw .z-xp .z-mline__t small { white-space: normal; }
+/* правая закладка «Мой опыт»: прямоугольная, скошенная — когда до неё дошли закладки с «+» */
+.mw .gt-right--sq:not(.is-slant) .gt-slant, .mw .gt-right--sq.is-slant .gt-sq { display: none; }
+.mw .gt-right--sq:not(.is-slant) { filter: drop-shadow(-3px 0 4px rgba(0, 0, 0, 0.3)); }
+.mw .gt-right--sq.on { filter: none; }
+.mw .gt-right--sq.is-slant .gt-b { left: 10px !important; width: calc(100% - 10px) !important; }
+.mw .gt-right .gt-two { display: block; text-align: center; line-height: 1.1; }
+.mw .gt-right--sq .gt-b { padding-bottom: 2px; }

@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=179';
-import * as S from './store.js?v=179';
-import {oformitDraft} from './oformit.js?v=179';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=179';
-import {esc} from './ui.js?v=179';
+import {actions,changes,rerender,afterRender} from './core.js?v=180';
+import * as S from './store.js?v=180';
+import {oformitDraft} from './oformit.js?v=180';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=180';
+import {esc} from './ui.js?v=180';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -64,11 +64,18 @@ export function sheetTabs(o,color){
     [...Array(n0).keys()].map(btn).join('')+
     `<button type="button" class="gt-b add" data-action="${o.addAct}" aria-label="${o.addLabel}" style="left: ${Math.round(plusL)}px; width: ${Math.round(plusBW)}px">+</button></div></div>`;
   const tot=!!o.total;
-  const sumD=`M${SL} ${H} L1.5 2 Q.8 .5 3 .5 L${SUM_W-6.5} .5 Q${SUM_W-.5} .5 ${SUM_W-.5} 6.5 L${SUM_W-.5} ${H}`;
-  const right=`<div class="gt-right${tot?' on':''}" style="width: ${SUM_W}px"><svg class="gt-svg" width="${SUM_W}" height="${H+1}" viewBox="0 0 ${SUM_W} ${H+1}" aria-hidden="true">`+
-    (tot?`<path class="gt-sel" d="M${SL} ${H+1} L1 1.5 Q.3 0 2.5 0 L${SUM_W-6} 0 Q${SUM_W} 0 ${SUM_W} 6 L${SUM_W} ${H+1} Z"/><path class="gt-hl" d="${sumD}" fill="none" stroke="url(#gtLite2)" stroke-width="1.6" stroke-linejoin="round"/>${lite.replace('gtLite','gtLite2')}`
-      :`<path class="gt-back" d="${sumD} Z"/><path class="gt-base" d="M0 ${H-.5} L${SUM_W} ${H-.5}"/>`)+
-    `</svg><button type="button" class="gt-b${tot?' on':''}" data-action="${o.totalAct}" style="left: 6px; width: ${SUM_W-6}px">${o.totalLabel||'Итог'}${o.totalMark?'<i class="gt-dot" aria-label="есть материалы без опыта"></i>':''}</button></div>`;
+  const SW=o.square?SUM_W+10:SUM_W;
+  const sumD=`M${SL} ${H} L1.5 2 Q.8 .5 3 .5 L${SW-6.5} .5 Q${SW-.5} .5 ${SW-.5} 6.5 L${SW-.5} ${H}`;
+  // o.square: правая закладка прямоугольная, пока до неё не дошёл «+»; дошёл — становится скошенной (класс is-slant, см. ниже).
+  const sqD=`M${SL+.5} ${H} L${SL+.5} 4.5 Q${SL+.5} .5 ${SL+4.5} .5 L${SW-6.5} .5 Q${SW-.5} .5 ${SW-.5} 6.5 L${SW-.5} ${H}`;
+  const selD={[sumD]:`M${SL} ${H+1} L1 1.5 Q.3 0 2.5 0 L${SW-6} 0 Q${SW} 0 ${SW} 6 L${SW} ${H+1} Z`,
+    [sqD]:`M${SL} ${H+1} L${SL} 4 Q${SL} 0 ${SL+4} 0 L${SW-6} 0 Q${SW} 0 ${SW} 6 L${SW} ${H+1} Z`};
+  const shape=(d,cls)=>tot
+    ?`<g class="${cls}"><path class="gt-sel" d="${selD[d]}"/><path class="gt-hl" d="${d}" fill="none" stroke="url(#gtLite2)" stroke-width="1.6" stroke-linejoin="round"/></g>`
+    :`<g class="${cls}"><path class="gt-back" d="${d} Z"/></g>`;
+  const paths=o.square?shape(sumD,'gt-slant')+shape(sqD,'gt-sq'):shape(sumD,'');
+  const right=`<div class="gt-right${tot?' on':''}${o.square?' gt-right--sq':''}" style="width: ${SW}px"><svg class="gt-svg" width="${SW}" height="${H+1}" viewBox="0 0 ${SW} ${H+1}" aria-hidden="true">${tot?lite.replace('gtLite','gtLite2'):''}${paths}`+
+    `</svg><button type="button" class="gt-b${tot?' on':''}" data-action="${o.totalAct}" style="left: ${o.square?SL:6}px; width: ${SW-(o.square?SL:6)}px">${o.totalLabel||'Итог'}${o.totalMark?'<i class="gt-dot" aria-label="есть материалы без опыта"></i>':''}</button></div>`;
   return {html:`<i class="gt-sheet" aria-hidden="true"></i><nav class="gt-tabs" aria-label="${o.name}">${left}${right}</nav>`, radius:'0 0 24px 24px', edges:''};
 }
 function tabs(r,color){
@@ -86,6 +93,10 @@ afterRender.push(()=>{
     if(last)sc.scrollLeft=sc.scrollWidth;                                 // последняя стена — видно её и «+»
     else{const l=on.offsetLeft,r2=l+on.offsetWidth+30;if(l<sc.scrollLeft+8||r2>sc.scrollLeft+vis)sc.scrollLeft=Math.max(0,l-(vis-on.offsetWidth)/2);}}
   tabSelKey=key;tabScroll=sc.scrollLeft;
+  // Квадратная правая закладка скашивается, когда ряд закладок с «+» доходит до неё.
+  const rt=sc.parentElement.querySelector('.gt-right--sq');
+  if(rt){const fit=()=>{const inner=sc.querySelector('.gt-inner');rt.classList.toggle('is-slant',inner.offsetWidth>sc.clientWidth-26);};fit();
+    if(!window.__gtFit){window.__gtFit=1;addEventListener('resize',()=>{const r=document.querySelector('.mw .gt-right--sq'),c=document.querySelector('.mw .gt-scroll');if(r&&c)r.classList.toggle('is-slant',c.querySelector('.gt-inner').offsetWidth>c.clientWidth-26);});}}
   sc.addEventListener('scroll',()=>{tabScroll=sc.scrollLeft;},{passive:true});
 });
 
