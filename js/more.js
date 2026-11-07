@@ -1,11 +1,11 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=245';
-import * as S from './store.js?v=245';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=245';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=245';
-import { topbar, typeName } from './shared.js?v=245';
-import { COUNTRIES, SOON } from './phonecodes.js?v=245';
+import { actions, changes, rerender, go, val } from './core.js?v=246';
+import * as S from './store.js?v=246';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=246';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=246';
+import { topbar, typeName, renderSettlements } from './shared.js?v=246';
+import { COUNTRIES, SOON } from './phonecodes.js?v=246';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -243,6 +243,7 @@ function bars(rows) {
   return rows.map(([k, v, txt]) => `<div class="kv"><span>${esc(k)}</span><b>${txt || v}</b></div><div class="bar"><i style="width:${Math.round((v / max) * 100)}%"></i></div>`).join('');
 }
 
+let statTab = 'stats';
 export function renderStats() {
   const me = S.me();
   const st = S.get();
@@ -296,7 +297,9 @@ export function renderStats() {
       <section class="plate"><h2 class="plate__title">Каналы новых заказов</h2>${Object.keys(byCh).length ? bars(Object.entries(byCh).map(([k, v]) => [k, v])) : '<p class="empty">Нет новых заказов за период</p>'}</section>
       ${S.hasRole(me, 'dispatcher') ? `<section class="plate"><h2 class="plate__title">Мастера команды</h2>${bars(S.teamOf(me.id).map((m) => { const v = st.credits.filter((c) => c.masterId === m.id && inRange(c.at, r)).reduce((a, c) => a + c.m2, 0); return [m.name, v, `${num(Math.round(v * 10) / 10)} м²`]; }))}</section>` : ''}`;
   }
-  return `${topbar('Статистика', { back: 'profile' })}
+  const tabs = isAgent ? '' : seg('stat-tab', [{ value: 'stats', label: 'Статистика' }, { value: 'fin', label: 'Финансы' }], statTab);
+  if (!isAgent && statTab === 'fin') { const f = renderSettlements(); return `${topbar('Статистика')}${tabs}${f.slice(f.indexOf('<section'))}`; }
+  return `${topbar('Статистика')}${tabs}
     ${seg('stat-period', [{ value: 'month', label: 'Этот месяц' }, { value: 'prev', label: 'Прошлый' }, { value: 'year', label: 'Год' }], period)}
     ${body}`;
 }
@@ -308,7 +311,7 @@ export function renderBrand() {
   const makers = S.get().makers;
   const mk = makers.find((m) => m.id === makerId);
   if (!mk) {
-    return `${topbar('Бренд-зона', { back: 'profile' })}
+    return `${topbar('Бренд-зона')}
       <section class="plate"><p class="small">Раздел производителей: каталог с параметрами рулонов, советы по поклейке и новинки. Производители сами загружают свои данные.</p></section>
       <div class="list">${makers.map((m) => `<button type="button" class="plate card-btn maker" data-action="maker-open" data-id="${m.id}">
         <div class="order-card__top"><b>${esc(m.name)}</b><span class="small">${S.get().materials.filter((x) => x.makerId === m.id).length} в каталоге</span></div>
@@ -389,6 +392,7 @@ export function renderForClient() {
 export function onSegMore(name, value) {
   if (name === 'set-tab') { setTab = value; rerender(); return true; }
   if (name === 'stat-period') { period = value; rerender(); return true; }
+  if (name === 'stat-tab') { statTab = value; rerender(); return true; }
   if (name === 'doc-tab') { docTab = value; rerender(); return true; }
   if (name === 'ag-plan') { S.setAgentPlan(value); rerender(); return true; }
   return false;

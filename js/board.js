@@ -3,14 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=245';
-import * as S from './store.js?v=245';
-import { renderOformit, oformitDraft } from './oformit.js?v=245';
-import { roomTotals, svcInfo } from './ocenka.js?v=245';
-import { smetaTotals } from './zakaz.js?v=245';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=245';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=245';
-import { esc, toast } from './ui.js?v=245';
+import { actions, rerender, go } from './core.js?v=246';
+import * as S from './store.js?v=246';
+import { renderOformit, oformitDraft } from './oformit.js?v=246';
+import { roomTotals, svcInfo } from './ocenka.js?v=246';
+import { smetaTotals } from './zakaz.js?v=246';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=246';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=246';
+import { esc, toast, status } from './ui.js?v=246';
+import { topbar, ORDER_STATUS } from './shared.js?v=246';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -243,6 +244,7 @@ actions['bd-to-order'] = (el) => { showParts = false; go('bd-order-' + el.datase
 actions['bd-room'] = (el) => { const k = el.dataset.key; if (openRooms.has(k)) openRooms.delete(k); else openRooms.add(k); rerender(); };
 actions['bd-back'] = () => go('orders');
 export function onLiveBoard(el) {
+  if (el.dataset.live === 'client-q') { clientQ = el.value; const pos = el.selectionStart; rerender(); const a = document.getElementById('client-q'); if (a) { a.focus(); try { a.setSelectionRange(pos, pos); } catch (e) { /* поле */ } } return true; }
   if (el.dataset.live !== 'bd-q') return false;
   query = el.value;
   const pos = el.selectionStart;
@@ -743,3 +745,37 @@ actions['home-cal-m'] = (el) => { homeMonth += Number(el.dataset.d); rerender();
 actions['home-cal-day'] = (el) => { homeSel = el.dataset.date; rerender(); };
 actions['home-task'] = (el) => { const o = homeOrder(el.dataset.no); const t = (o.tasks || []).find((x) => x.id === el.dataset.id); if (!t) return;
   t.done = !t.done; t.doneToday = t.done ? iso(0) : ''; S.save(); rerender(); };
+
+// ── Клиенты: все клиенты мастера — контакты и их заказы (этап, сумма); тап по заказу — открыть ──
+let clientQ = '';
+export function renderClients() {
+  const plural = (n, a1, a2, a5) => (n % 10 === 1 && n % 100 !== 11 ? a1 : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? a2 : a5);
+  const meId = S.me().id;
+  const digits = (p) => String(p || '').replace(/\D/g, '').slice(-10);
+  const map = new Map();
+  const add = (key, c, ord) => { if (!map.has(key)) map.set(key, { ...c, orders: [] }); map.get(key).orders.push(ord); };
+  // примерные заказы доски
+  Object.keys(DEMO).forEach((no) => { const x = DEMO[no]; const c = CL[no]; const o = homeOrder(no);
+    const sum = ((o.est && o.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0);
+    const paid = o.fin ? o.fin.pays.reduce((a, p) => a + p.amount, 0) : 0;
+    const offs = QUEUE.filter(([, key]) => key && R[key].c.no === no).map(([off]) => off);
+    const stage = x.meas != null ? 'measure' : offs.some((f) => f <= 0) && offs.some((f) => f >= 0) ? 'work' : 'queue';
+    add(digits(x.ph), { name: c.n, phone: c.ph, addr: c.a, src: x.src }, { no, stage, sum, paid, act: `data-action="bd-open" data-no="${no}"` }); });
+  // заказы из базы (ведёт мастер)
+  S.get().orders.filter((o) => !o.trashed && o.leadId === meId).forEach((o) => { const c = o.client;
+    add(digits(c.phone), { name: c.name, phone: `+7 ${c.phone}`, addr: [c.street, c.house].filter(Boolean).join(', ') + (c.flat ? `, кв. ${c.flat}` : ''), src: o.channel.source },
+      { no: String(o.no), stage: o.status, sum: 0, paid: 0, act: `data-action="go" data-to="p-order-${o.id}"` }); });
+  const q = clientQ.trim().toLowerCase();
+  const list = [...map.values()].filter((c) => !q || `${c.name} ${c.phone} ${c.addr}`.toLowerCase().includes(q)).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  const card = (c) => { const tot = c.orders.reduce((a, o) => a + o.sum, 0);
+    return `<article class="plate cl-card">
+      <div class="cl-card__hd"><span class="cl-av">${esc(c.name.split(' ').map((w) => w[0] || '').slice(0, 2).join(''))}</span>
+        <span class="cl-card__who"><b>${esc(c.name)}</b><small>${esc(c.addr)}</small></span>
+        <a class="icon-btn cl-call" href="tel:${esc(String(c.phone).replace(/[^+\d]/g, ''))}" aria-label="Позвонить">${HI.call}</a></div>
+      <div class="cl-card__meta"><span>${esc(c.phone)}</span><span>${esc(c.src || '')}</span>${tot ? `<span>всего ${fmt(tot)} ₽</span>` : ''}</div>
+      <div class="cl-orders">${c.orders.map((o) => { const [k, t] = ORDER_STATUS[o.stage] || ['idle', o.stage];
+        return `<button type="button" class="cl-ord" ${o.act}><b>Заказ №${esc(o.no)}</b>${status(k, t)}<span class="cl-ord__sum">${o.sum ? `${fmt(o.sum)} ₽` : ''}</span><span class="cl-ord__go">›</span></button>`; }).join('')}</div></article>`; };
+  return `${topbar('Клиенты')}
+    <section class="plate cl-search"><input id="client-q" class="field__input" type="search" data-live="client-q" value="${esc(clientQ)}" placeholder="Поиск: имя, телефон, адрес" autocomplete="off"><small>${list.length} ${plural(list.length, 'клиент', 'клиента', 'клиентов')}</small></section>
+    ${list.length ? list.map(card).join('') : '<section class="plate"><p class="empty">Никого не нашли</p></section>'}`;
+}

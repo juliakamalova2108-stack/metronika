@@ -330,3 +330,20 @@ body.is-auth .app { padding-bottom: 0; }
 .nav-row small { display: block; color: var(--ink-2); font-size: 12px; font-weight: 400; }
 .nav-row__chev svg { width: 18px; height: 18px; transform: rotate(-90deg); }
 .tabbar[hidden] { display: none; }
+
+/* Клиенты */
+.cl-search { display: flex; flex-direction: column; gap: 6px; }
+.cl-search small { opacity: .6; }
+.cl-card { display: flex; flex-direction: column; gap: 10px; }
+.cl-card__hd { display: flex; align-items: center; gap: 12px; }
+.cl-av { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: rgba(214,229,194,.14); color: #d6e5c2; }
+.cl-card__who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cl-card__who b { font-size: 16px; }
+.cl-card__who small { opacity: .6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cl-call svg { width: 20px; height: 20px; }
+.cl-card__meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; opacity: .75; }
+.cl-orders { display: flex; flex-direction: column; gap: 6px; }
+.cl-ord { all: unset; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.05); }
+.cl-ord b { font-size: 14px; }
+.cl-ord__sum { margin-left: auto; font-weight: 700; font-size: 14px; }
+.cl-ord__go { opacity: .5; }
