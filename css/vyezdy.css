@@ -1888,3 +1888,9 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .h-cal2__in .g-month .f-icon-btn { width: 36px; height: 36px; }
 .h-cal2__in .g-dow { margin-top: -2px; }
 .h-cal2__in .g-grid { margin-top: -2px; gap: 3px; grid-template-rows: repeat(var(--weeks), 52px); }
+
+/* Метки «Заказ №…» / «Замер №…» в карточках «Сегодня» */
+.h-tag { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border-radius: 13px; font: 700 12.5px/1 Manrope, sans-serif !important; letter-spacing: .01em; opacity: 1 !important; }
+.h-tag--order { color: #142220 !important; background: #e3eed3; }
+.h-tag--meas { color: #fff !important; background: #e5484d; box-shadow: 0 4px 14px -4px rgba(229,72,77,.6); }
+.h-hero--meas { --c: #e5484d !important; }

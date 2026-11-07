@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=241';
-import * as S from './store.js?v=241';
-import { renderOformit, oformitDraft } from './oformit.js?v=241';
-import { roomTotals, svcInfo } from './ocenka.js?v=241';
-import { smetaTotals } from './zakaz.js?v=241';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=241';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=241';
-import { esc, toast } from './ui.js?v=241';
+import { actions, rerender, go } from './core.js?v=242';
+import * as S from './store.js?v=242';
+import { renderOformit, oformitDraft } from './oformit.js?v=242';
+import { roomTotals, svcInfo } from './ocenka.js?v=242';
+import { smetaTotals } from './zakaz.js?v=242';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=242';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=242';
+import { esc, toast } from './ui.js?v=242';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -568,7 +568,7 @@ export function renderHome() {
     const segs = sh.map((_, i) => `<i class="${i < k ? 'past' : i === k ? 'on' : ''}"></i>`).join('');
     return `<article class="h-hero" style="--c:${x.col}">
       <div class="h-hero__glow" aria-hidden="true"></div>
-      <div class="h-hero__top"><span class="h-pill"><i></i>${when}</span><span class="h-hero__no">№${c.no}</span></div>
+      <div class="h-hero__top"><span class="h-pill"><i></i>${when}</span><span class="h-hero__no h-tag h-tag--order">Заказ №${c.no}</span></div>
       <div class="h-hero__time">${time}</div>
       <div class="h-hero__who"><b>${esc(c.n)}</b><small>${esc(c.a)}</small></div>
       <div class="h-hero__job"><span class="h-room"><i></i>${esc(x.r)}<small>${esc(x.f)}</small></span>
@@ -639,9 +639,9 @@ export function renderHome() {
   const offOf = (date) => Math.round((new Date(date + 'T12:00') - dayOf(0)) / 864e5);
   const realMeas = S.get().orders.filter((o) => !o.trashed && !['closed', 'cancelled', 'failed'].includes(o.status))
     .flatMap((o) => o.visits.filter((v) => v.type === 'measure' && v.masterId === meId && v.date >= iso(0) && v.date <= iso(6))
-      .map((v) => ({ off: offOf(v.date), time: v.time, n: o.client.name, a: [o.client.street, o.client.house].filter(Boolean).join(', ') + (o.client.flat ? `, кв. ${o.client.flat}` : ''), ph: o.client.phone })));
+      .map((v) => ({ no: String(o.no), off: offOf(v.date), time: v.time, n: o.client.name, a: [o.client.street, o.client.house].filter(Boolean).join(', ') + (o.client.flat ? `, кв. ${o.client.flat}` : ''), ph: o.client.phone })));
   // Примерные замеры для показа (пока в демо-заказах нет будущих замеров)
-  const DEMO_MEAS = [{ off: 0, time: '17:30', n: 'Ольга Петрова', a: 'ул. Комсомольская, 21, кв. 40', ph: '9177001122' }, { off: 2, time: '12:00', n: 'Дмитрий Ахметов', a: 'пр. Октября, 88, кв. 113', ph: '9603334455' }];
+  const DEMO_MEAS = [{ no: '015', off: 0, time: '17:30', n: 'Ольга Петрова', a: 'ул. Комсомольская, 21, кв. 40', ph: '9177001122' }, { no: '016', off: 2, time: '12:00', n: 'Дмитрий Ахметов', a: 'пр. Октября, 88, кв. 113', ph: '9603334455' }];
   const meas = (realMeas.length ? realMeas : DEMO_MEAS).sort((x, y) => x.off - y.off || x.time.localeCompare(y.time));
   const RULER = ic('<path d="M3.5 15.5l12-12 5 5-12 12z"/><path d="M7 12l2 2M9.5 9.5l1.5 1.5M12 7l2 2"/>');
   const whenOf = (off) => { if (off === 0) return 'сегодня'; if (off === 1) return 'завтра'; const d = dayOf(off); return `${WD[d.getDay()]}, ${d.getDate()} ${MON[d.getMonth()]}`; };
@@ -653,9 +653,9 @@ export function renderHome() {
       <a class="h-meas__a" href="https://yandex.ru/maps/?text=${encodeURIComponent('Уфа, ' + m.a)}" target="_blank" rel="noopener" aria-label="Маршрут">${HI.route}</a></div>`).join('');
   const taskRows = tasks.map(({ t, no }) => `<button type="button" class="h-task${t.done ? ' is-done' : ''}" data-action="home-task" data-no="${no}" data-id="${esc(t.id)}"><i>${t.done ? ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>') : ''}</i><span>${esc(t.text)}<small>№${no} · ${esc(short(CL[no].n))}</small></span></button>`).join('');
   // Сегодняшние замеры — вторым рядом под выездом в «Сегодня»
-  const measTodayHtml = measToday.length ? `<div class="h-heros h-mtoday">${measToday.map((m) => `<article class="h-hero h-hero--meas" style="--c:#e8d27a">
+  const measTodayHtml = measToday.length ? `<div class="h-heros h-mtoday">${measToday.map((m) => `<article class="h-hero h-hero--meas" style="--c:#e5484d">
       <div class="h-hero__glow" aria-hidden="true"></div>
-      <div class="h-hero__top"><span class="h-pill"><i></i>Сегодня</span><span class="h-hero__no">Замер</span></div>
+      <div class="h-hero__top"><span class="h-pill"><i></i>Сегодня</span><span class="h-hero__no h-tag h-tag--meas">Замер${m.no ? ` №${esc(m.no)}` : ''}</span></div>
       <div class="h-hero__time">${esc(m.time)}</div>
       <div class="h-hero__who"><b>${esc(m.n)}</b><small>${esc(m.a)}</small></div>
       <div class="h-hero__act"><a class="h-round" href="tel:+7${esc(String(m.ph).replace(/\D/g, '').slice(-10))}" aria-label="Позвонить">${HI.call}</a>
