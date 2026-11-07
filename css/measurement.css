@@ -313,3 +313,12 @@
 .mw .z-rvdots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(237, 242, 232, 0.25); transition: background .2s, width .2s; }
 .mw .z-rvdots i.on { width: 16px; border-radius: 3px; background: var(--rc-light); }
 .mw .z-rvshare { display: block; width: calc(100% - 0px); height: 44px; margin-top: 12px; border-radius: 10px; border: 1px solid var(--g-btn-line); background: var(--g-btn); box-shadow: var(--btn-shadow); font: 600 14px/1 var(--font-body); color: var(--ink); }
+/* закладка материала без отзыва — оранжевая точка */
+.mw .gt-b .gt-dot { display: inline-block; width: 7px; height: 7px; margin: 0 0 8px 3px; border-radius: 50%; background: #f0a050; vertical-align: middle; }
+/* рулоны вписывает мастер: поле с − / + */
+.mw .z-mrolls--in { gap: 4px; }
+.mw .z-step { display: flex; align-items: center; gap: 4px; }
+.mw .z-step__b { display: grid; place-items: center; width: 30px; height: 34px; padding: 0 0 2px; border-radius: 8px; border: 1px solid var(--g-btn-line); background: var(--g-btn); box-shadow: var(--btn-shadow); font: 400 20px/1 var(--font-body); color: var(--ink); }
+.mw .z-step__f input { width: 46px; height: 34px; padding: 0; border-radius: 8px; border: 1px solid var(--g-line-soft); background: rgba(9, 18, 19, 0.45); text-align: center; font: 700 20px/1 var(--font-num); color: var(--rc-light); outline: none; }
+.mw .z-step__f input::placeholder { color: rgba(237, 242, 232, 0.35); }
+.mw .z-mrolls--in small { align-self: center; }

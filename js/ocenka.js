@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=171';
-import * as S from './store.js?v=171';
-import { SYSTEM_PRICE } from './seed.js?v=171';
-import { shiftsText, hoursFor } from './calc.js?v=171';
-import { esc, toast } from './ui.js?v=171';
-import { logEvent } from './zlog.js?v=171';
+import { actions, changes, rerender } from './core.js?v=174';
+import * as S from './store.js?v=174';
+import { SYSTEM_PRICE } from './seed.js?v=174';
+import { shiftsText, hoursFor } from './calc.js?v=174';
+import { esc, toast } from './ui.js?v=174';
+import { logEvent } from './zlog.js?v=174';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -570,14 +570,18 @@ export function measurementStrip(d,s) {
 }
 
 // «Материал»: та же полоса комнат и пластина комнаты, что в «Оценке» и «Замере».
-// На плитках вместо денег — рулоны; справа в пластине — кнопка сканера; «+» здесь не нужен (комнаты добавляют в «Оценке»).
-export function materialStrip(d, view, rolls, right, inner = '') {
+// На плитках вместо денег — сколько материалов добавлено, в углу — статус отзывов мастера:
+// оранжевый значок с числом материалов без отзыва или зелёная ✓, когда отзывы есть на все.
+export function materialStrip(d, view, stat, right, inner = '') {
   const e = est(d);
   const html = carousel({ ...e, view }, view === 'total' ? '' : right, inner)
     .replace(/data-action="o-view"/g, 'data-action="z-mat-view"')
-    .replace(/<button type="button" class="o-pv-add[\s\S]*?<\/button>/, '');
-  const roll = (n) => (n ? `${n}<small> рул.</small>` : '—');
-  return html.replace(/(data-key="([^"]+)">[\s\S]*?<span class="o-pv__m">)[\s\S]*?(<\/span>)/g, (m0, a, key, c) => a + roll(rolls[key] || 0) + c);
+    .replace(/<button type="button" class="o-pv-add[\s\S]*?<\/button>/, '')
+    .replace(/<i class="o-pv__ok"[^>]*>✓<\/i>/g, '');
+  const word = (n) => (n % 10 === 1 && n % 100 !== 11 ? 'материал' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'материала' : 'материалов');
+  const cnt = (x) => (x && x.n ? `${x.n}<small> ${word(x.n)}</small>` : '—');
+  const badge = (x) => (!x || !x.n ? '' : x.miss ? `<i class="z-rvbadge" aria-label="Без отзыва: ${x.miss}">${x.miss}</i>` : '<i class="z-rvbadge z-rvbadge--ok" aria-label="Отзывы оставлены">✓</i>');
+  return html.replace(/(data-key="([^"]+)">)([\s\S]*?<span class="o-pv__m">)[\s\S]*?(<\/span>)/g, (m0, a, key, mid, c) => a + badge(stat[key]) + mid + cnt(stat[key]) + c);
 }
 
 export function measurementSettings(original, r) {

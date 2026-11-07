@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=171';
-import * as S from './store.js?v=171';
-import {oformitDraft} from './oformit.js?v=171';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=171';
-import {esc} from './ui.js?v=171';
+import {actions,changes,rerender,afterRender} from './core.js?v=174';
+import * as S from './store.js?v=174';
+import {oformitDraft} from './oformit.js?v=174';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=174';
+import {esc} from './ui.js?v=174';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -58,7 +58,7 @@ export function sheetTabs(o,color){
     if(i===sel){l=xs[i];ww=SEL_W-SL*.5;}
     else if(sel<0||i<sel){l=xs[i];ww=(i+1<n0?xs[i+1]:xs[i]+TW-SL*.5)-xs[i];}
     else {l=xs[i]+SL*.5;ww=TW-SL;}
-    return `<button type="button" class="gt-b${i===sel?' on':''}" data-action="${o.act}" data-i="${i}" style="left: ${Math.round(l)}px; width: ${Math.round(ww)}px">${i===sel?o.label(i):i+1}</button>`;};
+    return `<button type="button" class="gt-b${i===sel?' on':''}" data-action="${o.act}" data-i="${i}" style="left: ${Math.round(l)}px; width: ${Math.round(ww)}px">${i===sel?o.label(i):i+1}${o.mark&&o.mark(i)?'<i class="gt-dot" aria-label="без отзыва"></i>':''}</button>`;};
   const plusL=n0?plusX+SL*.5:0, plusBW=n0?PW-SL:PW-SL*.5;
   const left=`<div class="gt-scroll"><div class="gt-inner" style="width: ${innerW}px"><svg class="gt-svg" width="${innerW}" height="${H+1}" viewBox="0 0 ${innerW} ${H+1}" aria-hidden="true">${lite}${back}${base}${front}</svg>`+
     [...Array(n0).keys()].map(btn).join('')+

@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=171';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=174';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=171';
-import * as S from './store.js?v=171';
-import { WALLPAPER_TYPES } from './seed.js?v=171';
-import { esc, toast } from './ui.js?v=171';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=171';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=171';
-import { country } from './phonecodes.js?v=171';
-import { suggestAddress } from './address.js?v=171';
-import { suggesters } from './kbd.js?v=171';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=171';
+import { actions, changes, rerender } from './core.js?v=174';
+import * as S from './store.js?v=174';
+import { WALLPAPER_TYPES } from './seed.js?v=174';
+import { esc, toast } from './ui.js?v=174';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=174';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=174';
+import { country } from './phonecodes.js?v=174';
+import { suggestAddress } from './address.js?v=174';
+import { suggesters } from './kbd.js?v=174';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=174';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -194,9 +194,15 @@ function renderMaterial(d) {
   if (m.view !== 'total' && !rooms.some((r) => r.key === m.view)) m.view = rooms[0].key;
   // рулоны по комнатам — для плиток и итога
   const calc = Object.fromEntries(rooms.map((er) => { const w = roomWallArea(d, er.key, er); const items = matRoom(m, er.key).items;
-    return [er.key, { w, items: items.map((it) => ({ it, ...rollsFor(w, it) })) }]; }));
+    return [er.key, { w, items: items.map((it) => ({ it, ...rollsFor(w, it), rolls: Number(it.rolls) || 0 })) }]; }));  // рулоны вписывает мастер — для статистики
   const rolls = Object.fromEntries(rooms.map((er) => [er.key, calc[er.key].items.reduce((a, x) => a + x.rolls, 0)]));
   rolls.total = Object.values(rolls).reduce((a, x) => a + x, 0);
+  // Отзыв пишется на штрихкод: материал «с отзывом», если этот мастер хоть раз оставил отзыв на его штрихкод.
+  const reviewed = (code) => S.reviewsOf(code).some((v) => v.authorId === S.me().id);
+  const stat = Object.fromEntries(rooms.map((er) => { const codes = matRoom(m, er.key).items.map((it) => it.code);
+    return [er.key, { n: codes.length, miss: codes.filter((c) => !reviewed(c)).length }]; }));
+  const allCodes = [...new Set(rooms.flatMap((er) => matRoom(m, er.key).items.map((it) => it.code)))];
+  stat.total = { n: allCodes.length, miss: allCodes.filter((c) => !reviewed(c)).length };
 
   if (m.view === 'total') {
     const by = new Map();
@@ -205,7 +211,7 @@ function renderMaterial(d) {
     const list = lines.length ? `<div class="o-tline o-tline--h"><span>Материал</span><span>Рулонов</span><span></span><span>Где</span></div>` + lines.map((o) =>
       `<div class="o-tline z-buy"><span class="o-tline__n">${esc(matTitle(o.it))}<small>${esc(o.it.type)} · ${esc(o.it.code)}</small></span><b>${o.n}</b><span></span><span class="z-buy__w">${esc(o.rooms.join(', '))}</span></div>`).join('')
       : '<p class="z-muted">Материал ещё не добавлен ни в одну комнату.</p>';
-    return `${materialStrip(d, 'total', rolls, '')}
+    return `${materialStrip(d, 'total', stat, '')}
       <section class="f-plate o-bywork"><p class="o-sec o-sec--in">Список закупки</p>${list}</section>
       <section class="f-plate o-grand"><p class="o-grand__t">Всего рулонов</p><b class="o-grand__sum">${rolls.total}</b><p class="o-grand__x">${lines.length} ${lines.length === 1 ? 'артикул' : 'артикула'} · ${rooms.length} комн.</p></section>`;
   }
@@ -218,7 +224,7 @@ function renderMaterial(d) {
   r.active = Math.max(0, Math.min(r.active || 0, items.length - 1));
   const showTotal = !!r.total && items.length > 0;
   const t = sheetTabs({ n: items.length, sel: items.length ? r.active : -2, total: showTotal, label: (i) => 'Обои ' + (i + 1),
-    act: 'z-mat-tab', addAct: 'z-scan-open', addLabel: 'Добавить материал', totalAct: 'z-mat-total', name: 'Материалы' }, color);
+    act: 'z-mat-tab', mark: (i) => !reviewed(items[i].it.code), addAct: 'z-scan-open', addLabel: 'Добавить материал', totalAct: 'z-mat-total', name: 'Материалы' }, color);
   let body;
   if (!items.length) {
     body = `<p class="z-mempty">Нажмите «+» и отсканируйте штрихкод рулона — материал добавится в комнату, рулоны посчитаются сами.</p>`;
@@ -237,7 +243,7 @@ function renderMaterial(d) {
     const exp = `<div class="z-rvbox"><p class="z-rvbox__t">Опыт мастеров${reviews.length > 1 ? `<span class="z-rvnav"><button type="button" class="z-rvnav__b" data-rv-go="-1" aria-label="Предыдущий отзыв">‹</button><small class="z-rvnav__n"><b>1</b> / ${reviews.length}</small><button type="button" class="z-rvnav__b" data-rv-go="1" aria-label="Следующий отзыв">›</button></span>` : ''}</p>
       ${reviews.length ? `<div class="z-rvs">${reviews.map(card).join('')}</div>${reviews.length > 1 ? `<div class="z-rvdots">${reviews.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>` : ''}` : '<p class="z-rv__none">Мастера пока не делились опытом с этим материалом.</p>'}<button type="button" class="z-rvshare" data-action="z-share-open" data-i="${idx}">Поделиться опытом</button></div>`;
     body = `<section class="z-mplate"><div class="z-mhead">${MAT_SAMPLE}<span class="z-mline__t"><i class="z-mcode">${esc(it.code)}</i><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span>
-        <span class="z-mrolls"><b>${n || '—'}</b><small>${n ? 'рулонов' : ''}</small></span></div>
+        <span class="z-mrolls z-mrolls--in"><span class="z-step"><button type="button" class="z-step__b" data-action="z-rolls-step" data-i="${idx}" data-d="-1" aria-label="Меньше">−</button><label class="z-step__f"><input aria-label="Сколько рулонов" inputmode="numeric" value="${n || ''}" placeholder="0" data-change="z-rolls" data-i="${idx}"></label><button type="button" class="z-step__b" data-action="z-rolls-step" data-i="${idx}" data-d="1" aria-label="Больше">+</button></span><small>рулонов</small></span></div>
       ${exp}</section>
       <div class="z-mfoot"><button type="button" class="wall-delete" data-action="z-mat-del" data-i="${idx}" aria-label="Убрать материал из комнаты">${TRASH_SVG}</button></div>`;
   }
@@ -263,8 +269,11 @@ function renderMaterial(d) {
   } else if (m.howto) {
     dlg = dialog('Как ввести штрихкод', 'Штрихкод — 8 или 13 цифр под полосками на этикетке рулона (EAN-13, EAN-8, UPC-A, ITF-14). Если камера не считала код, введите цифры вручную.', row(btn('Понятно', 'z-howto-close')));
   }
-  return `<div class="mw-screen">${materialStrip(d, room.key, rolls, '<span></span>')}${folds}</div>${dlg}`;
+  return `<div class="mw-screen">${materialStrip(d, room.key, stat, '<span></span>')}${folds}</div>${dlg}`;
 }
+// Рулоны материала мастер вписывает сам (для статистики): поле или − / +.
+actions['z-rolls-step'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.rolls = Math.max(0, (Number(it.rolls) || 0) + Number(el.dataset.d)); save(); };
+changes['z-rolls'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.rolls = Math.max(0, parseInt(String(el.value).replace(/\D/g, ''), 10) || 0); save(); };
 actions['z-mat-tab'] = (el) => { const m = mat(D()); const r = matRoom(m, m.view); r.active = Number(el.dataset.i); r.total = false; save(); };
 actions['z-mat-total'] = () => { const m = mat(D()); const r = matRoom(m, m.view); if (r.items.length) r.total = true; save(); };
 actions['z-mat-fold'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.open = !it.open; save(); };
