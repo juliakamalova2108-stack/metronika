@@ -1179,3 +1179,5 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 /* Метка этажа на плитке комнаты (если комнаты на разных этажах) */
 .o-pv__fl { position: absolute; right: 8px; bottom: 9px; z-index: 2; padding: 2px 6px; border-radius: 6px; font: 600 10.5px/13px var(--font-body); font-style: normal;
   color: #edf0e7; background: rgba(9, 18, 19, 0.45); border: 0.7px solid rgba(204, 222, 209, 0.35); white-space: nowrap; }
+/* «Замер»: в пластине комнаты два переключателя друг под другом */
+.mw-rplate .o-same-wrap + .o-same-wrap { margin-top: 8px; }

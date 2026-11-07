@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=158';
-import * as S from './store.js?v=158';
-import {oformitDraft} from './oformit.js?v=158';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=158';
-import {esc} from './ui.js?v=158';
+import {actions,changes,rerender,afterRender} from './core.js?v=159';
+import * as S from './store.js?v=159';
+import {oformitDraft} from './oformit.js?v=159';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=159';
+import {esc} from './ui.js?v=159';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -15,7 +15,7 @@ const cm=m=>m?String(Math.round(m*100)):'';          // метры → сант�
 const fromCm=v=>parse(v)/100;                        // сантиметры из поля → метры
 
 // ---------- данные ----------
-const state=d=>d.sm||(d.sm={view:'pick',rooms:{}});
+const state=d=>d.sm||(d.sm={view:'',rooms:{}});   // первый вход: открыть первую комнату, если она есть
 const room=(s,key)=>{
   const r=s.rooms[key]||(s.rooms[key]={sameH:true,h:2.7,sameSvc:false,walls:[]});
   // старые записи хранили проём как { name, area }

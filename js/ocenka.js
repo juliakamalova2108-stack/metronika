@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=158';
-import * as S from './store.js?v=158';
-import { SYSTEM_PRICE } from './seed.js?v=158';
-import { shiftsText, hoursFor } from './calc.js?v=158';
-import { esc, toast } from './ui.js?v=158';
-import { logEvent } from './zlog.js?v=158';
+import { actions, changes, rerender } from './core.js?v=159';
+import * as S from './store.js?v=159';
+import { SYSTEM_PRICE } from './seed.js?v=159';
+import { shiftsText, hoursFor } from './calc.js?v=159';
+import { esc, toast } from './ui.js?v=159';
+import { logEvent } from './zlog.js?v=159';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -98,7 +98,7 @@ function carousel(e, tabs, inner = '') {
   const cards = e.rooms.map((r) => {
     const t = roomTotals(r);
     return `<button type="button" class="o-pv${e.view === r.key ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="o-view" data-key="${r.key}">
-      <b class="o-pv__n">${esc(roomLines(r)[0])}</b>${roomLines(r)[1] ? `<em class="o-pv__note">${esc(roomLines(r)[1])}</em>` : ''}${e.view === r.key ? `<span class="o-pen" role="button" aria-label="Переименовать комнату" data-action="o-rename" data-key="${r.key}">${PEN}</span>` : ''}<span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span>${floors ? `<i class="o-pv__fl">${r.floor} эт</i>` : ''}${r.status === 'saved' ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}</button>`;
+      <b class="o-pv__n">${esc(roomLines(r)[0])}</b>${roomLines(r)[1] ? `<em class="o-pv__note">${esc(roomLines(r)[1])}</em>` : ''}<span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span>${floors ? `<i class="o-pv__fl">${r.floor} эт</i>` : ''}${r.status === 'saved' ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}</button>`;
   }).join('');
   const total = e.rooms.length ? (() => { const sum = e.rooms.reduce((a, r) => a + roomTotals(r).total, 0);
     return `<button type="button" class="o-pv o-pv--sum${e.view === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="o-view" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(sum)}<small> ₽</small></span></button>`; })() : '';
@@ -585,5 +585,6 @@ export function measurementSettings(original, r) {
     .replace('data-action="o-same-tog"','data-action="mw-toggle" data-key="sameSvc"')
     .replace('заливается во все работы','для всех стен комнаты')
     .replace('выключена — каждая работа отдельно','услуги каждой стены отдельно');
-  return height+services;
+  // Пластина комнаты — как в «Оценке»: название с карандашом и этаж, внутри два переключателя.
+  return `<section class="f-plate o-rplate mw-rplate" style="--rc:${original.color || '#7c8f8a'}"><div class="o-rhead"><span class="o-rhead__t"><b>${esc(original.name)}<span class="o-pen o-pen--h" role="button" aria-label="Переименовать комнату" data-action="o-rename" data-key="${original.key}">${PEN}</span></b><small>${original.floor} этаж</small></span></div>${height}${services}</section>`;
 }
