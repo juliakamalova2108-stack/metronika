@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=152';
-import * as S from './store.js?v=152';
-import { SYSTEM_PRICE } from './seed.js?v=152';
-import { shiftsText, hoursFor } from './calc.js?v=152';
-import { esc, toast } from './ui.js?v=152';
-import { logEvent } from './zlog.js?v=152';
+import { actions, changes, rerender } from './core.js?v=153';
+import * as S from './store.js?v=153';
+import { SYSTEM_PRICE } from './seed.js?v=153';
+import { shiftsText, hoursFor } from './calc.js?v=153';
+import { esc, toast } from './ui.js?v=153';
+import { logEvent } from './zlog.js?v=153';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -87,20 +87,21 @@ const plural = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : [2, 3, 4].i
 
 // Полоса сверху: слева «+» (добавить комнату), дальше комнаты карточками-превью «стекло»
 // (название, метры, сумма) и «Итог». Выбранная приподнята и обведена цветом комнаты.
+const PEN = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10.8 2.6l2.6 2.6M2.5 13.5l.7-3.2 7.6-7.6 2.6 2.6-7.6 7.6-3.3.6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>';
 function carousel(e, tabs, inner = '') {
   const adding = e.view === 'pick';
   const cards = e.rooms.map((r) => {
     const t = roomTotals(r);
     return `<button type="button" class="o-pv${e.view === r.key ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="o-view" data-key="${r.key}">
-      <b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span>${r.status === 'saved' ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}</button>`;
+      <b class="o-pv__n">${esc(r.name)}</b>${e.view === r.key ? `<span class="o-pen" role="button" aria-label="Переименовать комнату" data-action="o-rename" data-key="${r.key}">${PEN}</span>` : ''}<span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span>${r.status === 'saved' ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}</button>`;
   }).join('');
   const total = e.rooms.length ? (() => { const sum = e.rooms.reduce((a, r) => a + roomTotals(r).total, 0);
     return `<button type="button" class="o-pv o-pv--sum${e.view === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="o-view" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(sum)}<small> ₽</small></span></button>`; })() : '';
   const r = roomOf(e, e.view);
   // Пластина комнаты: сверху палочка цвета комнаты, название, «+ работа» и калькулятор; внутри — поле «Одинаковый объём».
-  const head = tabs && r ? `<section class="f-plate o-rplate" style="--rc:${r.color || '#7c8f8a'}"><div class="o-rhead"><span class="o-rhead__t"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span><span class="o-rhead__b">${tabs}</span></div>${inner}</section>` : '';
+  const head = tabs && r ? `<section class="f-plate o-rplate" style="--rc:${r.color || '#7c8f8a'}"><div class="o-rhead"><span class="o-rhead__t"><b>${esc(r.name)}<span class="o-pen o-pen--h" role="button" aria-label="Переименовать комнату" data-action="o-rename" data-key="${r.key}">${PEN}</span></b><small>${r.floor} этаж</small></span><span class="o-rhead__b">${tabs}</span></div>${inner}</section>` : '';
   return `<div class="o-pvbar"><button type="button" class="o-pv-add${adding ? ' is-open' : ''}" data-action="o-add" aria-label="${adding ? 'Закрыть выбор комнаты' : 'Добавить комнату'}"><span>+</span></button>
-    <div class="o-pvs" id="o-pvs">${cards}${total}</div></div>${head}`;
+    <div class="o-pvs" id="o-pvs">${cards}${total}</div></div>${head}${e.rename ? renameDialog(e) : ''}`;
 }
 
 // ---------- переключатель ----------
@@ -116,14 +117,21 @@ actions['o-start'] = () => { const e = D(); e.picking = true; save(); };
 function pickView(e) {
   // Комната уже есть на этом этаже — плитка горит цветом комнаты, справа корзина (удалить).
   const list = ROOMS.map(([name, color]) => {
-    const has = e.rooms.filter((r) => r.floor === e.floor && (r.base || r.name) === name);
+    const has = e.rooms.filter((r) => r.floor === e.floor && !r.custom && (r.base || r.name) === name);
     return `<div class="o-chip${has.length ? ' is-on' : ''}" style="--rc:${color}"><button type="button" class="o-chip__add" data-action="o-room-add" data-name="${esc(name)}"><i></i><span>${esc(name)}${has.length > 1 ? ` <small>×${has.length}</small>` : ''}</span></button>${has.length ? `<button type="button" class="o-chip__del" data-action="o-room-del" data-key="${has[has.length - 1].key}" aria-label="Удалить ${esc(has[has.length - 1].name)}">${TRASH}</button>` : ''}</div>`;
+  }).join('');
+  // Свои названия (переименованные комнаты) — тоже в списке, их можно добавить ещё раз.
+  const std = new Set(ROOMS.map(([n]) => n));
+  const customs = [...new Map(e.rooms.filter((r) => r.custom && !std.has(r.name)).map((r) => [r.name.replace(/ \d+$/, ''), r])).entries()];
+  const own = customs.map(([name, r0]) => {
+    const has = e.rooms.filter((r) => r.floor === e.floor && (r.name === name || r.name.startsWith(name + ' ')));
+    return `<div class="o-chip o-chip--own${has.length ? ' is-on' : ''}" style="--rc:${r0.color || '#7c8f8a'}"><button type="button" class="o-chip__add" data-action="o-room-add" data-name="${esc(name)}"><i></i><span>${esc(name)}${has.length > 1 ? ` <small>×${has.length}</small>` : ''}</span></button>${has.length ? `<button type="button" class="o-chip__del" data-action="o-room-del" data-key="${has[has.length - 1].key}" aria-label="Удалить ${esc(has[has.length - 1].name)}">${TRASH}</button>` : ''}</div>`;
   }).join('');
   return `${carousel(e)}
     <section class="f-plate o-sheet o-sheet--chips">
       <p class="o-chips__t">${e.rooms.length ? 'Какую комнату добавить?' : 'В какой комнате вы стоите?'}</p>
       <div class="o-floors" role="tablist">${[1, 2, 3].map((f) => `<button type="button" role="tab" aria-selected="${f === e.floor}" class="o-floor${f === e.floor ? ' is-on' : ''}" data-action="o-floor" data-f="${f}">${f} этаж</button>`).join('')}</div>
-      <div class="o-chips">${list}</div>
+      <div class="o-chips">${list}${own}</div>
     </section>`;
 }
 
@@ -242,6 +250,34 @@ function totalView(e) {
 }
 actions['o-sum-toggle'] = (el) => { const k = el.dataset.key; if (openSum.has(k)) openSum.delete(k); else openSum.add(k); rerender(); };
 
+// Переименование комнаты (карандаш рядом с названием).
+const RENAME_HINTS = { 'Спальня': ['Спальня для гостей', 'Спальня родителей', 'Детская'], 'Санузел': ['Ванная', 'Гостевой санузел', 'Туалет'],
+  'Гостиная': ['Зал', 'Гостиная-столовая'], 'Детская': ['Детская Маши', 'Игровая'], 'Кабинет': ['Мастерская', 'Библиотека'], 'Кухня': ['Кухня-гостиная'] };
+function renameDialog(e) {
+  const r = roomOf(e, e.rename.key); if (!r) return '';
+  const hints = (RENAME_HINTS[r.base] || []).filter((h) => h !== r.name);
+  return `<div class="o-overlay" data-action="o-rename-no"></div>
+    <div class="f-plate o-dialog o-rename" role="dialog" aria-labelledby="o-ren-t" style="--rc:${r.color || '#7c8f8a'}">
+      <p class="o-dialog__t" id="o-ren-t">Название комнаты</p>
+      <input id="o-ren-in" class="o-ren__in" type="text" data-change="o-rename-save" value="${esc(r.name)}" maxlength="40" autocomplete="off" aria-label="Название комнаты">
+      ${hints.length ? `<div class="o-ren__hints">${hints.map((h) => `<button type="button" class="o-ren__hint" data-action="o-rename-hint" data-v="${esc(h)}">${esc(h)}</button>`).join('')}</div>` : ''}
+      <div class="f-btn-row"><button type="button" class="f-btn" data-action="o-rename-no">Отмена</button><button type="button" class="f-btn f-btn--lit" data-action="o-rename-yes">Сохранить</button></div>
+    </div>`;
+}
+// Окно открывается без клавиатуры: сразу видны подсказки и «Сохранить»; нажали на поле — клавиатура, её «OK» сохраняет.
+actions['o-rename'] = (el) => { const e = D(); e.rename = { key: el.dataset.key }; save(); };
+actions['o-rename-no'] = () => { D().rename = null; save(); };
+// «OK» на клавиатуре приложения — тоже сохранить.
+changes['o-rename-save'] = () => { if (D().rename) actions['o-rename-yes'](); };
+actions['o-rename-hint'] = (el) => { const i = document.getElementById('o-ren-in'); if (i) { i.value = el.dataset.v; i.focus(); } };
+actions['o-rename-yes'] = () => {
+  const e = D(); const r = e.rename && roomOf(e, e.rename.key); e.rename = null;
+  const v = (document.getElementById('o-ren-in')?.value || '').trim();
+  if (r && v && v !== r.name) { r.name = v; r.custom = true; }
+  save();
+};
+document.addEventListener('keydown', (ev) => { if (ev.target && ev.target.id === 'o-ren-in' && ev.key === 'Enter') { ev.preventDefault(); actions['o-rename-yes'](); } });
+
 function confirmDialog(c) {
   return `<div class="o-overlay" data-action="o-confirm-no"></div>
     <div class="f-plate o-dialog" role="alertdialog" aria-labelledby="o-dlg-t">
@@ -330,13 +366,23 @@ actions['o-add'] = () => {
   save(); window.scrollTo(0, 0);
 };
 // Выбрали комнату — она встаёт в полосу и сразу открывается со списком работ.
-// Вторая такая же комната получает номер: «Спальня 2».
+// Номера: одна спальня — «Спальня»; появилась вторая — первая становится «Спальня 1», новая «Спальня 2».
+// Дальше — следующий номер после самого большого. При удалении ничего не перенумеровывается; название можно поменять карандашом.
+function nextRoomName(e, base) {
+  const re = new RegExp('^' + base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' (\\d+)$');
+  const taken = e.rooms.filter((r) => r.name === base || re.test(r.name));
+  if (!taken.length) return base;                                   // такого названия ещё нет
+  const plain = taken.find((r) => r.name === base);
+  if (plain && !plain.custom) plain.name = `${base} 1`;              // «Спальня» → «Спальня 1»
+  const max = taken.reduce((m, r) => { const k = re.exec(r.name); return k ? Math.max(m, +k[1]) : Math.max(m, 1); }, 0);
+  return `${base} ${max + 1}`;
+}
 actions['o-room-add'] = (el) => {
   const e = D();
   const base = el.dataset.name;
-  const same = e.rooms.filter((r) => r.base === base || r.name === base).length;
-  const color = (ROOMS.find((x) => x[0] === base) || [])[1];
-  const r = { key: 'r' + Math.random().toString(36).slice(2, 8), floor: e.floor, base, name: same ? `${base} ${same + 1}` : base, color, svcs: [], status: 'new', panel: 'services', pick: [] };
+  const like = e.rooms.find((x) => x.name === base || (x.base || x.name) === base);
+  const color = (ROOMS.find((x) => x[0] === base) || [])[1] || (like && like.color);
+  const r = { key: 'r' + Math.random().toString(36).slice(2, 8), floor: e.floor, base, name: nextRoomName(e, base), color, svcs: [], status: 'new', panel: 'services', pick: [] };
   e.rooms.push(r);
   slide = 'next'; e.view = r.key;
   save(); window.scrollTo(0, 0);
@@ -487,8 +533,6 @@ export function measurementRoomPicker(d, s) {
 actions['mw-floor'] = el => { const d=S.get().oformit[S.draftKey()]; d.sm.floor=Number(el.dataset.f); S.save(); rerender(); };
 actions['mw-add-room'] = el => {
   const d=S.get().oformit[S.draftKey()],e=est(d),s=d.sm;
-  const existing=e.rooms.find(r=>(r.base||r.name)===el.dataset.name&&r.floor===(s.floor||1));
-  if(existing){s.view=existing.key;S.save();rerender();return;}
   e.floor=s.floor||1;
   actions['o-room-add'](el);
   s.view=e.view;S.save();rerender();

@@ -1155,3 +1155,18 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .bd-navslot .f-icon-btn { width: 44px; height: 44px; flex: none; }
 .bd-navfree { flex: 1; }
 .bd-clname { display: flex; flex-direction: column; gap: 2px; } .bd-clname b { font: 700 20px/24px var(--font-body); color: #fff; } .bd-clname small { font: 400 12.5px/16px var(--font-body); color: rgba(237, 242, 232, 0.65); }
+
+/* Карандаш рядом с названием комнаты (плитка в полосе и шапка комнаты) и окно «Название комнаты» */
+.o-pen { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-left: 4px; border-radius: 6px; vertical-align: -5px; cursor: pointer;
+  color: rgba(237, 242, 232, 0.8); background: rgba(9, 18, 19, 0.35); border: 0.7px solid rgba(204, 222, 209, 0.35); }
+.o-pen svg { width: 13px; height: 13px; }
+.o-pv .o-pen { position: absolute; top: 6px; right: 6px; z-index: 2; margin: 0; }
+.o-pv.is-on .o-pv__n { padding-right: 24px; }
+.o-pen--h { width: 24px; height: 24px; margin-left: 8px; vertical-align: -3px; }
+.o-rename { gap: 12px; }
+.o-ren__in { width: 100%; height: 46px; padding: 0 12px; border-radius: 10px; border: 1.5px solid var(--rc); background: #213839; color: #fff;
+  font: 600 17px/1 var(--font-body); outline: none; box-sizing: border-box; }
+.o-ren__hints { display: flex; flex-wrap: wrap; gap: 6px; }
+.o-ren__hint { height: 32px; padding: 0 10px; border-radius: 16px; border: 0.7px solid rgba(204, 222, 209, 0.45); background: rgba(9, 18, 19, 0.35);
+  color: #edf0e7; font: 500 13px/1 var(--font-body); cursor: pointer; }
+.o-dialog.o-rename { top: 84px; transform: none; }
