@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=195';
-import * as S from './store.js?v=195';
-import { renderOformit, oformitDraft } from './oformit.js?v=195';
-import { roomTotals, svcInfo } from './ocenka.js?v=195';
-import { smetaTotals } from './zakaz.js?v=195';
-import { bookedDays } from './grafik.js?v=195';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=195';
-import { esc, toast } from './ui.js?v=195';
+import { actions, rerender, go } from './core.js?v=196';
+import * as S from './store.js?v=196';
+import { renderOformit, oformitDraft } from './oformit.js?v=196';
+import { roomTotals, svcInfo } from './ocenka.js?v=196';
+import { smetaTotals } from './zakaz.js?v=196';
+import { bookedDays } from './grafik.js?v=196';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=196';
+import { esc, toast } from './ui.js?v=196';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -440,23 +440,27 @@ export function renderHome() {
   // ── Мастер в цифрах: рейтинг, записанный опыт, рулоны, квадратура ──
   // Опыт — сколько разных обоев (штрихкодов) мастер описал; рулоны и м² — накоплено по заказам (прошлое — примерные данные).
   const meId = S.me().id;
-  const expN = new Set(S.get().reviews.filter((v) => v.authorId === meId).map((v) => v.barcode)).size;
-  const rollsNow = Object.keys(DEMO).reduce((a, no) => { const o = homeOrder(no); return a + (o.mat ? Object.values(o.mat.rooms || {}).flatMap((r) => r.items || []).reduce((b, it) => b + (Number(it.rolls) || 0), 0) : 0); }, 0);
-  const rolls = 1284 + rollsNow;
-  const area = 3862;
+  const expN = S.get().reviews.filter((v) => v.authorId === meId).length;   // записей опыта о материалах
+  const area = 3862;                                                          // поклеено, м² (прошлое — примерные данные)
   const rating = 4.9;
-  const stars = [1, 2, 3, 4, 5].map((i) => `<i class="${rating >= i - 0.25 ? 'on' : ''}">★</i>`).join('');
-  const proHtml = `<section class="h-pro"><div class="h-pro__rate"><b>${rating.toFixed(1)}</b><span class="h-stars">${stars}</span><small>рейтинг мастера</small></div>
-    <div class="h-pro__stats">
-      <span class="h-st"><b>${expN}</b><small>опыт записан по&nbsp;обоям</small></span>
-      <span class="h-st"><b>${fmt(rolls)}</b><small>рулонов поклеено</small></span>
-      <span class="h-st"><b>${fmt(area)}<em> м²</em></b><small>поклеено всего</small></span></div></section>`;
+  const hr = now.getHours();
+  const hello = hr < 5 ? 'Доброй ночи' : hr < 12 ? 'Доброе утро' : hr < 18 ? 'Добрый день' : 'Добрый вечер';
+  const fullName = S.me().name || '';
+  const initials = fullName.split(' ').map((w) => w[0] || '').slice(0, 2).join('');
+  const plural = (n, a1, a2, a5) => (n % 10 === 1 && n % 100 !== 11 ? a1 : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? a2 : a5);
+  const proHtml = `<section class="h-me">
+    <div class="h-me__glow" aria-hidden="true"></div>
+    <div class="h-me__top"><span class="h-ava"><b>${esc(initials)}</b></span>
+      <span class="h-me__hi"><small>${hello},</small><b>${esc(fullName.split(' ')[0])}</b><em>${WDF[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</em></span>
+      <span class="h-rate">★ ${rating.toFixed(1)}</span></div>
+    <div class="h-me__stats">
+      <span class="h-me__st"><small>Опыт</small><b>${expN}</b><em>${plural(expN, 'запись', 'записи', 'записей')} о материалах</em></span>
+      <span class="h-me__st"><small>Поклеено</small><b>${fmt(area)}<i> м²</i></b><em>за всё время</em></span></div></section>`;
 
   // ── Шапка ──
   const head = `<div class="h-bar"><span></span>
       <span class="h-bar__r"><span class="h-icb h-bell" aria-label="Требует действия: ${att.length}">${HI.bell}${att.length ? `<b>${att.length}</b>` : ''}</span>
       <button type="button" class="h-icb h-new" data-action="go" data-to="oformit" aria-label="Новый заказ">${PLUS}<span>Заказ</span></button></span></div>
-    <header class="h-head"><small>${WDF[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</small><h1>${esc((S.me().name || '').split(' ')[0])}</h1></header>
     ${proHtml}`;
 
   // ── Главная карточка: сегодняшний выезд ──
