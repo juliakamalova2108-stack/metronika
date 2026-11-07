@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=233';
-import * as S from './store.js?v=233';
-import { renderOformit, oformitDraft } from './oformit.js?v=233';
-import { roomTotals, svcInfo } from './ocenka.js?v=233';
-import { smetaTotals } from './zakaz.js?v=233';
-import { bookedDays } from './grafik.js?v=233';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=233';
-import { esc, toast } from './ui.js?v=233';
+import { actions, rerender, go } from './core.js?v=234';
+import * as S from './store.js?v=234';
+import { renderOformit, oformitDraft } from './oformit.js?v=234';
+import { roomTotals, svcInfo } from './ocenka.js?v=234';
+import { smetaTotals } from './zakaz.js?v=234';
+import { bookedDays } from './grafik.js?v=234';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=234';
+import { esc, toast } from './ui.js?v=234';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -527,10 +527,23 @@ export function renderHome() {
         <p>До «Мастера» — быстро, до «Профи» — сложнее, со «Знатока» — очень сложно. «Легенда» — 1000 описанных обоев.</p></div></section>`;
   };
 
+  // Карта на главной: стекло, номер ранга за стеклом, живой блик (вариант «03 за стеклом»)
+  const glassCard = (i) => { const r = RANKS[i]; const t = r[2];
+    return `<article class="gc gc--t${t}">
+      <i class="gc__blob gc__blob--a"></i><i class="gc__blob gc__blob--b"></i>
+      <div class="gc__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</div>
+      <div class="gc__glass"><div class="gc__sweep"></div>
+        <div class="gc__top"><span class="gc__brand">Metronica</span><button type="button" class="gc__tier" data-action="home-ranks" aria-label="Открыть ранги">${TIERS[t - 1]} · ${i + 1}/${RANKS.length} ›</button></div>
+        <h3 class="gc__name">${esc(r[0])}</h3>
+        <div class="gc__foot">
+          <div><small>Мастер</small><b>${esc(fullName)}</b></div>
+          <div><small>Поклеено</small><b>${fmt(area)} м²</b></div>
+          <div><small>Опыт</small><b>${expN}</b></div></div></div></article>`; };
+
   // ── Главная: металлическая карта текущего ранга — сверху; под ней опыт, квадратура и путь до следующего ранга ──
   const meHtml = `<section class="h-hero2">
     <p class="h-hi">${hello}, ${esc(fullName.split(' ')[0])}<small>${WDF[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</small></p>
-    <div class="h-cardwrap">${card(ri, 'l', true)}</div>
+    <div class="h-cardwrap h-cardwrap--glass">${glassCard(ri)}</div>
     <div class="h-stats2" hidden>
       <span><b>${expN}</b><small>${plural(expN, 'запись', 'записи', 'записей')} опыта</small></span>
       <span><b>${fmt(area)}<i> м²</i></b><small>поклеено</small></span>

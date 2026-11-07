@@ -1732,3 +1732,29 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .mc__kpi { display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 4px; }
 .mc__kpi b { font: 800 17px/1 Manrope, Inter, sans-serif; color: var(--ink); text-shadow: 0 1px 0 rgba(0,0,0,.4); white-space: nowrap; }
 .mc__kpi b i { font-style: normal; font-size: 11px; opacity: .8; }
+
+/* ── Карта на главной: «03 за стеклом» ── */
+.h-cardwrap--glass { perspective: none; padding: 6px 0 8px; }
+.gc { --g1: #5ee3a0; --g2: #2f7fd6; container-type: inline-size; position: relative; width: 100%; max-width: 380px; aspect-ratio: 1.586; isolation: isolate; }
+.gc--t2 { --g1: #7ee2d0; --g2: #3d6fe0; } .gc--t3 { --g1: #f2c66d; --g2: #d8634a; }
+.gc--t4 { --g1: #c7a7f5; --g2: #4a6fe0; } .gc--t5 { --g1: #ffd98a; --g2: #c48a2a; }
+.gc__blob { position: absolute; border-radius: 50%; filter: blur(34px); z-index: -2; }
+.gc__blob--a { width: 52%; height: 80%; left: 2%; top: 4%; background: var(--g1); opacity: .28; }
+.gc__blob--b { width: 56%; height: 86%; right: -2%; bottom: -8%; background: var(--g2); opacity: .4; }
+.gc__num { position: absolute; right: 3%; top: 8%; z-index: -1; font: 800 54cqw/.8 Unbounded, Manrope, sans-serif; letter-spacing: -.07em; color: var(--g1); opacity: .85; text-shadow: 0 0 40px var(--g1); }
+.gc__glass { position: absolute; inset: 0; overflow: hidden; border-radius: 24px; padding: 20px 22px; display: flex; flex-direction: column; color: #fff;
+  background: rgba(255,255,255,.08); -webkit-backdrop-filter: blur(9px) saturate(150%); backdrop-filter: blur(9px) saturate(150%);
+  border: 1px solid rgba(255,255,255,.22); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 24px 48px -20px rgba(0,0,0,.7); }
+.gc__glass::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .09; mix-blend-mode: overlay;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E"); }
+.gc__sweep { position: absolute; inset: -40% -60%; pointer-events: none; background: linear-gradient(115deg, transparent 42%, rgba(255,255,255,.28) 50%, transparent 58%); animation: gc-sw 5s ease-in-out infinite; }
+@keyframes gc-sw { 0%, 15% { transform: translateX(-45%); } 70%, 100% { transform: translateX(45%); } }
+@media (prefers-reduced-motion: reduce) { .gc__sweep { animation: none; opacity: 0; } }
+.gc__top { position: relative; display: flex; justify-content: space-between; align-items: center; font: 700 13px Manrope, sans-serif; }
+.gc__tier { all: unset; cursor: pointer; font: 700 12px Manrope, sans-serif; padding: 6px 10px; margin: -6px -8px -6px 0; border-radius: 20px; background: rgba(255,255,255,.14); }
+.gc__tier:focus-visible { outline: 2px solid #fff; }
+.gc__name { position: relative; margin: auto 0 0; font: 800 32px/1 Manrope, sans-serif; letter-spacing: -.03em; color: #fff; }
+.gc__foot { position: relative; display: flex; gap: 20px; margin-top: 12px; }
+.gc__foot small { display: block; font: 600 9.5px Manrope, sans-serif; letter-spacing: .12em; text-transform: uppercase; opacity: .6; }
+.gc__foot b { font: 800 14px Manrope, sans-serif; white-space: nowrap; }
+.gc__foot > div:first-child { min-width: 0; } .gc__foot > div:first-child b { display: block; overflow: hidden; text-overflow: ellipsis; }
