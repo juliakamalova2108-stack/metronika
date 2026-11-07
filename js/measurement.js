@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»). Функции и раскладка — как у Codex;
 // вид — по согласованному макету «Замер — осовременить формы»: графитовый лист с закладками-каскадом, парящие плашки площадей,
 // стена-миллиметровка с зелёной штриховкой, кнопки под своими колонками, размеры в сантиметрах, полёт ярлыка.
-import {actions,changes,rerender,afterRender} from './core.js?v=141';
-import * as S from './store.js?v=141';
-import {oformitDraft} from './oformit.js?v=141';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=141';
-import {esc} from './ui.js?v=141';
+import {actions,changes,rerender,afterRender} from './core.js?v=142';
+import * as S from './store.js?v=142';
+import {oformitDraft} from './oformit.js?v=142';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=142';
+import {esc} from './ui.js?v=142';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -38,45 +38,46 @@ const light=c=>{const m=/^#?([0-9a-f]{6})$/i.exec(c||'');if(!m)return '#cfe0ff';
 // Лист стены: выбранная закладка и пластина — один фон (.gt-sheet с вырезом по силуэту), остальные закладки — позади.
 const H=44, SL=26, SEL_W=120, SUM_W=76, ROW_W=358;
 function tabs(r,color){
+  // Закладки стен листаются вбок: ширина закладок постоянная, «+» идёт за последней стеной,
+  // «Итог» закреплён справа. Выбранная закладка нарисована цветом листа и сливается с ним.
   const n0=r.walls.length, sel=r.total?-1:r.active;
-  const room=ROW_W-SUM_W-8-SEL_W-44;                     // место под остальные стены
-  const step=n0>1?Math.max(18,Math.min(44,room/(n0-1))):44;
-  const w=i=>i===sel?SEL_W:step+SL-2;
+  const TW=62, PW=64;                                    // ширина невыбранной закладки и «+»
+  const w=i=>i===sel?SEL_W:TW;
   const xs=[];let x=0;for(let i=0;i<n0;i++){xs.push(x);x+=w(i)-SL+2;}
-  const plusX=x, plusW=64, leftW=plusX+plusW+2;
-  const flag=(x0,ww)=>`M${x0} ${H} L${x0} 4 Q${x0} 0 ${x0+4} 0 L${x0+ww-SL} 0 L${x0+ww} ${H} Z`;
-  // задние закладки: дальше от выбранной — ниже по слоям
+  const plusX=x, innerW=plusX+PW+2;
+  const flag=(x0,ww)=>`M${x0+.5} ${H} L${x0+.5} 4.5 Q${x0+.5} .5 ${x0+4.5} .5 L${x0+ww-SL} .5 L${x0+ww-.5} ${H} Z`;
   const order=[...Array(n0).keys()].filter(i=>i!==sel).sort((a,b)=>Math.abs(b-(sel<0?n0:sel))-Math.abs(a-(sel<0?n0:sel)));
-  const back=`<path d="${flag(plusX,plusW)}" fill="#26353a" stroke="rgba(255,255,255,.18)"/>`+order.map(i=>`<path d="${flag(xs[i],w(i))}" fill="#26353a" stroke="rgba(255,255,255,.18)"/>`).join('');
+  const back=`<path class="gt-back" d="${flag(plusX,PW)}"/>`+order.map(i=>`<path class="gt-back" d="${flag(xs[i],w(i))}"/>`).join('');
   const lite=`<defs><linearGradient id="gtLite" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${color}"/><stop offset=".45" stop-color="${light(color)}"/><stop offset="1" stop-color="${color}" stop-opacity=".25"/></linearGradient></defs>`;
-  const selLines=sel<0?'':`<path d="M${xs[sel]+.5} ${H} L${xs[sel]+.5} 4.5" stroke="rgba(255,255,255,.18)" fill="none"/><path d="M${xs[sel]+.8} 4.5 Q${xs[sel]+.8} .8 ${xs[sel]+4.5} .8 L${xs[sel]+SEL_W-SL} .8 L${xs[sel]+SEL_W} ${H}" fill="none" stroke="url(#gtLite)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`;
-  const btn=(i)=>{const l=i===0||i===sel?xs[i]:Math.max(xs[i],xs[i-1]+w(i-1)-SL*.5);const rr=xs[i]+w(i)-SL*.55;
+  // верхняя кромка листа под закладками; под выбранной закладкой разрыв
+  const base=sel<0?`<path class="gt-base" d="M0 ${H-.5} L${innerW} ${H-.5}"/>`:`<path class="gt-base" d="M0 ${H-.5} L${xs[sel]} ${H-.5} M${xs[sel]+SEL_W} ${H-.5} L${innerW} ${H-.5}"/>`;
+  const front=sel<0?'':`<path class="gt-sel" d="M${xs[sel]} ${H+1} L${xs[sel]} 4 Q${xs[sel]} 0 ${xs[sel]+4} 0 L${xs[sel]+SEL_W-SL} 0 L${xs[sel]+SEL_W} ${H+1} Z"/>`+
+    `<path class="gt-hl" d="M${xs[sel]+.8} ${H} L${xs[sel]+.8} 4.5 Q${xs[sel]+.8} .8 ${xs[sel]+4.5} .8 L${xs[sel]+SEL_W-SL} .8 L${xs[sel]+SEL_W} ${H}" fill="none" stroke="url(#gtLite)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const btn=i=>{const l=i===0||i===sel?xs[i]:Math.max(xs[i],xs[i-1]+w(i-1)-SL*.5);const rr=xs[i]+w(i)-SL*.55;
     return `<button type="button" class="gt-b${i===sel?' on':''}" data-action="mw-wall" data-i="${i}" style="left: ${Math.round(l)}px; width: ${Math.max(14,Math.round(rr-l))}px">${i===sel?'Стена ':''}${i+1}</button>`;};
   const plusL=n0?xs[n0-1]+w(n0-1)-SL*.5:0;
-  const left=`<div class="gt-left" style="width: ${leftW}px"><svg class="gt-svg" width="${leftW}" height="${H}" viewBox="0 0 ${leftW} ${H}" aria-hidden="true">${back}</svg>`+
-    `<svg class="gt-lines" width="${leftW}" height="${H}" viewBox="0 0 ${leftW} ${H}" aria-hidden="true">${lite}${selLines}</svg>`+
+  const left=`<div class="gt-scroll"><div class="gt-inner" style="width: ${innerW}px"><svg class="gt-svg" width="${innerW}" height="${H+1}" viewBox="0 0 ${innerW} ${H+1}" aria-hidden="true">${lite}${back}${base}${front}</svg>`+
     r.walls.map((_,i)=>btn(i)).join('')+
-    `<button type="button" class="gt-b add" data-action="mw-add-wall" aria-label="Добавить стену" style="left: ${Math.round(plusL)}px; width: ${Math.round(plusX+plusW-SL*.55-plusL)}px">+</button></div>`;
-  const sumPath=`M0 ${H} L${SL} 0 L${SUM_W-4} 0 Q${SUM_W} 0 ${SUM_W} 4 L${SUM_W} ${H} Z`;
-  const right=`<div class="gt-right" style="width: ${SUM_W}px">${r.total?`<svg class="gt-lines" width="${SUM_W}" height="${H}" viewBox="0 0 ${SUM_W} ${H}" aria-hidden="true">${lite}<path d="M.5 ${H} L${SL+.5} .8 L${SUM_W-4.5} .8 Q${SUM_W-.8} .8 ${SUM_W-.8} 4.5" fill="none" stroke="url(#gtLite)" stroke-width="1.6" stroke-linejoin="round"/></svg>`:`<svg class="gt-svg" width="${SUM_W}" height="${H}" viewBox="0 0 ${SUM_W} ${H}" aria-hidden="true"><path d="${sumPath}" fill="#26353a" stroke="rgba(255,255,255,.18)"/></svg>`}<button type="button" class="gt-b${r.total?' on':''}" data-action="mw-total" style="left: ${Math.round(SL*.6)}px; width: ${Math.round(SUM_W-SL*.6)}px">Итог</button></div>`;
-  // силуэт листа: пластина + выбранная закладка (слева) или «Итог» (справа)
-  // Углы листа под закладками прямые: крайние закладки («1» и «Итог») стоят на листе вровень и не обрезаются
-  const arc=(right)=>[right?`100% ${H}px`:`0px ${H}px`];
-  const arcOld=(right)=>[0,15,30,45,60,75,90].map(a=>{const t=a*Math.PI/180,dx=24-24*Math.sin(t),dy=24-24*Math.cos(t);return right?`calc(100% - ${dx.toFixed(2)}px) ${(H+dy).toFixed(2)}px`:`${(24-24*Math.cos(t)).toFixed(2)}px ${(H+24-24*Math.sin(t)).toFixed(2)}px`;});
-  let pts, glow, radius, edges;
-  if(sel>=0){
-    const x0=xs[sel];
-    pts=[...(x0>0?[...arc(false),`${x0}px ${H}px`]:[]), `${x0}px 4px`,`${x0+1.2}px 1.2px`,`${x0+4}px 0`,`${x0+SEL_W-SL}px 0`,`${x0+SEL_W}px ${H}px`,...arc(true),'100% 100%','0 100%'];
-    glow=`${x0+41}px ${H}px`; radius='0 0 24px 24px';
-    edges=(x0>0?`<i class="gt-edge" style="left: -1px; width: ${x0+1}px; border-left-width: 1px; border-top-left-radius: 0"></i>`:'')+`<i class="gt-edge" style="left: ${x0+SEL_W-1}px; right: -1px; border-right-width: 1px; border-top-right-radius: 0"></i>`;
-  } else {
-    pts=[...arc(false),`calc(100% - ${SUM_W}px) ${H}px`,`calc(100% - ${SUM_W-SL}px) 0`,`calc(100% - 4px) 0`,`calc(100% - 1.2px) 1.2px`,'100% 4px','100% 100%','0 100%'];
-    glow=`calc(100% - 38px) ${H}px`; radius='0 0 24px 24px';
-    edges=`<i class="gt-edge" style="left: -1px; right: ${SUM_W-1}px; border-left-width: 1px; border-top-left-radius: 0"></i>`;
-  }
-  const sheet=`<i class="gt-sheet" aria-hidden="true" style="clip-path: polygon(${pts.join(', ')}); background: radial-gradient(circle 260px at ${glow}, color-mix(in srgb, ${color} 42%, transparent), transparent), linear-gradient(180deg, #2f3f41 0, #2f3f41 ${H}px, #243133 340px, #1b2628 100%)"></i>`;
-  return {html:sheet+`<nav class="gt-tabs" aria-label="Стены">${left}${right}</nav>`, radius, edges};
+    `<button type="button" class="gt-b add" data-action="mw-add-wall" aria-label="Добавить стену" style="left: ${Math.round(plusL)}px; width: ${Math.round(plusX+PW-SL*.55-plusL)}px">+</button></div></div>`;
+  // «Итог»: левый край прямой со скруглённым углом — закладки уходят под него, справа — край листа
+  const sumD=`M.5 ${H} L.5 6.5 Q.5 .5 6.5 .5 L${SUM_W-6.5} .5 Q${SUM_W-.5} .5 ${SUM_W-.5} 6.5 L${SUM_W-.5} ${H}`;
+  const right=`<div class="gt-right${r.total?' on':''}" style="width: ${SUM_W}px"><svg class="gt-svg" width="${SUM_W}" height="${H+1}" viewBox="0 0 ${SUM_W} ${H+1}" aria-hidden="true">`+
+    (r.total?`<path class="gt-sel" d="M0 ${H+1} L0 6 Q0 0 6 0 L${SUM_W-6} 0 Q${SUM_W} 0 ${SUM_W} 6 L${SUM_W} ${H+1} Z"/><path class="gt-hl" d="${sumD}" fill="none" stroke="url(#gtLite2)" stroke-width="1.6" stroke-linejoin="round"/>${lite.replace('gtLite','gtLite2')}`
+      :`<path class="gt-back" d="${sumD} Z"/><path class="gt-base" d="M0 ${H-.5} L${SUM_W} ${H-.5}"/>`)+
+    `</svg><button type="button" class="gt-b${r.total?' on':''}" data-action="mw-total" style="left: 0; width: ${SUM_W}px">Итог</button></div>`;
+  return {html:`<i class="gt-sheet" aria-hidden="true"></i><nav class="gt-tabs" aria-label="Стены">${left}${right}</nav>`, radius:'0 0 24px 24px', edges:''};
 }
+
+// Прокрутка закладок: сохраняем положение между перерисовками; новую выбранную закладку показываем целиком.
+let tabScroll=0, tabSelKey='';
+afterRender.push(()=>{
+  const sc=document.querySelector('.mw .gt-scroll');if(!sc)return;
+  const on=sc.querySelector('.gt-b.on');const key=(on&&on.dataset.i)||'total';
+  sc.scrollLeft=tabScroll;
+  if(on&&key!==tabSelKey){const l=on.offsetLeft,r2=l+on.offsetWidth+30;if(l<sc.scrollLeft+8||r2>sc.scrollLeft+sc.clientWidth)sc.scrollLeft=Math.max(0,l-(sc.clientWidth-on.offsetWidth)/2);}
+  tabSelKey=key;tabScroll=sc.scrollLeft;
+  sc.addEventListener('scroll',()=>{tabScroll=sc.scrollLeft;},{passive:true});
+});
 
 // ---------- итог комнаты (как у Codex) ----------
 function summary(r,edges=''){
