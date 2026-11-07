@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=184';
-import * as S from './store.js?v=184';
-import { CHANNELS } from './seed.js?v=184';
-import { esc } from './ui.js?v=184';
-import { logEvent } from './zlog.js?v=184';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=184';
+import { actions, rerender, go } from './core.js?v=185';
+import * as S from './store.js?v=185';
+import { CHANNELS } from './seed.js?v=185';
+import { esc } from './ui.js?v=185';
+import { logEvent } from './zlog.js?v=185';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=185';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=184';
-import { renderSchedule, scheduleState } from './grafik.js?v=184';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=185';
+import { renderSchedule, scheduleState } from './grafik.js?v=185';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -112,7 +112,7 @@ export function renderOformit(mode = 'oformit', opts = {}) {
   const d = draft();
   const keepTab = tab; // свой раздел «Оформить заказ» не сбиваем
   if (opts.only) tab = opts.only;
-  const tabs = opts.only ? ALL_TABS.filter(([k]) => k === opts.only) : mode === 'oformit' ? TABS : ALL_TABS; // «Оформить заказ» — 4 вкладки, «Текущий заказ» — все разделы «Выездов»
+  const tabs = opts.only ? ALL_TABS.filter(([k]) => k === opts.only) : mode === 'oformit' ? TABS : ALL_TABS; // «Сущность» (бывш. «Оформить заказ») — все разделы, «Текущий заказ» — все разделы «Выездов»
   if (!tabs.some(([k]) => k === tab)) tab = tabs[0][0];
   const body = tab === 'channel' ? channelPlate(d)
     : tab === 'estimate' ? renderEstimate(d)
