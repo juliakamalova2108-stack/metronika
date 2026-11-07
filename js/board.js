@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=190';
-import * as S from './store.js?v=190';
-import { renderOformit, oformitDraft } from './oformit.js?v=190';
-import { roomTotals, svcInfo } from './ocenka.js?v=190';
-import { smetaTotals } from './zakaz.js?v=190';
-import { bookedDays } from './grafik.js?v=190';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=190';
-import { esc, toast } from './ui.js?v=190';
+import { actions, rerender, go } from './core.js?v=191';
+import * as S from './store.js?v=191';
+import { renderOformit, oformitDraft } from './oformit.js?v=191';
+import { roomTotals, svcInfo } from './ocenka.js?v=191';
+import { smetaTotals } from './zakaz.js?v=191';
+import { bookedDays } from './grafik.js?v=191';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=191';
+import { esc, toast } from './ui.js?v=191';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -438,7 +438,7 @@ export function renderHome() {
   });
 
   // ── Шапка ──
-  const head = `<div class="h-bar"><button type="button" class="h-icb" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>
+  const head = `<div class="h-bar"><span></span>
       <span class="h-bar__r"><span class="h-icb h-bell" aria-label="Требует действия: ${att.length}">${HI.bell}${att.length ? `<b>${att.length}</b>` : ''}</span>
       <button type="button" class="h-icb h-new" data-action="go" data-to="oformit" aria-label="Новый заказ">${PLUS}<span>Заказ</span></button></span></div>
     <header class="h-head"><small>${WDF[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</small><h1>${esc((S.me().name || '').split(' ')[0])}</h1></header>`;
@@ -524,7 +524,8 @@ export function renderHome() {
     ${tasks.length ? tasks.map(({ t, no }) => `<button type="button" class="h-task${t.done ? ' is-done' : ''}" data-action="home-task" data-no="${no}" data-id="${esc(t.id)}"><i>${t.done ? ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>') : ''}</i><span>${esc(t.text)}<small>№${no} · ${esc(short(CL[no].n))}</small></span></button>`).join('') : '<p class="h-free">На сегодня задач нет</p>'}</section>`;
 
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
-    <div class="h-page">${head}${heroHtml}${attHtml}${weekHtml}${moneyHtml}${stagesHtml}${tasksHtml}</div>`;
+    <div class="h-page">${head}${heroHtml}${attHtml}${weekHtml}${moneyHtml}${stagesHtml}${tasksHtml}</div>
+    <button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
 }
 actions['home-day'] = (el) => { homeDay = Number(el.dataset.off); rerender(); };
 actions['home-task'] = (el) => { const o = homeOrder(el.dataset.no); const t = (o.tasks || []).find((x) => x.id === el.dataset.id); if (!t) return;
