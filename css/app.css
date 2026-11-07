@@ -379,3 +379,29 @@ body.is-auth .app { padding-bottom: 0; }
 .gl-grid { gap: 6px; }
 .gl-ph { aspect-ratio: 1; border-radius: 10px; }
 .gl-ph--big { aspect-ratio: 3 / 4; }
+
+/* ── Меню: ровно пол-экрана, кнопки с иконками ── */
+.drawer__panel { width: 50vw !important; min-width: 0; padding: calc(18px + env(safe-area-inset-top)) 10px 16px !important; gap: 14px !important;
+  background: linear-gradient(180deg, rgba(44,66,67,.96), rgba(18,32,33,.98)) !important; -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  border-right: 1px solid rgba(214,229,194,.14) !important; border-radius: 0 26px 26px 0; }
+.brand--mini { padding: 4px 0 6px; gap: 8px; }
+.brand--mini .brand__sphere { width: 52px; height: 52px; }
+.brand--mini .brand__word { font-size: 12px; letter-spacing: .28em; }
+.drawer__list { display: flex; flex-direction: column; gap: 4px; }
+.drawer__item { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 10px; border-radius: 14px;
+  font: 600 14.5px/1.15 Manrope, Inter, sans-serif; color: rgba(237,242,232,.82); transition: background .15s, color .15s; }
+.drawer__item:hover { background: rgba(255,255,255,.05); }
+.drawer__item:focus-visible { outline: 2px solid #d6e5c2; outline-offset: 1px; }
+.drawer__ic { flex: none; width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); color: #d6e5c2; }
+.drawer__ic svg { width: 18px; height: 18px; }
+.drawer__item.is-on { background: #e3eed3; color: #142220; box-shadow: 0 8px 20px -10px rgba(214,229,194,.6); }
+.drawer__item.is-on .drawer__ic { background: rgba(20,34,32,.1); box-shadow: none; color: #142220; }
+.drawer__foot { gap: 6px !important; text-align: left !important; }
+.drawer__me { all: unset; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 14px; background: rgba(255,255,255,.05); }
+.drawer__av { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font: 700 12px Manrope, sans-serif; color: #142220; background: #d6e5c2; }
+.drawer__me b { display: block; font: 700 12.5px Manrope, sans-serif; color: #edf2e8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.drawer__me small { display: block; font-size: 11px; color: rgba(237,242,232,.55); }
+.drawer__me > span:last-child { min-width: 0; }
+.drawer__link { all: unset; cursor: pointer; padding: 6px 8px; font: 500 12px Inter, sans-serif; color: rgba(237,242,232,.6); border-radius: 8px; }
+.drawer__link:hover { color: #edf2e8; }
+.drawer__ver { padding: 2px 8px; font-size: 10.5px; color: rgba(237,242,232,.35); }

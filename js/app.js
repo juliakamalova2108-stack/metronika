@@ -1,18 +1,18 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=248';
-import * as S from './store.js?v=248';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=248';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=248';
-import { renderSettlements } from './shared.js?v=248';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=248';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=248';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=248';
-import { renderOformit, onLiveOformit } from './oformit.js?v=248';
-import { onLiveZakaz } from './zakaz.js?v=248';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=248';
-import './kbd.js?v=248';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=248';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=249';
+import * as S from './store.js?v=249';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=249';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=249';
+import { renderSettlements } from './shared.js?v=249';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=249';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=249';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=249';
+import { renderOformit, onLiveOformit } from './oformit.js?v=249';
+import { onLiveZakaz } from './zakaz.js?v=249';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=249';
+import './kbd.js?v=249';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=249';
 
 const VERSION = 'прототип 1.0';
 
@@ -78,19 +78,34 @@ function tabbar(role, current) {
   }).join('');
 }
 
+// Иконки пунктов меню (тонкая линия, currentColor)
+const MI = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const MENU_IC = {
+  home: MI('<path d="M4 11l8-6.5 8 6.5"/><path d="M6 9.5V19h12V9.5"/><path d="M10 19v-5h4v5"/>'),
+  oformit: MI('<path d="M12 4l8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 16l8 4 8-4"/>'),
+  orders: MI('<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 14h4.5l1.5 2h4l1.5-2H20"/>'),
+  clients: MI('<circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16.5 14.5c2.3.2 3.7 1.6 4 4"/>'),
+  gallery: MI('<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4.5 3.5"/>'),
+  stats: MI('<path d="M5 19V11M10 19V6M15 19v-5M20 19V9"/>'),
+  brand: MI('<path d="M4 12.5V5h7.5L20 13.5 13.5 20z"/><circle cx="8" cy="9" r="1.4"/>'),
+  profile: MI('<circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/>'),
+  team: MI('<circle cx="12" cy="8" r="3"/><path d="M6 19c.6-3 3-4.6 6-4.6s5.4 1.6 6 4.6"/>'),
+};
 function drawer(role) {
   const me = S.me();
   const cfg = SCREENS[role];
+  const cur = route() || cfg.start;
+  const on = (key) => cur === key || (key === 'orders' && cur.startsWith('bd-')) || (key === 'brand' && cur.startsWith('brand'));
+  const ini = (me.name || '').split(' ').map((w) => w[0] || '').slice(0, 2).join('');
   return `<div class="drawer__scrim" data-action="menu-close"></div>
     <nav class="drawer__panel" aria-label="Меню">
-      <div class="brand"><div class="brand__sphere" aria-hidden="true"></div><div class="brand__word">METRONICA</div><div class="brand__sub">Единая среда для профессионалов</div></div>
-      ${cfg.menu.map(([key, label]) => `<button type="button" class="btn drawer__item" data-action="menu-go" data-to="${key}">${esc(label)}</button>`).join('')}
+      <div class="brand brand--mini"><div class="brand__sphere" aria-hidden="true"></div><div class="brand__word">METRONICA</div></div>
+      <div class="drawer__list">${cfg.menu.map(([key, label]) => `<button type="button" class="drawer__item${on(key) ? ' is-on' : ''}" data-action="menu-go" data-to="${key}"${on(key) ? ' aria-current="page"' : ''}><span class="drawer__ic">${MENU_IC[key] || MENU_IC.home}</span><span>${esc(label)}</span></button>`).join('')}</div>
       <div class="drawer__foot">
-        <span>${esc(me.name)} · ${esc(me.roles.map((r) => S.ROLE_NAMES[r]).join(' и '))}</span>
-        <button type="button" class="btn btn--ghost" data-action="switch-user">Сменить пользователя</button>
-        <button type="button" class="btn btn--ghost" data-action="reset-ask">Сбросить демо-данные</button>
-        <span>Метроника · ${VERSION}</span>
-        <span>Данные хранятся только в этом браузере. Рулетка, сканер и геоотметка в демо имитируются.</span>
+        <button type="button" class="drawer__me" data-action="menu-go" data-to="profile"><span class="drawer__av">${esc(ini)}</span><span><b>${esc(me.name)}</b><small>${esc(me.roles.map((r) => S.ROLE_NAMES[r]).join(' и '))}</small></span></button>
+        <button type="button" class="drawer__link" data-action="switch-user">Сменить пользователя</button>
+        <button type="button" class="drawer__link" data-action="reset-ask">Сбросить демо</button>
+        <span class="drawer__ver">Метроника · ${VERSION}</span>
       </div>
     </nav>`;
 }
