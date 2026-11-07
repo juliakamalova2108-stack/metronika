@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=181';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=182';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=181';
-import * as S from './store.js?v=181';
-import { WALLPAPER_TYPES } from './seed.js?v=181';
-import { esc, toast } from './ui.js?v=181';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=181';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=181';
-import { country } from './phonecodes.js?v=181';
-import { suggestAddress } from './address.js?v=181';
-import { suggesters } from './kbd.js?v=181';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=181';
+import { actions, changes, rerender } from './core.js?v=182';
+import * as S from './store.js?v=182';
+import { WALLPAPER_TYPES } from './seed.js?v=182';
+import { esc, toast } from './ui.js?v=182';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=182';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=182';
+import { country } from './phonecodes.js?v=182';
+import { suggestAddress } from './address.js?v=182';
+import { suggesters } from './kbd.js?v=182';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=182';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -247,7 +247,7 @@ function renderMaterial(d) {
     const done = items.filter((x) => reviewed(x.it.code)).length;
     body = `<div class="o-stack"><p class="o-sec">Опыт работы с материалом</p>${items.map(({ it }, idx) => { const ok = reviewed(it.code); const x = S.material(it.code);
       return `<section class="z-xp${ok ? ' is-ok' : ''}"><div class="z-xp__top">${MAT_SAMPLE}<span class="z-mline__t"><b>${esc(x ? x.name : it.type)}</b><small>${esc(x ? x.brand : it.brand)} · ${esc(it.code)}</small></span>
-        <i class="z-xp__st">${ok ? '✓ опыт есть' : 'нет опыта'}</i></div>
+        <i class="z-xp__st">${ok ? '✓ Записан' : 'Не записан'}</i></div>
         <button type="button" class="z-rvshare" data-action="z-share-open" data-i="${idx}">${ok ? 'Дополнить опыт' : 'Поделиться опытом'}</button></section>`; }).join('')}
       <section class="f-plate o-grand"><p class="o-grand__t">Опыт по комнате</p><b class="o-grand__sum">${done} из ${items.length}</b><p class="o-grand__x">${done === items.length ? 'Опыт по всем материалам оставлен' : 'Осталось: ' + (items.length - done)}</p></section></div>`;
   } else {
