@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»). Функции и раскладка — как у Codex;
 // вид — по согласованному макету «Замер — осовременить формы»: графитовый лист с закладками-каскадом, парящие плашки площадей,
 // стена-миллиметровка с зелёной штриховкой, кнопки под своими колонками, размеры в сантиметрах, полёт ярлыка.
-import {actions,changes,rerender,afterRender} from './core.js?v=142';
-import * as S from './store.js?v=142';
-import {oformitDraft} from './oformit.js?v=142';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=142';
-import {esc} from './ui.js?v=142';
+import {actions,changes,rerender,afterRender} from './core.js?v=143';
+import * as S from './store.js?v=143';
+import {oformitDraft} from './oformit.js?v=143';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=143';
+import {esc} from './ui.js?v=143';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -59,12 +59,12 @@ function tabs(r,color){
   const left=`<div class="gt-scroll"><div class="gt-inner" style="width: ${innerW}px"><svg class="gt-svg" width="${innerW}" height="${H+1}" viewBox="0 0 ${innerW} ${H+1}" aria-hidden="true">${lite}${back}${base}${front}</svg>`+
     r.walls.map((_,i)=>btn(i)).join('')+
     `<button type="button" class="gt-b add" data-action="mw-add-wall" aria-label="Добавить стену" style="left: ${Math.round(plusL)}px; width: ${Math.round(plusX+PW-SL*.55-plusL)}px">+</button></div></div>`;
-  // «Итог»: левый край прямой со скруглённым углом — закладки уходят под него, справа — край листа
-  const sumD=`M.5 ${H} L.5 6.5 Q.5 .5 6.5 .5 L${SUM_W-6.5} .5 Q${SUM_W-.5} .5 ${SUM_W-.5} 6.5 L${SUM_W-.5} ${H}`;
+  // «Итог»: левый край с наклоном, как правый край закладок (сверху внизу-вправо); справа — край листа
+  const sumD=`M${SL} ${H} L1.5 2 Q.8 .5 3 .5 L${SUM_W-6.5} .5 Q${SUM_W-.5} .5 ${SUM_W-.5} 6.5 L${SUM_W-.5} ${H}`;
   const right=`<div class="gt-right${r.total?' on':''}" style="width: ${SUM_W}px"><svg class="gt-svg" width="${SUM_W}" height="${H+1}" viewBox="0 0 ${SUM_W} ${H+1}" aria-hidden="true">`+
-    (r.total?`<path class="gt-sel" d="M0 ${H+1} L0 6 Q0 0 6 0 L${SUM_W-6} 0 Q${SUM_W} 0 ${SUM_W} 6 L${SUM_W} ${H+1} Z"/><path class="gt-hl" d="${sumD}" fill="none" stroke="url(#gtLite2)" stroke-width="1.6" stroke-linejoin="round"/>${lite.replace('gtLite','gtLite2')}`
+    (r.total?`<path class="gt-sel" d="M${SL} ${H+1} L1 1.5 Q.3 0 2.5 0 L${SUM_W-6} 0 Q${SUM_W} 0 ${SUM_W} 6 L${SUM_W} ${H+1} Z"/><path class="gt-hl" d="${sumD}" fill="none" stroke="url(#gtLite2)" stroke-width="1.6" stroke-linejoin="round"/>${lite.replace('gtLite','gtLite2')}`
       :`<path class="gt-back" d="${sumD} Z"/><path class="gt-base" d="M0 ${H-.5} L${SUM_W} ${H-.5}"/>`)+
-    `</svg><button type="button" class="gt-b${r.total?' on':''}" data-action="mw-total" style="left: 0; width: ${SUM_W}px">Итог</button></div>`;
+    `</svg><button type="button" class="gt-b${r.total?' on':''}" data-action="mw-total" style="left: 6px; width: ${SUM_W-6}px">Итог</button></div>`;
   return {html:`<i class="gt-sheet" aria-hidden="true"></i><nav class="gt-tabs" aria-label="Стены">${left}${right}</nav>`, radius:'0 0 24px 24px', edges:''};
 }
 
