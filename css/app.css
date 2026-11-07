@@ -421,3 +421,16 @@ body.is-auth .app { padding-bottom: 0; }
 .rc-card__hd { padding: 14px 10px; gap: 8px; }
 .rc-card__hd b { font-size: 14px; }
 .rc-dot { width: 20px; height: 20px; }
+
+/* Настройки → График: карточки дней недели */
+.wk { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 12px; }
+.wk-card { border-radius: 16px; padding: 12px 14px; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.wk-card.is-on { background: rgba(126,226,163,.08); box-shadow: inset 0 0 0 1px rgba(126,226,163,.35); }
+.wk-card__hd { display: flex; align-items: center; gap: 10px; }
+.wk-card__d { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.wk-card__d b { font-size: 15.5px; }
+.wk-card__d small { font-size: 12.5px; opacity: .65; }
+.wk-card:not(.is-on) .wk-card__d b { opacity: .55; }
+.wk-tog { display: flex; align-items: center; gap: 8px; font-size: 12px; opacity: .85; cursor: pointer; }
+.wk-card__h { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.wk-card__h .field { margin: 0; }

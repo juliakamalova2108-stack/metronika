@@ -1,12 +1,12 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=254';
-import * as S from './store.js?v=254';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=254';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=254';
-import { topbar, typeName, renderSettlements } from './shared.js?v=254';
-import { ROOMS, roomColor } from './ocenka.js?v=254';
-import { COUNTRIES, SOON } from './phonecodes.js?v=254';
+import { actions, changes, rerender, go, val } from './core.js?v=255';
+import * as S from './store.js?v=255';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=255';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=255';
+import { topbar, typeName, renderSettlements } from './shared.js?v=255';
+import { ROOMS, roomColor } from './ocenka.js?v=255';
+import { COUNTRIES, SOON } from './phonecodes.js?v=255';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -132,11 +132,19 @@ export function renderSettings() {
   } else if (setTab === 'schedule') {
     const wd = [[1, 'Пн'], [2, 'Вт'], [3, 'Ср'], [4, 'Чт'], [5, 'Пт'], [6, 'Сб'], [0, 'Вс']];
     const busy = (me.busy || []).slice().sort();
+    const WDF = { 1: 'Понедельник', 2: 'Вторник', 3: 'Среда', 4: 'Четверг', 5: 'Пятница', 6: 'Суббота', 0: 'Воскресенье' };
+    const dh = st.dayHours || {};
+    const cnt = st.workdays.length;
     body = `<section class="plate">
-      <h2 class="plate__title">Рабочие дни</h2>
-      <div class="chips">${wd.map(([d, n]) => `<button type="button" class="chip-btn${st.workdays.includes(d) ? ' is-on' : ''}" aria-pressed="${st.workdays.includes(d)}" data-action="wd-toggle" data-d="${d}">${n}</button>`).join('')}</div>
-      <div class="grid-2">${field({ id: 'h-from', label: 'С', type: 'time', value: st.hours.from, attrs: 'data-change="set-hours"' })}${field({ id: 'h-to', label: 'До', type: 'time', value: st.hours.to, attrs: 'data-change="set-hours"' })}</div>
-      <p class="small">Агенты видят только свободные рабочие дни.</p>
+      <h2 class="plate__title">Рабочая неделя</h2>
+      <p class="small">Рабочих дней: ${cnt}. Агенты и клиенты видят только свободные рабочие дни и часы.</p>
+      <div class="wk">${wd.map(([d]) => { const on = st.workdays.includes(d); const h = dh[d] || st.hours;
+        return `<div class="wk-card${on ? ' is-on' : ''}">
+          <div class="wk-card__hd"><span class="wk-card__d"><b>${WDF[d]}</b><small>${on ? `${h.from} – ${h.to}` : 'выходной'}</small></span>
+            <label class="wk-tog"><span>${on ? 'Рабочий' : 'Выходной'}</span><input type="checkbox" class="switch" data-change="wk-day" data-d="${d}" ${on ? 'checked' : ''} aria-label="${WDF[d]}: рабочий день"/></label></div>
+          ${on ? `<div class="wk-card__h">${field({ id: `wh-f-${d}`, label: 'С', type: 'time', value: h.from, attrs: `data-change="wk-hours" data-d="${d}"` })}${field({ id: `wh-t-${d}`, label: 'До', type: 'time', value: h.to, attrs: `data-change="wk-hours" data-d="${d}"` })}</div>` : ''}
+        </div>`; }).join('')}</div>
+      ${btnRow([{ label: 'Часы как в понедельник — на все рабочие дни', action: 'wk-copy' }])}
     </section>
     <section class="plate">
       <h2 class="plate__title">Занятые дни</h2>
@@ -183,6 +191,9 @@ changes['set-notify-kind'] = (el) => { const n = S.me().settings.notify; S.updat
 changes['set-remind'] = (el) => { S.updateSettings({ notify: { ...S.me().settings.notify, remind: el.value } }); };
 changes['set-price'] = (el) => { const v = Math.round(numOf(el.value)); if (v > 0) { S.updatePrice(el.dataset.type, v); toast('Цена сохранена'); } };
 changes['set-svc'] = (el) => { const v = numOf(el.value); if (v > 0) { S.updateService(el.dataset.svc, { [el.dataset.k]: el.dataset.k === 'price' ? Math.round(v) : v }); toast('Сохранено'); } };
+changes['wk-day'] = (el) => { const d = Number(el.dataset.d); const w = S.me().settings.workdays; S.updateSettings({ workdays: el.checked ? [...new Set([...w, d])] : w.filter((x) => x !== d) }); rerender(); };
+changes['wk-hours'] = (el) => { const d = el.dataset.d; const st = S.me().settings; const h = { ...((st.dayHours || {})[d] || st.hours) }; h[el.id.startsWith('wh-f') ? 'from' : 'to'] = el.value; S.updateSettings({ dayHours: { ...(st.dayHours || {}), [d]: h } }); rerender(); };
+actions['wk-copy'] = () => { const st = S.me().settings; const h = (st.dayHours || {})[1] || st.hours; const all = {}; [0, 1, 2, 3, 4, 5, 6].forEach((d) => { all[d] = { ...h }; }); S.updateSettings({ dayHours: all, hours: { ...h } }); toast('Часы применены ко всем дням'); rerender(); };
 changes['set-hours'] = () => { S.updateSettings({ hours: { from: val('h-from'), to: val('h-to') } }); };
 changes['ag-field'] = (el) => { const me = S.me(); me.agent[el.dataset.k] = el.value.trim(); S.save(); toast('Сохранено'); };
 actions['pin-change'] = () => {
