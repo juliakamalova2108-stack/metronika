@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=218';
-import * as S from './store.js?v=218';
-import { renderOformit, oformitDraft } from './oformit.js?v=218';
-import { roomTotals, svcInfo } from './ocenka.js?v=218';
-import { smetaTotals } from './zakaz.js?v=218';
-import { bookedDays } from './grafik.js?v=218';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=218';
-import { esc, toast } from './ui.js?v=218';
+import { actions, rerender, go } from './core.js?v=220';
+import * as S from './store.js?v=220';
+import { renderOformit, oformitDraft } from './oformit.js?v=220';
+import { roomTotals, svcInfo } from './ocenka.js?v=220';
+import { smetaTotals } from './zakaz.js?v=220';
+import { bookedDays } from './grafik.js?v=220';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=220';
+import { esc, toast } from './ui.js?v=220';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -474,8 +474,11 @@ export function renderHome() {
   const TIERS = ['Старт', 'Мастера', 'Профи', 'Эксперты', 'Вершина'];
   const ranksSheet = () => {
     const left = nextR ? nextR[1] - described : 0;
-    const ladder = TIERS.map((tn, ti) => `<div class="rk-tier rk-tier--t${ti + 1}"><p class="rk-tier__t"><i></i>${tn}</p>${RANKS.map((r, i) => [r, i]).filter(([r]) => r[2] === ti + 1).map(([r, i]) =>
-      `<div class="rk-row${i < ri ? ' is-done' : i === ri ? ' is-cur' : ''}"><span class="rk-row__n">${i + 1}</span><b>${esc(r[0])}</b><span class="rk-row__v">${i < ri ? '✓' : i === ri ? 'вы здесь' : `${fmt(r[1])}`}</span></div>`).join('')}</div>`).join('');
+    const ladder = TIERS.map((tn, ti) => { const rs = RANKS.map((r, i) => [r, i]).filter(([r]) => r[2] === ti + 1);
+      const doneN = rs.filter(([, i]) => i <= ri).length; const state = doneN === rs.length ? 'is-passed' : doneN ? 'is-active' : 'is-locked';
+      return `<div class="rk-tier rk-tier--t${ti + 1} ${state}"><div class="rk-tier__hd"><span class="rk-tier__ic">${ti + 1}</span><span class="rk-tier__t">${tn}<small>${fmt(rs[0][0][1])}–${fmt(rs[rs.length - 1][0][1])} обоев</small></span><span class="rk-tier__c">${doneN}/${rs.length}</span></div>
+        <div class="rk-tier__bar"><i style="width:${(doneN / rs.length) * 100}%"></i></div>${rs.map(([r, i]) =>
+      `<div class="rk-row${i < ri ? ' is-done' : i === ri ? ' is-cur' : ''}"><span class="rk-row__n">${i < ri ? '✓' : i + 1}</span><b>${esc(r[0])}</b><span class="rk-row__v">${i < ri ? 'пройден' : i === ri ? 'вы здесь' : `от ${fmt(r[1])}`}</span></div>`).join('')}</div>`; }).join('');
     return `<div class="rk-scrim" data-action="home-ranks-close"></div><section class="rk" role="dialog" aria-label="Ранги мастера">
       <div class="rk__hd"><h2>Ранги мастера</h2><button type="button" class="rk__x" data-action="home-ranks-close" aria-label="Закрыть">×</button></div>
       <div class="rk-me"><span class="h-rate h-rate--t${tier}">${esc(rank)}</span>
