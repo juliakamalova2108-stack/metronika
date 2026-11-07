@@ -1,17 +1,19 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=255';
-import * as S from './store.js?v=255';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=255';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=255';
-import { topbar, typeName, renderSettlements } from './shared.js?v=255';
-import { ROOMS, roomColor } from './ocenka.js?v=255';
-import { COUNTRIES, SOON } from './phonecodes.js?v=255';
+import { actions, changes, rerender, go, val } from './core.js?v=256';
+import * as S from './store.js?v=256';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=256';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=256';
+import { topbar, typeName, renderSettlements } from './shared.js?v=256';
+import { ROOMS, roomColor } from './ocenka.js?v=256';
+import { COUNTRIES, SOON } from './phonecodes.js?v=256';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
 
 // ================= профиль =================
+const PF_CAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+const PF_CITIES = ['Москва', 'Санкт-Петербург', 'Уфа', 'Казань', 'Екатеринбург', 'Новосибирск', 'Нижний Новгород', 'Самара', 'Челябинск', 'Омск', 'Ростов-на-Дону', 'Красноярск', 'Пермь', 'Воронеж', 'Волгоград', 'Краснодар', 'Тюмень', 'Саратов', 'Тольятти', 'Ижевск', 'Барнаул', 'Ульяновск', 'Иркутск', 'Хабаровск', 'Ярославль', 'Владивосток', 'Махачкала', 'Томск', 'Оренбург', 'Кемерово', 'Стерлитамак', 'Набережные Челны', 'Сочи'];
 export function renderProfile() {
   const me = S.me();
   const isAgent = S.hasRole(me, 'agent');
@@ -44,12 +46,34 @@ export function renderProfile() {
     ${disp.length ? `<section class="plate"><h2 class="plate__title">Работаю с диспетчерами</h2>${disp.map((d) => kv(esc(d.name), esc(phoneRu(d.phone)))).join('')}<p class="small">Заказы от диспетчера — по его ценам. Свои заказы — по вашим.</p></section>` : ''}
     ${S.hasRole(me, 'dispatcher') ? `<section class="plate"><div class="list">${navRow('team', 'Команда', 'users', `${S.teamOf(me.id).length} из ${(me.plan && me.plan.seats) || 0} мест`)}</div></section>` : ''}`;
   }
+  const st = me.settings;
+  const ini = (me.name || '').split(' ').map((w) => w[0] || '').slice(0, 2).join('');
   return `${topbar('Профиль')}
-    <section class="plate">
-      <div class="plate__head"><h2 class="plate__title">${esc(me.name)}</h2><span class="chip">${esc(roles)}</span></div>
-      ${kv('Телефон', esc(phoneRu(me.phone)))}
+    <section class="plate pf-head">
+      <label class="pf-ph" aria-label="Прикрепить фото">${me.photo ? `<img src="${me.photo}" alt="">` : `<span>${esc(ini)}</span>`}<i class="pf-ph__cam">${PF_CAM}</i>
+        <input type="file" accept="image/*" data-change="pf-photo" hidden></label>
+      <div class="pf-who">${field({ id: 'set-name', label: 'Имя и фамилия', value: me.name, attrs: 'data-change="set-name"' })}
+        <p class="pf-meta"><span class="chip">${esc(roles)}</span><span>${esc(phoneRu(me.phone))}</span></p>
+        ${me.photo ? '<button type="button" class="link-btn" data-action="pf-photo-del">Убрать фото</button>' : '<p class="small">Нажмите на круг, чтобы прикрепить фото</p>'}</div>
     </section>
-    ${body}`;
+    <section class="plate">
+      <h2 class="plate__title">Где работаю</h2>
+      ${select({ id: 'set-country', label: 'Страна', value: st.country || 'RU', options: [...Object.entries(COUNTRIES).map(([k, c]) => ({ value: k, label: c.name })), ...SOON.map((n) => ({ value: 'soon:' + n, label: n + ' — скоро' }))], attrs: 'data-change="set-country"' })}
+      ${field({ id: 'pf-city', label: 'Ближайший город', value: st.city || '', placeholder: 'Например, Уфа', attrs: 'list="pf-cities" data-change="pf-loc" data-k="city" autocomplete="off"' })}
+      <datalist id="pf-cities">${PF_CITIES.map((c) => `<option value="${c}">`).join('')}</datalist>
+      ${field({ id: 'pf-place', label: 'Населённый пункт', value: st.place || '', placeholder: 'Город, посёлок или село', attrs: 'data-change="pf-loc" data-k="place" autocomplete="off"' })}
+      <p class="small">По стране в поле «Телефон» клиента стоит её код. По городу вам показываются заказы рядом.</p>
+    </section>
+    ${body}
+    <section class="plate">
+      <h2 class="plate__title">PIN-код</h2>
+      <div class="grid-2">${field({ id: 'pin-a', label: 'Новый PIN', type: 'password', inputmode: 'numeric', attrs: 'maxlength="4"' })}${field({ id: 'pin-b', label: 'Ещё раз', type: 'password', inputmode: 'numeric', attrs: 'maxlength="4"' })}</div>
+      ${btnRow([{ label: 'Сменить PIN', action: 'pin-change' }])}
+    </section>
+    <section class="plate">
+      ${btnRow([{ label: 'Выйти', action: 'logout' }])}
+      <button type="button" class="link-btn pf-reset" data-action="reset-ask">Сбросить демо-данные</button>
+    </section>`;
 }
 
 // ================= настройки =================
@@ -71,32 +95,12 @@ export const NOTIFY_KINDS = [
 export function renderSettings() {
   const me = S.me();
   const isAgent = S.hasRole(me, 'agent');
-  const tabs = isAgent ? [['general', 'Общие'], ['agent', 'Агент']] : [['general', 'Общие'], ['notify', 'Уведомления'], ['services', 'Услуги'], ['rooms', 'Комнаты'], ['schedule', 'График']];
+  const tabs = isAgent ? [['general', 'Уведомления'], ['agent', 'Агент']] : [['notify', 'Уведомления'], ['services', 'Услуги'], ['rooms', 'Комнаты'], ['schedule', 'График']];
   if (!tabs.some(([k]) => k === setTab)) setTab = 'general';
   const st = me.settings;
   let body = '';
   if (setTab === 'general') {
-    body = `${isAgent ? NOTIFY_PLATE(st) : ''}<section class="plate">
-      <h2 class="plate__title">Профиль</h2>
-      ${field({ id: 'set-name', label: 'Имя и фамилия', value: me.name, attrs: 'data-change="set-name"' })}
-      ${kv('Телефон', esc(phoneRu(me.phone)))}<p class="small">Телефон — это логин. Сменить его можно через поддержку.</p>
-    </section>
-    <section class="plate">
-      <h2 class="plate__title">Страна</h2>
-      ${select({ id: 'set-country', label: 'Страна работы', value: st.country || 'RU', options: [...Object.entries(COUNTRIES).map(([k, c]) => ({ value: k, label: c.name })), ...SOON.map((n) => ({ value: 'soon:' + n, label: n + ' — скоро' }))], attrs: 'data-change="set-country"' })}
-      <p class="small">По стране в поле «Телефон» клиента стоит её код (Россия — +7) и проверяется код оператора. Сейчас собраны коды России.</p>
-    </section>
-    <section class="plate">
-      <h2 class="plate__title">PIN-код</h2>
-      <div class="grid-2">${field({ id: 'pin-a', label: 'Новый PIN', type: 'password', inputmode: 'numeric', attrs: 'maxlength="4"' })}${field({ id: 'pin-b', label: 'Ещё раз', type: 'password', inputmode: 'numeric', attrs: 'maxlength="4"' })}</div>
-      ${btnRow([{ label: 'Сменить PIN', action: 'pin-change' }])}
-    </section>
-    <section class="plate">
-      <h2 class="plate__title">Аккаунт</h2>
-      ${btnRow([{ label: 'Сменить пользователя', action: 'switch-user' }])}
-      ${btnRow([{ label: 'Сбросить демо-данные', action: 'reset-ask' }])}
-      <p class="small">Метроника · прототип. Данные хранятся только в этом браузере; рулетка, сканер и геоотметка в демо имитируются.</p>
-    </section>`;
+    body = NOTIFY_PLATE(st);
   } else if (setTab === 'notify') {
     const kinds = st.notify.kinds || {};
     body = `${NOTIFY_PLATE(st)}
@@ -185,6 +189,14 @@ changes['set-country'] = (el) => {
   if (el.value.startsWith('soon:')) { toast(`${el.value.slice(5)}: коды пока не собраны`); return; }
   S.updateSettings({ country: el.value }); toast('Страна сохранена');
 };
+changes['pf-loc'] = (el) => { S.updateSettings({ [el.dataset.k]: el.value.trim() }); };
+changes['pf-photo'] = (el) => { const f = el.files && el.files[0]; if (!f) return;
+  const img = new Image(); const rd = new FileReader();
+  rd.onload = () => { img.onload = () => { const c = document.createElement('canvas'); const n = 240; const k = Math.max(n / img.width, n / img.height); c.width = n; c.height = n;
+    c.getContext('2d').drawImage(img, (n - img.width * k) / 2, (n - img.height * k) / 2, img.width * k, img.height * k);
+    S.updateProfile({ photo: c.toDataURL('image/jpeg', 0.85) }); toast('Фото прикреплено'); rerender(); }; img.src = rd.result; };
+  rd.readAsDataURL(f); };
+actions['pf-photo-del'] = () => { S.updateProfile({ photo: '' }); rerender(); };
 changes['set-name'] = (el) => { if (el.value.trim().length >= 2) { S.updateProfile({ name: el.value.trim() }); toast('Имя сохранено'); } };
 changes['set-notify'] = (el) => { S.updateSettings({ notify: { ...S.me().settings.notify, on: el.checked } }); toast(el.checked ? 'Уведомления включены' : 'Уведомления выключены'); rerender(); };
 changes['set-notify-kind'] = (el) => { const n = S.me().settings.notify; S.updateSettings({ notify: { ...n, kinds: { ...(n.kinds || {}), [el.dataset.k]: el.checked } } }); };

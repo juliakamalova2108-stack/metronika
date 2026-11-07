@@ -1,18 +1,18 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=255';
-import * as S from './store.js?v=255';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=255';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=255';
-import { renderSettlements } from './shared.js?v=255';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=255';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=255';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=255';
-import { renderOformit, onLiveOformit } from './oformit.js?v=255';
-import { onLiveZakaz } from './zakaz.js?v=255';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=255';
-import './kbd.js?v=255';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=255';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=256';
+import * as S from './store.js?v=256';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=256';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=256';
+import { renderSettlements } from './shared.js?v=256';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=256';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=256';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=256';
+import { renderOformit, onLiveOformit } from './oformit.js?v=256';
+import { onLiveZakaz } from './zakaz.js?v=256';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=256';
+import './kbd.js?v=256';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=256';
 
 const VERSION = 'прототип 1.0';
 
@@ -104,7 +104,7 @@ function drawer(role) {
       <div class="brand brand--mini"><div class="brand__sphere" aria-hidden="true"></div><div class="brand__word">METRONICA</div></div>
       <div class="drawer__list">${cfg.menu.map(([key, label]) => `<button type="button" class="drawer__item${on(key) ? ' is-on' : ''}" data-action="menu-go" data-to="${key}"${on(key) ? ' aria-current="page"' : ''}><span class="drawer__ic">${MENU_IC[key] || MENU_IC.home}</span><span>${esc(label)}</span></button>`).join('')}</div>
       <div class="drawer__foot">
-        <button type="button" class="drawer__me" data-action="menu-go" data-to="profile"><span class="drawer__av">${esc(ini)}</span><span><b>${esc(me.name)}</b><small>${esc(me.roles.map((r) => S.ROLE_NAMES[r]).join(' и '))}</small></span></button>
+        <button type="button" class="drawer__me" data-action="menu-go" data-to="profile"><span class="drawer__av">${me.photo ? `<img src="${me.photo}" alt="">` : esc(ini)}</span><span><b>${esc(me.name)}</b><small>${esc(me.roles.map((r) => S.ROLE_NAMES[r]).join(' и '))}</small></span></button>
         <span class="drawer__ver">Метроника · ${VERSION}</span>
       </div>
     </nav>`;
