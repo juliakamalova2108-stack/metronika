@@ -1429,3 +1429,9 @@ body.fig .h-page { padding-bottom: 88px; }
 .h-me__st b { font: 800 34px/1.05 Manrope, Inter, sans-serif; letter-spacing: -0.02em; color: var(--ink); }
 .h-me__st b i { font-style: normal; font-size: 18px; color: var(--mute); }
 .h-me__st em { font: 400 12.5px/1.3 Inter, sans-serif; font-style: normal; color: var(--mute); }
+/* ранг мастера */
+.h-rate { background: linear-gradient(180deg, rgba(227, 238, 211, 0.22), rgba(159, 211, 169, 0.14)); color: #e3eed3; font: 700 12.5px/1 Inter, sans-serif; letter-spacing: 0.02em; border: 1px solid rgba(214, 229, 194, 0.3); }
+.h-rank { display: flex; flex-direction: column; gap: 7px; margin-top: -4px; }
+.h-rank__bar { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.h-rank__bar i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #9fd3a9, #e3eed3); box-shadow: 0 0 10px rgba(214, 229, 194, 0.4); }
+.h-rank span { font: 500 12px/1 Inter, sans-serif; color: var(--mute); }
