@@ -1759,11 +1759,6 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .gc__foot b { font: 800 14px Manrope, sans-serif; white-space: nowrap; }
 .gc__foot > div:first-child { min-width: 0; } .gc__foot > div:first-child b { display: block; overflow: hidden; text-overflow: ellipsis; }
 
-/* Легенда: радужная грань */
-@property --gca { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
-.gc--legend::before { content: ''; position: absolute; inset: -2px; border-radius: 26px; z-index: -1; background: conic-gradient(from var(--gca), #ffe9a8, #7ae0ff, #d8b4f0, #ffd36b, #ffe9a8); animation: gc-rot 6s linear infinite; padding: 2px; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
-.gcs.gc--legend::before { border-radius: 16px; }
-@keyframes gc-rot { to { --gca: 360deg; } }
 .gc__num, .gcs__num { background: linear-gradient(170deg, var(--g1) 30%, color-mix(in srgb, var(--g1) 50%, var(--g2))); -webkit-background-clip: text; background-clip: text; color: transparent !important; }
 .rk-hero .gc { max-width: 340px; }
 /* Маленькие карты коллекции — тот же стиль */
@@ -1781,3 +1776,54 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .gcs.is-cur { box-shadow: 0 0 0 2px #142220, 0 0 0 3.5px var(--g1), 0 0 22px color-mix(in srgb, var(--g1) 55%, transparent); }
 .gcs.is-view { outline: 2px solid #edf2e8; outline-offset: 3px; }
 .gcs:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* ══ Ступени: чем выше, тем богаче карта ══ */
+@property --gca { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes gc-rot { to { --gca: 360deg; } }
+@keyframes gc-shine { to { background-position: -250% 0; } }
+@keyframes gc-drift { 50% { transform: translate(10%, -8%) scale(1.15); } }
+@keyframes gc-twinkle { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+@keyframes gc-holo { from { background-position: 0 0; } to { background-position: 100% 0; } }
+.gc__spark, .gc__holo { display: none; position: absolute; inset: 0; pointer-events: none; }
+/* рамка (общий механизм) */
+.gc--t3::before, .gc--t4::before, .gc--t5::before { content: ''; position: absolute; inset: -1.5px; border-radius: 25.5px; z-index: 2; pointer-events: none; padding: 1.5px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.gcs.gc--t3::before, .gcs.gc--t4::before, .gcs.gc--t5::before { border-radius: 15.5px; }
+/* номер с бегущим отливом */
+.gc--t3 .gc__num, .gc--t3 .gcs__num, .gc--t4 .gc__num, .gc--t4 .gcs__num, .gc--t5 .gc__num, .gc--t5 .gcs__num {
+  background-image: linear-gradient(110deg, var(--g1) 0%, var(--g1) 30%, #fff 42%, var(--g1) 54%, var(--g2) 80%, var(--g1) 100%); background-size: 250% 100%; animation: gc-shine 4.5s linear infinite; }
+
+/* ПРОФИ — металлическая кромка + отлив номера */
+.gc--t3::before { background: linear-gradient(135deg, #fff3c4, #d9a24a 25%, #fff 45%, #a8701e 70%, #ffe1a0); }
+.gc--t3 .gc__glass, .gc--t3 .gcs__glass { box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 0 26px -8px var(--g1), 0 24px 48px -20px rgba(0,0,0,.7); }
+
+/* ЭКСПЕРТЫ — переливающаяся грань, живые пятна, искры */
+.gc--t4::before { background: conic-gradient(from var(--gca), var(--g1), #9fd3e8, var(--g2), #ff9ad5, var(--g1)); animation: gc-rot 7s linear infinite; }
+.gc--t4 .gc__blob, .gc--t5 .gc__blob { animation: gc-drift 9s ease-in-out infinite; }
+.gc--t4 .gc__blob--b, .gc--t5 .gc__blob--b { animation-duration: 12s; animation-direction: reverse; }
+.gc--t4 .gc__spark, .gc--t5 .gc__spark { display: block; animation: gc-twinkle 2.6s ease-in-out infinite;
+  background: radial-gradient(1.6px 1.6px at 18% 28%, #fff, transparent), radial-gradient(1.2px 1.2px at 72% 18%, #fff, transparent), radial-gradient(1.8px 1.8px at 86% 62%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 40% 74%, #fff, transparent), radial-gradient(1.5px 1.5px at 58% 40%, #fff, transparent), radial-gradient(1px 1px at 8% 84%, #fff, transparent); }
+.gc--t4 .gc__glass, .gc--t4 .gcs__glass { box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 0 34px -8px var(--g1), 0 24px 48px -20px rgba(0,0,0,.7); }
+
+/* ВЕРШИНА — всё сразу: радужная грань толще, голограмма по стеклу, золотые искры, ореол */
+.gc--t5::before { inset: -2.5px; padding: 2.5px; border-radius: 26.5px; background: conic-gradient(from var(--gca), #ffe9a8, #7ae0ff, #d8b4f0, #ff9ad5, #ffd36b, #b6f0c8, #ffe9a8); animation: gc-rot 5s linear infinite; }
+.gcs.gc--t5::before { border-radius: 16.5px; }
+.gc--t5 .gc__holo { display: block; opacity: .8; mix-blend-mode: soft-light; animation: gc-holo 7s ease-in-out infinite alternate; background-size: 300% 100%;
+  background-image: linear-gradient(115deg, transparent 15%, rgba(255,120,200,.7) 30%, rgba(120,220,255,.7) 42%, rgba(255,230,140,.7) 54%, rgba(160,255,190,.6) 66%, transparent 82%); }
+.gc--t5 .gc__spark { animation-duration: 1.8s;
+  background: radial-gradient(2px 2px at 14% 24%, #fff6d0, transparent), radial-gradient(1.4px 1.4px at 70% 14%, #fff, transparent), radial-gradient(2.2px 2.2px at 88% 58%, #ffe9a8, transparent),
+    radial-gradient(1.4px 1.4px at 36% 70%, #fff, transparent), radial-gradient(1.8px 1.8px at 56% 36%, #fff6d0, transparent), radial-gradient(1.2px 1.2px at 6% 86%, #fff, transparent),
+    radial-gradient(1.6px 1.6px at 78% 86%, #ffe9a8, transparent), radial-gradient(1.2px 1.2px at 46% 10%, #fff, transparent); }
+.gc--t5 .gc__glass, .gc--t5 .gcs__glass { box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 0 44px -6px color-mix(in srgb, var(--g1) 80%, transparent), 0 24px 48px -20px rgba(0,0,0,.7); }
+.gc--t5 .gc__name { background: linear-gradient(110deg, #fff 30%, #ffe9a8 45%, #fff 60%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: gc-shine 5s linear infinite; }
+.gc--t5 .gc__sweep { background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.4) 50%, transparent 60%); animation-duration: 3.5s; }
+/* Легенда — сверх Вершины: двойная грань и ореол */
+.gc--legend::after { content: ''; position: absolute; inset: -14px; border-radius: 38px; z-index: -3; background: conic-gradient(from var(--gca), #ffe9a8, #7ae0ff, #d8b4f0, #ff9ad5, #ffe9a8); filter: blur(18px); opacity: .55; animation: gc-rot 5s linear infinite; }
+.gcs.gc--legend::after { inset: -6px; border-radius: 20px; filter: blur(10px); }
+.gc--legend::before { inset: -3px; padding: 3px; }
+/* закрытые — без эффектов */
+.gcs.is-lock::before, .gcs.is-lock::after { filter: grayscale(1); opacity: .3; animation: none; }
+.gcs.is-lock .gc__spark, .gcs.is-lock .gc__holo { display: none; }
+.gcs.is-lock .gc__blob { animation: none; }
+@media (prefers-reduced-motion: reduce) { .gc *, .gcs *, .gc::before, .gc::after, .gcs::before, .gcs::after { animation: none !important; } }

@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=235';
-import * as S from './store.js?v=235';
-import { renderOformit, oformitDraft } from './oformit.js?v=235';
-import { roomTotals, svcInfo } from './ocenka.js?v=235';
-import { smetaTotals } from './zakaz.js?v=235';
-import { bookedDays } from './grafik.js?v=235';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=235';
-import { esc, toast } from './ui.js?v=235';
+import { actions, rerender, go } from './core.js?v=236';
+import * as S from './store.js?v=236';
+import { renderOformit, oformitDraft } from './oformit.js?v=236';
+import { roomTotals, svcInfo } from './ocenka.js?v=236';
+import { smetaTotals } from './zakaz.js?v=236';
+import { bookedDays } from './grafik.js?v=236';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=236';
+import { esc, toast } from './ui.js?v=236';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -508,7 +508,7 @@ export function renderHome() {
     if (size === 'l') return `<article class="gc gc--t${t}${i === 24 ? ' gc--legend' : ''}" style="${gcVars(i)}">
       <i class="gc__blob gc__blob--a"></i><i class="gc__blob gc__blob--b"></i>
       <div class="gc__num" aria-hidden="true">${no(i)}</div>
-      <div class="gc__glass"><div class="gc__sweep"></div>
+      <div class="gc__glass"><i class="gc__holo"></i><div class="gc__sweep"></div><i class="gc__spark"></i>
         <div class="gc__top"><span class="gc__brand">Metronica</span>${stats ? `<button type="button" class="gc__tier" data-action="home-ranks" aria-label="Открыть ранги">${TIERS[t - 1]} · ${i + 1}/${RANKS.length} ›</button>` : `<span class="gc__tier">${TIERS[t - 1]} · ${i + 1}/${RANKS.length}</span>`}</div>
         <h3 class="gc__name">${esc(r[0])}</h3>
         <div class="gc__foot">
@@ -517,7 +517,7 @@ export function renderHome() {
     return `<article class="gcs gc--t${t} ${st}${i === 24 ? ' gc--legend' : ''}${i === rankView ? ' is-view' : ''}" style="${gcVars(i)}" data-action="home-rank-view" data-i="${i}" role="button" tabindex="0" aria-label="Показать карту «${esc(r[0])}»">
       <i class="gc__blob gc__blob--a"></i><i class="gc__blob gc__blob--b"></i>
       <div class="gcs__num" aria-hidden="true">${no(i)}</div>
-      <div class="gcs__glass">${i <= ri || RANKS_PREVIEW ? '' : `<span class="gcs__lock">${LOCK}</span>`}
+      <div class="gcs__glass"><i class="gc__holo"></i><i class="gc__spark"></i>${i <= ri || RANKS_PREVIEW ? '' : `<span class="gcs__lock">${LOCK}</span>`}
         <h3 class="gcs__name">${esc(r[0])}</h3>
         <span class="gcs__foot">${i === ri ? 'ваш ранг' : i < ri ? 'получен' : `опыт ${fmt(r[1])}`}</span></div></article>`; };
   const LOCK = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
