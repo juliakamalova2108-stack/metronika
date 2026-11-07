@@ -1,12 +1,12 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=257';
-import * as S from './store.js?v=257';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=257';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=257';
-import { topbar, typeName, renderSettlements } from './shared.js?v=257';
-import { ROOMS, roomColor } from './ocenka.js?v=257';
-import { COUNTRIES, SOON } from './phonecodes.js?v=257';
+import { actions, changes, rerender, go, val } from './core.js?v=258';
+import * as S from './store.js?v=258';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=258';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=258';
+import { topbar, typeName, renderSettlements } from './shared.js?v=258';
+import { ROOMS, roomColor } from './ocenka.js?v=258';
+import { COUNTRIES, SOON } from './phonecodes.js?v=258';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -40,8 +40,6 @@ export function renderProfile() {
     const disp = S.dispatchersOf(me.id);
     body = `<section class="plate">
       <div class="plate__head"><h2 class="plate__title">Рейтинг</h2><span class="big-num">${S.ratingOf(me.id).toLocaleString('ru-RU')} м²</span></div>
-      <p class="small">Только подтверждённые метры поклейки: заказ заполнен, геоотметки на замере и работах, замер с рулетки, смета из замера, заказ закрыт. Рейтинг остаётся с мастером.</p>
-      <div class="plate__head"><span class="small">Надёжность по выплатам</span>${rel}</div>
     </section>
     ${disp.length ? `<section class="plate"><h2 class="plate__title">Работаю с диспетчерами</h2>${disp.map((d) => kv(esc(d.name), esc(phoneRu(d.phone)))).join('')}<p class="small">Заказы от диспетчера — по его ценам. Свои заказы — по вашим.</p></section>` : ''}
     ${S.hasRole(me, 'dispatcher') ? `<section class="plate"><div class="list">${navRow('team', 'Команда', 'users', `${S.teamOf(me.id).length} из ${(me.plan && me.plan.seats) || 0} мест`)}</div></section>` : ''}`;
