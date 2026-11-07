@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=154';
-import * as S from './store.js?v=154';
-import { SYSTEM_PRICE } from './seed.js?v=154';
-import { shiftsText, hoursFor } from './calc.js?v=154';
-import { esc, toast } from './ui.js?v=154';
-import { logEvent } from './zlog.js?v=154';
+import { actions, changes, rerender } from './core.js?v=155';
+import * as S from './store.js?v=155';
+import { SYSTEM_PRICE } from './seed.js?v=155';
+import { shiftsText, hoursFor } from './calc.js?v=155';
+import { esc, toast } from './ui.js?v=155';
+import { logEvent } from './zlog.js?v=155';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -118,26 +118,25 @@ function startView(e) {
 actions['o-start'] = () => { const e = D(); e.picking = true; save(); };
 
 function pickView(e) {
-  // Комната уже есть на этом этаже — плитка горит цветом комнаты, справа корзина (удалить).
-  const list = ROOMS.map(([name, color]) => {
-    const has = e.rooms.filter((r) => r.floor === e.floor && !r.custom && (r.base || r.name) === name);
-    return `<div class="o-chip${has.length ? ' is-on' : ''}" style="--rc:${color}"><button type="button" class="o-chip__add" data-action="o-room-add" data-name="${esc(name)}"><i></i><span>${esc(name)}${has.length > 1 ? ` <small>×${has.length}</small>` : ''}</span></button>${has.length ? `<button type="button" class="o-chip__del" data-action="o-room-del" data-key="${has[has.length - 1].key}" aria-label="Удалить ${esc(has[has.length - 1].name)}">${TRASH}</button>` : ''}</div>`;
-  }).join('');
-  // Свои названия (переименованные комнаты) — тоже в списке, их можно добавить ещё раз.
-  const std = new Set(ROOMS.map(([n]) => n));
-  const customs = [...new Map(e.rooms.filter((r) => r.custom && !std.has(r.name)).map((r) => [r.name.replace(/ \d+$/, ''), r])).entries()];
-  const own = customs.map(([name, r0]) => {
-    const has = e.rooms.filter((r) => r.floor === e.floor && (r.name === name || r.name.startsWith(name + ' ')));
-    // Своё название — двумя строками: сверху тип комнаты («Спальня»), снизу уточнение («мальчика»).
-    const type = r0.base || name;
-    const note = name.toLowerCase().startsWith(type.toLowerCase() + ' ') ? name.slice(type.length + 1) : name;
-    return `<div class="o-chip o-chip--own${has.length ? ' is-on' : ''}" style="--rc:${r0.color || '#7c8f8a'}"><button type="button" class="o-chip__add" data-action="o-room-add" data-name="${esc(name)}" aria-label="Добавить: ${esc(name)}"><i></i><span class="o-chip__two"><b>${esc(type)}${has.length > 1 ? ` <small>×${has.length}</small>` : ''}</b><em>${esc(note)}</em></span></button>${has.length ? `<button type="button" class="o-chip__del" data-action="o-room-del" data-key="${has[has.length - 1].key}" aria-label="Удалить ${esc(has[has.length - 1].name)}">${TRASH}</button>` : ''}</div>`;
+  // Нет такой комнаты на этаже — одна плитка с типом. Есть — по плитке на каждую комнату («Спальня 1», «Спальня 2»…),
+  // у каждой своя корзина. Переименованная — двумя строками: тип и уточнение («Спальня / мальчика»).
+  // Нажатие на любую плитку типа добавляет ещё одну такую комнату.
+  const chip = (type, color, room) => {
+    // «Спальня 1» в узкой плитке с корзиной не помещается — номер уходит второй строкой, как уточнение.
+    let [top, note] = room ? roomLines(room) : [type, ''];
+    if (room && !note) { const m = new RegExp('^(.*) (\\d+)$').exec(room.name); if (m) { top = m[1]; note = m[2]; } }
+    const label = note ? `<span class="o-chip__two"><b>${esc(top)}</b><em>${esc(note)}</em></span>` : `<span>${esc(top)}</span>`;
+    return `<div class="o-chip${room ? ' is-on' : ''}" style="--rc:${color}"><button type="button" class="o-chip__add" data-action="o-room-add" data-name="${esc(type)}" aria-label="Добавить: ${esc(type)}"><i></i>${label}</button>${room ? `<button type="button" class="o-chip__del" data-action="o-room-del" data-key="${room.key}" aria-label="Удалить ${esc(room.name)}">${TRASH}</button>` : ''}</div>`;
+  };
+  const list = ROOMS.map(([type, color]) => {
+    const has = e.rooms.filter((r) => r.floor === e.floor && (r.base || r.name) === type);
+    return has.length ? has.map((r) => chip(type, r.color || color, r)).join('') : chip(type, color, null);
   }).join('');
   return `${carousel(e)}
     <section class="f-plate o-sheet o-sheet--chips">
       <p class="o-chips__t">${e.rooms.length ? 'Какую комнату добавить?' : 'В какой комнате вы стоите?'}</p>
       <div class="o-floors" role="tablist">${[1, 2, 3].map((f) => `<button type="button" role="tab" aria-selected="${f === e.floor}" class="o-floor${f === e.floor ? ' is-on' : ''}" data-action="o-floor" data-f="${f}">${f} этаж</button>`).join('')}</div>
-      <div class="o-chips">${list}${own}</div>
+      <div class="o-chips">${list}</div>
     </section>`;
 }
 
