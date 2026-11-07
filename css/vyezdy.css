@@ -1838,3 +1838,18 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .h-meas__t small { font: 500 12.5px Inter, sans-serif; color: rgba(237,242,232,.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .h-meas__a { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #edf2e8; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
 .h-meas__a svg { width: 18px; height: 18px; }
+
+/* Сегодня: замеры вторым рядом под выездом */
+.h-mtoday { display: flex; flex-direction: column; gap: 10px; margin-top: -2px; }
+.h-mt { position: relative; overflow: hidden; display: flex; align-items: center; flex-wrap: wrap; gap: 12px 14px; padding: 14px 16px; border-radius: 22px;
+  background: linear-gradient(135deg, rgba(232,210,122,.12), rgba(255,255,255,.04)); box-shadow: inset 0 0 0 1px rgba(232,210,122,.22), 0 14px 30px -18px rgba(0,0,0,.6); }
+.h-mt__top { flex: 0 0 100%; }
+.h-pill--meas { color: #e8d27a; background: rgba(232,210,122,.14); }
+.h-pill--meas i { background: #e8d27a; box-shadow: 0 0 0 3px rgba(232,210,122,.2); }
+.h-mt__row { flex: 1; min-width: 0; display: flex; align-items: center; gap: 14px; }
+.h-mt__time { font: 800 30px/1 Manrope, sans-serif; letter-spacing: -.03em; color: #edf2e8; }
+.h-mt__who { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.h-mt__who b { font: 700 15px Manrope, sans-serif; color: #edf2e8; }
+.h-mt__who small { font: 500 12.5px Inter, sans-serif; color: rgba(237,242,232,.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.h-mt__act { display: flex; gap: 8px; }
+.h-mt__act .h-round { width: 44px; height: 44px; }

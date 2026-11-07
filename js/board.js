@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=237';
-import * as S from './store.js?v=237';
-import { renderOformit, oformitDraft } from './oformit.js?v=237';
-import { roomTotals, svcInfo } from './ocenka.js?v=237';
-import { smetaTotals } from './zakaz.js?v=237';
-import { bookedDays } from './grafik.js?v=237';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=237';
-import { esc, toast } from './ui.js?v=237';
+import { actions, rerender, go } from './core.js?v=238';
+import * as S from './store.js?v=238';
+import { renderOformit, oformitDraft } from './oformit.js?v=238';
+import { roomTotals, svcInfo } from './ocenka.js?v=238';
+import { smetaTotals } from './zakaz.js?v=238';
+import { bookedDays } from './grafik.js?v=238';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=238';
+import { esc, toast } from './ui.js?v=238';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -643,18 +643,25 @@ export function renderHome() {
   const meas = (realMeas.length ? realMeas : DEMO_MEAS).sort((x, y) => x.off - y.off || x.time.localeCompare(y.time));
   const RULER = ic('<path d="M3.5 15.5l12-12 5 5-12 12z"/><path d="M7 12l2 2M9.5 9.5l1.5 1.5M12 7l2 2"/>');
   const whenOf = (off) => { if (off === 0) return 'сегодня'; if (off === 1) return 'завтра'; const d = dayOf(off); return `${WD[d.getDay()]}, ${d.getDate()} ${MON[d.getMonth()]}`; };
-  const measRows = meas.map((m) => `<div class="h-meas">
+  const measToday = meas.filter((m) => m.off === 0);
+  const measRows = meas.filter((m) => m.off > 0).map((m) => `<div class="h-meas">
       <span class="h-meas__ic">${RULER}</span>
       <span class="h-meas__t"><b>Замер · ${esc(m.time)} <em>${whenOf(m.off)}</em></b><small>${esc(m.n)} · ${esc(m.a)}</small></span>
       <a class="h-meas__a" href="tel:+7${esc(String(m.ph).replace(/\D/g, '').slice(-10))}" aria-label="Позвонить">${HI.call}</a>
       <a class="h-meas__a" href="https://yandex.ru/maps/?text=${encodeURIComponent('Уфа, ' + m.a)}" target="_blank" rel="noopener" aria-label="Маршрут">${HI.route}</a></div>`).join('');
   const taskRows = tasks.map(({ t, no }) => `<button type="button" class="h-task${t.done ? ' is-done' : ''}" data-action="home-task" data-no="${no}" data-id="${esc(t.id)}"><i>${t.done ? ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>') : ''}</i><span>${esc(t.text)}<small>№${no} · ${esc(short(CL[no].n))}</small></span></button>`).join('');
+  // Сегодняшние замеры — вторым рядом под выездом в «Сегодня»
+  const measTodayHtml = measToday.length ? `<div class="h-mtoday">${measToday.map((m) => `<article class="h-mt">
+      <div class="h-mt__top"><span class="h-pill h-pill--meas"><i></i>Сегодня · замер</span></div>
+      <div class="h-mt__row"><span class="h-mt__time">${esc(m.time)}</span><span class="h-mt__who"><b>${esc(m.n)}</b><small>${esc(m.a)}</small></span></div>
+      <div class="h-mt__act"><a class="h-round" href="tel:+7${esc(String(m.ph).replace(/\D/g, '').slice(-10))}" aria-label="Позвонить">${HI.call}</a>
+        <a class="h-round" href="https://yandex.ru/maps/?text=${encodeURIComponent('Уфа, ' + m.a)}" target="_blank" rel="noopener" aria-label="Маршрут">${HI.route}</a></div></article>`).join('')}</div>` : '';
   const tasksHtml = `<section class="h-block"><div class="h-block__hd"><h2>Задачи и замеры</h2>${tasks.length ? `<span class="h-sub">задачи ${done} из ${tasks.length}</span>` : ''}</div>
-    ${measRows}${taskRows}${meas.length || tasks.length ? '' : '<p class="h-free">Задач и замеров пока нет</p>'}</section>`;
+    ${measRows}${taskRows}${meas.some((m) => m.off > 0) || tasks.length ? '' : '<p class="h-free">Задач и замеров пока нет</p>'}</section>`;
 
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     ${homeRanks ? ranksSheet() : ''}
-    <div class="h-page">${head}${heroHtml}${tasksHtml}${weekHtml}${moneyHtml}${stagesHtml}</div>
+    <div class="h-page">${head}${heroHtml}${measTodayHtml}${tasksHtml}${weekHtml}${moneyHtml}${stagesHtml}</div>
     <button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
 }
 let homeRanks = false;
