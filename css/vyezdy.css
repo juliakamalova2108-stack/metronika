@@ -1170,3 +1170,9 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-ren__hint { height: 32px; padding: 0 10px; border-radius: 16px; border: 0.7px solid rgba(204, 222, 209, 0.45); background: rgba(9, 18, 19, 0.35);
   color: #edf0e7; font: 500 13px/1 var(--font-body); cursor: pointer; }
 .o-dialog.o-rename { top: 84px; transform: none; }
+/* Своя комната в списке — две строки: тип и уточнение */
+.o-chip__two { display: flex; flex-direction: column; gap: 1px; min-width: 0; line-height: 1.15; }
+.o-chip__two b { font-weight: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o-chip__two em { font-style: normal; font-size: 11px; color: rgba(237, 242, 232, 0.72); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o-pv__note { display: block; margin-top: 1px; font: 400 11px/13px var(--font-body); font-style: normal; color: rgba(237, 242, 232, 0.75); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o-pv.is-on .o-pv__note { padding-right: 24px; }
