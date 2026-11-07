@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=212';
-import * as S from './store.js?v=212';
-import { renderOformit, oformitDraft } from './oformit.js?v=212';
-import { roomTotals, svcInfo } from './ocenka.js?v=212';
-import { smetaTotals } from './zakaz.js?v=212';
-import { bookedDays } from './grafik.js?v=212';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=212';
-import { esc, toast } from './ui.js?v=212';
+import { actions, rerender, go } from './core.js?v=213';
+import * as S from './store.js?v=213';
+import { renderOformit, oformitDraft } from './oformit.js?v=213';
+import { roomTotals, svcInfo } from './ocenka.js?v=213';
+import { smetaTotals } from './zakaz.js?v=213';
+import { bookedDays } from './grafik.js?v=213';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=213';
+import { esc, toast } from './ui.js?v=213';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -464,11 +464,31 @@ export function renderHome() {
     <div class="h-me__glow" aria-hidden="true"></div>
     <div class="h-me__top"><span class="h-ava"><b>${esc(initials)}</b></span>
       <span class="h-me__hi"><small>${hello},</small><b>${esc(fullName.split(' ')[0])}</b><em>${WDF[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</em></span>
-      <span class="h-rate h-rate--t${tier}">${esc(rank)}</span></div>
+      <button type="button" class="h-rate h-rate--t${tier}" data-action="home-ranks" aria-label="Ранг: ${esc(rank)} — правила">${esc(rank)} ›</button></div>
     <div class="h-me__stats">
       <span class="h-me__st"><small>Опыт</small><b>${expN}</b><em>${plural(expN, 'запись', 'записи', 'записей')} о материалах</em></span>
       <span class="h-me__st"><small>Поклеено</small><b>${fmt(area)}<i> м²</i></b><em>за всё время</em></span></div>
     ${nextR ? `<div class="h-rank"><div class="h-rank__bar"><i style="width:${rankPct}%"></i></div><span>до ранга «${esc(nextR[0])}» — опишите ещё ${nextR[1] - described} ${plural(nextR[1] - described, 'материал', 'материала', 'материалов')}</span></div>` : ''}</section>`;
+
+  // ── Панель «Ранги»: где мастер сейчас, сколько осталось, правила и вся лестница ──
+  const TIERS = ['Старт', 'Мастера', 'Профи', 'Эксперты', 'Вершина'];
+  const ranksSheet = () => {
+    const left = nextR ? nextR[1] - described : 0;
+    const ladder = TIERS.map((tn, ti) => `<div class="rk-tier rk-tier--t${ti + 1}"><p class="rk-tier__t"><i></i>${tn}</p>${RANKS.map((r, i) => [r, i]).filter(([r]) => r[2] === ti + 1).map(([r, i]) =>
+      `<div class="rk-row${i < ri ? ' is-done' : i === ri ? ' is-cur' : ''}"><span class="rk-row__n">${i + 1}</span><b>${esc(r[0])}</b><span class="rk-row__v">${i < ri ? '✓' : i === ri ? 'вы здесь' : `${fmt(r[1])}`}</span></div>`).join('')}</div>`).join('');
+    return `<div class="rk-scrim" data-action="home-ranks-close"></div><section class="rk" role="dialog" aria-label="Ранги мастера">
+      <div class="rk__hd"><h2>Ранги мастера</h2><button type="button" class="rk__x" data-action="home-ranks-close" aria-label="Закрыть">×</button></div>
+      <div class="rk-me"><span class="h-rate h-rate--t${tier}">${esc(rank)}</span>
+        <div class="rk-me__big">${nextR ? `<b>${left}</b><span>${plural(left, 'материал', 'материала', 'материалов')} до ранга «${esc(nextR[0])}»</span>` : '<b>★</b><span>Высший ранг — вы Легенда</span>'}</div>
+        <div class="h-rank__bar"><i style="width:${rankPct}%"></i></div>
+        <div class="rk-me__row"><span>описано обоев: <b>${described}</b></span>${nextR ? `<span>нужно: <b>${fmt(nextR[1])}</b></span>` : ''}</div></div>
+      <div class="rk-rules"><p class="rk-rules__t">Как растёт ранг</p>
+        <p>• Ранг даётся за <b>опыт</b>: сколько разных обоев вы описали в «Моём опыте» (закладка в «Материале»).</p>
+        <p>• Одни обои (один штрихкод) засчитываются один раз — сколько бы записей о них ни было.</p>
+        <p>• Квадратура «Поклеено» на ранг не влияет.</p>
+        <p>• До «Мастера» — быстро, до «Профи» — сложнее, со «Знатока» — очень сложно. «Легенда» — 1000 описанных обоев.</p></div>
+      <div class="rk-ladder">${ladder}</div></section>`;
+  };
 
   // ── Шапка ──
   const head = `<div class="h-bar"><span></span>
@@ -557,9 +577,13 @@ export function renderHome() {
     ${tasks.length ? tasks.map(({ t, no }) => `<button type="button" class="h-task${t.done ? ' is-done' : ''}" data-action="home-task" data-no="${no}" data-id="${esc(t.id)}"><i>${t.done ? ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>') : ''}</i><span>${esc(t.text)}<small>№${no} · ${esc(short(CL[no].n))}</small></span></button>`).join('') : '<p class="h-free">На сегодня задач нет</p>'}</section>`;
 
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
+    ${homeRanks ? ranksSheet() : ''}
     <div class="h-page">${head}${heroHtml}${attHtml}${weekHtml}${moneyHtml}${stagesHtml}${tasksHtml}</div>
     <button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
 }
+let homeRanks = false;
+actions['home-ranks'] = () => { homeRanks = true; rerender(); };
+actions['home-ranks-close'] = () => { homeRanks = false; rerender(); };
 actions['home-day'] = (el) => { homeDay = Number(el.dataset.off); rerender(); };
 actions['home-task'] = (el) => { const o = homeOrder(el.dataset.no); const t = (o.tasks || []).find((x) => x.id === el.dataset.id); if (!t) return;
   t.done = !t.done; t.doneToday = t.done ? iso(0) : ''; S.save(); rerender(); };
