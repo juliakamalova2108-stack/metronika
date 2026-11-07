@@ -1716,3 +1716,19 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .mc__tier--btn:focus-visible { outline: 2px solid var(--hi); outline-offset: 2px; }
 .h-hero2 > .h-next { display: none; }
 .mc[data-tilt] .mc__name { margin-bottom: 12px; }
+/* L-карта: сбалансированная компоновка — медальон + ранг, внизу владелец и две цифры */
+.mc[data-tilt] .mc__body { padding: 18px 20px 18px; }
+.h-cardwrap .mc[data-tilt] { aspect-ratio: 1.586; min-height: 0; }
+.mc__mid { display: flex; align-items: center; gap: 14px; margin-top: auto; margin-bottom: auto; }
+.mc[data-tilt] .mc__chip { margin-top: 0; }
+.mc[data-tilt] .rc-medal { width: 52px; height: 40px; }
+.mc__rank { display: flex; flex-direction: column; gap: 4px; }
+.mc[data-tilt] .mc__name { margin: 0; font-size: 28px; }
+.mc__rank span { font: 500 11px/1 Inter, sans-serif; letter-spacing: .03em; color: var(--hi); opacity: .8; }
+.mc__foot2 { display: flex; align-items: flex-end; gap: 18px; }
+.mc__holder { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; font: 700 17px/1.1 Manrope, Inter, sans-serif; letter-spacing: .02em; color: var(--ink);
+  text-shadow: 0 1px 0 rgba(0,0,0,.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc__holder small, .mc__kpi small { font: 500 9.5px/1 Inter, sans-serif; letter-spacing: .04em; color: var(--hi); opacity: .75; }
+.mc__kpi { display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 4px; }
+.mc__kpi b { font: 800 17px/1 Manrope, Inter, sans-serif; color: var(--ink); text-shadow: 0 1px 0 rgba(0,0,0,.4); white-space: nowrap; }
+.mc__kpi b i { font-style: normal; font-size: 11px; opacity: .8; }
