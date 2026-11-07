@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=234';
-import * as S from './store.js?v=234';
-import { renderOformit, oformitDraft } from './oformit.js?v=234';
-import { roomTotals, svcInfo } from './ocenka.js?v=234';
-import { smetaTotals } from './zakaz.js?v=234';
-import { bookedDays } from './grafik.js?v=234';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=234';
-import { esc, toast } from './ui.js?v=234';
+import { actions, rerender, go } from './core.js?v=235';
+import * as S from './store.js?v=235';
+import { renderOformit, oformitDraft } from './oformit.js?v=235';
+import { roomTotals, svcInfo } from './ocenka.js?v=235';
+import { smetaTotals } from './zakaz.js?v=235';
+import { bookedDays } from './grafik.js?v=235';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=235';
+import { esc, toast } from './ui.js?v=235';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -493,20 +493,33 @@ export function renderHome() {
   const GUI = guilloche('mc__gui');
   // ПОКАЗ: пока все карты открыты, чтобы их можно было посмотреть (RANKS_PREVIEW = false — вернуть как у мастера).
   const RANKS_PREVIEW = true;
+  // Палитра каждого ранга: [цвет номера, второй цвет] — у каждой карты свои цвета, пятна и место номера; стиль общий (стекло + номер + блик)
+  const PAL = [['#8fe3b0','#5aa0d8'],['#5ee3a0','#2f7fd6'],['#3fe0c5','#2a6fd0'],['#b8f06a','#2fa37a'],['#6ef0e0','#3a5fe0'],
+    ['#5fc8ff','#2b4fd8'],['#7aa8ff','#5a3fe0'],['#4fe0ff','#1e8aa0'],['#9ab8ff','#2fd6c0'],['#63a4ff','#9b5cff'],
+    ['#ffb36b','#e0455a'],['#ffcf6b','#e06a3a'],['#ff8a6b','#c93a8a'],['#ffd36b','#ff5f6b'],['#ffb84a','#d42f2f'],
+    ['#c7a7f5','#4a6fe0'],['#e0a0ff','#6a3fd0'],['#ff9ad5','#7a4ae0'],['#b49cff','#e05aa8'],['#d9b8ff','#3a2fa0'],
+    ['#ffe08a','#c48a2a'],['#fff0b0','#e0a030'],['#f5f0e0','#b89a5a'],['#ffd36b','#ff7ad9'],['#ffe9a8','#7ae0ff']];
+  const BLOBS = [[2, 4, -2, -8], [40, -10, -10, 30], [-6, 30, 30, -14], [20, 20, -14, -20], [-10, -12, 10, 20]];
+  const NUMP = [[3, 8], [6, 22], [2, 2], [8, 14], [4, 28]];
+  const gcVars = (i) => { const [g1, g2] = PAL[i]; const [ax, ay, bx, by] = BLOBS[i % 5]; const [nx, ny] = NUMP[(i * 2 + RANKS[i][2]) % 5];
+    return `--g1:${g1};--g2:${g2};--ax:${ax}%;--ay:${ay}%;--bx:${bx}%;--by:${by}%;--nx:${nx}%;--ny:${ny}%`; };
+  const no = (i) => String(i + 1).padStart(2, '0');
   const card = (i, size, stats) => { const r = RANKS[i]; const t = r[2]; const st = i === ri ? 'is-cur is-got' : (i < ri || RANKS_PREVIEW) ? 'is-got' : 'is-lock';
-    if (size === 'l') return `<article class="mc mc--t${t} ${st}" data-tilt>
-      <div class="mc__metal"></div>${GUI}<div class="mc__sheen"></div>
-      <div class="mc__body">
-        <div class="mc__row"><span class="mc__brand">Metronica</span>${stats ? `<button type="button" class="mc__tier mc__tier--btn" data-action="home-ranks" aria-label="Открыть ранги">${TIERS[t - 1]} ›</button>` : `<span class="mc__tier">${TIERS[t - 1]}</span>`}</div>
-        <div class="mc__mid"><div class="mc__chip">${medal(t)}</div><div class="mc__rank"><h3 class="mc__name">${esc(r[0])}</h3><span>ранг ${i + 1} из ${RANKS.length}</span></div></div>
-        <div class="mc__foot2"><span class="mc__holder"><small>Мастер</small>${esc(fullName)}</span>
-          ${stats ? `<span class="mc__kpi"><b>${fmt(area)}<i> м²</i></b><small>поклеено</small></span><span class="mc__kpi"><b>${expN}</b><small>опыт</small></span>` : ''}</div>
-      </div></article>`;
-    return `<article class="mc mc--s mc--t${t} ${st}${i === rankView ? ' is-view' : ''}" data-action="home-rank-view" data-i="${i}" role="button" tabindex="0" aria-label="Показать карту «${esc(r[0])}»"><div class="mc__metal"></div><div class="mc__body">
-      <div class="mc__row"><span class="mc__no">${String(i + 1).padStart(2, '0')}</span>${i <= ri || RANKS_PREVIEW ? '' : `<span class="mc__lock">${LOCK}</span>`}</div>
-      <div class="mc__chip">${medal(t)}</div>
-      <h3 class="mc__name">${esc(r[0])}</h3>
-      <span class="mc__foot">${i === ri ? 'ваш ранг' : i < ri ? 'получен' : `от ${fmt(r[1])} обоев`}</span></div></article>`; };
+    if (size === 'l') return `<article class="gc gc--t${t}${i === 24 ? ' gc--legend' : ''}" style="${gcVars(i)}">
+      <i class="gc__blob gc__blob--a"></i><i class="gc__blob gc__blob--b"></i>
+      <div class="gc__num" aria-hidden="true">${no(i)}</div>
+      <div class="gc__glass"><div class="gc__sweep"></div>
+        <div class="gc__top"><span class="gc__brand">Metronica</span>${stats ? `<button type="button" class="gc__tier" data-action="home-ranks" aria-label="Открыть ранги">${TIERS[t - 1]} · ${i + 1}/${RANKS.length} ›</button>` : `<span class="gc__tier">${TIERS[t - 1]} · ${i + 1}/${RANKS.length}</span>`}</div>
+        <h3 class="gc__name">${esc(r[0])}</h3>
+        <div class="gc__foot">
+          <div><small>Мастер</small><b>${esc(fullName)}</b></div>
+          ${stats ? `<div><small>Поклеено</small><b>${fmt(area)} м²</b></div><div><small>Опыт</small><b>${expN}</b></div>` : `<div><small>Нужно опыта</small><b>${fmt(r[1])}</b></div>`}</div></div></article>`;
+    return `<article class="gcs gc--t${t} ${st}${i === 24 ? ' gc--legend' : ''}${i === rankView ? ' is-view' : ''}" style="${gcVars(i)}" data-action="home-rank-view" data-i="${i}" role="button" tabindex="0" aria-label="Показать карту «${esc(r[0])}»">
+      <i class="gc__blob gc__blob--a"></i><i class="gc__blob gc__blob--b"></i>
+      <div class="gcs__num" aria-hidden="true">${no(i)}</div>
+      <div class="gcs__glass">${i <= ri || RANKS_PREVIEW ? '' : `<span class="gcs__lock">${LOCK}</span>`}
+        <h3 class="gcs__name">${esc(r[0])}</h3>
+        <span class="gcs__foot">${i === ri ? 'ваш ранг' : i < ri ? 'получен' : `опыт ${fmt(r[1])}`}</span></div></article>`; };
   const LOCK = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
   const ranksSheet = () => {
     const left = nextR ? nextR[1] - described : 0;
@@ -527,23 +540,10 @@ export function renderHome() {
         <p>До «Мастера» — быстро, до «Профи» — сложнее, со «Знатока» — очень сложно. «Легенда» — 1000 описанных обоев.</p></div></section>`;
   };
 
-  // Карта на главной: стекло, номер ранга за стеклом, живой блик (вариант «03 за стеклом»)
-  const glassCard = (i) => { const r = RANKS[i]; const t = r[2];
-    return `<article class="gc gc--t${t}">
-      <i class="gc__blob gc__blob--a"></i><i class="gc__blob gc__blob--b"></i>
-      <div class="gc__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</div>
-      <div class="gc__glass"><div class="gc__sweep"></div>
-        <div class="gc__top"><span class="gc__brand">Metronica</span><button type="button" class="gc__tier" data-action="home-ranks" aria-label="Открыть ранги">${TIERS[t - 1]} · ${i + 1}/${RANKS.length} ›</button></div>
-        <h3 class="gc__name">${esc(r[0])}</h3>
-        <div class="gc__foot">
-          <div><small>Мастер</small><b>${esc(fullName)}</b></div>
-          <div><small>Поклеено</small><b>${fmt(area)} м²</b></div>
-          <div><small>Опыт</small><b>${expN}</b></div></div></div></article>`; };
-
   // ── Главная: металлическая карта текущего ранга — сверху; под ней опыт, квадратура и путь до следующего ранга ──
   const meHtml = `<section class="h-hero2">
     <p class="h-hi">${hello}, ${esc(fullName.split(' ')[0])}<small>${WDF[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</small></p>
-    <div class="h-cardwrap h-cardwrap--glass">${glassCard(ri)}</div>
+    <div class="h-cardwrap h-cardwrap--glass">${card(ri, 'l', true)}</div>
     <div class="h-stats2" hidden>
       <span><b>${expN}</b><small>${plural(expN, 'запись', 'записи', 'записей')} опыта</small></span>
       <span><b>${fmt(area)}<i> м²</i></b><small>поклеено</small></span>

@@ -1739,9 +1739,9 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .gc--t2 { --g1: #7ee2d0; --g2: #3d6fe0; } .gc--t3 { --g1: #f2c66d; --g2: #d8634a; }
 .gc--t4 { --g1: #c7a7f5; --g2: #4a6fe0; } .gc--t5 { --g1: #ffd98a; --g2: #c48a2a; }
 .gc__blob { position: absolute; border-radius: 50%; filter: blur(34px); z-index: -2; }
-.gc__blob--a { width: 52%; height: 80%; left: 2%; top: 4%; background: var(--g1); opacity: .28; }
-.gc__blob--b { width: 56%; height: 86%; right: -2%; bottom: -8%; background: var(--g2); opacity: .4; }
-.gc__num { position: absolute; right: 3%; top: 8%; z-index: -1; font: 800 54cqw/.8 Unbounded, Manrope, sans-serif; letter-spacing: -.07em; color: var(--g1); opacity: .85; text-shadow: 0 0 40px var(--g1); }
+.gc__blob--a { width: 52%; height: 80%; left: var(--ax, 2%); top: var(--ay, 4%); background: var(--g1); opacity: .28; }
+.gc__blob--b { width: 56%; height: 86%; right: var(--bx, -2%); bottom: var(--by, -8%); background: var(--g2); opacity: .4; }
+.gc__num { position: absolute; right: var(--nx, 3%); top: var(--ny, 8%); z-index: -1; font: 800 54cqw/.8 Unbounded, Manrope, sans-serif; letter-spacing: -.07em; color: var(--g1); opacity: .9; }
 .gc__glass { position: absolute; inset: 0; overflow: hidden; border-radius: 24px; padding: 20px 22px; display: flex; flex-direction: column; color: #fff;
   background: rgba(255,255,255,.08); -webkit-backdrop-filter: blur(9px) saturate(150%); backdrop-filter: blur(9px) saturate(150%);
   border: 1px solid rgba(255,255,255,.22); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 24px 48px -20px rgba(0,0,0,.7); }
@@ -1758,3 +1758,26 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .gc__foot small { display: block; font: 600 9.5px Manrope, sans-serif; letter-spacing: .12em; text-transform: uppercase; opacity: .6; }
 .gc__foot b { font: 800 14px Manrope, sans-serif; white-space: nowrap; }
 .gc__foot > div:first-child { min-width: 0; } .gc__foot > div:first-child b { display: block; overflow: hidden; text-overflow: ellipsis; }
+
+/* Легенда: радужная грань */
+@property --gca { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+.gc--legend::before { content: ''; position: absolute; inset: -2px; border-radius: 26px; z-index: -1; background: conic-gradient(from var(--gca), #ffe9a8, #7ae0ff, #d8b4f0, #ffd36b, #ffe9a8); animation: gc-rot 6s linear infinite; padding: 2px; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.gcs.gc--legend::before { border-radius: 16px; }
+@keyframes gc-rot { to { --gca: 360deg; } }
+.gc__num, .gcs__num { background: linear-gradient(170deg, var(--g1) 30%, color-mix(in srgb, var(--g1) 50%, var(--g2))); -webkit-background-clip: text; background-clip: text; color: transparent !important; }
+.rk-hero .gc { max-width: 340px; }
+/* Маленькие карты коллекции — тот же стиль */
+.gcs { container-type: inline-size; position: relative; aspect-ratio: 3 / 4; isolation: isolate; cursor: pointer; border-radius: 14px; }
+.gcs .gc__blob { filter: blur(16px); }
+.gcs__num { position: absolute; left: 0; right: 0; top: 6%; text-align: center; z-index: -1; font: 800 64cqw/.8 Unbounded, Manrope, sans-serif; letter-spacing: -.08em; }
+.gcs__glass { position: absolute; inset: 0; overflow: hidden; border-radius: 14px; padding: 8px 8px 9px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; text-align: center; color: #fff;
+  background: rgba(255,255,255,.07); -webkit-backdrop-filter: blur(3px) saturate(150%); backdrop-filter: blur(3px) saturate(150%);
+  border: 1px solid rgba(255,255,255,.2); box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 10px 20px -10px rgba(0,0,0,.8); }
+.gcs__name { margin: 0; font: 800 13.5px/1.1 Manrope, sans-serif; letter-spacing: -.02em; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.4); }
+.gcs__foot { margin-top: 4px; font: 600 10px/1 Manrope, sans-serif; opacity: .7; white-space: nowrap; }
+.gcs__lock { position: absolute; right: 7px; top: 7px; width: 14px; height: 14px; opacity: .7; } .gcs__lock svg { width: 100%; height: 100%; }
+.gcs.is-lock .gcs__num, .gcs.is-lock .gc__blob { filter: grayscale(1) brightness(.5); }
+.gcs.is-lock .gcs__name { opacity: .5; }
+.gcs.is-cur { box-shadow: 0 0 0 2px #142220, 0 0 0 3.5px var(--g1), 0 0 22px color-mix(in srgb, var(--g1) 55%, transparent); }
+.gcs.is-view { outline: 2px solid #edf2e8; outline-offset: 3px; }
+.gcs:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
