@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=159';
-import * as S from './store.js?v=159';
-import { SYSTEM_PRICE } from './seed.js?v=159';
-import { shiftsText, hoursFor } from './calc.js?v=159';
-import { esc, toast } from './ui.js?v=159';
-import { logEvent } from './zlog.js?v=159';
+import { actions, changes, rerender } from './core.js?v=160';
+import * as S from './store.js?v=160';
+import { SYSTEM_PRICE } from './seed.js?v=160';
+import { shiftsText, hoursFor } from './calc.js?v=160';
+import { esc, toast } from './ui.js?v=160';
+import { logEvent } from './zlog.js?v=160';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -87,8 +87,8 @@ const plural = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : [2, 3, 4].i
 
 // Полоса сверху: слева «+» (добавить комнату), дальше комнаты карточками-превью «стекло»
 // (название, метры, сумма) и «Итог». Выбранная приподнята и обведена цветом комнаты.
-// Своё название на плитке — двумя строками: тип комнаты и уточнение («Спальня» / «мальчика»).
-const roomLines = (r) => { if (!r.custom) return [r.name, '']; const t = r.base || r.name;
+// Название на плитке — двумя строками: тип комнаты и номер или уточнение («Спальня» / «2», «Спальня» / «мальчика»).
+const roomLines = (r) => { if (!r.custom) { const m = /^(.*) (\d+)$/.exec(r.name); return m ? [m[1], m[2]] : [r.name, '']; } const t = r.base || r.name;
   return r.name.toLowerCase().startsWith(t.toLowerCase() + ' ') ? [t, r.name.slice(t.length + 1)] : [t, r.name]; };
 const PEN = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10.8 2.6l2.6 2.6M2.5 13.5l.7-3.2 7.6-7.6 2.6 2.6-7.6 7.6-3.3.6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>';
 function carousel(e, tabs, inner = '') {
@@ -128,8 +128,7 @@ function pickView(e) {
   // Нажатие на любую плитку типа добавляет ещё одну такую комнату.
   const chip = (type, color, room) => {
     // «Спальня 1» в узкой плитке с корзиной не помещается — номер уходит второй строкой, как уточнение.
-    let [top, note] = room ? roomLines(room) : [type, ''];
-    if (room && !note) { const m = new RegExp('^(.*) (\\d+)$').exec(room.name); if (m) { top = m[1]; note = m[2]; } }
+    const [top, note] = room ? roomLines(room) : [type, ''];
     const label = note ? `<span class="o-chip__two"><b>${esc(top)}</b><em>${esc(note)}</em></span>` : `<span>${esc(top)}</span>`;
     return `<div class="o-chip${room ? ' is-on' : ''}" style="--rc:${color}"><button type="button" class="o-chip__add" data-action="o-room-add" data-name="${esc(type)}" aria-label="Добавить: ${esc(type)}"><i></i>${label}</button>${room ? `<button type="button" class="o-chip__del" data-action="o-room-del" data-key="${room.key}" aria-label="Удалить ${esc(room.name)}">${TRASH}</button>` : ''}</div>`;
   };
