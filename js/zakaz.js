@@ -1,18 +1,18 @@
-import { renderMeasurement } from './measurement.js?v=151';
+import { renderMeasurement } from './measurement.js?v=152';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=151';
-import * as S from './store.js?v=151';
-import { WALLPAPER_TYPES } from './seed.js?v=151';
-import { esc, toast } from './ui.js?v=151';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=151';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=151';
-import { country } from './phonecodes.js?v=151';
-import { suggestAddress } from './address.js?v=151';
-import { suggesters } from './kbd.js?v=151';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=151';
+import { actions, changes, rerender } from './core.js?v=152';
+import * as S from './store.js?v=152';
+import { WALLPAPER_TYPES } from './seed.js?v=152';
+import { esc, toast } from './ui.js?v=152';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=152';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=152';
+import { country } from './phonecodes.js?v=152';
+import { suggestAddress } from './address.js?v=152';
+import { suggesters } from './kbd.js?v=152';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST } from './ocenka.js?v=152';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');

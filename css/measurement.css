@@ -190,32 +190,17 @@
 .mw .footer--sum b { font: 700 24px/30px var(--font-num); color: #fff; }
 
 /* ---------- итог по комнате ---------- */
-.mw .room-summary { padding: 20px 16px; }
-.mw .sum-heading small { font-size: 10px; letter-spacing: 0.14em; color: var(--ink-mute); }
-.mw .sum-heading h2 { margin: 3px 0 18px; font: 700 20px var(--font-num); }
+.mw .room-summary { padding: 16px 12px 14px; }
+.mw .room-summary .o-stack { gap: 10px; }
+.mw .room-summary .o-sroom__list .mw-none { text-align: left; margin: 6px 0; }
 .mw .summary-areas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding-bottom: 20px; }
 .mw .summary-areas span { padding: 10px 8px; border-radius: 14px; border: 1px solid var(--g-line-soft); background: rgba(0, 0, 0, 0.18); font-size: 10px; color: var(--ink-mute); }
 .mw .summary-areas span:first-child { border-color: rgba(6, 18, 20, 0.78); background: linear-gradient(180deg, var(--g-light), var(--g-light-2)); }
 .mw .summary-areas span:last-child { border-color: var(--g-dark-line); background: var(--paper), linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); }
 .mw .summary-areas b { display: block; margin-top: 4px; font: 700 16px/20px var(--font-num); color: #fff; white-space: nowrap; }
-.mw .sum-section-title { margin: 4px 0 10px; font: 700 14px/1.35 var(--font-num); color: #e6efe4; }
-.mw .sum-wall { margin-bottom: 8px; padding: 12px; border-radius: 14px; border: 0.9px solid var(--g-dark-line); background: linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); box-shadow: var(--deep-shadow); }
-.mw .sum-wall-head { display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
-.mw .sum-wall-head span { font: 600 12px/1.35 var(--font-num); color: var(--ink-mute); }
-.mw .sum-wall-areas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 12px 0; font-size: 10px; color: var(--ink-mute); }
-.mw .sum-wall-areas b { display: block; margin-top: 3px; font: 700 12px/1.35 var(--font-num); color: #fff; }
-.mw .sum-details { padding-top: 7px; border-top: 1px solid var(--g-line-soft); }
-.mw .sum-details > div { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 4px 0; font-size: 12px; color: #dfe6dc; }
-.mw .sum-details > div > span:last-child, .mw .sum-details b { flex: none; font-weight: 600; color: #fff; }
-.mw .sum-services { margin-bottom: 16px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--g-line-soft); }
-.mw .sum-services small { display: block; font-size: 10px; color: var(--ink-mute); }
-.mw .room-price { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding: 14px 16px; border-radius: 16px;
-  border: 0.9px solid rgba(6, 18, 20, 0.78); background: linear-gradient(180deg, var(--g-light), var(--g-light-2)); font-size: 14px; }
-.mw .room-price strong { font: 700 20px/1.35 var(--font-num); color: #fff; }
 
 /* итог по всем комнатам — пластины без закладок */
 .mw.mw--plain { filter: none; }
-.mw.mw--plain h3 { margin: 14px 4px 8px; font: 700 17px/22px var(--font-num); color: #fff; }
 .mw.mw--plain .wallbody { border: 1px solid var(--g-line); border-radius: 24px !important; background: linear-gradient(180deg, var(--g-sheet), var(--g-sheet-low));
   box-shadow: 0 20px 34px -18px rgba(0, 0, 0, 0.9); }
 
@@ -268,3 +253,4 @@
 .mw-screen .o-same .o-tog.is-on { background: var(--rc); }
 /* «Одинаковые услуги»: окошка числа нет — текст на всю ширину, переключатель справа */
 .mw-screen .o-same.o-same--v2 .o-svc.mw-same-services { grid-template-columns: minmax(0, 1fr) auto; }
+.mw .o-tline__n small { font-size: 11px; color: var(--ink-mute); }

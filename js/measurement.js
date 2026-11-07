@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=151';
-import * as S from './store.js?v=151';
-import {oformitDraft} from './oformit.js?v=151';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=151';
-import {esc} from './ui.js?v=151';
+import {actions,changes,rerender,afterRender} from './core.js?v=152';
+import * as S from './store.js?v=152';
+import {oformitDraft} from './oformit.js?v=152';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=152';
+import {esc} from './ui.js?v=152';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -87,12 +87,58 @@ afterRender.push(()=>{
   sc.addEventListener('scroll',()=>{tabScroll=sc.scrollLeft;},{passive:true});
 });
 
-// ---------- итог комнаты ----------
-function summary(r,edges=''){
- let g=0,o=0,a=0,c=0;const by=new Map();
- const rows=r.walls.map((w,i)=>{const ga=gross(w,r),ho=holes(w),ne=net(w,r),co=cost(w,r);g+=ga;o+=ho;a+=ne;c+=co;w.svcs.forEach(id=>{const old=by.get(id)||{area:0,sum:0};old.area+=ne;old.sum+=Math.round(ne*svcInfo(id).price);by.set(id,old)});return '<section class="sum-wall"><div class="sum-wall-head"><strong>Стена '+(i+1)+'</strong><span>'+cm(w.len)+' × '+cm(r.sameH?r.h:w.h)+' см</span></div><div class="sum-wall-areas"><span>Общая <b>'+n(ga)+' м²</b></span><span>Проёмы <b>−'+n(ho)+' м²</b></span><span>Рабочая <b>'+n(ne)+' м²</b></span></div><div class="sum-details">'+w.opens.map(x=>'<div>'+esc(x.type)+' <span>'+(x.width&&x.height?cm(x.width)+' × '+cm(x.height)+' см · ':'')+n(x.area)+' м²</span></div>').join('')+w.svcs.map(id=>'<div>'+esc(svcInfo(id).name)+' <span>'+rub(Math.round(ne*svcInfo(id).price))+'</span></div>').join('')+'</div></section>'}).join('');
- return '<div class="wallbody room-summary">'+edges+'<div class="sum-heading"><div><small>ЗАМЕРЫ</small><h2>Итог по комнате</h2></div></div><div class="summary-areas"><span>S общая<b>'+n(g)+' м²</b></span><span>S проёмов<b>−'+n(o)+' м²</b></span><span>S рабочая<b>'+n(a)+' м²</b></span></div><div class="sum-section-title">Стены</div>'+rows+'<div class="sum-section-title">Работы по комнате</div><div class="sum-details sum-services">'+(Array.from(by,([id,v])=>'<div><span>'+esc(svcInfo(id).name)+'<small>'+n(v.area)+' м²</small></span><b>'+rub(v.sum)+'</b></div>').join('')||'<div>Работы пока не добавлены</div>')+'</div><div class="room-price"><span>Итого за работы</span><strong>'+rub(c)+'</strong></div></div>';
+// ---------- итоги: стена → комната → весь замер ----------
+// Вид — как «Итог» во вкладке «Оценка»: свёрнутые плашки с цветной полосой (нажатие раскрывает строки),
+// «Итого по видам работ» строками, внизу общий итог.
+const openSum=new Set();
+const CHEV='<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const fmt=x=>Math.round(x).toLocaleString('ru-RU');
+const m2=x=>n(x).replace(/,00$/,'');
+const minus=x=>x>0?'−'+n(x):n(0);
+const plural=(k,a,b,c)=>{const m=k%10,h=k%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c;};
+const workHead='<div class="o-tline o-tline--h"><span>Работа</span><span>м²</span><span>₽/м²</span><span>Сумма</span></div>';
+const workLine=l=>`<div class="o-tline"><span class="o-tline__n">${esc(short(l.id))}</span><span>${m2(l.area)}</span><span>${fmt(svcInfo(l.id).price)}</span><b>${fmt(l.sum)} ₽</b></div>`;
+// итог одной стены
+function wallTotals(w,r){const g=gross(w,r),o=holes(w),a=net(w,r);
+  const lines=w.svcs.map(id=>({id,area:a,sum:Math.round(a*svcInfo(id).price)}));
+  return {g,o,a,lines,sum:lines.reduce((x,l)=>x+l.sum,0)};}
+// итог комнаты = сумма итогов её стен
+function roomTotals(r){const ws=r.walls.map(w=>wallTotals(w,r));const by=new Map();
+  ws.forEach(t=>t.lines.forEach(l=>{const o=by.get(l.id)||{id:l.id,area:0,sum:0};o.area+=l.area;o.sum+=l.sum;by.set(l.id,o);}));
+  const sumOf=k=>ws.reduce((x,t)=>x+t[k],0);
+  return {ws,g:sumOf('g'),o:sumOf('o'),a:sumOf('a'),sum:sumOf('sum'),lines:[...by.values()]};}
+const areas=(t)=>`<div class="summary-areas"><span>S общая<b>${n(t.g)} м²</b></span><span>S проёмов<b>${minus(t.o)} м²</b></span><span>S рабочая<b>${n(t.a)} м²</b></span></div>`;
+const fold=(key,color,title,sub,sum,sumSub,body)=>{const on=openSum.has(key);
+  return `<section class="o-sroom${on?' is-open':''}" style="--rc:${color}"><button type="button" class="o-sroom__head" data-action="mw-sum-toggle" data-key="${esc(key)}" aria-expanded="${on}">
+    <span class="o-sroom__name"><b>${title}</b><small>${sub}</small></span><span class="o-sroom__sum"><b>${fmt(sum)} ₽</b><small>${sumSub}</small></span><span class="o-sroom__chev">${CHEV}</span></button>
+    <div class="o-sroom__list">${body}</div></section>`;};
+const byWork=(lines,title)=>`<section class="f-plate o-bywork"><p class="o-sec o-sec--in">${title}</p>${lines.length?workHead+lines.map(workLine).join(''):'<p class="mw-none">Работы пока не добавлены</p>'}</section>`;
+const grand=(title,sum,sub)=>`<section class="f-plate o-grand"><p class="o-grand__t">${title}</p><b class="o-grand__sum">${fmt(sum)} ₽</b><p class="o-grand__x">${sub}</p></section>`;
+
+// итог комнаты (закладка «Итог» у стен)
+function summary(r,color,key){
+  const t=roomTotals(r);
+  const walls=t.ws.map((w,i)=>{const wl=r.walls[i];
+    const opens=wl.opens.map(o=>`<div class="o-tline"><span class="o-tline__n">${esc(o.type)}${o.width&&o.height?` <small>${cm(o.width)}×${cm(o.height)}</small>`:''}</span><span>−${m2(o.area)}</span><span></span><span></span></div>`).join('');
+    return fold(key+':'+i,color,'Стена '+(i+1),`${cm(wl.len)||'—'} × ${cm(r.sameH?r.h:wl.h)} см · ${n(w.a)} м²`,w.sum,
+      `${w.lines.length} ${plural(w.lines.length,'работа','работы','работ')}`,
+      (w.lines.length?workHead+w.lines.map(workLine).join(''):'<p class="mw-none">Работ нет</p>')+opens);}).join('');
+  return `<div class="wallbody room-summary">${areas(t)}<div class="o-stack"><p class="o-sec">Стены</p>${walls}
+    ${byWork(t.lines,'Работы по комнате')}${grand('Итого по комнате',t.sum,`${r.walls.length} ${plural(r.walls.length,'стена','стены','стен')} · ${n(t.a)} м²`)}</div></div>`;
 }
+// итог всего замера (плитка «Итог» сверху): комнаты = итоги комнат
+function allSummary(d,s){
+  const rs=estimateRooms(d).map(er=>({er,r:room(s,er.key)})).map(x=>({...x,t:roomTotals(x.r)}));
+  const by=new Map();rs.forEach(x=>x.t.lines.forEach(l=>{const o=by.get(l.id)||{id:l.id,area:0,sum:0};o.area+=l.area;o.sum+=l.sum;by.set(l.id,o);}));
+  const tot={g:0,o:0,a:0,sum:0};rs.forEach(x=>{tot.g+=x.t.g;tot.o+=x.t.o;tot.a+=x.t.a;tot.sum+=x.t.sum;});
+  const wallHead='<div class="o-tline o-tline--h"><span>Стена</span><span>м²</span><span></span><span>Сумма</span></div>';
+  const rooms=rs.map(({er,r,t})=>fold('room:'+er.key,er.color||'#7c8f8a',esc(er.name),
+    `${r.walls.length} ${plural(r.walls.length,'стена','стены','стен')} · ${n(t.a)} м²`,t.sum,`${t.lines.length} ${plural(t.lines.length,'работа','работы','работ')}`,
+    r.walls.length?wallHead+t.ws.map((w,i)=>`<div class="o-tline"><span class="o-tline__n">Стена ${i+1}</span><span>${m2(w.a)}</span><span></span><b>${fmt(w.sum)} ₽</b></div>`).join(''):'<p class="mw-none">Стены ещё не замерены</p>')).join('');
+  return `<div class="wallbody room-summary">${areas(tot)}<div class="o-stack"><p class="o-sec">Комнаты</p>${rooms}
+    ${byWork([...by.values()],'Итого по видам работ')}${grand('Итого по замеру',tot.sum,`${rs.length} ${plural(rs.length,'комната','комнаты','комнат')} · ${n(tot.a)} м²`)}</div></div>`;
+}
+actions['mw-sum-toggle']=el=>{const k=el.dataset.key;if(openSum.has(k))openSum.delete(k);else openSum.add(k);rerender();};
 
 // ---------- карточка стены ----------
 function card(w,r,edges){
@@ -149,13 +195,13 @@ export function renderMeasurement(d){
   const s=state(d);if(!s.view){const rs=estimateRooms(d);s.view=rs.length?rs[0].key:'pick';}
   if(!estimateRooms(d).some(r=>r.key===s.view)&&s.view!=='total')return measurementRoomPicker(d,s);
   const bar=measurementStrip(d,s);
-  if(s.view==='total')return '<div class="mw-screen">'+bar+`<div class="mw mw--plain">${estimateRooms(d).map(r=>`<h3>${esc(r.name)}</h3>${summary(room(s,r.key))}`).join('')}</div></div>`;
+  if(s.view==='total')return '<div class="mw-screen">'+bar+`<div class="mw mw--plain">${allSummary(d,s)}</div></div>`;
   const r=room(s,s.view);if(!r.walls.length)r.walls.push({len:0,h:r.h,opens:[],svcs:[]});
   r.active=Math.min(r.active||0,r.walls.length-1);const w=r.walls[r.active];
   if(r.mwDialog==='services')return measurementServices(d,s,w);
   const er=estimateRooms(d).find(x=>x.key===s.view);const color=(er&&er.color)||'#3b82f6';
   const t=tabs(r,color);
-  const body=(r.total?summary(r,t.edges):card(w,r,t.edges)).replace('<div class="wallbody',`<div style="border-radius: ${t.radius}" class="wallbody`);
+  const body=(r.total?summary(r,color,s.view):card(w,r,t.edges)).replace('<div class="wallbody',`<div style="border-radius: ${t.radius}" class="wallbody`);
   const dlg=r.mwDialog==='new-opening'?openingForm(r,color):(r.mwDialog?listDialog(r,w,color):'');
   return '<div class="mw-screen">'+bar+measurementSettings(er,r)+`<div class="mw" style="--rc: ${color}">${t.html}${body}</div></div>${dlg}`;
 }
