@@ -273,3 +273,4 @@
 .mw .z-mbody .o-grand { margin-top: 4px; }
 .mw .z-mfoot { display: flex; justify-content: flex-start; padding-top: 2px; }
 .mw .z-mbody .z-mempty { margin: 6px 0; }
+.mw .z-mcode { font: 500 10.5px/1 var(--font-num); font-style: normal; letter-spacing: 0.06em; color: var(--ink-dim); }

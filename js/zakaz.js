@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=163';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=164';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=163';
-import * as S from './store.js?v=163';
-import { WALLPAPER_TYPES } from './seed.js?v=163';
-import { esc, toast } from './ui.js?v=163';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=163';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=163';
-import { country } from './phonecodes.js?v=163';
-import { suggestAddress } from './address.js?v=163';
-import { suggesters } from './kbd.js?v=163';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=163';
+import { actions, changes, rerender } from './core.js?v=164';
+import * as S from './store.js?v=164';
+import { WALLPAPER_TYPES } from './seed.js?v=164';
+import { esc, toast } from './ui.js?v=164';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=164';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=164';
+import { country } from './phonecodes.js?v=164';
+import { suggestAddress } from './address.js?v=164';
+import { suggesters } from './kbd.js?v=164';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=164';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -240,10 +240,8 @@ function renderMaterial(d) {
       : `<div class="o-card z-exp">${rv ? `<div class="z-exp__who"><span class="z-ava">${esc(S.user(rv.authorId).name[0])}</span><b>${esc(S.user(rv.authorId).name.split(' ')[0])}</b>
           ${reviews.length > 1 ? `<span class="z-exp__nav"><button type="button" class="f-icon-btn" data-action="z-rv" data-i="${idx}" data-d="-1" aria-label="Предыдущий отзыв">‹</button><button type="button" class="f-icon-btn" data-action="z-rv" data-i="${idx}" data-d="1" aria-label="Следующий отзыв">›</button></span>` : ''}</div>
           <p class="z-exp__text">${esc(rv.text)}</p>` : '<p class="z-muted">Мастера пока не делились опытом с этим материалом.</p>'}</div>`;
-    body = `<div class="z-mhead">${MAT_SAMPLE}<span class="z-mline__t"><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span>
-        <span class="z-mrolls"><b>${n || '—'}</b><small>${n ? 'рулонов' : 'нет площади'}</small></span></div>
-      <div class="z-kv"><span>Штрихкод</span><b>${esc(it.code)}</b></div>
-      <p class="z-calc">${esc(text)}</p>
+    body = `<div class="z-mhead">${MAT_SAMPLE}<span class="z-mline__t"><i class="z-mcode">${esc(it.code)}</i><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span>
+        <span class="z-mrolls"><b>${n || '—'}</b><small>${n ? 'рулонов' : ''}</small></span></div>
       ${seg(key, [['all', 'Опыт мастеров'], ['mine', 'Мой опыт']], segState[key] || 'all')}${exp}
       <div class="z-mfoot"><button type="button" class="wall-delete" data-action="z-mat-del" data-i="${idx}" aria-label="Убрать материал из комнаты">${TRASH_SVG}</button></div>`;
   }
