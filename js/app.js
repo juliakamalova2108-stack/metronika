@@ -1,18 +1,18 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=140';
-import * as S from './store.js?v=140';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=140';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=140';
-import { renderSettlements } from './shared.js?v=140';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=140';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=140';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=140';
-import { renderOformit, onLiveOformit } from './oformit.js?v=140';
-import { onLiveZakaz } from './zakaz.js?v=140';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit } from './board.js?v=140';
-import './kbd.js?v=140';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=140';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=141';
+import * as S from './store.js?v=141';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=141';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=141';
+import { renderSettlements } from './shared.js?v=141';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=141';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=141';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=141';
+import { renderOformit, onLiveOformit } from './oformit.js?v=141';
+import { onLiveZakaz } from './zakaz.js?v=141';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit } from './board.js?v=141';
+import './kbd.js?v=141';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=141';
 
 const VERSION = 'прототип 1.0';
 

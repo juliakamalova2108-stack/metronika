@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»). Функции и раскладка — как у Codex;
 // вид — по согласованному макету «Замер — осовременить формы»: графитовый лист с закладками-каскадом, парящие плашки площадей,
 // стена-миллиметровка с зелёной штриховкой, кнопки под своими колонками, размеры в сантиметрах, полёт ярлыка.
-import {actions,changes,rerender,afterRender} from './core.js?v=140';
-import * as S from './store.js?v=140';
-import {oformitDraft} from './oformit.js?v=140';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=140';
-import {esc} from './ui.js?v=140';
+import {actions,changes,rerender,afterRender} from './core.js?v=141';
+import * as S from './store.js?v=141';
+import {oformitDraft} from './oformit.js?v=141';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=141';
+import {esc} from './ui.js?v=141';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -60,17 +60,19 @@ function tabs(r,color){
   const sumPath=`M0 ${H} L${SL} 0 L${SUM_W-4} 0 Q${SUM_W} 0 ${SUM_W} 4 L${SUM_W} ${H} Z`;
   const right=`<div class="gt-right" style="width: ${SUM_W}px">${r.total?`<svg class="gt-lines" width="${SUM_W}" height="${H}" viewBox="0 0 ${SUM_W} ${H}" aria-hidden="true">${lite}<path d="M.5 ${H} L${SL+.5} .8 L${SUM_W-4.5} .8 Q${SUM_W-.8} .8 ${SUM_W-.8} 4.5" fill="none" stroke="url(#gtLite)" stroke-width="1.6" stroke-linejoin="round"/></svg>`:`<svg class="gt-svg" width="${SUM_W}" height="${H}" viewBox="0 0 ${SUM_W} ${H}" aria-hidden="true"><path d="${sumPath}" fill="#26353a" stroke="rgba(255,255,255,.18)"/></svg>`}<button type="button" class="gt-b${r.total?' on':''}" data-action="mw-total" style="left: ${Math.round(SL*.6)}px; width: ${Math.round(SUM_W-SL*.6)}px">Итог</button></div>`;
   // силуэт листа: пластина + выбранная закладка (слева) или «Итог» (справа)
-  const arc=(right)=>[0,15,30,45,60,75,90].map(a=>{const t=a*Math.PI/180,dx=24-24*Math.sin(t),dy=24-24*Math.cos(t);return right?`calc(100% - ${dx.toFixed(2)}px) ${(H+dy).toFixed(2)}px`:`${(24-24*Math.cos(t)).toFixed(2)}px ${(H+24-24*Math.sin(t)).toFixed(2)}px`;});
+  // Углы листа под закладками прямые: крайние закладки («1» и «Итог») стоят на листе вровень и не обрезаются
+  const arc=(right)=>[right?`100% ${H}px`:`0px ${H}px`];
+  const arcOld=(right)=>[0,15,30,45,60,75,90].map(a=>{const t=a*Math.PI/180,dx=24-24*Math.sin(t),dy=24-24*Math.cos(t);return right?`calc(100% - ${dx.toFixed(2)}px) ${(H+dy).toFixed(2)}px`:`${(24-24*Math.cos(t)).toFixed(2)}px ${(H+24-24*Math.sin(t)).toFixed(2)}px`;});
   let pts, glow, radius, edges;
   if(sel>=0){
     const x0=xs[sel];
     pts=[...(x0>0?[...arc(false),`${x0}px ${H}px`]:[]), `${x0}px 4px`,`${x0+1.2}px 1.2px`,`${x0+4}px 0`,`${x0+SEL_W-SL}px 0`,`${x0+SEL_W}px ${H}px`,...arc(true),'100% 100%','0 100%'];
-    glow=`${x0+41}px ${H}px`; radius=`${x0>0?24:0}px 24px 24px 24px`;
-    edges=(x0>0?`<i class="gt-edge" style="left: -1px; width: ${x0+1}px; border-left-width: 1px; border-top-left-radius: 24px"></i>`:'')+`<i class="gt-edge" style="left: ${x0+SEL_W-1}px; right: -1px; border-right-width: 1px; border-top-right-radius: 24px"></i>`;
+    glow=`${x0+41}px ${H}px`; radius='0 0 24px 24px';
+    edges=(x0>0?`<i class="gt-edge" style="left: -1px; width: ${x0+1}px; border-left-width: 1px; border-top-left-radius: 0"></i>`:'')+`<i class="gt-edge" style="left: ${x0+SEL_W-1}px; right: -1px; border-right-width: 1px; border-top-right-radius: 0"></i>`;
   } else {
     pts=[...arc(false),`calc(100% - ${SUM_W}px) ${H}px`,`calc(100% - ${SUM_W-SL}px) 0`,`calc(100% - 4px) 0`,`calc(100% - 1.2px) 1.2px`,'100% 4px','100% 100%','0 100%'];
-    glow=`calc(100% - 38px) ${H}px`; radius='24px 0 24px 24px';
-    edges=`<i class="gt-edge" style="left: -1px; right: ${SUM_W-1}px; border-left-width: 1px; border-top-left-radius: 24px"></i>`;
+    glow=`calc(100% - 38px) ${H}px`; radius='0 0 24px 24px';
+    edges=`<i class="gt-edge" style="left: -1px; right: ${SUM_W-1}px; border-left-width: 1px; border-top-left-radius: 0"></i>`;
   }
   const sheet=`<i class="gt-sheet" aria-hidden="true" style="clip-path: polygon(${pts.join(', ')}); background: radial-gradient(circle 260px at ${glow}, color-mix(in srgb, ${color} 42%, transparent), transparent), linear-gradient(180deg, #2f3f41 0, #2f3f41 ${H}px, #243133 340px, #1b2628 100%)"></i>`;
   return {html:sheet+`<nav class="gt-tabs" aria-label="Стены">${left}${right}</nav>`, radius, edges};
