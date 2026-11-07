@@ -1394,3 +1394,16 @@ body.fig .h-page { padding-bottom: 88px; }
 .f-nav__menu span { display: none; }
 .f-nav__menu { width: 56px; }
 .f-nav__menu svg { width: 26px; height: 26px; }
+/* мастер в цифрах */
+.h-pro { display: flex; flex-direction: column; gap: 14px; padding: 16px; border-radius: 22px; background: rgba(255, 255, 255, 0.045); border: 1px solid var(--line); }
+.h-pro__rate { display: flex; align-items: center; gap: 10px; }
+.h-pro__rate > b { font: 800 30px/1 Manrope, Inter, sans-serif; letter-spacing: -0.02em; color: var(--ink); }
+.h-stars { display: flex; gap: 2px; }
+.h-stars i { font-style: normal; font-size: 17px; line-height: 1; color: rgba(255, 255, 255, 0.15); }
+.h-stars i.on { color: #f2c46d; text-shadow: 0 0 10px rgba(242, 196, 109, 0.35); }
+.h-pro__rate small { margin-left: auto; font: 500 12px/1.2 Inter, sans-serif; color: var(--dim); text-align: right; }
+.h-pro__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.h-st { display: flex; flex-direction: column; gap: 5px; padding: 12px 10px; border-radius: 14px; background: rgba(9, 18, 19, 0.28); border: 1px solid var(--line); }
+.h-st b { font: 800 20px/1 Manrope, Inter, sans-serif; letter-spacing: -0.01em; color: var(--ink); }
+.h-st b em { font-style: normal; font-size: 13px; color: var(--mute); }
+.h-st small { font: 500 11px/1.3 Inter, sans-serif; color: var(--mute); }
