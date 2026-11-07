@@ -1698,3 +1698,13 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .h-stats2 small { font: 500 11.5px/1.2 Inter, sans-serif; color: rgba(237, 242, 232, 0.6); }
 .h-stats2__next b { color: #e3eed3; }
 .h-hero2 > .h-rank__bar { margin: -2px 2px 0; }
+/* статистика прямо на карте (главная) */
+.h-cardwrap .mc[data-tilt] { aspect-ratio: auto; min-height: 270px; }
+.mc__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 12px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--hi) 30%, transparent); }
+.mc__stats span { display: flex; flex-direction: column; gap: 4px; padding-right: 8px; }
+.mc__stats span + span { padding-left: 10px; border-left: 1px solid color-mix(in srgb, var(--hi) 22%, transparent); }
+.mc__stats small { font: 500 9px/1.15 Inter, sans-serif; letter-spacing: .04em; color: var(--hi); opacity: .75; }
+.mc__stats b { font: 800 16px/1 Manrope, Inter, sans-serif; color: var(--ink); text-shadow: 0 1px 0 rgba(0,0,0,.35); white-space: nowrap; }
+.mc__stats small { white-space: nowrap; }
+.h-next { display: flex; flex-direction: column; gap: 8px; margin: 0 4px; }
+.h-next span { font: 500 13px/1.3 Inter, sans-serif; color: rgba(237, 242, 232, 0.7); }
