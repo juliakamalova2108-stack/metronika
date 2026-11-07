@@ -1,18 +1,18 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=250';
-import * as S from './store.js?v=250';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=250';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=250';
-import { renderSettlements } from './shared.js?v=250';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=250';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=250';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=250';
-import { renderOformit, onLiveOformit } from './oformit.js?v=250';
-import { onLiveZakaz } from './zakaz.js?v=250';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=250';
-import './kbd.js?v=250';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=250';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=251';
+import * as S from './store.js?v=251';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=251';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=251';
+import { renderSettlements } from './shared.js?v=251';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=251';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=251';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=251';
+import { renderOformit, onLiveOformit } from './oformit.js?v=251';
+import { onLiveZakaz } from './zakaz.js?v=251';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=251';
+import './kbd.js?v=251';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=251';
 
 const VERSION = 'прототип 1.0';
 
@@ -32,7 +32,7 @@ const SCREENS = {
   master: {
     start: 'home',
     nav: [['menu', 'Меню', 'menu'], ['home', 'Главная', 'briefcase'], ['orders', 'Заказы', 'inbox'], ['stats', 'Статистика', 'wallet']],
-    menu: [['home', 'Главная'], ['oformit', 'Сущность'], ['orders', 'Заказы'], ['clients', 'Клиенты'], ['gallery', 'Галерея'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['profile', 'Профиль']],
+    menu: [['home', 'Главная'], ['oformit', 'Сущность'], ['orders', 'Заказы'], ['clients', 'Клиенты'], ['gallery', 'Галерея'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['profile', 'Профиль'], ['settings', 'Настройки']],
   },
 };
 SCREENS.dispatcher = { ...SCREENS.master, menu: [...SCREENS.master.menu.slice(0, 3), ['team', 'Команда'], ...SCREENS.master.menu.slice(3)] };
@@ -90,6 +90,7 @@ const MENU_IC = {
   stats: MI('<path d="M5 19V11M10 19V6M15 19v-5M20 19V9"/>'),
   brand: MI('<path d="M4 12.5V5h7.5L20 13.5 13.5 20z"/><circle cx="8" cy="9" r="1.4"/>'),
   profile: MI('<circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/>'),
+  settings: MI('<circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6 6l1.6 1.6M16.4 16.4L18 18M6 18l1.6-1.6M16.4 7.6L18 6"/>'),
   team: MI('<circle cx="12" cy="8" r="3"/><path d="M6 19c.6-3 3-4.6 6-4.6s5.4 1.6 6 4.6"/>'),
 };
 function drawer(role) {
