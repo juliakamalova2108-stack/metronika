@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=157';
-import * as S from './store.js?v=157';
-import { SYSTEM_PRICE } from './seed.js?v=157';
-import { shiftsText, hoursFor } from './calc.js?v=157';
-import { esc, toast } from './ui.js?v=157';
-import { logEvent } from './zlog.js?v=157';
+import { actions, changes, rerender } from './core.js?v=158';
+import * as S from './store.js?v=158';
+import { SYSTEM_PRICE } from './seed.js?v=158';
+import { shiftsText, hoursFor } from './calc.js?v=158';
+import { esc, toast } from './ui.js?v=158';
+import { logEvent } from './zlog.js?v=158';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -118,6 +118,9 @@ function startView(e) {
   return `<button type="button" class="o-start" data-action="o-start"><span class="o-start__plus">+</span><b>Добавить комнату</b><small>Зайдите в комнату и выберите её — сразу заполните работы и объёмы</small></button>`;
 }
 actions['o-start'] = () => { const e = D(); e.picking = true; save(); };
+// «Замер»: пока комнат нет — тот же стартовый экран «Добавить комнату», что в «Оценке».
+export function measurementStart(d) { const e = est(d); return !e.rooms.length && !e.picking ? `<i class="f-one" hidden></i><div class="o-wrap">${startView(e)}</div>` : ''; }
+export function measurementClosePick(d) { const e = est(d); if (!e.rooms.length) e.picking = false; }
 
 function pickView(e) {
   // Нет такой комнаты на этаже — одна плитка с типом. Есть — по плитке на каждую комнату («Спальня 1», «Спальня 2»…),

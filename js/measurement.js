@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=157';
-import * as S from './store.js?v=157';
-import {oformitDraft} from './oformit.js?v=157';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=157';
-import {esc} from './ui.js?v=157';
+import {actions,changes,rerender,afterRender} from './core.js?v=158';
+import * as S from './store.js?v=158';
+import {oformitDraft} from './oformit.js?v=158';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=158';
+import {esc} from './ui.js?v=158';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -193,6 +193,7 @@ function openingForm(r,color){
 
 export function renderMeasurement(d){
   const s=state(d);if(!s.view){const rs=estimateRooms(d);s.view=rs.length?rs[0].key:'pick';}
+  const start=measurementStart(d);if(start)return start;
   if(!estimateRooms(d).some(r=>r.key===s.view)&&s.view!=='total')return measurementRoomPicker(d,s);
   const bar=measurementStrip(d,s);
   if(s.view==='total')return '<div class="mw-screen">'+bar+`<div class="mw mw--plain">${allSummary(d,s)}</div></div>`;
@@ -224,7 +225,13 @@ afterRender.push(()=>{
 });
 
 // ---------- действия (длины в сантиметрах) ----------
-actions['mw-pick']=()=>{state(oformitDraft()).view='pick';save()};
+// «+» открывает список комнат, «×» закрывает и возвращает туда, где были (как в «Оценке»).
+actions['mw-pick']=()=>{const d=oformitDraft(),s=state(d),rs=estimateRooms(d);
+  if(s.view==='pick'||!rs.some(r=>r.key===s.view)&&s.view!=='total'){
+    if(!rs.length){measurementClosePick(d);save();return;}
+    s.view=s.back&&(s.back==='total'||rs.some(r=>r.key===s.back))?s.back:rs[rs.length-1].key;}
+  else{s.back=s.view;s.view='pick';}
+  save();window.scrollTo(0,0)};
 actions['mw-room']=el=>{state(oformitDraft()).view=el.dataset.key;save()};
 actions['mw-wall']=el=>{const r=current();r.active=+el.dataset.i;r.total=false;r.mwDialog=null;save()};
 actions['mw-delete-wall']=()=>{const r=current();r.walls.splice(r.active,1);r.active=Math.max(0,Math.min(r.active,r.walls.length-1));r.mwDialog=null;save()};
