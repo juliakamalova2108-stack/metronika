@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=162';
-import * as S from './store.js?v=162';
-import {oformitDraft} from './oformit.js?v=162';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=162';
-import {esc} from './ui.js?v=162';
+import {actions,changes,rerender,afterRender} from './core.js?v=163';
+import * as S from './store.js?v=163';
+import {oformitDraft} from './oformit.js?v=163';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=163';
+import {esc} from './ui.js?v=163';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -37,10 +37,11 @@ const TRASH='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 4h6M
 const light=c=>{const m=/^#?([0-9a-f]{6})$/i.exec(c||'');if(!m)return '#cfe0ff';const v=parseInt(m[1],16),f=x=>Math.round(x+(255-x)*.45);return `rgb(${f(v>>16&255)},${f(v>>8&255)},${f(v&255)})`;};
 // Лист стены: выбранная закладка и пластина — один фон (.gt-sheet с вырезом по силуэту), остальные закладки — позади.
 const H=44, SL=26, SEL_W=104, SUM_W=76;
-function tabs(r,color){
-  // Закладки стен листаются вбок: ширина закладок постоянная, «+» идёт за последней стеной,
-  // «Итог» закреплён справа. Выбранная закладка нарисована цветом листа и сливается с ним.
-  const n0=r.walls.length, sel=r.total?-1:r.active;
+// Закладки на графитовой пластине — общие для «Замера» (стены) и «Материала» (материалы комнаты).
+// o: n — сколько закладок, sel — выбранная (−1 — открыт «Итог»), total — открыт «Итог», label(i) — подпись выбранной,
+// act / addAct / totalAct — действия закладки, «+» и «Итог», name — подпись ряда для чтения с экрана.
+export function sheetTabs(o,color){
+  const n0=o.n, sel=o.total?-1:o.sel;
   const TW=72, PW=2*(72-SL+2)+SL-2;               // невыбранная закладка; «+» шириной как две свёрнутые
   const w=i=>i===sel?SEL_W:TW;
   const xs=[];let x=0;for(let i=0;i<n0;i++){xs.push(x);x+=w(i)-SL+2;}
@@ -49,28 +50,29 @@ function tabs(r,color){
   const order=[...Array(n0).keys()].filter(i=>i!==sel).sort((a,b)=>Math.abs(b-(sel<0?n0:sel))-Math.abs(a-(sel<0?n0:sel)));
   const back=`<path class="gt-back" d="${flag(plusX,PW)}"/>`+order.map(i=>`<path class="gt-back" d="${flag(xs[i],w(i))}"/>`).join('');
   const lite=`<defs><linearGradient id="gtLite" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${color}"/><stop offset=".45" stop-color="${light(color)}"/><stop offset="1" stop-color="${color}" stop-opacity=".25"/></linearGradient></defs>`;
-  // верхняя кромка листа под закладками; под выбранной закладкой разрыв
   const base=sel<0?`<path class="gt-base" d="M0 ${H-.5} L${innerW} ${H-.5}"/>`:`<path class="gt-base" d="M0 ${H-.5} L${xs[sel]} ${H-.5} M${xs[sel]+SEL_W} ${H-.5} L${innerW} ${H-.5}"/>`;
   const front=sel<0?'':`<path class="gt-sel" d="M${xs[sel]} ${H+1} L${xs[sel]} 4 Q${xs[sel]} 0 ${xs[sel]+4} 0 L${xs[sel]+SEL_W-SL} 0 L${xs[sel]+SEL_W} ${H+1} Z"/>`+
     `<path class="gt-hl" d="M${xs[sel]+.8} ${H} L${xs[sel]+.8} 4.5 Q${xs[sel]+.8} .8 ${xs[sel]+4.5} .8 L${xs[sel]+SEL_W-SL} .8 L${xs[sel]+SEL_W} ${H}" fill="none" stroke="url(#gtLite)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`;
-  // Кнопка = видимая часть закладки, цифра по её центру: левее выбранной закладку закрывает соседка справа,
-  // правее — соседка слева (до середины её наклона).
+  // Кнопка = видимая часть закладки, цифра по её центру.
   const btn=i=>{let l,ww;
     if(i===sel){l=xs[i];ww=SEL_W-SL*.5;}
     else if(sel<0||i<sel){l=xs[i];ww=(i+1<n0?xs[i+1]:xs[i]+TW-SL*.5)-xs[i];}
     else {l=xs[i]+SL*.5;ww=TW-SL;}
-    return `<button type="button" class="gt-b${i===sel?' on':''}" data-action="mw-wall" data-i="${i}" style="left: ${Math.round(l)}px; width: ${Math.round(ww)}px">${i===sel?'Стена ':''}${i+1}</button>`;};
+    return `<button type="button" class="gt-b${i===sel?' on':''}" data-action="${o.act}" data-i="${i}" style="left: ${Math.round(l)}px; width: ${Math.round(ww)}px">${i===sel?o.label(i):i+1}</button>`;};
   const plusL=n0?plusX+SL*.5:0, plusBW=n0?PW-SL:PW-SL*.5;
   const left=`<div class="gt-scroll"><div class="gt-inner" style="width: ${innerW}px"><svg class="gt-svg" width="${innerW}" height="${H+1}" viewBox="0 0 ${innerW} ${H+1}" aria-hidden="true">${lite}${back}${base}${front}</svg>`+
-    r.walls.map((_,i)=>btn(i)).join('')+
-    `<button type="button" class="gt-b add" data-action="mw-add-wall" aria-label="Добавить стену" style="left: ${Math.round(plusL)}px; width: ${Math.round(plusBW)}px">+</button></div></div>`;
-  // «Итог»: левый край с наклоном, как правый край закладок (сверху внизу-вправо); справа — край листа
+    [...Array(n0).keys()].map(btn).join('')+
+    `<button type="button" class="gt-b add" data-action="${o.addAct}" aria-label="${o.addLabel}" style="left: ${Math.round(plusL)}px; width: ${Math.round(plusBW)}px">+</button></div></div>`;
+  const tot=!!o.total;
   const sumD=`M${SL} ${H} L1.5 2 Q.8 .5 3 .5 L${SUM_W-6.5} .5 Q${SUM_W-.5} .5 ${SUM_W-.5} 6.5 L${SUM_W-.5} ${H}`;
-  const right=`<div class="gt-right${r.total?' on':''}" style="width: ${SUM_W}px"><svg class="gt-svg" width="${SUM_W}" height="${H+1}" viewBox="0 0 ${SUM_W} ${H+1}" aria-hidden="true">`+
-    (r.total?`<path class="gt-sel" d="M${SL} ${H+1} L1 1.5 Q.3 0 2.5 0 L${SUM_W-6} 0 Q${SUM_W} 0 ${SUM_W} 6 L${SUM_W} ${H+1} Z"/><path class="gt-hl" d="${sumD}" fill="none" stroke="url(#gtLite2)" stroke-width="1.6" stroke-linejoin="round"/>${lite.replace('gtLite','gtLite2')}`
+  const right=`<div class="gt-right${tot?' on':''}" style="width: ${SUM_W}px"><svg class="gt-svg" width="${SUM_W}" height="${H+1}" viewBox="0 0 ${SUM_W} ${H+1}" aria-hidden="true">`+
+    (tot?`<path class="gt-sel" d="M${SL} ${H+1} L1 1.5 Q.3 0 2.5 0 L${SUM_W-6} 0 Q${SUM_W} 0 ${SUM_W} 6 L${SUM_W} ${H+1} Z"/><path class="gt-hl" d="${sumD}" fill="none" stroke="url(#gtLite2)" stroke-width="1.6" stroke-linejoin="round"/>${lite.replace('gtLite','gtLite2')}`
       :`<path class="gt-back" d="${sumD} Z"/><path class="gt-base" d="M0 ${H-.5} L${SUM_W} ${H-.5}"/>`)+
-    `</svg><button type="button" class="gt-b${r.total?' on':''}" data-action="mw-total" style="left: 6px; width: ${SUM_W-6}px">Итог</button></div>`;
-  return {html:`<i class="gt-sheet" aria-hidden="true"></i><nav class="gt-tabs" aria-label="Стены">${left}${right}</nav>`, radius:'0 0 24px 24px', edges:''};
+    `</svg><button type="button" class="gt-b${tot?' on':''}" data-action="${o.totalAct}" style="left: 6px; width: ${SUM_W-6}px">Итог</button></div>`;
+  return {html:`<i class="gt-sheet" aria-hidden="true"></i><nav class="gt-tabs" aria-label="${o.name}">${left}${right}</nav>`, radius:'0 0 24px 24px', edges:''};
+}
+function tabs(r,color){
+  return sheetTabs({n:r.walls.length,sel:r.active,total:r.total,label:i=>'Стена '+(i+1),act:'mw-wall',addAct:'mw-add-wall',addLabel:'Добавить стену',totalAct:'mw-total',name:'Стены'},color);
 }
 
 // Прокрутка закладок: сохраняем положение между перерисовками; новую выбранную закладку показываем целиком.
@@ -80,7 +82,7 @@ afterRender.push(()=>{
   const on=sc.querySelector('.gt-b.on');const key=(on&&on.dataset.i)||'total';
   sc.scrollLeft=tabScroll;
   if(on&&key!==tabSelKey){const vis=sc.clientWidth-26;                 // правые 25px закрыты «Итогом»
-    const last=!on.parentElement.querySelector('.gt-b[data-action="mw-wall"][data-i="'+(+key+1)+'"]');
+    const last=!on.parentElement.querySelector('.gt-b[data-i="'+(+key+1)+'"]');
     if(last)sc.scrollLeft=sc.scrollWidth;                                 // последняя стена — видно её и «+»
     else{const l=on.offsetLeft,r2=l+on.offsetWidth+30;if(l<sc.scrollLeft+8||r2>sc.scrollLeft+vis)sc.scrollLeft=Math.max(0,l-(vis-on.offsetWidth)/2);}}
   tabSelKey=key;tabScroll=sc.scrollLeft;

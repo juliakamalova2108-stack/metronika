@@ -1,18 +1,18 @@
-import { renderMeasurement } from './measurement.js?v=162';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=163';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=162';
-import * as S from './store.js?v=162';
-import { WALLPAPER_TYPES } from './seed.js?v=162';
-import { esc, toast } from './ui.js?v=162';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=162';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=162';
-import { country } from './phonecodes.js?v=162';
-import { suggestAddress } from './address.js?v=162';
-import { suggesters } from './kbd.js?v=162';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=162';
+import { actions, changes, rerender } from './core.js?v=163';
+import * as S from './store.js?v=163';
+import { WALLPAPER_TYPES } from './seed.js?v=163';
+import { esc, toast } from './ui.js?v=163';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=163';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=163';
+import { country } from './phonecodes.js?v=163';
+import { suggestAddress } from './address.js?v=163';
+import { suggesters } from './kbd.js?v=163';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=163';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -212,10 +212,24 @@ function renderMaterial(d) {
 
   const room = rooms.find((r) => r.key === m.view);
   const r = matRoom(m, room.key);
-  const scanBtn = `<button type="button" class="o-ib z-scan-btn${r.panel ? ' is-on' : ''}" data-action="z-scan-open" aria-label="Сканировать штрихкод">${SCAN_ICON}</button>`;
+  const color = room.color || '#7c8f8a';
   const items = calc[room.key].items;
-  const folds = items.length ? items.map(({ it, rolls: n, text }, idx) => {
-    const x = S.material(it.code); const open = !!it.open; const key = `mat-${room.key}-${idx}`;
+  // Закладки материалов на графитовой пластине — как стены в «Замере»: «+» — сканировать рулон, «Итог» — вся комната.
+  r.active = Math.max(0, Math.min(r.active || 0, items.length - 1));
+  const showTotal = !!r.total && items.length > 0;
+  const t = sheetTabs({ n: items.length, sel: items.length ? r.active : -2, total: showTotal, label: (i) => 'Обои ' + (i + 1),
+    act: 'z-mat-tab', addAct: 'z-scan-open', addLabel: 'Добавить материал', totalAct: 'z-mat-total', name: 'Материалы' }, color);
+  let body;
+  if (!items.length) {
+    body = `<p class="z-mempty">Нажмите «+» и отсканируйте штрихкод рулона — материал добавится в комнату, рулоны посчитаются сами.</p>`;
+  } else if (showTotal) {
+    const sum = items.reduce((a, x) => a + x.rolls, 0);
+    body = `<div class="o-stack"><p class="o-sec">Материалы</p>${items.map(({ it, rolls: n }, idx) =>
+      `<button type="button" class="z-mline" data-action="z-mat-tab" data-i="${idx}">${MAT_SAMPLE}<span class="z-mline__t"><b>${esc(matTitle(it))}</b><small>${esc(it.type)} · ${esc(it.code)}</small></span><span class="z-mline__n"><b>${n || '—'}</b><small>${n ? 'рул.' : ''}</small></span></button>`).join('')}
+      <section class="f-plate o-grand"><p class="o-grand__t">Рулонов в комнате</p><b class="o-grand__sum">${sum}</b><p class="o-grand__x">${esc(room.name)} · ${items.length} ${items.length === 1 ? 'материал' : 'материала'}</p></section></div>`;
+  } else {
+    const idx = r.active; const { it, rolls: n, text } = items[idx];
+    const x = S.material(it.code); const key = `mat-${room.key}-${idx}`;
     const mineTab = (segState[key] || 'all') === 'mine';
     const reviews = S.reviewsOf(it.code).filter((v) => v.authorId !== S.me().id);
     const rv = reviews[(it.rv || 0) % Math.max(1, reviews.length)];
@@ -226,17 +240,14 @@ function renderMaterial(d) {
       : `<div class="o-card z-exp">${rv ? `<div class="z-exp__who"><span class="z-ava">${esc(S.user(rv.authorId).name[0])}</span><b>${esc(S.user(rv.authorId).name.split(' ')[0])}</b>
           ${reviews.length > 1 ? `<span class="z-exp__nav"><button type="button" class="f-icon-btn" data-action="z-rv" data-i="${idx}" data-d="-1" aria-label="Предыдущий отзыв">‹</button><button type="button" class="f-icon-btn" data-action="z-rv" data-i="${idx}" data-d="1" aria-label="Следующий отзыв">›</button></span>` : ''}</div>
           <p class="z-exp__text">${esc(rv.text)}</p>` : '<p class="z-muted">Мастера пока не делились опытом с этим материалом.</p>'}</div>`;
-    return `<section class="o-sroom z-mfold${open ? ' is-open' : ''}" style="--rc:${room.color || '#7c8f8a'}">
-      <button type="button" class="o-sroom__head" data-action="z-mat-fold" data-i="${idx}" aria-expanded="${open}">
-        <span class="o-sroom__name z-mfold__name">${MAT_SAMPLE}<span><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span></span>
-        <span class="o-sroom__sum"><b>${n || '—'}</b><small>${n ? 'рулонов' : ''}</small></span><span class="o-sroom__chev">${CHEV}</span></button>
-      <div class="o-sroom__list">
-        <div class="z-kv"><span>Штрихкод</span><b>${esc(it.code)}</b></div>
-        <p class="z-calc">${esc(text)}</p>
-        ${seg(key, [['all', 'Опыт мастеров'], ['mine', 'Мой опыт']], segState[key] || 'all')}${exp}
-        <div class="f-btn-row"><button type="button" class="f-btn z-mdel" data-action="z-mat-del" data-i="${idx}">${TRASH_SVG} Убрать из комнаты</button></div>
-      </div></section>`;
-  }).join('') : `<p class="z-mempty">Отсканируйте штрихкод рулона — материал добавится в комнату, рулоны посчитаются сами.</p>`;
+    body = `<div class="z-mhead">${MAT_SAMPLE}<span class="z-mline__t"><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span>
+        <span class="z-mrolls"><b>${n || '—'}</b><small>${n ? 'рулонов' : 'нет площади'}</small></span></div>
+      <div class="z-kv"><span>Штрихкод</span><b>${esc(it.code)}</b></div>
+      <p class="z-calc">${esc(text)}</p>
+      ${seg(key, [['all', 'Опыт мастеров'], ['mine', 'Мой опыт']], segState[key] || 'all')}${exp}
+      <div class="z-mfoot"><button type="button" class="wall-delete" data-action="z-mat-del" data-i="${idx}" aria-label="Убрать материал из комнаты">${TRASH_SVG}</button></div>`;
+  }
+  const folds = `<div class="mw z-mw" style="--rc: ${color}">${t.html}<div class="wallbody z-mbody" style="border-radius: ${t.radius}">${body}</div></div>`;
 
   let dlg = '';
   if (r.panel === 'scan') {
@@ -250,8 +261,10 @@ function renderMaterial(d) {
   } else if (m.howto) {
     dlg = dialog('Как ввести штрихкод', 'Штрихкод — 8 или 13 цифр под полосками на этикетке рулона (EAN-13, EAN-8, UPC-A, ITF-14). Если камера не считала код, введите цифры вручную.', row(btn('Понятно', 'z-howto-close')));
   }
-  return `${materialStrip(d, room.key, rolls, scanBtn)}<div class="o-stack z-mstack">${folds}</div>${dlg}`;
+  return `<div class="mw-screen">${materialStrip(d, room.key, rolls, '<span></span>')}${folds}</div>${dlg}`;
 }
+actions['z-mat-tab'] = (el) => { const m = mat(D()); const r = matRoom(m, m.view); r.active = Number(el.dataset.i); r.total = false; save(); };
+actions['z-mat-total'] = () => { const m = mat(D()); const r = matRoom(m, m.view); if (r.items.length) r.total = true; save(); };
 actions['z-mat-fold'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.open = !it.open; save(); };
 actions['z-mat-view'] = (el) => { mat(D()).view = el.dataset.key; save(); };
 actions['z-scan-open'] = () => { const m = mat(D()); const r = matRoom(m, m.view); r.panel = r.panel === 'scan' ? '' : 'scan'; save(); };
@@ -270,14 +283,14 @@ pickers['m-type'] = (v, d) => { const m = mat(d); matRoom(m, m.view).res.type = 
 actions['z-mat-add'] = () => {
   const d = D(); const m = mat(d); const r = matRoom(m, m.view);
   const x = r.res; if (!x || !(x.code && x.brand && x.type)) return;
-  r.items.push({ code: x.code, brand: x.brand, type: x.type, note: '', rv: 0 });
+  r.items.push({ code: x.code, brand: x.brand, type: x.type, note: '', rv: 0 }); r.active = r.items.length - 1; r.total = false;
   r.added = { brand: x.brand, type: x.type }; r.panel = ''; r.res = null;
   const room = estimateRooms(d).find((z) => z.key === m.view);
   logEvent(d, 'Добавлен материал', `${room ? room.name : ''}: ${x.type}, ${x.brand}`);
   save();
 };
 actions['z-mat-ok'] = () => { const m = mat(D()); matRoom(m, m.view).added = null; save(); };
-actions['z-mat-del'] = (el) => { const m = mat(D()); matRoom(m, m.view).items.splice(Number(el.dataset.i), 1); save(); };
+actions['z-mat-del'] = (el) => { const m = mat(D()); const r = matRoom(m, m.view); r.items.splice(Number(el.dataset.i), 1); r.active = Math.max(0, Math.min(r.active || 0, r.items.length - 1)); save(); };
 actions['z-rv'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.rv = (it.rv || 0) + Number(el.dataset.d) + 100; save(); };
 actions['z-photo'] = () => toast('Фото материала снимается встроенной камерой — в прототипе недоступно');
 actions['z-mat-share'] = (el) => {

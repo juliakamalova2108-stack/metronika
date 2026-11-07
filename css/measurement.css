@@ -254,3 +254,22 @@
 /* «Одинаковые услуги»: окошка числа нет — текст на всю ширину, переключатель справа */
 .mw-screen .o-same.o-same--v2 .o-svc.mw-same-services { grid-template-columns: minmax(0, 1fr) auto; }
 .mw .o-tline__n small { font-size: 11px; color: var(--ink-mute); }
+
+/* ---------- «Материал»: та же пластина с закладками, внутри — выбранный материал ---------- */
+.mw.z-mw .z-mbody { display: flex; flex-direction: column; gap: 12px; padding: 16px 14px 16px; }
+.mw .z-mhead, .mw .z-mline { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0.9px solid var(--g-dark-line); border-radius: 14px;
+  background: linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); box-shadow: var(--deep-shadow); }
+.mw .z-mline { width: 100%; text-align: left; }
+.mw .z-mhead .z-roll, .mw .z-mline .z-roll { width: 34px; height: 44px; }
+.mw .z-mline__t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.mw .z-mline__t b { font: 700 15px/1.2 var(--font-num); color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mw .z-mline__t small { font: 400 12px/1.3 var(--font-body); color: var(--ink-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mw .z-mrolls, .mw .z-mline__n { flex: none; display: flex; flex-direction: column; align-items: flex-end; }
+.mw .z-mrolls b { font: 700 26px/1 var(--font-num); color: var(--rc-light); }
+.mw .z-mline__n b { font: 700 20px/1 var(--font-num); color: var(--rc-light); }
+.mw .z-mrolls small, .mw .z-mline__n small { font: 500 11px/1.4 var(--font-body); color: var(--ink-dim); }
+.mw .z-mbody .z-kv { padding: 10px 14px; border-radius: 12px; background: var(--g-light); }
+.mw .z-mbody .o-stack { gap: 10px; }
+.mw .z-mbody .o-grand { margin-top: 4px; }
+.mw .z-mfoot { display: flex; justify-content: flex-start; padding-top: 2px; }
+.mw .z-mbody .z-mempty { margin: 6px 0; }
