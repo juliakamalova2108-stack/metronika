@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=197';
-import * as S from './store.js?v=197';
-import { renderOformit, oformitDraft } from './oformit.js?v=197';
-import { roomTotals, svcInfo } from './ocenka.js?v=197';
-import { smetaTotals } from './zakaz.js?v=197';
-import { bookedDays } from './grafik.js?v=197';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=197';
-import { esc, toast } from './ui.js?v=197';
+import { actions, rerender, go } from './core.js?v=199';
+import * as S from './store.js?v=199';
+import { renderOformit, oformitDraft } from './oformit.js?v=199';
+import { roomTotals, svcInfo } from './ocenka.js?v=199';
+import { smetaTotals } from './zakaz.js?v=199';
+import { bookedDays } from './grafik.js?v=199';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=199';
+import { esc, toast } from './ui.js?v=199';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -442,11 +442,13 @@ export function renderHome() {
   const meId = S.me().id;
   const expN = S.get().reviews.filter((v) => v.authorId === meId).length;   // записей опыта о материалах
   const area = 3862;                                                          // поклеено, м² (прошлое — примерные данные)
-  // Ранг мастера — по поклеенной квадратуре (пороги м²).
-  const RANKS = [['Новичок', 0], ['Мастер', 500], ['Профи', 2000], ['Эксперт', 5000], ['Легенда', 10000]];
-  const ri = RANKS.reduce((k, r, i) => (area >= r[1] ? i : k), 0);
-  const rank = RANKS[ri][0], nextR = RANKS[ri + 1];
-  const rankPct = nextR ? Math.round(((area - RANKS[ri][1]) / (nextR[1] - RANKS[ri][1])) * 100) : 100;
+  // Ранг мастера — по опыту: сколько разных обоев (штрихкодов) он описал. Цвет значка — по ступени.
+  const described = new Set(S.get().reviews.filter((v) => v.authorId === meId).map((v) => v.barcode)).size;
+  const RANKS = [['Новичок', 0, 1], ['Стажёр', 1, 1], ['Помощник', 3, 1], ['Подмастерье', 6, 1], ['Мастер', 10, 2], ['Топ-мастер', 15, 2],
+    ['Профи', 25, 2], ['Супер-профи', 40, 3], ['Эксперт', 60, 3], ['Наставник', 90, 3], ['Гуру', 150, 4], ['Легенда', 250, 4]];
+  const ri = RANKS.reduce((k, r, i) => (described >= r[1] ? i : k), 0);
+  const rank = RANKS[ri][0], tier = RANKS[ri][2], nextR = RANKS[ri + 1];
+  const rankPct = nextR ? Math.max(4, Math.round(((described - RANKS[ri][1]) / (nextR[1] - RANKS[ri][1])) * 100)) : 100;
   const hr = now.getHours();
   const hello = hr < 5 ? 'Доброй ночи' : hr < 12 ? 'Доброе утро' : hr < 18 ? 'Добрый день' : 'Добрый вечер';
   const fullName = S.me().name || '';
@@ -456,11 +458,11 @@ export function renderHome() {
     <div class="h-me__glow" aria-hidden="true"></div>
     <div class="h-me__top"><span class="h-ava"><b>${esc(initials)}</b></span>
       <span class="h-me__hi"><small>${hello},</small><b>${esc(fullName.split(' ')[0])}</b><em>${WDF[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</em></span>
-      <span class="h-rate">${esc(rank)}</span></div>
+      <span class="h-rate h-rate--t${tier}">${esc(rank)}</span></div>
     <div class="h-me__stats">
       <span class="h-me__st"><small>Опыт</small><b>${expN}</b><em>${plural(expN, 'запись', 'записи', 'записей')} о материалах</em></span>
       <span class="h-me__st"><small>Поклеено</small><b>${fmt(area)}<i> м²</i></b><em>за всё время</em></span></div>
-    ${nextR ? `<div class="h-rank"><div class="h-rank__bar"><i style="width:${rankPct}%"></i></div><span>до ранга «${esc(nextR[0])}» — ${fmt(nextR[1] - area)} м²</span></div>` : ''}</section>`;
+    ${nextR ? `<div class="h-rank"><div class="h-rank__bar"><i style="width:${rankPct}%"></i></div><span>до ранга «${esc(nextR[0])}» — опишите ещё ${nextR[1] - described} ${plural(nextR[1] - described, 'материал', 'материала', 'материалов')}</span></div>` : ''}</section>`;
 
   // ── Шапка ──
   const head = `<div class="h-bar"><span></span>
