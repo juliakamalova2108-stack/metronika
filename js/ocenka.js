@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=160';
-import * as S from './store.js?v=160';
-import { SYSTEM_PRICE } from './seed.js?v=160';
-import { shiftsText, hoursFor } from './calc.js?v=160';
-import { esc, toast } from './ui.js?v=160';
-import { logEvent } from './zlog.js?v=160';
+import { actions, changes, rerender } from './core.js?v=161';
+import * as S from './store.js?v=161';
+import { SYSTEM_PRICE } from './seed.js?v=161';
+import { shiftsText, hoursFor } from './calc.js?v=161';
+import { esc, toast } from './ui.js?v=161';
+import { logEvent } from './zlog.js?v=161';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -567,6 +567,17 @@ export function measurementStrip(d,s) {
     if(R)R.walls.forEach(w=>{const q=Math.max(0,w.len*(R.sameH?R.h:w.h)-w.opens.reduce((a,o)=>a+o.area,0));w.svcs.forEach(id=>quantities.set(id,(quantities.get(id)||0)+q));});
     return {...r,status:'new',svcs:Array.from(quantities,([id,qty])=>({id,qty}))};});
   return carousel({...e,rooms,view:s.view}).replace(/data-action="o-view"/g,'data-action="mw-room"').replace(/data-action="o-add"/g,'data-action="mw-pick"');
+}
+
+// «Материал»: та же полоса комнат и пластина комнаты, что в «Оценке» и «Замере».
+// На плитках вместо денег — рулоны; справа в пластине — кнопка сканера; «+» здесь не нужен (комнаты добавляют в «Оценке»).
+export function materialStrip(d, view, rolls, right, inner = '') {
+  const e = est(d);
+  const html = carousel({ ...e, view }, view === 'total' ? '' : right, inner)
+    .replace(/data-action="o-view"/g, 'data-action="z-mat-view"')
+    .replace(/<button type="button" class="o-pv-add[\s\S]*?<\/button>/, '');
+  const roll = (n) => (n ? `${n}<small> рул.</small>` : '—');
+  return html.replace(/(data-key="([^"]+)">[\s\S]*?<span class="o-pv__m">)[\s\S]*?(<\/span>)/g, (m0, a, key, c) => a + roll(rolls[key] || 0) + c);
 }
 
 export function measurementSettings(original, r) {
