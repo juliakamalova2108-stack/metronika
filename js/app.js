@@ -1,18 +1,18 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=258';
-import * as S from './store.js?v=258';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=258';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=258';
-import { renderSettlements } from './shared.js?v=258';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=258';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=258';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=258';
-import { renderOformit, onLiveOformit } from './oformit.js?v=258';
-import { onLiveZakaz } from './zakaz.js?v=258';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=258';
-import './kbd.js?v=258';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=258';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=259';
+import * as S from './store.js?v=259';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=259';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=259';
+import { renderSettlements } from './shared.js?v=259';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=259';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=259';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=259';
+import { renderOformit, onLiveOformit } from './oformit.js?v=259';
+import { onLiveZakaz } from './zakaz.js?v=259';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=259';
+import './kbd.js?v=259';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=259';
 
 const VERSION = 'прототип 1.0';
 
@@ -27,19 +27,19 @@ const SCREENS = {
   agent: {
     start: 'new',
     nav: [['menu', 'Меню', 'menu'], ['new', 'Новая заявка', 'plus'], ['mine', 'Мои заявки', 'list'], ['money', 'Начисления', 'wallet']],
-    menu: [['new', 'Новая заявка'], ['mine', 'Мои заявки'], ['calls', 'Звонки клиентам'], ['for-client', 'Для клиента'], ['money', 'Начисления'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['profile', 'Профиль'], ['settings', 'Настройки']],
+    menu: [['new', 'Новая заявка'], ['mine', 'Мои заявки'], ['calls', 'Звонки клиентам'], ['for-client', 'Для клиента'], ['money', 'Начисления'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['settings', 'Настройки']],
   },
   master: {
     start: 'home',
     nav: [['menu', 'Меню', 'menu'], ['home', 'Главная', 'briefcase'], ['orders', 'Заказы', 'inbox'], ['stats', 'Статистика', 'wallet']],
-    menu: [['home', 'Главная'], ['oformit', 'Сущность'], ['orders', 'Заказы'], ['clients', 'Клиенты'], ['gallery', 'Галерея'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['profile', 'Профиль'], ['settings', 'Настройки']],
+    menu: [['home', 'Главная'], ['oformit', 'Сущность'], ['orders', 'Заказы'], ['clients', 'Клиенты'], ['gallery', 'Галерея'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['settings', 'Настройки']],
   },
 };
 SCREENS.dispatcher = { ...SCREENS.master, menu: [...SCREENS.master.menu.slice(0, 3), ['team', 'Команда'], ...SCREENS.master.menu.slice(3)] };
 
 function screenFor(name, role) {
   if (name === 'money') return renderSettlements();
-  if (name === 'profile') return renderProfile();
+  if (name === 'profile') return renderProfileTab();
   if (name === 'settings') return renderSettings();
   if (name === 'stats') return renderStats();
   if (name === 'brand' || name.startsWith('brand-')) return brandRoute(name);
@@ -97,7 +97,7 @@ function drawer(role) {
   const me = S.me();
   const cfg = SCREENS[role];
   const cur = route() || cfg.start;
-  const on = (key) => cur === key || (key === 'orders' && cur.startsWith('bd-')) || (key === 'brand' && cur.startsWith('brand'));
+  const on = (key) => cur === key || (key === 'orders' && cur.startsWith('bd-')) || (key === 'brand' && cur.startsWith('brand')) || (key === 'settings' && cur === 'profile');
   const ini = (me.name || '').split(' ').map((w) => w[0] || '').slice(0, 2).join('');
   return `<div class="drawer__scrim" data-action="menu-close"></div>
     <nav class="drawer__panel" aria-label="Меню">

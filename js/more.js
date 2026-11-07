@@ -1,12 +1,12 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=258';
-import * as S from './store.js?v=258';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=258';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=258';
-import { topbar, typeName, renderSettlements } from './shared.js?v=258';
-import { ROOMS, roomColor } from './ocenka.js?v=258';
-import { COUNTRIES, SOON } from './phonecodes.js?v=258';
+import { actions, changes, rerender, go, val } from './core.js?v=259';
+import * as S from './store.js?v=259';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=259';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=259';
+import { topbar, typeName, renderSettlements } from './shared.js?v=259';
+import { ROOMS, roomColor } from './ocenka.js?v=259';
+import { COUNTRIES, SOON } from './phonecodes.js?v=259';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -74,7 +74,8 @@ export function renderProfile() {
 }
 
 // ================= настройки =================
-let setTab = 'general';
+let setTab = 'profile';
+export function renderProfileTab() { setTab = 'profile'; history.replaceState(null, '', '#settings'); return renderSettings(); }
 const NOTIFY_PLATE = (st) => `<section class="plate">
       <h2 class="plate__title">Уведомления</h2>
       <label class="toggle-row"><span><b>Присылать уведомления</b><small>Новые заказы, сообщения в чате, выплаты</small></span><input type="checkbox" class="switch" data-change="set-notify" ${st.notify.on ? 'checked' : ''}/></label>
@@ -92,11 +93,13 @@ export const NOTIFY_KINDS = [
 export function renderSettings() {
   const me = S.me();
   const isAgent = S.hasRole(me, 'agent');
-  const tabs = isAgent ? [['general', 'Уведомления'], ['agent', 'Агент']] : [['notify', 'Уведомления'], ['services', 'Услуги'], ['rooms', 'Комнаты'], ['schedule', 'График']];
-  if (!tabs.some(([k]) => k === setTab)) setTab = 'general';
+  const tabs = isAgent ? [['profile', 'Профиль'], ['general', 'Уведомления'], ['agent', 'Агент']] : [['profile', 'Профиль'], ['notify', 'Уведомления'], ['services', 'Услуги'], ['rooms', 'Комнаты'], ['schedule', 'График']];
+  if (!tabs.some(([k]) => k === setTab)) setTab = 'profile';
   const st = me.settings;
   let body = '';
-  if (setTab === 'general') {
+  if (setTab === 'profile') {
+    const pf = renderProfile(); body = pf.slice(pf.indexOf('<section'));
+  } else if (setTab === 'general') {
     body = NOTIFY_PLATE(st);
   } else if (setTab === 'notify') {
     const kinds = st.notify.kinds || {};
