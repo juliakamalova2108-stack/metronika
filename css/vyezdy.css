@@ -1853,3 +1853,6 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .h-mt__who small { font: 500 12.5px Inter, sans-serif; color: rgba(237,242,232,.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .h-mt__act { display: flex; gap: 8px; }
 .h-mt__act .h-round { width: 44px; height: 44px; }
+
+.h-mtoday { margin-top: 0; }
+.h-hero--meas .h-hero__act { justify-content: flex-start; }
