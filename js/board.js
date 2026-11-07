@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=223';
-import * as S from './store.js?v=223';
-import { renderOformit, oformitDraft } from './oformit.js?v=223';
-import { roomTotals, svcInfo } from './ocenka.js?v=223';
-import { smetaTotals } from './zakaz.js?v=223';
-import { bookedDays } from './grafik.js?v=223';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=223';
-import { esc, toast } from './ui.js?v=223';
+import { actions, rerender, go } from './core.js?v=224';
+import * as S from './store.js?v=224';
+import { renderOformit, oformitDraft } from './oformit.js?v=224';
+import { roomTotals, svcInfo } from './ocenka.js?v=224';
+import { smetaTotals } from './zakaz.js?v=224';
+import { bookedDays } from './grafik.js?v=224';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=224';
+import { esc, toast } from './ui.js?v=224';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -482,11 +482,28 @@ export function renderHome() {
   ];
   const medal = (t) => `<span class="rc-medal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${MEDAL[t - 1]}</svg></span>`;
   const TIERS = ['Старт', 'Мастера', 'Профи', 'Эксперты', 'Вершина'];
+  // Гильош (как на банкнотах): розетка из повёрнутых синусоидальных кругов.
+  const guilloche = (cls) => { let d = '';
+    for (let k = 0; k < 18; k++) { const rot = (k / 18) * Math.PI * 2; let pts = [];
+      for (let j = 0; j <= 120; j++) { const t = (j / 120) * Math.PI * 2; const r = 42 + 9 * Math.sin(7 * t + rot * 3);
+        pts.push(`${(60 + r * Math.cos(t + rot)).toFixed(1)},${(60 + r * Math.sin(t + rot)).toFixed(1)}`); }
+      d += `<polyline points="${pts.join(' ')}"/>`; }
+    return `<svg class="${cls}" viewBox="0 0 120 120" fill="none" aria-hidden="true">${d}</svg>`; };
+  const GUI = guilloche('mc__gui');
   const card = (i, size) => { const r = RANKS[i]; const t = r[2]; const st = i < ri ? 'is-got' : i === ri ? 'is-cur is-got' : 'is-lock';
-    return `<article class="rc rc--${size} rc--t${t} ${st}"><div class="rc__in">
-      <div class="rc__top"><span>№ ${String(i + 1).padStart(2, '0')}</span><span>${TIERS[t - 1]}</span></div>
-      ${medal(t)}<h3 class="rc__name">${esc(r[0])}</h3>
-      <p class="rc__foot">${i === ri ? 'ваш ранг' : i < ri ? 'получен' : `${LOCK}от ${fmt(r[1])} обоев`}</p></div></article>`; };
+    if (size === 'l') return `<article class="mc mc--t${t} ${st}" data-tilt>
+      <div class="mc__metal"></div>${GUI}<div class="mc__sheen"></div>
+      <div class="mc__body">
+        <div class="mc__row"><span class="mc__brand">Metronica</span><span class="mc__tier">${TIERS[t - 1]}</span></div>
+        <div class="mc__chip">${medal(t)}</div>
+        <h3 class="mc__name">${esc(r[0])}</h3>
+        <div class="mc__row mc__row--end"><span class="mc__owner"><small>Мастер</small>${esc(fullName)}</span><span class="mc__no"><small>Ранг</small>${String(i + 1).padStart(2, '0')} / ${RANKS.length}</span></div>
+      </div></article>`;
+    return `<article class="mc mc--s mc--t${t} ${st}"><div class="mc__metal"></div><div class="mc__body">
+      <div class="mc__row"><span class="mc__no">${String(i + 1).padStart(2, '0')}</span>${i < ri || i === ri ? '' : `<span class="mc__lock">${LOCK}</span>`}</div>
+      <div class="mc__chip">${medal(t)}</div>
+      <h3 class="mc__name">${esc(r[0])}</h3>
+      <span class="mc__foot">${i === ri ? 'ваш ранг' : i < ri ? 'получен' : `от ${fmt(r[1])} обоев`}</span></div></article>`; };
   const LOCK = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
   const ranksSheet = () => {
     const left = nextR ? nextR[1] - described : 0;
@@ -599,6 +616,13 @@ export function renderHome() {
     <button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
 }
 let homeRanks = false;
+// Наклон главной карты за пальцем/мышью и блик там, где «свет» (одно живое движение экрана).
+const tiltAt = (el, x, y) => { const r = el.getBoundingClientRect(); const px = Math.min(1, Math.max(0, (x - r.left) / r.width)), py = Math.min(1, Math.max(0, (y - r.top) / r.height));
+  el.style.setProperty('--rx', `${(0.5 - py) * 14}deg`); el.style.setProperty('--ry', `${(px - 0.5) * 18}deg`); el.style.setProperty('--mx', `${px * 100}%`); el.style.setProperty('--my', `${py * 100}%`); };
+document.addEventListener('pointermove', (e) => { const el = e.target.closest && e.target.closest('[data-tilt]'); if (el) tiltAt(el, e.clientX, e.clientY); }, { passive: true });
+document.addEventListener('pointerleave', () => {}, { passive: true });
+window.addEventListener('deviceorientation', (e) => { const el = document.querySelector('[data-tilt]'); if (!el || e.beta == null) return; const r = el.getBoundingClientRect();
+  tiltAt(el, r.left + r.width * (0.5 + Math.max(-0.5, Math.min(0.5, e.gamma / 40))), r.top + r.height * (0.5 + Math.max(-0.5, Math.min(0.5, (e.beta - 45) / 40)))); });
 actions['home-ranks'] = () => { homeRanks = true; rerender(); };
 actions['home-ranks-close'] = () => { homeRanks = false; rerender(); };
 actions['home-day'] = (el) => { homeDay = Number(el.dataset.off); rerender(); };
