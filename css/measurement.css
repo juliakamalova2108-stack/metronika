@@ -290,3 +290,9 @@
 .mw .z-rv__send { align-self: flex-end; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--g-btn-line); background: var(--g-btn); box-shadow: var(--btn-shadow); font: 600 13px/1 var(--font-body); color: var(--ink); }
 .mw .z-rv__none { margin: 0 14px; font: 400 13px/1.45 var(--font-body); color: var(--ink-dim); }
 .mw .z-rvs .z-rv:only-child { flex-basis: 100%; }
+/* карточка материала — одна пластина: сверху производитель, ниже опыт мастеров */
+.mw .z-mplate { border: 0.9px solid var(--g-dark-line); border-radius: 14px; background: linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); box-shadow: var(--deep-shadow); overflow: hidden; }
+.mw .z-mplate .z-mhead { border: 0; border-radius: 0; background: none; box-shadow: none; padding: 14px; }
+.mw .z-mplate .z-rvbox { border: 0; border-top: 1px solid var(--g-line-soft); border-radius: 0; background: none; box-shadow: none; margin: 0 14px; padding: 12px 0 14px; }
+.mw .z-mplate .z-rvbox__t, .mw .z-mplate .z-rv__none { margin-left: 0; margin-right: 0; }
+.mw .z-mplate .z-rvs { margin: 0 -14px; }

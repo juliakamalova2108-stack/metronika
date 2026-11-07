@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=166';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=167';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=166';
-import * as S from './store.js?v=166';
-import { WALLPAPER_TYPES } from './seed.js?v=166';
-import { esc, toast } from './ui.js?v=166';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=166';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=166';
-import { country } from './phonecodes.js?v=166';
-import { suggestAddress } from './address.js?v=166';
-import { suggesters } from './kbd.js?v=166';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=166';
+import { actions, changes, rerender } from './core.js?v=167';
+import * as S from './store.js?v=167';
+import { WALLPAPER_TYPES } from './seed.js?v=167';
+import { esc, toast } from './ui.js?v=167';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=167';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=167';
+import { country } from './phonecodes.js?v=167';
+import { suggestAddress } from './address.js?v=167';
+import { suggesters } from './kbd.js?v=167';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=167';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -234,11 +234,11 @@ function renderMaterial(d) {
     const reviews = S.reviewsOf(it.code).filter((v) => v.authorId !== S.me().id);
     const card = (v) => { const u = S.user(v.authorId); const mine = v.authorId === S.me().id;
       return `<article class="z-rv"><div class="z-rv__who"><span class="z-ava">${esc(u.name[0])}</span><b>${esc(mine ? 'Вы' : u.name.split(' ')[0])}</b><small>${v.at ? new Date(v.at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : ''}</small></div><p class="z-rv__text">${esc(v.text)}</p></article>`; };
-    const exp = `<section class="z-rvbox"><p class="z-rvbox__t">Опыт мастеров<small>${reviews.length > 1 ? reviews.length + ' · листайте' : ''}</small></p>
-      ${reviews.length ? `<div class="z-rvs">${reviews.map(card).join('')}</div>` : '<p class="z-rv__none">Мастера пока не делились опытом с этим материалом.</p>'}</section>`;
-    body = `<div class="z-mhead">${MAT_SAMPLE}<span class="z-mline__t"><i class="z-mcode">${esc(it.code)}</i><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span>
+    const exp = `<div class="z-rvbox"><p class="z-rvbox__t">Опыт мастеров<small>${reviews.length > 1 ? reviews.length + ' · листайте' : ''}</small></p>
+      ${reviews.length ? `<div class="z-rvs">${reviews.map(card).join('')}</div>` : '<p class="z-rv__none">Мастера пока не делились опытом с этим материалом.</p>'}</div>`;
+    body = `<section class="z-mplate"><div class="z-mhead">${MAT_SAMPLE}<span class="z-mline__t"><i class="z-mcode">${esc(it.code)}</i><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span>
         <span class="z-mrolls"><b>${n || '—'}</b><small>${n ? 'рулонов' : ''}</small></span></div>
-      ${exp}
+      ${exp}</section>
       <div class="z-mfoot"><button type="button" class="wall-delete" data-action="z-mat-del" data-i="${idx}" aria-label="Убрать материал из комнаты">${TRASH_SVG}</button></div>`;
   }
   const folds = `<div class="mw z-mw" style="--rc: ${color}">${t.html}<div class="wallbody z-mbody" style="border-radius: ${t.radius}">${body}</div></div>`;
