@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=155';
-import * as S from './store.js?v=155';
-import { SYSTEM_PRICE } from './seed.js?v=155';
-import { shiftsText, hoursFor } from './calc.js?v=155';
-import { esc, toast } from './ui.js?v=155';
-import { logEvent } from './zlog.js?v=155';
+import { actions, changes, rerender } from './core.js?v=156';
+import * as S from './store.js?v=156';
+import { SYSTEM_PRICE } from './seed.js?v=156';
+import { shiftsText, hoursFor } from './calc.js?v=156';
+import { esc, toast } from './ui.js?v=156';
+import { logEvent } from './zlog.js?v=156';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -93,10 +93,12 @@ const roomLines = (r) => { if (!r.custom) return [r.name, '']; const t = r.base 
 const PEN = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10.8 2.6l2.6 2.6M2.5 13.5l.7-3.2 7.6-7.6 2.6 2.6-7.6 7.6-3.3.6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>';
 function carousel(e, tabs, inner = '') {
   const adding = e.view === 'pick';
+  // Комнаты на разных этажах — на плитке метка этажа («2 эт»); всё на одном этаже — метка не нужна.
+  const floors = new Set(e.rooms.map((r) => r.floor)).size > 1;
   const cards = e.rooms.map((r) => {
     const t = roomTotals(r);
     return `<button type="button" class="o-pv${e.view === r.key ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="o-view" data-key="${r.key}">
-      <b class="o-pv__n">${esc(roomLines(r)[0])}</b>${roomLines(r)[1] ? `<em class="o-pv__note">${esc(roomLines(r)[1])}</em>` : ''}${e.view === r.key ? `<span class="o-pen" role="button" aria-label="Переименовать комнату" data-action="o-rename" data-key="${r.key}">${PEN}</span>` : ''}<span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span>${r.status === 'saved' ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}</button>`;
+      <b class="o-pv__n">${esc(roomLines(r)[0])}</b>${roomLines(r)[1] ? `<em class="o-pv__note">${esc(roomLines(r)[1])}</em>` : ''}${e.view === r.key ? `<span class="o-pen" role="button" aria-label="Переименовать комнату" data-action="o-rename" data-key="${r.key}">${PEN}</span>` : ''}<span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span>${floors ? `<i class="o-pv__fl">${r.floor} эт</i>` : ''}${r.status === 'saved' ? '<i class="o-pv__ok" aria-label="сохранена">✓</i>' : ''}</button>`;
   }).join('');
   const total = e.rooms.length ? (() => { const sum = e.rooms.reduce((a, r) => a + roomTotals(r).total, 0);
     return `<button type="button" class="o-pv o-pv--sum${e.view === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="o-view" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(sum)}<small> ₽</small></span></button>`; })() : '';
