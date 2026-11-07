@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=199';
-import * as S from './store.js?v=199';
-import { renderOformit, oformitDraft } from './oformit.js?v=199';
-import { roomTotals, svcInfo } from './ocenka.js?v=199';
-import { smetaTotals } from './zakaz.js?v=199';
-import { bookedDays } from './grafik.js?v=199';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=199';
-import { esc, toast } from './ui.js?v=199';
+import { actions, rerender, go } from './core.js?v=200';
+import * as S from './store.js?v=200';
+import { renderOformit, oformitDraft } from './oformit.js?v=200';
+import { roomTotals, svcInfo } from './ocenka.js?v=200';
+import { smetaTotals } from './zakaz.js?v=200';
+import { bookedDays } from './grafik.js?v=200';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=200';
+import { esc, toast } from './ui.js?v=200';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -444,8 +444,8 @@ export function renderHome() {
   const area = 3862;                                                          // поклеено, м² (прошлое — примерные данные)
   // Ранг мастера — по опыту: сколько разных обоев (штрихкодов) он описал. Цвет значка — по ступени.
   const described = new Set(S.get().reviews.filter((v) => v.authorId === meId).map((v) => v.barcode)).size;
-  const RANKS = [['Новичок', 0, 1], ['Стажёр', 1, 1], ['Помощник', 3, 1], ['Подмастерье', 6, 1], ['Мастер', 10, 2], ['Топ-мастер', 15, 2],
-    ['Профи', 25, 2], ['Супер-профи', 40, 3], ['Эксперт', 60, 3], ['Наставник', 90, 3], ['Гуру', 150, 4], ['Легенда', 250, 4]];
+  const RANKS = [['Новичок', 0, 1], ['Стажёр', 1, 1], ['Помощник', 3, 1], ['Подмастерье', 6, 1], ['Специалист', 10, 1], ['Мастер', 15, 2], ['Топ-мастер', 20, 2],
+    ['Профи', 30, 2], ['Супер-профи', 45, 3], ['Эксперт', 65, 3], ['Наставник', 95, 3], ['Гуру', 150, 4], ['Легенда', 250, 4]];
   const ri = RANKS.reduce((k, r, i) => (described >= r[1] ? i : k), 0);
   const rank = RANKS[ri][0], tier = RANKS[ri][2], nextR = RANKS[ri + 1];
   const rankPct = nextR ? Math.max(4, Math.round(((described - RANKS[ri][1]) / (nextR[1] - RANKS[ri][1])) * 100)) : 100;
