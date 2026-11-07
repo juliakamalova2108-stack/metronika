@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=169';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=170';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=169';
-import * as S from './store.js?v=169';
-import { WALLPAPER_TYPES } from './seed.js?v=169';
-import { esc, toast } from './ui.js?v=169';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=169';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=169';
-import { country } from './phonecodes.js?v=169';
-import { suggestAddress } from './address.js?v=169';
-import { suggesters } from './kbd.js?v=169';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=169';
+import { actions, changes, rerender } from './core.js?v=170';
+import * as S from './store.js?v=170';
+import { WALLPAPER_TYPES } from './seed.js?v=170';
+import { esc, toast } from './ui.js?v=170';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=170';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=170';
+import { country } from './phonecodes.js?v=170';
+import { suggestAddress } from './address.js?v=170';
+import { suggesters } from './kbd.js?v=170';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=170';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -231,11 +231,11 @@ function renderMaterial(d) {
     const idx = r.active; const { it, rolls: n, text } = items[idx];
     const x = S.material(it.code); const key = `mat-${room.key}-${idx}`;
     // «Опыт мастеров» — одно окошко: отзывы листаются вбок, последняя карточка — свой опыт.
-    const reviews = S.reviewsOf(it.code).filter((v) => v.authorId !== S.me().id);
+    const reviews = S.reviewsOf(it.code);
     const card = (v) => { const u = S.user(v.authorId); const mine = v.authorId === S.me().id;
       return `<article class="z-rv"><div class="z-rv__who"><span class="z-ava">${esc(u.name[0])}</span><b>${esc(mine ? 'Вы' : u.name.split(' ')[0])}</b><small>${v.at ? new Date(v.at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : ''}</small></div>${(v.photos || []).length ? `<div class="z-rv__ph">${v.photos.map((k) => `<i class="z-ph z-ph--${esc(k)}" aria-label="Фото"></i>`).join('')}</div>` : ''}<p class="z-rv__text">${esc(v.text)}</p></article>`; };
     const exp = `<div class="z-rvbox"><p class="z-rvbox__t">Опыт мастеров${reviews.length > 1 ? `<span class="z-rvnav"><button type="button" class="z-rvnav__b" data-rv-go="-1" aria-label="Предыдущий отзыв">‹</button><small class="z-rvnav__n"><b>1</b> / ${reviews.length}</small><button type="button" class="z-rvnav__b" data-rv-go="1" aria-label="Следующий отзыв">›</button></span>` : ''}</p>
-      ${reviews.length ? `<div class="z-rvs">${reviews.map(card).join('')}</div>${reviews.length > 1 ? `<div class="z-rvdots">${reviews.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>` : ''}` : '<p class="z-rv__none">Мастера пока не делились опытом с этим материалом.</p>'}</div>`;
+      ${reviews.length ? `<div class="z-rvs">${reviews.map(card).join('')}</div>${reviews.length > 1 ? `<div class="z-rvdots">${reviews.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>` : ''}` : '<p class="z-rv__none">Мастера пока не делились опытом с этим материалом.</p>'}<button type="button" class="z-rvshare" data-action="z-share-open" data-i="${idx}">Поделиться опытом</button></div>`;
     body = `<section class="z-mplate"><div class="z-mhead">${MAT_SAMPLE}<span class="z-mline__t"><i class="z-mcode">${esc(it.code)}</i><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span>
         <span class="z-mrolls"><b>${n || '—'}</b><small>${n ? 'рулонов' : ''}</small></span></div>
       ${exp}</section>
@@ -248,6 +248,14 @@ function renderMaterial(d) {
     dlg = `<div class="o-overlay" data-action="z-scan-close"></div><div class="f-plate o-dialog z-scan" role="dialog"><p class="o-dialog__t">Сканирование</p><p class="z-muted">Наведите камеру на штрихкод рулона</p>
       <div class="z-scan__frame"><i class="z-scan__c"></i><i class="z-scan__c"></i><i class="z-scan__c"></i><i class="z-scan__c"></i><span class="z-scan__bars"></span><i class="z-scan__line"></i></div>
       ${row(btn('Закрыть', 'z-scan-close'), btn('Сканировать', 'z-scan-do', { cls: 'f-btn--lit' }))}</div>`;
+  } else if (r.panel === 'share' && room && r.items[r.shareI]) {
+    const it = r.items[r.shareI]; const ph = it.sharePhotos || [];
+    dlg = `<div class="o-overlay" data-action="z-share-close"></div><div class="f-plate o-dialog z-share" role="dialog"><p class="o-dialog__t">Поделиться опытом</p>
+      <p class="z-muted">${esc(matTitle(it))} · ${esc(it.type)}</p>
+      <div class="z-share__ph">${ph.map((k, i) => `<span class="z-share__item"><i class="z-ph z-ph--${esc(k)}"></i><button type="button" class="z-share__x" data-action="z-photo-del" data-k="${i}" aria-label="Убрать фото">×</button></span>`).join('')}
+        ${ph.length < 4 ? `<button type="button" class="z-share__add" data-action="z-photo" aria-label="Добавить фото"><b>+</b><small>Фото</small></button>` : ''}</div>
+      ${area('z-m-note-' + r.shareI, '', it.note || '', { ph: 'Как клеится, стыкуется, на что обратить внимание', live: `z-mnote:${r.shareI}` })}
+      ${row(btn('Отмена', 'z-share-close'), btn('Опубликовать', 'z-mat-share', { cls: 'f-btn--lit', data: `data-i="${r.shareI}"` }))}</div>`;
   } else if (r.panel === 'result') {
     dlg = `<div class="o-overlay" data-action="z-scan-close"></div><div class="f-plate o-dialog z-mres" role="dialog"><p class="o-dialog__t">Материал</p>${scanResult(r)}</div>`;
   } else if (r.added) {
@@ -286,12 +294,19 @@ actions['z-mat-add'] = () => {
 actions['z-mat-ok'] = () => { const m = mat(D()); matRoom(m, m.view).added = null; save(); };
 actions['z-mat-del'] = (el) => { const m = mat(D()); const r = matRoom(m, m.view); r.items.splice(Number(el.dataset.i), 1); r.active = Math.max(0, Math.min(r.active || 0, r.items.length - 1)); save(); };
 actions['z-rv'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.rv = (it.rv || 0) + Number(el.dataset.d) + 100; save(); };
-actions['z-photo'] = () => toast('Фото материала снимается встроенной камерой — в прототипе недоступно');
+// «Поделиться опытом»: окно с фото и комментарием → отзыв встаёт первым в «Опыт мастеров» с подписью «Вы».
+// Фото в прототипе — условные кадры (камера недоступна), по очереди: шов, стена, угол.
+const shareItem = () => { const m = mat(D()); const r = matRoom(m, m.view); return r.items[r.shareI]; };
+actions['z-share-open'] = (el) => { const m = mat(D()); const r = matRoom(m, m.view); r.shareI = Number(el.dataset.i); r.panel = 'share'; save(); };
+actions['z-share-close'] = () => { const m = mat(D()); matRoom(m, m.view).panel = ''; save(); };
+actions['z-photo'] = () => { const it = shareItem(); if (!it) return; const ph = it.sharePhotos || (it.sharePhotos = []);
+  if (ph.length < 4) ph.push(['seam', 'wall', 'corner'][ph.length % 3]); save(); };
+actions['z-photo-del'] = (el) => { const it = shareItem(); if (it && it.sharePhotos) it.sharePhotos.splice(Number(el.dataset.k), 1); save(); };
 actions['z-mat-share'] = (el) => {
-  const d = D(); const m = mat(d); const it = matRoom(m, m.view).items[Number(el.dataset.i)];
+  const d = D(); const m = mat(d); const r = matRoom(m, m.view); const it = r.items[Number(el.dataset.i)];
   if ((it.note || '').trim().length < 3) { toast('Напишите хотя бы пару слов'); return; }
-  S.addReview(it.code, it.note.trim()); logEvent(d, 'Опыт с материалом', `${it.type}: ${it.note.trim()}`);
-  it.note = ''; toast('Спасибо — опыт увидят другие мастера'); save();
+  S.addReview(it.code, it.note.trim(), it.sharePhotos || []); logEvent(d, 'Опыт с материалом', `${it.type}: ${it.note.trim()}`);
+  it.note = ''; it.sharePhotos = []; r.panel = ''; toast('Спасибо — опыт увидят другие мастера'); save();
 };
 actions['z-howto'] = () => { mat(D()).howto = true; save(); };
 actions['z-howto-close'] = () => { mat(D()).howto = false; save(); };

@@ -1206,3 +1206,13 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .z-mfold .z-kv { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
 .z-mfold .z-kv b { font-family: var(--font-num); letter-spacing: 0.02em; }
 .z-mfold:not(.is-open) .o-sroom__list { display: none; }
+/* «Поделиться опытом»: окно с фото и комментарием */
+.o-dialog.z-share { top: 84px; transform: none; align-items: stretch; gap: 12px; }
+.o-dialog.z-share .o-dialog__t { align-self: center; }
+.o-dialog.z-share .z-muted { margin: -6px 0 0; text-align: center; }
+.z-share__ph { display: flex; flex-wrap: wrap; gap: 8px; }
+.z-share__item { position: relative; }
+.z-share__x { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; padding: 0; border-radius: 50%; border: 1px solid rgba(204, 222, 209, 0.55); background: #213839; color: #edf0e7; font: 400 15px/1 Inter, sans-serif; }
+.z-share__add { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 64px; height: 64px; border-radius: 8px; border: 1px dashed rgba(204, 222, 209, 0.55); background: rgba(9, 18, 19, 0.35); color: #edf0e7; }
+.z-share__add b { font: 300 24px/1 Inter, sans-serif; }
+.z-share__add small { font: 400 11px/1 Inter, sans-serif; color: rgba(237, 242, 232, 0.7); }

@@ -1,8 +1,8 @@
 // Данные прототипа и все действия над ними. Хранятся только в этом браузере (localStorage).
 // Модель повторяет «Скелет системы»: заказ → звенья передачи → начисления; комнаты → стены → смета.
 
-import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=169';
-import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=169';
+import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=170';
+import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=170';
 
 const KEY = 'metronika-prototype-v2';
 let state;
@@ -173,7 +173,7 @@ export function addMaterial(m) {
   return rec;
 }
 export const reviewsOf = (barcode) => state.reviews.filter((r) => r.barcode === barcode).slice().sort((a, b) => String(b.at).localeCompare(String(a.at)));
-export function addReview(barcode, text) { state.reviews.push({ barcode, authorId: me().id, text, at: nowStamp() }); save(); }
+export function addReview(barcode, text, photos = []) { state.reviews.push({ barcode, authorId: me().id, text, photos: [...photos], at: new Date().toISOString() }); save(); }
 
 // ================= цены =================
 export function priceSnapshotFor(userId) {

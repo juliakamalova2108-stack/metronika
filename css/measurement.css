@@ -298,10 +298,10 @@
 .mw .z-mplate .z-rvs { margin: 0 -14px; }
 /* фото в отзыве мастера — условные кадры */
 .mw .z-rv__ph { display: flex; gap: 6px; }
-.mw .z-ph { display: block; width: 64px; height: 64px; border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); }
-.mw .z-ph--seam { background: linear-gradient(90deg, #d9cdb6 0 48%, #bfb196 48% 50%, #e3d8c3 50%), #d9cdb6; background-blend-mode: multiply; }
-.mw .z-ph--wall { background: repeating-linear-gradient(90deg, #cfc2a8 0 18px, #c3b598 18px 19px), linear-gradient(180deg, #e8dfcc, #b7a98d); background-blend-mode: multiply; }
-.mw .z-ph--corner { background: linear-gradient(100deg, #e4d9c4 0 52%, #9f9078 52% 54%, #c8baa0 54%); }
+.z-ph { display: block; width: 64px; height: 64px; border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); }
+.z-ph--seam { background: linear-gradient(90deg, #d9cdb6 0 48%, #bfb196 48% 50%, #e3d8c3 50%), #d9cdb6; background-blend-mode: multiply; }
+.z-ph--wall { background: repeating-linear-gradient(90deg, #cfc2a8 0 18px, #c3b598 18px 19px), linear-gradient(180deg, #e8dfcc, #b7a98d); background-blend-mode: multiply; }
+.z-ph--corner { background: linear-gradient(100deg, #e4d9c4 0 52%, #9f9078 52% 54%, #c8baa0 54%); }
 /* стрелки и точки листания отзывов */
 .mw .z-rvnav { display: flex; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; }
 .mw .z-rvnav__b { display: grid; place-items: center; width: 30px; height: 30px; padding: 0 0 2px; border-radius: 8px; border: 1px solid var(--g-btn-line);
@@ -312,3 +312,4 @@
 .mw .z-rvdots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
 .mw .z-rvdots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(237, 242, 232, 0.25); transition: background .2s, width .2s; }
 .mw .z-rvdots i.on { width: 16px; border-radius: 3px; background: var(--rc-light); }
+.mw .z-rvshare { display: block; width: calc(100% - 0px); height: 44px; margin-top: 12px; border-radius: 10px; border: 1px solid var(--g-btn-line); background: var(--g-btn); box-shadow: var(--btn-shadow); font: 600 14px/1 var(--font-body); color: var(--ink); }
