@@ -440,5 +440,5 @@
 .mw .od2-drawing { border: 0 !important; background: none !important; box-shadow: none !important; }
 .mw .opening-shape.win, .mw .opening-shape.door { background-color: #152324 !important; }
 .mw #gtLite stop { stop-color: #e6f2cc !important; }
-/* Плитки комнат и «Одинаковая высота / услуги» в замере — тот же акцент, без синего цвета комнаты */
-.mw-screen .o-pv, .mw-screen .o-same-wrap, .mw-screen .o-same { --rc: #a9bf86 !important; }
+/* «Одинаковая высота / услуги» в замере — акцент без синего; плитки комнат сверху — как в «Оценке» (с цветным отблеском комнаты) */
+.mw-screen .o-same-wrap, .mw-screen .o-same { --rc: #a9bf86 !important; }
