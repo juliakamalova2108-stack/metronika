@@ -9,6 +9,9 @@
   --rc: #3b82f6;
   --rc-light: color-mix(in srgb, var(--rc) 62%, #fff);
   --rc-line: color-mix(in srgb, var(--rc) 45%, transparent);
+  /* окна и двери — нейтральные светлые линии, не цвет комнаты */
+  --op: rgba(214, 229, 194, 0.85);
+  --op-soft: rgba(214, 229, 194, 0.45);
   /* основа — как в «Заказы → Очередь»: стеклянная пластина карточки заказа, тёмные «утопленные» карточки,
      светлые плашки итога («Стоимость / Срок»), тёмные кнопки со светлой рамкой */
   --g-sheet: #4a5d5c;      /* пластина и выбранная закладка */
@@ -93,12 +96,12 @@
 .mw .opgroup { display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; padding-bottom: 12px; }
 .mw .opgroup .caption { text-align: center; white-space: nowrap; font: 500 10px/14px var(--font-body); color: var(--ink-mute); }
 .mw .operators { display: flex; align-items: flex-end; justify-content: space-around; gap: 2px; font: 400 18px/18px var(--font-body); color: rgba(237, 242, 232, 0.55); }
-.mw .operators .IC { position: relative; display: block; color: transparent; border: 1px solid var(--rc-light); border-radius: 1px; background-color: var(--g-deep); }
+.mw .operators .IC { position: relative; display: block; color: transparent; border: 1px solid var(--op); border-radius: 1px; background-color: var(--g-deep); }
 .mw .operators .IC:nth-child(2) { width: 20px; height: 20px; border-bottom-width: 3px;
-  background-image: linear-gradient(var(--rc-light), var(--rc-light)), linear-gradient(var(--rc-light), var(--rc-light));
+  background-image: linear-gradient(var(--op), var(--op)), linear-gradient(var(--op), var(--op));
   background-size: 1px 100%, 100% 1px; background-position: 50% 0, 0 45%; background-repeat: no-repeat; }
 .mw .operators .IC:nth-child(4) { width: 15px; height: 26px; border-bottom: 0; }
-.mw .operators .IC:nth-child(4)::after { content: ''; position: absolute; right: 2px; top: 52%; width: 2px; height: 5px; border-radius: 1px; background: var(--rc-light); }
+.mw .operators .IC:nth-child(4)::after { content: ''; position: absolute; right: 2px; top: 52%; width: 2px; height: 5px; border-radius: 1px; background: var(--op); }
 
 /* ---------- чертёж стены ---------- */
 .mw .measurement { padding: 16px 10px 0 54px; }
@@ -141,14 +144,14 @@
 
 /* окно и дверь на стене */
 .mw .opening-columns { position: relative; grid-column: 2; grid-row: 1; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 6px; align-items: start; line-height: 1.4; }
-.mw .opening-shape { position: relative; display: flex; align-items: flex-start; justify-content: center; padding: 8px 4px; border: 1.5px solid color-mix(in srgb, var(--rc) 50%, #ddd);
+.mw .opening-shape { position: relative; display: flex; align-items: flex-start; justify-content: center; padding: 8px 4px; border: 1.5px solid var(--op);
   border-radius: 2px; background-color: #19191a; text-align: center; font-size: 10px; line-height: 14px; box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.04); }
 .mw .opening-shape.win { min-height: 96px; margin: 30px 0 48px; border-bottom-width: 4px;
-  background-image: linear-gradient(color-mix(in srgb, var(--rc-light) 60%, transparent), color-mix(in srgb, var(--rc-light) 60%, transparent)),
-    linear-gradient(color-mix(in srgb, var(--rc-light) 60%, transparent), color-mix(in srgb, var(--rc-light) 60%, transparent));
+  background-image: linear-gradient(var(--op-soft), var(--op-soft)),
+    linear-gradient(var(--op-soft), var(--op-soft));
   background-size: 1.5px 100%, 100% 1.5px; background-position: 50% 0, 0 45%; background-repeat: no-repeat; }
 .mw .opening-shape.door { align-self: stretch; margin: 62px -1px -1px 0; border-bottom: 0; }
-.mw .opening-shape.door::after { content: ''; position: absolute; right: 8px; top: 52%; width: 3px; height: 12px; border-radius: 2px; background: var(--rc-light); }
+.mw .opening-shape.door::after { content: ''; position: absolute; right: 8px; top: 52%; width: 3px; height: 12px; border-radius: 2px; background: var(--op); }
 .mw .opening-values { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; padding-top: 4px; }
 .mw .opening-values:empty { display: none; }
 .mw .opening-values > span { display: inline-block; padding: 3px 6px; border-radius: 7px; background: rgba(0, 0, 0, 0.82); font: 600 11px/1.2 var(--font-num); color: #fff; white-space: nowrap; }
@@ -168,12 +171,12 @@
     linear-gradient(180deg, var(--rc-light), color-mix(in srgb, var(--rc) 70%, #fff));
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); }
 .mw .u-op .u-plus { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border: 2px solid var(--g-sheet-low); box-sizing: content-box; }
-.mw .u-op::before { content: ''; display: block; border: 1px solid var(--rc-light); border-radius: 1px; background-color: var(--g-deep); }
+.mw .u-op::before { content: ''; display: block; border: 1px solid var(--op); border-radius: 1px; background-color: var(--g-deep); }
 .mw .u-op[data-fly="win"]::before { width: 22px; height: 22px; border-bottom-width: 3px;
-  background-image: linear-gradient(var(--rc-light), var(--rc-light)), linear-gradient(var(--rc-light), var(--rc-light));
+  background-image: linear-gradient(var(--op), var(--op)), linear-gradient(var(--op), var(--op));
   background-size: 1px 100%, 100% 1px; background-position: 50% 0, 0 45%; background-repeat: no-repeat; }
 .mw .u-op[data-fly="door"]::before { width: 16px; height: 26px; margin-top: 4px; border-bottom: 0;
-  background-image: linear-gradient(var(--rc-light), var(--rc-light)); background-size: 2px 5px; background-position: right 2px top 52%; background-repeat: no-repeat; }
+  background-image: linear-gradient(var(--op), var(--op)); background-size: 2px 5px; background-position: right 2px top 52%; background-repeat: no-repeat; }
 
 /* итог по стене и удаление стены (в её левом углу) */
 .mw .emptywarn { margin: 10px; text-align: center; font-size: 12px; color: #ffd278; }
@@ -223,13 +226,13 @@
 .mw .od2__t { margin: 0; font: 700 18px/22px var(--font-num); color: #fff; }
 .mw .od2-meas { margin: 0 auto; padding: 6px 0 0 54px; }
 .mw .od2-drawing { display: block; min-height: 0; border: 0; background: none; box-shadow: none; }
-.mw .od2-fig { position: relative; width: 100%; height: 100%; border: 1.5px solid var(--rc-light); background: var(--g-deep); }
+.mw .od2-fig { position: relative; width: 100%; height: 100%; border: 1.5px solid var(--op); background: var(--g-deep); }
 .mw .od2-fig.win { border-bottom-width: 5px;
-  background-image: linear-gradient(color-mix(in srgb, var(--rc-light) 55%, transparent), color-mix(in srgb, var(--rc-light) 55%, transparent)),
-    linear-gradient(color-mix(in srgb, var(--rc-light) 55%, transparent), color-mix(in srgb, var(--rc-light) 55%, transparent));
+  background-image: linear-gradient(var(--op-soft), var(--op-soft)),
+    linear-gradient(var(--op-soft), var(--op-soft));
   background-size: 1.5px 100%, 100% 1.5px; background-position: 50% 0, 0 45%; background-repeat: no-repeat; }
 .mw .od2-fig.door { border-bottom: 0; }
-.mw .od2-fig.door::after { content: ''; position: absolute; right: 9px; top: 52%; width: 3px; height: 14px; border-radius: 2px; background: var(--rc-light); }
+.mw .od2-fig.door::after { content: ''; position: absolute; right: 9px; top: 52%; width: 3px; height: 14px; border-radius: 2px; background: var(--op); }
 .mw .od2__area { margin: 2px 0 0; font: 400 13px/18px var(--font-body); color: var(--ink-mute); }
 .mw .od2__area b { font: 700 16px var(--font-num); color: #fff; }
 .mw .od2__btns { align-self: stretch; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
@@ -244,7 +247,7 @@
 .mw .opening-row-title strong { font-family: var(--font-num); }
 .mw .opening-row-fields { display: grid; grid-template-columns: minmax(0, 1fr) 12px minmax(0, 1fr) auto; gap: 5px; align-items: end; }
 .mw .opening-row-fields label { display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: var(--ink-mute); }
-.mw .opening-row-fields input { width: 100%; height: 40px; padding: 0 8px; border: 1.5px solid var(--rc-light); border-radius: 10px; background: var(--g-field); font: 700 16px var(--font-num); color: #fff; }
+.mw .opening-row-fields input { width: 100%; height: 40px; padding: 0 8px; border: 1.5px solid var(--op); border-radius: 10px; background: var(--g-field); font: 700 16px var(--font-num); color: #fff; }
 .mw .opening-row-fields > span { align-self: center; margin-top: 16px; }
 .mw .remove-opening { height: 40px; padding: 0 5px; border: 1px solid #f1ada666; border-radius: 6px; background: #713d3933; color: #ffc0b9; font-size: 11px; }
 .mw .mw-none { margin: 4px 0; text-align: center; font: 400 13px/18px var(--font-body); color: var(--ink-dim); }
@@ -259,7 +262,9 @@
 
 /* ---------- верх экрана (общие блоки «Оценки»): плитки комнат не трогаем ---------- */
 /* «Одинаковая высота»: окошко растёт с числом; переключатель — цвет комнаты */
-.mw-screen .o-same.o-same--v2 .o-svc { grid-template-columns: minmax(70px, auto) minmax(0, 1fr) auto; }
+.mw-screen .o-same.o-same--v2 .o-svc:not(.mw-same-services) { grid-template-columns: minmax(70px, auto) minmax(0, 1fr) auto; }
 .mw-screen .o-same .o-qty { width: auto; min-width: 70px; flex: none; }
 .mw-screen .o-same .o-qty input { width: auto; min-width: 0; max-width: none; flex: none; }
 .mw-screen .o-same .o-tog.is-on { background: var(--rc); }
+/* «Одинаковые услуги»: окошка числа нет — текст на всю ширину, переключатель справа */
+.mw-screen .o-same.o-same--v2 .o-svc.mw-same-services { grid-template-columns: minmax(0, 1fr) auto; }
