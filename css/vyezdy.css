@@ -1205,3 +1205,4 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-dialog.z-mres .z-mhead { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .z-mfold .z-kv { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
 .z-mfold .z-kv b { font-family: var(--font-num); letter-spacing: 0.02em; }
+.z-mfold:not(.is-open) .o-sroom__list { display: none; }
