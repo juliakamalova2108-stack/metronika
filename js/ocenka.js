@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=156';
-import * as S from './store.js?v=156';
-import { SYSTEM_PRICE } from './seed.js?v=156';
-import { shiftsText, hoursFor } from './calc.js?v=156';
-import { esc, toast } from './ui.js?v=156';
-import { logEvent } from './zlog.js?v=156';
+import { actions, changes, rerender } from './core.js?v=157';
+import * as S from './store.js?v=157';
+import { SYSTEM_PRICE } from './seed.js?v=157';
+import { shiftsText, hoursFor } from './calc.js?v=157';
+import { esc, toast } from './ui.js?v=157';
+import { logEvent } from './zlog.js?v=157';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -535,7 +535,7 @@ export function measurementRoomPicker(d, s) {
     .replace(/data-action="o-add"/g,'data-action="mw-pick"')
     .replace(/data-action="o-floor"/g,'data-action="mw-floor"')
     .replace(/data-action="o-room-add"/g,'data-action="mw-add-room"')
-    .replace(/<button[^>]*data-action="o-room-del"[\s\S]*?<\/button>/g,'');
+    + (e.confirm ? confirmDialog(e.confirm) : '');   // удаление комнаты — то же окно, что в «Оценке»
 }
 actions['mw-floor'] = el => { const d=S.get().oformit[S.draftKey()]; d.sm.floor=Number(el.dataset.f); S.save(); rerender(); };
 actions['mw-add-room'] = el => {
