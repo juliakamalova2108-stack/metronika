@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=253';
-import * as S from './store.js?v=253';
-import { SYSTEM_PRICE } from './seed.js?v=253';
-import { shiftsText, hoursFor } from './calc.js?v=253';
-import { esc, toast } from './ui.js?v=253';
-import { logEvent } from './zlog.js?v=253';
+import { actions, changes, rerender } from './core.js?v=254';
+import * as S from './store.js?v=254';
+import { SYSTEM_PRICE } from './seed.js?v=254';
+import { shiftsText, hoursFor } from './calc.js?v=254';
+import { esc, toast } from './ui.js?v=254';
+import { logEvent } from './zlog.js?v=254';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -15,6 +15,8 @@ export const ROOMS = [
   ['Прихожая', '#f97316'], ['Санузел', '#3b82f6'], ['Балкон', '#10b981'], ['Кабинет', '#f59e0b'], ['Гардеробная', '#f59e0b'],
   ['Столовая', '#f59e0b'], ['Кладовая', '#f59e0b'], ['Постирочная', '#f59e0b'],
 ];
+// Цвет комнаты — выбранный мастером в «Настройках → Комнаты», иначе стандартный.
+export const roomColor = (type) => { const me = S.me(); const own = me && me.settings && me.settings.roomColors; return (own && own[type]) || (ROOMS.find((x) => x[0] === type) || [])[1] || '#7c8f8a'; };
 // Услуги — список и порядок из кадра «05 · Выбор услуг в комнате». norm — м² в час (срок в сменах по 8 ч).
 const SVC = [
   { id: 'prime', name: 'Грунтовка стен', price: 100, norm: 8 },
@@ -132,7 +134,7 @@ function pickView(e) {
     const label = note ? `<span class="o-chip__two"><b>${esc(top)}</b><em>${esc(note)}</em></span>` : `<span>${esc(top)}</span>`;
     return `<div class="o-chip${room ? ' is-on' : ''}" style="--rc:${color}"><button type="button" class="o-chip__add" data-action="o-room-add" data-name="${esc(type)}" aria-label="Добавить: ${esc(type)}"><i></i>${label}</button>${room ? `<button type="button" class="o-chip__del" data-action="o-room-del" data-key="${room.key}" aria-label="Удалить ${esc(room.name)}">${TRASH}</button>` : ''}</div>`;
   };
-  const list = ROOMS.map(([type, color]) => {
+  const list = ROOMS.map(([type]) => { const color = roomColor(type);
     const has = e.rooms.filter((r) => r.floor === e.floor && (r.base || r.name) === type);
     return has.length ? has.map((r) => chip(type, r.color || color, r)).join('') : chip(type, color, null);
   }).join('');
@@ -390,7 +392,7 @@ actions['o-room-add'] = (el) => {
   const e = D();
   const base = el.dataset.name;
   const like = e.rooms.find((x) => x.name === base || (x.base || x.name) === base);
-  const color = (ROOMS.find((x) => x[0] === base) || [])[1] || (like && like.color);
+  const color = ROOMS.some((x) => x[0] === base) ? roomColor(base) : (like && like.color);
   const r = { key: 'r' + Math.random().toString(36).slice(2, 8), floor: e.floor, base, name: nextRoomName(e, base), color, svcs: [], status: 'new', panel: 'services', pick: [] };
   e.rooms.push(r);
   slide = 'next'; e.view = r.key;

@@ -1,11 +1,12 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=253';
-import * as S from './store.js?v=253';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=253';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=253';
-import { topbar, typeName, renderSettlements } from './shared.js?v=253';
-import { COUNTRIES, SOON } from './phonecodes.js?v=253';
+import { actions, changes, rerender, go, val } from './core.js?v=254';
+import * as S from './store.js?v=254';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=254';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=254';
+import { topbar, typeName, renderSettlements } from './shared.js?v=254';
+import { ROOMS, roomColor } from './ocenka.js?v=254';
+import { COUNTRIES, SOON } from './phonecodes.js?v=254';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -118,11 +119,15 @@ export function renderSettings() {
         ${field({ id: `sv-n-${s.id}`, label: `${UNIT[s.unit]} в час`, value: num(v.norm), inputmode: 'decimal', attrs: `data-change="set-svc" data-svc="${s.id}" data-k="norm"` })}</div></div>`; }).join('')}
     </section>`;
   } else if (setTab === 'rooms') {
+    // Комнаты стандартные: название не меняется, удалить нельзя — только цвет метки (им комната видна в оценке, графике, календаре).
     body = `<section class="plate">
-      <h2 class="plate__title">Список комнат</h2>
-      ${st.rooms.map((r, i) => `<div class="kv"><span>${esc(r)}</span><button type="button" class="icon-btn" data-action="room-name-del" data-i="${i}" aria-label="Удалить ${esc(r)}">${ICONS.trash}</button></div>`).join('')}
-      ${field({ id: 'room-new', label: 'Новая комната', placeholder: 'Например, Мансарда' })}
-      ${btnRow([{ label: 'Вернуть стандартный список', action: 'room-names-reset' }, { label: 'Добавить', action: 'room-name-add', primary: true }])}
+      <h2 class="plate__title">Цвета комнат</h2>
+      <p class="small">Комнаты стандартные для всех мастеров. Выберите цвет — им комната будет отмечена в оценке, плане работ и календаре.</p>
+      <div class="rc-grid">${ROOMS.map(([name]) => { const c = roomColor(name); const open = roomPick === name;
+        return `<div class="rc-card${open ? ' is-open' : ''}" style="--c:${c}">
+          <button type="button" class="rc-card__hd" data-action="rc-open" data-name="${esc(name)}" aria-expanded="${open}"><i class="rc-dot"></i><b>${esc(name)}</b>${open ? '<span class="rc-edit">готово</span>' : ''}</button>
+          ${open ? `<div class="rc-pal">${RC_PALETTE.map((p) => `<button type="button" class="rc-sw${p === c ? ' is-on' : ''}" style="--s:${p}" data-action="rc-set" data-name="${esc(name)}" data-c="${p}" aria-label="Цвет ${p}"></button>`).join('')}</div>` : ''}</div>`; }).join('')}</div>
+      ${btnRow([{ label: 'Вернуть стандартные цвета', action: 'rc-reset' }])}
     </section>`;
   } else if (setTab === 'schedule') {
     const wd = [[1, 'Пн'], [2, 'Вт'], [3, 'Ср'], [4, 'Чт'], [5, 'Пт'], [6, 'Сб'], [0, 'Вс']];
@@ -186,6 +191,11 @@ actions['pin-change'] = () => {
   if (a !== b) { toast('PIN-коды не совпадают'); return; }
   S.setPin(S.me().id, a); toast('PIN изменён'); rerender();
 };
+let roomPick = '';
+const RC_PALETTE = ['#3b82f6', '#06b6d4', '#10b981', '#84cc16', '#eab308', '#f59e0b', '#f97316', '#ef4444', '#ec4899', '#8b5cf6', '#6366f1', '#64748b'];
+actions['rc-open'] = (el) => { roomPick = roomPick === el.dataset.name ? '' : el.dataset.name; rerender(); };
+actions['rc-set'] = (el) => { const own = { ...(S.me().settings.roomColors || {}), [el.dataset.name]: el.dataset.c }; S.updateSettings({ roomColors: own }); rerender(); };
+actions['rc-reset'] = () => { S.updateSettings({ roomColors: {} }); roomPick = ''; toast('Стандартные цвета возвращены'); rerender(); };
 actions['room-name-add'] = () => { const n = val('room-new'); if (n.length < 2) { toast('Введите название'); return; } const st = S.me().settings; if (st.rooms.includes(n)) { toast('Такая комната уже есть'); return; } S.updateSettings({ rooms: [...st.rooms, n] }); rerender(); };
 actions['room-name-del'] = (el) => { const r = S.me().settings.rooms.slice(); r.splice(Number(el.dataset.i), 1); S.updateSettings({ rooms: r }); rerender(); };
 actions['room-names-reset'] = () => { S.updateSettings({ rooms: ROOM_NAMES.slice() }); rerender(); };
