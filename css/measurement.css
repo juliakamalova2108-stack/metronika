@@ -20,7 +20,7 @@
 /* Выбранный вариант «Контур чертежа»: непрозрачные закладки. */
 .mw .wall-tabs{padding:5px 4px 0;margin-bottom:-1px}.mw .wall-tab{flex:none;min-width:66px;height:47px;margin-right:-20px;padding:0 22px 0 11px;clip-path:polygon(0 100%,0 31%,7% 7%,75% 7%,100% 100%);border:0;border-radius:0;background:linear-gradient(155deg,#57786c,#31554b);box-shadow:none;filter:drop-shadow(-5px -4px 5px #03191688);color:#e0ece2;font-size:13px}.mw .wall-tab.selected{min-width:126px;height:53px;padding-right:30px;clip-path:polygon(0 100%,0 25%,6% 4%,76% 4%,100% 100%);border:0;background:linear-gradient(150deg,#96b7a1,#568776 55%,#345d50);box-shadow:none;filter:drop-shadow(-5px -4px 6px #03191688);color:#fff}.mw .wall-tab.total-tab{min-width:82px;margin-left:auto;margin-right:0}.mw .new-wall{width:66px;height:47px;margin:0 -20px 0 0;padding:0 22px 0 11px;clip-path:polygon(0 100%,0 31%,7% 7%,75% 7%,100% 100%);border:0;border-radius:0;background:linear-gradient(155deg,#57786c,#31554b);box-shadow:none;filter:drop-shadow(-5px -4px 5px #03191688);color:#e6f2cc;font-size:23px}.mw .wallbody{background:linear-gradient(115deg,#345d50,#24473d);border-top:0;border-radius:0 15px 24px 24px;box-shadow:inset 0 1px #c4dacc55,0 -6px 18px #02191755}@media(max-width:480px){.mw .wall-tab,.mw .new-wall{min-width:54px;width:54px;margin-right:-19px;padding-left:8px;padding-right:18px}.mw .wall-tab.selected{width:auto;min-width:110px}.mw .wall-tab.total-tab{width:auto;min-width:68px}}
 
-/* ===== Вид по макету mock/zamer-modern (графит, закладки-каскад, миллиметровка) ===== */
+/* ===== Вид по макету «Замер — осовременить формы» (графит, закладки-каскад, миллиметровка) ===== */
 /* ===== Замер · «современно»: раскладка та же, меняются только формы ===== */
 .mw { --mint: #6fd6a2; --glass: rgba(220, 232, 226, 0.10); --line: rgba(226, 238, 230, 0.20); }
 /* Закладки стен: те же папки, только мягче и легче */
@@ -384,3 +384,61 @@
 /* лист заканчивается ровно по пластине: отступ снизу — у всего блока, а не у пластины */
 .mw .wallbody { margin-bottom: 0 !important; }
 .mw:not(.mw--dlg) { margin-bottom: 24px; }
+/* Стена — просто миллиметровка: без заливки и диагональной штриховки */
+.mw .drawing { border: 1px solid rgba(237, 242, 232, 0.35); background:
+  linear-gradient(rgba(237, 242, 232, 0.16) 1px, transparent 1px) 0 0 / 30px 30px,
+  linear-gradient(90deg, rgba(237, 242, 232, 0.16) 1px, transparent 1px) 0 0 / 30px 30px,
+  linear-gradient(rgba(237, 242, 232, 0.06) 1px, transparent 1px) 0 0 / 6px 6px,
+  linear-gradient(90deg, rgba(237, 242, 232, 0.06) 1px, transparent 1px) 0 0 / 6px 6px,
+  transparent !important; }
+.mw .od2-drawing { border: 0 !important; background: none !important; }
+/* «S общая» — приглушённая пластина, без цветного свечения */
+.mw .gross { background: linear-gradient(160deg, color-mix(in srgb, var(--rc) 22%, #22302f), color-mix(in srgb, var(--rc) 12%, #1b2729)) !important;
+  border: 1px solid color-mix(in srgb, var(--amber) 35%, transparent) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 2px 3px rgba(2, 10, 12, 0.45), 0 12px 18px -10px rgba(2, 10, 12, 0.8) !important; }
+.mw .gross::after { background: rgba(0, 0, 0, 0.55); }
+/* «S рабочая» — та же миллиметровка, что на стене, без заливки и свечения */
+.mw .net { border: 1px solid rgba(237, 242, 232, 0.35) !important; background:
+  linear-gradient(rgba(237, 242, 232, 0.16) 1px, transparent 1px) 0 0 / 30px 30px,
+  linear-gradient(90deg, rgba(237, 242, 232, 0.16) 1px, transparent 1px) 0 0 / 30px 30px,
+  linear-gradient(rgba(237, 242, 232, 0.06) 1px, transparent 1px) 0 0 / 6px 6px,
+  linear-gradient(90deg, rgba(237, 242, 232, 0.06) 1px, transparent 1px) 0 0 / 6px 6px,
+  rgba(10, 26, 27, 0.25) !important;
+  box-shadow: 0 2px 3px rgba(2, 10, 12, 0.45), 0 12px 18px -10px rgba(2, 10, 12, 0.8) !important; }
+/* Основная пластина — графит, без цветного свечения комнаты */
+.mw .gt-sheet { background: linear-gradient(180deg, #34373a 0, #34373a 44px, #2a2d30 340px, #1f2124 100%) !important; }
+.mw .gt-svg path { fill: #272a2d; }
+.mw.mw--plain .wallbody { background: linear-gradient(180deg, #34373a, #1f2124) !important; }
+/* Графит без оттенка: чистые серые, «S общая» тоже графит (без цвета комнаты) */
+.mw .gt-sheet { background: linear-gradient(180deg, #363636 0, #363636 44px, #2c2c2c 340px, #222222 100%) !important; }
+.mw .gt-svg path { fill: #2a2a2a; }
+.mw.mw--plain .wallbody { background: linear-gradient(180deg, #363636, #222222) !important; }
+.mw .gross { background: linear-gradient(160deg, #444444, #333333) !important; border: 1px solid rgba(255, 255, 255, 0.22) !important; }
+.mw .gross b { color: rgba(255, 255, 255, 0.75) !important; }
+.mw .gross::after { background: rgba(0, 0, 0, 0.55) !important; }
+
+/* ===== Замер в цветах «Очереди» (как доска заказов и карточка заказа) ===== */
+/* Акцент вместо цвета комнаты — светло-оливковый, как подсвеченные кнопки приложения */
+.mw { --rc: #a9bf86 !important; --amber: #e6f2cc !important; }
+/* Основная пластина — как стеклянная пластина карточки заказа */
+.mw .gt-sheet { background: linear-gradient(180deg, #4a5d5c 0, #4a5d5c 44px, #3d5152 340px, #33484a 100%) !important; }
+.mw .gt-svg path { fill: #203030; stroke: rgba(255, 249, 235, 0.22); }
+.mw.mw--plain .wallbody { background: linear-gradient(180deg, #4a5d5c, #33484a) !important; border-color: rgba(255, 249, 235, 0.34) !important; }
+/* «S общая» — как плашки «Стоимость / Срок» в итоге заказа */
+.mw .gross { background: linear-gradient(180deg, #687b7a, #738582) !important; border: 0.9px solid rgba(6, 18, 20, 0.78) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 6px 12px -6px rgba(2, 10, 12, 0.7) !important; }
+.mw .gross b { color: rgba(237, 242, 232, 0.85) !important; }
+.mw .gross::after { background: rgba(0, 0, 0, 0.45) !important; }
+/* Тёмные «утопленные» поля — как карточки в очереди; на них миллиметровка */
+.mw .net, .mw .drawing { border: 0.9px solid rgba(5, 13, 15, 0.75) !important; background:
+  linear-gradient(rgba(237, 242, 232, 0.13) 1px, transparent 1px) 0 0 / 30px 30px,
+  linear-gradient(90deg, rgba(237, 242, 232, 0.13) 1px, transparent 1px) 0 0 / 30px 30px,
+  linear-gradient(rgba(237, 242, 232, 0.05) 1px, transparent 1px) 0 0 / 6px 6px,
+  linear-gradient(90deg, rgba(237, 242, 232, 0.05) 1px, transparent 1px) 0 0 / 6px 6px,
+  linear-gradient(180deg, #182829, #203030) !important;
+  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.16), inset 0 1.5px 2px rgba(1, 6, 9, 0.55), inset 0 4px 10px rgba(1, 8, 10, 0.7) !important; }
+.mw .od2-drawing { border: 0 !important; background: none !important; box-shadow: none !important; }
+.mw .opening-shape.win, .mw .opening-shape.door { background-color: #152324 !important; }
+.mw #gtLite stop { stop-color: #e6f2cc !important; }
+/* Плитки комнат и «Одинаковая высота / услуги» в замере — тот же акцент, без синего цвета комнаты */
+.mw-screen .o-pv, .mw-screen .o-same-wrap, .mw-screen .o-same { --rc: #a9bf86 !important; }

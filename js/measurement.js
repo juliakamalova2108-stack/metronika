@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»). Функции и раскладка — как у Codex;
-// вид — по согласованному макету mock/zamer-modern: графитовый лист с закладками-каскадом, парящие плашки площадей,
+// вид — по согласованному макету «Замер — осовременить формы»: графитовый лист с закладками-каскадом, парящие плашки площадей,
 // стена-миллиметровка с зелёной штриховкой, кнопки под своими колонками, размеры в сантиметрах, полёт ярлыка.
-import {actions,changes,rerender,afterRender} from './core.js?v=133';
-import * as S from './store.js?v=133';
-import {oformitDraft} from './oformit.js?v=133';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=133';
-import {esc} from './ui.js?v=133';
+import {actions,changes,rerender,afterRender} from './core.js?v=138';
+import * as S from './store.js?v=138';
+import {oformitDraft} from './oformit.js?v=138';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=138';
+import {esc} from './ui.js?v=138';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -138,7 +138,7 @@ export function renderMeasurement(d){
   const s=state(d);if(!s.view){const rs=estimateRooms(d);s.view=rs.length?rs[0].key:'pick';}
   if(!estimateRooms(d).some(r=>r.key===s.view)&&s.view!=='total')return measurementRoomPicker(d,s);
   const bar=measurementStrip(d,s);
-  if(s.view==='total')return bar+`<div class="mw mw--plain">${estimateRooms(d).map(r=>`<h3>${esc(r.name)}</h3>${summary(room(s,r.key))}`).join('')}</div>`;
+  if(s.view==='total')return '<div class="mw-screen">'+bar+`<div class="mw mw--plain">${estimateRooms(d).map(r=>`<h3>${esc(r.name)}</h3>${summary(room(s,r.key))}`).join('')}</div></div>`;
   const r=room(s,s.view);if(!r.walls.length)r.walls.push({len:0,h:r.h,opens:[],svcs:[]});
   r.active=Math.min(r.active||0,r.walls.length-1);const w=r.walls[r.active];
   if(r.mwDialog==='services')return measurementServices(d,s,w);
@@ -146,7 +146,7 @@ export function renderMeasurement(d){
   const t=tabs(r,color);
   const body=(r.total?summary(r,t.edges):card(w,r,t.edges)).replace('<div class="wallbody',`<div style="border-radius: ${t.radius}" class="wallbody`);
   const dlg=r.mwDialog==='new-opening'?openingForm(r,color):(r.mwDialog?listDialog(r,w,color):'');
-  return bar+measurementSettings(er,r)+`<div class="mw" style="--rc: ${color}">${t.html}${body}</div>${dlg}`;
+  return '<div class="mw-screen">'+bar+measurementSettings(er,r)+`<div class="mw" style="--rc: ${color}">${t.html}${body}</div></div>${dlg}`;
 }
 
 // ---------- полёт ярлыка: из кнопки в свою колонку ----------
