@@ -1,11 +1,11 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=251';
-import * as S from './store.js?v=251';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=251';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=251';
-import { topbar, typeName, renderSettlements } from './shared.js?v=251';
-import { COUNTRIES, SOON } from './phonecodes.js?v=251';
+import { actions, changes, rerender, go, val } from './core.js?v=252';
+import * as S from './store.js?v=252';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=252';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=252';
+import { topbar, typeName, renderSettlements } from './shared.js?v=252';
+import { COUNTRIES, SOON } from './phonecodes.js?v=252';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -48,21 +48,34 @@ export function renderProfile() {
       <div class="plate__head"><h2 class="plate__title">${esc(me.name)}</h2><span class="chip">${esc(roles)}</span></div>
       ${kv('Телефон', esc(phoneRu(me.phone)))}
     </section>
-    ${body}
-    ${btnRow([{ label: 'Сменить пользователя', action: 'switch-user' }])}`;
+    ${body}`;
 }
 
 // ================= настройки =================
 let setTab = 'general';
+const NOTIFY_PLATE = (st) => `<section class="plate">
+      <h2 class="plate__title">Уведомления</h2>
+      <label class="toggle-row"><span><b>Присылать уведомления</b><small>Новые заказы, сообщения в чате, выплаты</small></span><input type="checkbox" class="switch" data-change="set-notify" ${st.notify.on ? 'checked' : ''}/></label>
+      ${field({ id: 'set-remind', label: 'Напоминание о завтрашних выездах', type: 'time', value: st.notify.remind, attrs: 'data-change="set-remind"' })}
+    </section>`;
+// Виды уведомлений колокольчика (ключи — как в board.js)
+export const NOTIFY_KINDS = [
+  ['meas', 'Замеры', 'Сегодня и завтра — время и адрес'],
+  ['visit', 'Выезды', 'Выезд завтра, старт заказа через 2–3 дня'],
+  ['chat', 'Сообщения', 'Новые сообщения в чатах заказов'],
+  ['money', 'Аванс', 'Аванс не внесён, а выезд скоро'],
+  ['doc', 'Смета', 'Смета не отправлена клиенту после замера'],
+  ['roll', 'Материал', 'Материал не добавлен, опыт по обоям не записан'],
+];
 export function renderSettings() {
   const me = S.me();
   const isAgent = S.hasRole(me, 'agent');
-  const tabs = isAgent ? [['general', 'Общие'], ['agent', 'Агент']] : [['general', 'Общие'], ['price', 'Прайс'], ['services', 'Услуги'], ['rooms', 'Комнаты'], ['schedule', 'График']];
+  const tabs = isAgent ? [['general', 'Общие'], ['agent', 'Агент']] : [['general', 'Общие'], ['notify', 'Уведомления'], ['price', 'Прайс'], ['services', 'Услуги'], ['rooms', 'Комнаты'], ['schedule', 'График']];
   if (!tabs.some(([k]) => k === setTab)) setTab = 'general';
   const st = me.settings;
   let body = '';
   if (setTab === 'general') {
-    body = `<section class="plate">
+    body = `${isAgent ? NOTIFY_PLATE(st) : ''}<section class="plate">
       <h2 class="plate__title">Профиль</h2>
       ${field({ id: 'set-name', label: 'Имя и фамилия', value: me.name, attrs: 'data-change="set-name"' })}
       ${kv('Телефон', esc(phoneRu(me.phone)))}<p class="small">Телефон — это логин. Сменить его можно через поддержку.</p>
@@ -73,14 +86,23 @@ export function renderSettings() {
       <p class="small">По стране в поле «Телефон» клиента стоит её код (Россия — +7) и проверяется код оператора. Сейчас собраны коды России.</p>
     </section>
     <section class="plate">
-      <h2 class="plate__title">Уведомления</h2>
-      <label class="toggle-row"><span><b>Присылать уведомления</b><small>Новые заказы, сообщения в чате, выплаты</small></span><input type="checkbox" class="switch" data-change="set-notify" ${st.notify.on ? 'checked' : ''}/></label>
-      ${field({ id: 'set-remind', label: 'Напоминание о завтрашних выездах', type: 'time', value: st.notify.remind, attrs: 'data-change="set-remind"' })}
-    </section>
-    <section class="plate">
       <h2 class="plate__title">PIN-код</h2>
       <div class="grid-2">${field({ id: 'pin-a', label: 'Новый PIN', type: 'password', inputmode: 'numeric', attrs: 'maxlength="4"' })}${field({ id: 'pin-b', label: 'Ещё раз', type: 'password', inputmode: 'numeric', attrs: 'maxlength="4"' })}</div>
       ${btnRow([{ label: 'Сменить PIN', action: 'pin-change' }])}
+    </section>
+    <section class="plate">
+      <h2 class="plate__title">Аккаунт</h2>
+      ${btnRow([{ label: 'Сменить пользователя', action: 'switch-user' }])}
+      ${btnRow([{ label: 'Сбросить демо-данные', action: 'reset-ask' }])}
+      <p class="small">Метроника · прототип. Данные хранятся только в этом браузере; рулетка, сканер и геоотметка в демо имитируются.</p>
+    </section>`;
+  } else if (setTab === 'notify') {
+    const kinds = st.notify.kinds || {};
+    body = `${NOTIFY_PLATE(st)}
+    <section class="plate">
+      <h2 class="plate__title">О чём предупреждать</h2>
+      <p class="small">Эти уведомления собираются в колокольчике на главной.</p>
+      ${NOTIFY_KINDS.map(([k, t, d]) => `<label class="toggle-row"><span><b>${t}</b><small>${d}</small></span><input type="checkbox" class="switch" data-change="set-notify-kind" data-k="${k}" ${kinds[k] !== false ? 'checked' : ''} ${st.notify.on ? '' : 'disabled'}/></label>`).join('')}
     </section>`;
   } else if (setTab === 'price') {
     body = `<section class="plate">
@@ -142,7 +164,7 @@ export function renderSettings() {
       ${btnRow([{ label: 'Добавить партнёра', action: 'partner-add', primary: true }])}
     </section>`;
   }
-  return `${topbar('Настройки', { back: 'profile' })}
+  return `${topbar('Настройки')}
     <nav class="plate topbar" style="padding:0 12px" aria-label="Разделы настроек"><div class="tabs" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === setTab}" class="tabs__item${k === setTab ? ' is-active' : ''}" data-action="seg" data-seg="set-tab" data-value="${k}">${t}</button>`).join('')}</div></nav>
     ${body}`;
 }
@@ -152,7 +174,8 @@ changes['set-country'] = (el) => {
   S.updateSettings({ country: el.value }); toast('Страна сохранена');
 };
 changes['set-name'] = (el) => { if (el.value.trim().length >= 2) { S.updateProfile({ name: el.value.trim() }); toast('Имя сохранено'); } };
-changes['set-notify'] = (el) => { S.updateSettings({ notify: { ...S.me().settings.notify, on: el.checked } }); toast(el.checked ? 'Уведомления включены' : 'Уведомления выключены'); };
+changes['set-notify'] = (el) => { S.updateSettings({ notify: { ...S.me().settings.notify, on: el.checked } }); toast(el.checked ? 'Уведомления включены' : 'Уведомления выключены'); rerender(); };
+changes['set-notify-kind'] = (el) => { const n = S.me().settings.notify; S.updateSettings({ notify: { ...n, kinds: { ...(n.kinds || {}), [el.dataset.k]: el.checked } } }); };
 changes['set-remind'] = (el) => { S.updateSettings({ notify: { ...S.me().settings.notify, remind: el.value } }); };
 changes['set-price'] = (el) => { const v = Math.round(numOf(el.value)); if (v > 0) { S.updatePrice(el.dataset.type, v); toast('Цена сохранена'); } };
 changes['set-svc'] = (el) => { const v = numOf(el.value); if (v > 0) { S.updateService(el.dataset.svc, { [el.dataset.k]: el.dataset.k === 'price' ? Math.round(v) : v }); toast('Сохранено'); } };

@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=251';
-import * as S from './store.js?v=251';
-import { renderOformit, oformitDraft } from './oformit.js?v=251';
-import { roomTotals, svcInfo } from './ocenka.js?v=251';
-import { smetaTotals } from './zakaz.js?v=251';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=251';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=251';
-import { esc, toast, status, seg } from './ui.js?v=251';
-import { topbar, ORDER_STATUS } from './shared.js?v=251';
+import { actions, rerender, go } from './core.js?v=252';
+import * as S from './store.js?v=252';
+import { renderOformit, oformitDraft } from './oformit.js?v=252';
+import { roomTotals, svcInfo } from './ocenka.js?v=252';
+import { smetaTotals } from './zakaz.js?v=252';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=252';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=252';
+import { esc, toast, status, seg } from './ui.js?v=252';
+import { topbar, ORDER_STATUS } from './shared.js?v=252';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -706,6 +706,10 @@ export function renderHome() {
   Object.entries(firstOff).filter(([, off]) => off >= 1 && off <= 2).forEach(([no, off]) => { const o = homeOrder(no);
     const has = o.mat && Object.values(o.mat.rooms || {}).some((r) => r.added || (r.items || []).length);
     if (!has) nAdd(`mat-${no}`, 'roll', HI.roll, 'Материал не добавлен', `№${no} · ${short(CL[no].n)} · выезд ${off === 1 ? 'завтра' : 'через 2 дня'}`, '', toTab(no, 'material')); });
+  // настройки уведомлений: выключены — пусто; выключенные виды не показываем
+  const nset = (S.me().settings && S.me().settings.notify) || { on: true };
+  const kindOf = (k) => (k === 'roll' ? 'roll' : k);
+  for (let i = N.length - 1; i >= 0; i--) if (!nset.on || (nset.kinds || {})[kindOf(N[i].k)] === false) N.splice(i, 1);
   const readSet = new Set(S.get().notifRead || []);
   const unreadN = N.filter((x) => !readSet.has(x.id)).length;
   const bellHtml = `<button type="button" class="h-icb h-bell" data-action="home-notif" aria-label="Уведомления${unreadN ? `: ${unreadN} новых` : ''}">${HI.bell}${unreadN ? `<b>${unreadN}</b>` : ''}</button>`;
