@@ -531,3 +531,10 @@
 .mw .opening-shape.door::after { background: var(--amber) !important; }
 .mw .opening-shape.win { background-image: linear-gradient(color-mix(in srgb, var(--amber) 60%, transparent), color-mix(in srgb, var(--amber) 60%, transparent)), linear-gradient(color-mix(in srgb, var(--amber) 60%, transparent), color-mix(in srgb, var(--amber) 60%, transparent)) !important;
   background-size: 1.5px 100%, 100% 1.5px !important; background-position: 50% 0, 0 45% !important; background-repeat: no-repeat !important; }
+/* Поля сантиметров: ширина задаётся под число (см. fitInput), не ужимается */
+.mw .lengthfield input, .mw-size-drawing .lengthfield input, .mw-screen .o-qty input { min-width: 0; max-width: none; flex: none; }
+.mw .lengthfield { width: auto; max-width: none; }
+/* «Одинаковая высота»: окошко с числом растёт вместе с числом */
+.mw-screen .o-same .o-qty { width: auto !important; min-width: 70px; flex: none; }
+.mw-screen .o-same .o-qty input { width: auto; }
+.mw-screen .o-same.o-same--v2 .o-svc { grid-template-columns: minmax(70px, auto) minmax(0, 1fr) auto !important; }

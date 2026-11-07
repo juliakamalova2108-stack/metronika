@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»). Функции и раскладка — как у Codex;
 // вид — по согласованному макету «Замер — осовременить формы»: графитовый лист с закладками-каскадом, парящие плашки площадей,
 // стена-миллиметровка с зелёной штриховкой, кнопки под своими колонками, размеры в сантиметрах, полёт ярлыка.
-import {actions,changes,rerender,afterRender} from './core.js?v=147';
-import * as S from './store.js?v=147';
-import {oformitDraft} from './oformit.js?v=147';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=147';
-import {esc} from './ui.js?v=147';
+import {actions,changes,rerender,afterRender} from './core.js?v=148';
+import * as S from './store.js?v=148';
+import {oformitDraft} from './oformit.js?v=148';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=148';
+import {esc} from './ui.js?v=148';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -207,3 +207,9 @@ actions['mw-confirm-opening']=()=>{const r=current(),o=r.newOpening;
   r.walls[r.active].opens.push({type:o.type,width,height,area});
   fly={kind:o.type==='Окно'?'win':'door',text:`${o.type} ${n(area)} м²`};
   r.newOpening=null;r.mwDialog=null;save()};
+
+// Поля сантиметров растут под ввод: базовая ширина — 3 цифры, длиннее число (например 15000) — поле шире.
+const FIT_SEL='.mw .lengthfield input, .mw-size-drawing .lengthfield input, .mw-screen .o-qty input';
+function fitInput(inp){const n=Math.max(3,String(inp.value||inp.placeholder||'').length);inp.style.width=`calc(${n}ch + 2px)`;}
+afterRender.push(()=>document.querySelectorAll(FIT_SEL).forEach(fitInput));
+document.addEventListener('input',ev=>{const t=ev.target;if(t&&t.matches&&t.matches(FIT_SEL))fitInput(t);},true);

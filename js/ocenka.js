@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, rerender } from './core.js?v=147';
-import * as S from './store.js?v=147';
-import { SYSTEM_PRICE } from './seed.js?v=147';
-import { shiftsText, hoursFor } from './calc.js?v=147';
-import { esc, toast } from './ui.js?v=147';
-import { logEvent } from './zlog.js?v=147';
+import { actions, rerender } from './core.js?v=148';
+import * as S from './store.js?v=148';
+import { SYSTEM_PRICE } from './seed.js?v=148';
+import { shiftsText, hoursFor } from './calc.js?v=148';
+import { esc, toast } from './ui.js?v=148';
+import { logEvent } from './zlog.js?v=148';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
