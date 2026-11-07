@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=177';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=178';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=177';
-import * as S from './store.js?v=177';
-import { WALLPAPER_TYPES } from './seed.js?v=177';
-import { esc, toast } from './ui.js?v=177';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=177';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=177';
-import { country } from './phonecodes.js?v=177';
-import { suggestAddress } from './address.js?v=177';
-import { suggesters } from './kbd.js?v=177';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=177';
+import { actions, changes, rerender } from './core.js?v=178';
+import * as S from './store.js?v=178';
+import { WALLPAPER_TYPES } from './seed.js?v=178';
+import { esc, toast } from './ui.js?v=178';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=178';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=178';
+import { country } from './phonecodes.js?v=178';
+import { suggestAddress } from './address.js?v=178';
+import { suggesters } from './kbd.js?v=178';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=178';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -237,15 +237,19 @@ function renderMaterial(d) {
   r.active = Math.max(0, Math.min(r.active || 0, items.length - 1));
   const showTotal = !!r.total && items.length > 0;
   const t = sheetTabs({ n: items.length, sel: items.length ? r.active : -2, total: showTotal, label: (i) => 'Обои ' + (i + 1),
-    act: 'z-mat-tab', mark: (i) => !reviewed(items[i].it.code), addAct: 'z-scan-open', addLabel: 'Добавить материал', totalAct: 'z-mat-total', name: 'Материалы' }, color);
+    act: 'z-mat-tab', addAct: 'z-scan-open', addLabel: 'Добавить материал', totalAct: 'z-mat-total', totalLabel: 'Опыт', totalMark: items.some((x) => !reviewed(x.it.code)), name: 'Материалы' }, color);
   let body;
   if (!items.length) {
     body = `<p class="z-mempty">Нажмите «+» и отсканируйте штрихкод рулона — материал добавится в комнату, рулоны посчитаются сами.</p>`;
   } else if (showTotal) {
-    const sum = items.reduce((a, x) => a + x.rolls, 0);
-    body = `<div class="o-stack"><p class="o-sec">Материалы</p>${items.map(({ it, rolls: n }, idx) =>
-      `<button type="button" class="z-mline" data-action="z-mat-tab" data-i="${idx}">${MAT_SAMPLE}<span class="z-mline__t"><b>${esc(matTitle(it))}</b><small>${esc(it.type)} · ${esc(it.code)}</small></span><span class="z-mline__n"><b>${n || '—'}</b><small>${n ? 'рул.' : ''}</small></span></button>`).join('')}
-      <section class="f-plate o-grand"><p class="o-grand__t">Рулонов в комнате</p><b class="o-grand__sum">${sum}</b><p class="o-grand__x">${esc(room.name)} · ${items.length} ${items.length === 1 ? 'материал' : 'материала'}</p></section></div>`;
+    // Закладка «Опыт»: все материалы комнаты — артикул, производитель, штрихкод; у каждого статус отзыва
+    // этого мастера и кнопка «Поделиться опытом». Отзыв пишется на штрихкод.
+    const done = items.filter((x) => reviewed(x.it.code)).length;
+    body = `<div class="o-stack"><p class="o-sec">Опыт по материалам</p>${items.map(({ it }, idx) => { const ok = reviewed(it.code); const x = S.material(it.code);
+      return `<section class="z-xp${ok ? ' is-ok' : ''}"><div class="z-xp__top">${MAT_SAMPLE}<span class="z-mline__t"><b>${esc(x ? x.name : it.type)}</b><small>${esc(x ? x.brand : it.brand)} · ${esc(it.code)}</small></span>
+        <i class="z-xp__st">${ok ? '✓ отзыв есть' : 'нет отзыва'}</i></div>
+        <button type="button" class="z-rvshare" data-action="z-share-open" data-i="${idx}">${ok ? 'Добавить ещё отзыв' : 'Поделиться опытом'}</button></section>`; }).join('')}
+      <section class="f-plate o-grand"><p class="o-grand__t">Отзывы по комнате</p><b class="o-grand__sum">${done} из ${items.length}</b><p class="o-grand__x">${done === items.length ? 'Опыт по всем материалам оставлен' : 'Осталось: ' + (items.length - done)}</p></section></div>`;
   } else {
     const idx = r.active; const { it, rolls: n, text } = items[idx];
     const x = S.material(it.code); const key = `mat-${room.key}-${idx}`;
@@ -254,7 +258,7 @@ function renderMaterial(d) {
     const card = (v) => { const u = S.user(v.authorId); const mine = v.authorId === S.me().id;
       return `<article class="z-rv"><div class="z-rv__who"><span class="z-ava">${esc(u.name[0])}</span><b>${esc(mine ? 'Вы' : u.name.split(' ')[0])}</b><small>${v.at ? new Date(v.at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : ''}</small></div>${(v.photos || []).length ? `<div class="z-rv__ph">${v.photos.map((k) => `<i class="z-ph z-ph--${esc(k)}" aria-label="Фото"></i>`).join('')}</div>` : ''}<p class="z-rv__text">${esc(v.text)}</p></article>`; };
     const exp = `<div class="z-rvbox"><p class="z-rvbox__t">Опыт мастеров${reviews.length > 1 ? `<span class="z-rvnav"><button type="button" class="z-rvnav__b" data-rv-go="-1" aria-label="Предыдущий отзыв">‹</button><small class="z-rvnav__n"><b>1</b> / ${reviews.length}</small><button type="button" class="z-rvnav__b" data-rv-go="1" aria-label="Следующий отзыв">›</button></span>` : ''}</p>
-      ${reviews.length ? `<div class="z-rvs">${reviews.map(card).join('')}</div>${reviews.length > 1 ? `<div class="z-rvdots">${reviews.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>` : ''}` : '<p class="z-rv__none">Мастера пока не делились опытом с этим материалом.</p>'}<button type="button" class="z-rvshare" data-action="z-share-open" data-i="${idx}">Поделиться опытом</button></div>`;
+      ${reviews.length ? `<div class="z-rvs">${reviews.map(card).join('')}</div>${reviews.length > 1 ? `<div class="z-rvdots">${reviews.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>` : ''}` : '<p class="z-rv__none">Мастера пока не делились опытом с этим материалом.</p>'}</div>`;
     body = `<section class="z-mplate"><div class="z-mhead">${MAT_SAMPLE}<span class="z-mline__t"><i class="z-mcode">${esc(it.code)}</i><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span>
         <span class="z-mrolls z-mrolls--in"><span class="z-step"><button type="button" class="z-step__b" data-action="z-rolls-step" data-i="${idx}" data-d="-1" aria-label="Меньше">−</button><label class="z-step__f"><input aria-label="Сколько рулонов" inputmode="numeric" value="${n || ''}" placeholder="0" data-change="z-rolls" data-i="${idx}"></label><button type="button" class="z-step__b" data-action="z-rolls-step" data-i="${idx}" data-d="1" aria-label="Больше">+</button></span><small>рулонов</small></span></div>
       ${exp}</section>

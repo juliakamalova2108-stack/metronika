@@ -326,3 +326,10 @@
 .z-tline { grid-template-columns: minmax(0, 1fr) auto !important; }
 .z-tline .o-tline__n { display: flex; flex-direction: column; gap: 2px; }
 .z-tline .o-tline__n small { font: 400 11.5px/1.3 var(--font-body); color: rgba(237, 242, 232, 0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* закладка «Опыт»: материал комнаты, статус отзыва, кнопка */
+.mw .z-xp { padding: 12px 14px 14px; border: 0.9px solid var(--g-dark-line); border-radius: 14px; background: linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); box-shadow: var(--deep-shadow); }
+.mw .z-xp__top { display: flex; align-items: center; gap: 12px; }
+.mw .z-xp__top .z-roll { width: 34px; height: 44px; }
+.mw .z-xp__st { flex: none; padding: 4px 8px; border-radius: 10px; background: #e8913a; font: 600 11px/1 var(--font-body); font-style: normal; color: #1c1408; }
+.mw .z-xp.is-ok .z-xp__st { background: #3c8f5f; color: #fff; }
+.mw .z-xp .z-rvshare { margin-top: 12px; }
