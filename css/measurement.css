@@ -1,7 +1,7 @@
 /* =====================================================================
    Замер (вкладка «Замер» в «Оформить заказ», «Смета» в открытом заказе)
    Один файл, без слоёв. Цвета задаются только здесь, в переменных .mw:
-   основа — графит, всё цветное — от цвета комнаты (--rc, его ставит js).
+   основа — стиль «Заказы → Очередь», цветные мелочи — цвет комнаты (--rc, его ставит js).
    ===================================================================== */
 
 .mw {
@@ -9,19 +9,22 @@
   --rc: #3b82f6;
   --rc-light: color-mix(in srgb, var(--rc) 62%, #fff);
   --rc-line: color-mix(in srgb, var(--rc) 45%, transparent);
-  /* графит */
-  --g-sheet: #3b3b3c;      /* пластина и выбранная закладка */
-  --g-sheet-mid: #333334;
-  --g-sheet-low: #2c2c2d;
-  --g-tab: #262627;        /* свёрнутые закладки */
-  --g-deep: #1d1d1e;       /* стена и «S рабочая» */
-  --g-deep-2: #232324;
-  --g-light: #555557;      /* «S общая» */
-  --g-light-2: #4a4a4c;
-  --g-btn: #2b2b2c;        /* кнопки, поля размеров */
-  --g-field: #1f1f20;
-  --g-line: rgba(255, 255, 255, 0.22);
-  --g-line-soft: rgba(255, 255, 255, 0.12);
+  /* основа — как в «Заказы → Очередь»: стеклянная пластина карточки заказа, тёмные «утопленные» карточки,
+     светлые плашки итога («Стоимость / Срок»), тёмные кнопки со светлой рамкой */
+  --g-sheet: #4a5d5c;      /* пластина и выбранная закладка */
+  --g-sheet-mid: #3d5152;
+  --g-sheet-low: #33484a;
+  --g-tab: #203030;        /* свёрнутые закладки */
+  --g-deep: #182829;       /* стена и «S рабочая» — как карточка в очереди */
+  --g-deep-2: #203030;
+  --g-light: #687b7a;      /* «S общая» — как плашка «Стоимость» */
+  --g-light-2: #738582;
+  --g-btn: #213839;        /* кнопки — как «Изменить» */
+  --g-field: #213839;
+  --g-btn-line: rgba(204, 222, 209, 0.55);
+  --g-dark-line: rgba(5, 13, 15, 0.75);
+  --g-line: rgba(255, 249, 235, 0.34);
+  --g-line-soft: rgba(255, 249, 235, 0.16);
   /* шрифты замера */
   --font-num: Manrope, sans-serif;
   --font-body: Inter, sans-serif;
@@ -35,8 +38,8 @@
     linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px) 0 0 / 30px 30px,
     linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 6px 6px,
     linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 6px 6px;
-  --deep-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.55), inset 0 4px 10px rgba(0, 0, 0, 0.6);
-  --btn-shadow: 0 4px 7px rgba(0, 0, 0, 0.2), 0 2px 2.5px rgba(0, 0, 0, 0.3), inset 0 -2px 2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  --deep-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.16), inset 0 1.5px 2px rgba(1, 6, 9, 0.55), inset 0 4px 10px rgba(1, 8, 10, 0.7);
+  --btn-shadow: 0 4px 7px rgba(4, 13, 15, 0.16), 0 2px 2.5px rgba(1, 6, 9, 0.27), inset 0 -2px 2px rgba(6, 18, 20, 0.34), inset 0 1px 1px rgba(224, 242, 227, 0.36);
   /* засечка размерной линии */
   --slash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M1 11L11 1' stroke='rgba(237,242,232,0.85)' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
 
@@ -71,21 +74,21 @@
 .mw .gt-right.on .gt-b { font-weight: 700; color: #fff; }
 
 /* ---------- пластина ---------- */
-.mw .wallbody { position: relative; z-index: 2; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.18); border-top: 0; border-radius: 0 0 24px 24px; }
+.mw .wallbody { position: relative; z-index: 2; overflow: hidden; border: 1px solid var(--g-line); border-top: 0; border-radius: 0 0 24px 24px; }
 
 /* S общая − окна − двери = S рабочая */
 .mw .equation { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr) minmax(0, 1fr); gap: 4px; align-items: end;
   padding: 14px 12px 22px; border-bottom: 1px solid rgba(226, 238, 230, 0.1); }
 .mw .eqplate { position: relative; height: 58px; padding: 8px 10px; border-radius: 14px; transform: translateY(-5px); }
 .mw .eqplate::after { content: ''; position: absolute; left: 12%; right: 12%; bottom: -14px; height: 12px; border-radius: 50%; background: rgba(0, 0, 0, 0.6); filter: blur(6px); pointer-events: none; }
-.mw .gross { background: linear-gradient(180deg, var(--g-light), var(--g-light-2)); border: 1px solid color-mix(in srgb, var(--rc) 55%, transparent);
+.mw .gross { background: linear-gradient(180deg, var(--g-light), var(--g-light-2)); border: 0.9px solid rgba(6, 18, 20, 0.78);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 6px 12px -6px rgba(0, 0, 0, 0.7); }
 .mw .gross::after { background: rgba(0, 0, 0, 0.45); }
 .mw .net { display: flex; align-items: center; gap: 6px; background: var(--paper), linear-gradient(180deg, var(--g-deep), var(--g-deep-2));
-  border: 1px solid var(--rc-line); box-shadow: var(--deep-shadow); }
+  border: 0.9px solid var(--g-dark-line); box-shadow: var(--deep-shadow); }
 .mw .nettext { position: relative; z-index: 1; flex: 1; min-width: 0; }
 .mw .gross b, .mw .nettext b { display: block; font: 600 10px/12px var(--font-body); letter-spacing: 0.04em; text-transform: uppercase; }
-.mw .gross b { color: var(--rc-light); }
+.mw .gross b { color: rgba(237, 242, 232, 0.85); }
 .mw .gross strong, .mw .nettext strong { display: block; margin-top: 6px; font: 700 18px/22px var(--font-num); color: #fff; white-space: nowrap; }
 .mw .opgroup { display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; padding-bottom: 12px; }
 .mw .opgroup .caption { text-align: center; white-space: nowrap; font: 500 10px/14px var(--font-body); color: var(--ink-mute); }
@@ -115,7 +118,7 @@
 .mw .lengthfield span { font: 500 12px var(--font-num); color: var(--ink-dim); }
 
 .mw .drawing { position: relative; display: grid; grid-template-columns: 58% 42%; align-items: stretch; min-height: 210px; line-height: 0;
-  border: 1px solid var(--rc-line); border-radius: 4px 4px 0 0; background: var(--paper), linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); box-shadow: var(--deep-shadow); }
+  border: 0.9px solid var(--g-dark-line); border-radius: 4px 4px 0 0; background: var(--paper), linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); box-shadow: var(--deep-shadow); }
 /* высота — слева, капсула стоит вертикально; при вводе поворачивается горизонтально */
 .mw .heightdim { position: absolute; left: -46px; top: 0; bottom: 0; width: 38px; display: flex; align-items: center; justify-content: center; white-space: nowrap; line-height: 1.4; font-size: 11px; }
 .mw .heightdim::before { content: ''; position: absolute; left: calc(50% - 6px); top: -6px; bottom: -6px; width: 12px;
@@ -130,7 +133,7 @@
 /* работы на стене — строки-чипы */
 .mw .joblist { position: relative; grid-column: 1; grid-row: 1; display: flex; flex-direction: column; justify-content: flex-start; gap: 4px; min-height: 210px; padding: 8px 6px; line-height: 1.4; }
 .mw .job { display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%; height: 26px; padding: 0 8px; border-radius: 8px;
-  border: 1px solid var(--rc-line); background: linear-gradient(160deg, var(--g-btn), var(--g-deep)); color: var(--ink); text-align: left;
+  border: 0.9px solid var(--g-btn-line); background: var(--g-btn); color: var(--ink); text-align: left;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 8px -4px rgba(0, 0, 0, 0.8); }
 .mw .job span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: 500 11.5px/26px var(--font-body); color: rgba(237, 242, 232, 0.88); }
 .mw .job b { flex: none; font: 700 12.5px/26px var(--font-num); color: var(--rc-light); }
@@ -154,7 +157,7 @@
 .mw .under { display: grid; grid-template-columns: 58% 42%; margin-top: 12px; padding: 0 1px; }
 .mw .under__ops { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 6px; }
 .mw .u-btn { position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; height: 50px; padding: 0; border-radius: 6px;
-  border: 1px solid color-mix(in srgb, var(--rc) 40%, rgba(255, 255, 255, 0.35)); background: var(--g-btn); color: var(--ink); box-shadow: var(--btn-shadow);
+  border: 1px solid var(--g-btn-line); background: var(--g-btn); color: var(--ink); box-shadow: var(--btn-shadow);
   transition: transform .12s ease-out; }
 .mw .u-btn:active { transform: scale(0.97); }
 .mw .u-svc { margin-right: 8px; padding: 1px 6px; overflow: hidden; font: 500 15px/16px var(--font-body); }
@@ -175,25 +178,25 @@
 /* итог по стене и удаление стены (в её левом углу) */
 .mw .emptywarn { margin: 10px; text-align: center; font-size: 12px; color: #ffd278; }
 .mw .wall-card-tools { position: absolute; z-index: 3; left: 27px; bottom: 25px; }
-.mw .wall-delete { display: grid; place-items: center; width: 34px; height: 34px; padding: 5px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.3);
+.mw .wall-delete { display: grid; place-items: center; width: 34px; height: 34px; padding: 5px; border-radius: 6px; border: 1px solid var(--g-btn-line);
   background: var(--g-btn); color: var(--ink); box-shadow: 0 2px 2.5px rgba(0, 0, 0, 0.27), inset 0 1px 1px rgba(255, 255, 255, 0.3); }
 .mw .wall-delete svg { width: 19px; height: 19px; }
 .mw .footer--sum { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 56px; margin: 16px 12px 14px; padding: 12px 16px 12px 58px;
-  border: 1px solid var(--g-line-soft); border-radius: 18px; background: rgba(0, 0, 0, 0.18); }
+  border: 0.9px solid var(--g-dark-line); border-radius: 14px; background: linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); box-shadow: var(--deep-shadow); }
 .mw .footer--sum span { font: 500 12px/16px var(--font-body); color: rgba(237, 242, 232, 0.65); text-transform: uppercase; letter-spacing: 0.04em; }
 .mw .footer--sum b { font: 700 24px/30px var(--font-num); color: #fff; }
 
 /* ---------- итог по комнате ---------- */
 .mw .room-summary { padding: 20px 16px; }
-.mw .sum-heading small { font-size: 10px; letter-spacing: 0.14em; color: var(--rc-light); }
+.mw .sum-heading small { font-size: 10px; letter-spacing: 0.14em; color: var(--ink-mute); }
 .mw .sum-heading h2 { margin: 3px 0 18px; font: 700 20px var(--font-num); }
 .mw .summary-areas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding-bottom: 20px; }
 .mw .summary-areas span { padding: 10px 8px; border-radius: 14px; border: 1px solid var(--g-line-soft); background: rgba(0, 0, 0, 0.18); font-size: 10px; color: var(--ink-mute); }
-.mw .summary-areas span:first-child { border-color: color-mix(in srgb, var(--rc) 55%, transparent); background: linear-gradient(180deg, var(--g-light), var(--g-light-2)); }
-.mw .summary-areas span:last-child { border-color: var(--rc-line); background: var(--paper), linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); }
+.mw .summary-areas span:first-child { border-color: rgba(6, 18, 20, 0.78); background: linear-gradient(180deg, var(--g-light), var(--g-light-2)); }
+.mw .summary-areas span:last-child { border-color: var(--g-dark-line); background: var(--paper), linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); }
 .mw .summary-areas b { display: block; margin-top: 4px; font: 700 16px/20px var(--font-num); color: #fff; white-space: nowrap; }
 .mw .sum-section-title { margin: 4px 0 10px; font: 700 14px/1.35 var(--font-num); color: #e6efe4; }
-.mw .sum-wall { margin-bottom: 8px; padding: 12px; border-radius: 16px; border: 1px solid var(--g-line-soft); background: rgba(0, 0, 0, 0.2); }
+.mw .sum-wall { margin-bottom: 8px; padding: 12px; border-radius: 14px; border: 0.9px solid var(--g-dark-line); background: linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); box-shadow: var(--deep-shadow); }
 .mw .sum-wall-head { display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
 .mw .sum-wall-head span { font: 600 12px/1.35 var(--font-num); color: var(--ink-mute); }
 .mw .sum-wall-areas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 12px 0; font-size: 10px; color: var(--ink-mute); }
@@ -204,7 +207,7 @@
 .mw .sum-services { margin-bottom: 16px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--g-line-soft); }
 .mw .sum-services small { display: block; font-size: 10px; color: var(--ink-mute); }
 .mw .room-price { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding: 14px 16px; border-radius: 16px;
-  border: 1px solid var(--rc-line); background: color-mix(in srgb, var(--rc) 12%, transparent); font-size: 14px; }
+  border: 0.9px solid rgba(6, 18, 20, 0.78); background: linear-gradient(180deg, var(--g-light), var(--g-light-2)); font-size: 14px; }
 .mw .room-price strong { font: 700 20px/1.35 var(--font-num); color: #fff; }
 
 /* итог по всем комнатам — пластины без закладок */
@@ -215,7 +218,7 @@
 
 /* ---------- окна поверх экрана: размеры окна/двери, список проёмов ---------- */
 .mw.mw--dlg { position: fixed; z-index: 31; left: 16px; right: 16px; top: 50%; transform: translateY(-50%); max-width: 390px; max-height: 86vh; margin: 0 auto; overflow-y: auto; filter: none; }
-.mw .od2 { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 16px 16px; border-radius: 22px; border: 1px solid var(--g-line);
+.mw .od2 { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 16px 16px; border-radius: 20px; border: 1px solid var(--g-line);
   background: linear-gradient(180deg, var(--g-sheet), var(--g-sheet-low)); box-shadow: 0 24px 40px -18px rgba(0, 0, 0, 0.9); }
 .mw .od2__t { margin: 0; font: 700 18px/22px var(--font-num); color: #fff; }
 .mw .od2-meas { margin: 0 auto; padding: 6px 0 0 54px; }
@@ -231,10 +234,9 @@
 .mw .od2__area b { font: 700 16px var(--font-num); color: #fff; }
 .mw .od2__btns { align-self: stretch; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
 .mw .od2__btns--one { grid-template-columns: 1fr; }
-.mw .od2-b { height: 46px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.16); background: var(--g-btn); font: 600 15px/1 var(--font-body); color: var(--ink);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 10px 16px -8px rgba(0, 0, 0, 0.85); }
-.mw .od2-b.ok { color: #fff; border-color: color-mix(in srgb, var(--rc-light) 70%, transparent); background: linear-gradient(160deg, color-mix(in srgb, var(--rc) 85%, #fff), var(--rc));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 10px 18px -8px color-mix(in srgb, var(--rc) 70%, transparent); }
+.mw .od2-b { height: 46px; border-radius: 6px; border: 1px solid var(--g-btn-line); background: var(--g-btn); font: 600 15px/1 var(--font-body); color: var(--ink);
+  box-shadow: var(--btn-shadow); }
+.mw .od2-b.ok { color: #13292b; border: 0; background: linear-gradient(180deg, #eef7d9, #d3e4b3); box-shadow: 0 6px 14px rgba(3, 14, 15, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6); }
 .mw .od2--list { align-items: stretch; }
 .mw .od2--list .od2__t { align-self: center; }
 .mw .opening-list-row { padding: 10px 0; border-top: 1px solid var(--g-line-soft); }
