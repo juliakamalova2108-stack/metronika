@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=242';
-import * as S from './store.js?v=242';
-import { renderOformit, oformitDraft } from './oformit.js?v=242';
-import { roomTotals, svcInfo } from './ocenka.js?v=242';
-import { smetaTotals } from './zakaz.js?v=242';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=242';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=242';
-import { esc, toast } from './ui.js?v=242';
+import { actions, rerender, go } from './core.js?v=243';
+import * as S from './store.js?v=243';
+import { renderOformit, oformitDraft } from './oformit.js?v=243';
+import { roomTotals, svcInfo } from './ocenka.js?v=243';
+import { smetaTotals } from './zakaz.js?v=243';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=243';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=243';
+import { esc, toast } from './ui.js?v=243';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -25,6 +25,9 @@ const P = { no: '004', n: 'Александр Петров', a: 'ул. Лени�
 const A = { no: '007', n: 'Анастасия Смирнова', a: 'ул. Айская 35/1, кв. 7', ph: '+7 (987) 555-12-34' };
 const I = { no: '011', n: 'Мария Иванова', a: 'ул. Пушкина 4, кв. 12', ph: '+7 (903) 777-88-99' };
 const H = { no: '014', n: 'Ильдар Хасанов', a: 'ул. Кирова 12, кв. 51', ph: '+7 (927) 321-00-11' };
+// Заказы на этапе замера (примерные): замер назначен, оценки и плана ещё нет.
+const OP = { no: '015', n: 'Ольга Петрова', a: 'ул. Комсомольская 21, кв. 40', ph: '+7 (917) 700-11-22' };
+const DA = { no: '016', n: 'Дмитрий Ахметов', a: 'пр. Октября 88, кв. 113', ph: '+7 (960) 333-44-55' };
 // комнаты: название, этаж, цвет, сумма, смены (доли дня)
 const R = {
   pS: { c: P, r: 'Спальня', f: '1 этаж', col: '#3b82f6', sum: 11900, sh: [1, 1] },
@@ -100,16 +103,18 @@ const DEMO = {
     rooms: [['Кухня', '#f59e0b', 1, [['prime', 16], ['paste-flizelin', 14]]]], days: [5] },
   '014': { src: 'Авито', ph: '9273210011', street: 'г Уфа, ул Кирова', house: '12', flat: '51', fl: '9', hour: '09',
     rooms: [['Гостиная', '#f59e0b', 3, [['strip', 10], ['prime', 40], ['paste-flizelin', 38]]]], days: [7] },
+  '015': { src: 'Авито', ph: '9177001122', street: 'г Уфа, ул Комсомольская', house: '21', flat: '40', fl: '4', hour: '17', min: '30', rooms: [], days: [0], meas: 0 },
+  '016': { src: 'Сайт', ph: '9603334455', street: 'г Уфа, пр Октября', house: '88', flat: '113', fl: '7', hour: '12', rooms: [], days: [2], meas: 2 },
 };
-const CL = { '004': P, '007': A, '011': I, '014': H };
+const CL = { '004': P, '007': A, '011': I, '014': H, '015': OP, '016': DA };
 // Участники заказа (кроме мастера): кто передал заказ, кто ещё работает по нему.
-const PARTS = { '004': [['u-agent', 'Алина Смирнова', 'Агент']], '007': [['shop', 'Продавец «Обои+»', 'Передал материал']], '011': [], '014': [] };
+const PARTS = { '004': [['u-agent', 'Алина Смирнова', 'Агент']], '007': [['shop', 'Продавец «Обои+»', 'Передал материал']], '011': [], '014': [], '015': [], '016': [] };
 function seedOrder(no) {
   const st = S.get(); st.oformit = st.oformit || {};
   const key = 'ord-' + no;
   if (st.oformit[key]) return;
   const x = DEMO[no]; const c = CL[no];
-  const cl = { name: c.n, phone: `+7 (${x.ph.slice(0, 3)}) ${x.ph.slice(3, 6)}-${x.ph.slice(6, 8)}-${x.ph.slice(8)}`, street: x.street, house: x.house, entrance: '1', flat: x.flat, floor: x.fl, hour: x.hour, min: '00', comment: '', saved: true, editing: false, dirty: false };
+  const cl = { name: c.n, phone: `+7 (${x.ph.slice(0, 3)}) ${x.ph.slice(3, 6)}-${x.ph.slice(6, 8)}-${x.ph.slice(8)}`, street: x.street, house: x.house, entrance: '1', flat: x.flat, floor: x.fl, hour: x.hour, min: x.min || '00', comment: '', saved: true, editing: false, dirty: false };
   cl.snap = Object.fromEntries(['name', 'phone', 'street', 'house', 'entrance', 'flat', 'floor', 'hour', 'min', 'comment'].map((k) => [k, cl[k]]));
   const rooms = x.rooms.map(([name, color, floor, svcs], i) => ({ key: `r${no}${i}`, floor, name, color, svcs: svcs.map(([id, qty]) => ({ id, qty })), status: 'saved', panel: '', snap: Object.fromEntries(svcs) }));
   const place = {}; rooms.forEach((r, i) => { place[r.key] = iso(x.days[Math.min(i, x.days.length - 1)] + (no === '004' && i > 0 ? 2 : 0)); });
@@ -117,8 +122,8 @@ function seedOrder(no) {
   const d0 = dayOf(x.days[0]);
   st.oformit[key] = {
     channel: { source: x.src, partner: 'self', url: '', pct: 0 }, saved: true, dirty: false, editing: false,
-    cl, est: { rooms, view: rooms[0].key, floor: 1, confirm: null },
-    sched: { mode: 'rooms', sel: '', picks: [], place, measure: '', month: `${d0.getFullYear()}-${pad(d0.getMonth() + 1)}`, status: 'saved', dirty: false },
+    cl, est: { rooms, view: rooms[0] ? rooms[0].key : '', floor: 1, confirm: null },
+    sched: { mode: x.meas != null ? 'measure' : 'rooms', sel: '', picks: [], place, measure: x.meas != null ? iso(x.meas) : '', month: `${d0.getFullYear()}-${pad(d0.getMonth() + 1)}`, status: 'saved', dirty: false },
   };
   // Что ещё есть в примерных заказах (показывается в сводке только то, что заполнено).
   const o = st.oformit[key];
@@ -639,9 +644,9 @@ export function renderHome() {
   const offOf = (date) => Math.round((new Date(date + 'T12:00') - dayOf(0)) / 864e5);
   const realMeas = S.get().orders.filter((o) => !o.trashed && !['closed', 'cancelled', 'failed'].includes(o.status))
     .flatMap((o) => o.visits.filter((v) => v.type === 'measure' && v.masterId === meId && v.date >= iso(0) && v.date <= iso(6))
-      .map((v) => ({ no: String(o.no), off: offOf(v.date), time: v.time, n: o.client.name, a: [o.client.street, o.client.house].filter(Boolean).join(', ') + (o.client.flat ? `, кв. ${o.client.flat}` : ''), ph: o.client.phone })));
+      .map((v) => ({ id: o.id, no: String(o.no), off: offOf(v.date), time: v.time, n: o.client.name, a: [o.client.street, o.client.house].filter(Boolean).join(', ') + (o.client.flat ? `, кв. ${o.client.flat}` : ''), ph: o.client.phone })));
   // Примерные замеры для показа (пока в демо-заказах нет будущих замеров)
-  const DEMO_MEAS = [{ no: '015', off: 0, time: '17:30', n: 'Ольга Петрова', a: 'ул. Комсомольская, 21, кв. 40', ph: '9177001122' }, { no: '016', off: 2, time: '12:00', n: 'Дмитрий Ахметов', a: 'пр. Октября, 88, кв. 113', ph: '9603334455' }];
+  const DEMO_MEAS = Object.keys(DEMO).filter((no) => DEMO[no].meas != null).map((no) => { const x = DEMO[no]; return { no, demo: true, off: x.meas, time: `${Number(x.hour)}:${x.min || '00'}`, n: CL[no].n, a: CL[no].a, ph: x.ph }; });
   const meas = (realMeas.length ? realMeas : DEMO_MEAS).sort((x, y) => x.off - y.off || x.time.localeCompare(y.time));
   const RULER = ic('<path d="M3.5 15.5l12-12 5 5-12 12z"/><path d="M7 12l2 2M9.5 9.5l1.5 1.5M12 7l2 2"/>');
   const whenOf = (off) => { if (off === 0) return 'сегодня'; if (off === 1) return 'завтра'; const d = dayOf(off); return `${WD[d.getDay()]}, ${d.getDate()} ${MON[d.getMonth()]}`; };
@@ -659,7 +664,8 @@ export function renderHome() {
       <div class="h-hero__time">${esc(m.time)}</div>
       <div class="h-hero__who"><b>${esc(m.n)}</b><small>${esc(m.a)}</small></div>
       <div class="h-hero__act"><a class="h-round" href="tel:+7${esc(String(m.ph).replace(/\D/g, '').slice(-10))}" aria-label="Позвонить">${HI.call}</a>
-        <a class="h-round" href="https://yandex.ru/maps/?text=${encodeURIComponent('Уфа, ' + m.a)}" target="_blank" rel="noopener" aria-label="Маршрут">${HI.route}</a></div></article>`).join('')}</div>` : '';
+        <a class="h-round" href="https://yandex.ru/maps/?text=${encodeURIComponent('Уфа, ' + m.a)}" target="_blank" rel="noopener" aria-label="Маршрут">${HI.route}</a>
+        <button type="button" class="h-go h-go--meas" ${m.demo ? `data-action="bd-edit" data-no="${m.no}" data-tab="smeta"` : `data-action="go" data-to="p-order-${esc(m.id)}"`}>Открыть замер ${HI.arrow}</button></div></article>`).join('')}</div>` : '';
   // ── Календарь — тот же, что во вкладке «График»: дни комнат цветом, название и сумма за день, «З» — замер; тап по дню — список ниже ──
   const glay = homeLayout(Object.keys(DEMO).map((no) => ({ no, d: homeOrder(no) })));
   const measBy = {}; meas.forEach((m) => { const k = iso(m.off); measBy[k] = (measBy[k] || 0) + 1; });

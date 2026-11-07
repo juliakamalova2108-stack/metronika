@@ -1894,3 +1894,7 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .h-tag--order { color: #142220 !important; background: #e3eed3; }
 .h-tag--meas { color: #fff !important; background: #e5484d; box-shadow: 0 4px 14px -4px rgba(229,72,77,.6); }
 .h-hero--meas { --c: #e5484d !important; }
+
+.h-hero--meas .h-hero__act { justify-content: initial; }
+.h-go--meas { background: #e5484d !important; color: #fff !important; box-shadow: 0 10px 24px -10px rgba(229,72,77,.7) !important; }
+.h-go--meas svg { stroke: #fff; }
