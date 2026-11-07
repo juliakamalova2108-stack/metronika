@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»). Функции и раскладка — как у Codex;
 // вид — по согласованному макету «Замер — осовременить формы»: графитовый лист с закладками-каскадом, парящие плашки площадей,
 // стена-миллиметровка с зелёной штриховкой, кнопки под своими колонками, размеры в сантиметрах, полёт ярлыка.
-import {actions,changes,rerender,afterRender} from './core.js?v=144';
-import * as S from './store.js?v=144';
-import {oformitDraft} from './oformit.js?v=144';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=144';
-import {esc} from './ui.js?v=144';
+import {actions,changes,rerender,afterRender} from './core.js?v=145';
+import * as S from './store.js?v=145';
+import {oformitDraft} from './oformit.js?v=145';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=145';
+import {esc} from './ui.js?v=145';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});

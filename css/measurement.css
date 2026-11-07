@@ -484,3 +484,7 @@
 /* «+» в конце ряда упирается в «Итог» наклон к наклону; без затухания края */
 .mw .gt-scroll { -webkit-mask-image: none !important; mask-image: none !important; }
 .mw .gt-right { margin-left: -25px; }
+/* Кнопки под стеной выровнены по колонкам рисунка: «Услуги» — под списком работ, «+окно» — под окном, «+дверь» — под дверью */
+.mw .under { grid-template-columns: 58% 42% !important; padding: 0 0.9px !important; box-sizing: border-box; }
+.mw .u-svc { margin-right: 8px !important; }
+.mw .under__ops { grid-template-columns: 1.2fr 1fr !important; gap: 6px !important; padding-right: 0 !important; }

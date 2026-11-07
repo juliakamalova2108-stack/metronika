@@ -1,12 +1,12 @@
 // Мастер и диспетчер: канбан заказов, входящие предложения, новый свой заказ, корзина, текущий заказ.
 
-import { actions, changes, rerender, go, val } from './core.js?v=144';
-import * as S from './store.js?v=144';
-import { prelimCost, commissionAmount, shiftsText } from './calc.js?v=144';
-import { SERVICES, UNIT, CHANNELS, WALLPAPER_TYPES } from './seed.js?v=144';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=144';
-import { topbar, orderStatus, typeName } from './shared.js?v=144';
-import { renderOrder, openOrderTab } from './order.js?v=144';
+import { actions, changes, rerender, go, val } from './core.js?v=145';
+import * as S from './store.js?v=145';
+import { prelimCost, commissionAmount, shiftsText } from './calc.js?v=145';
+import { SERVICES, UNIT, CHANNELS, WALLPAPER_TYPES } from './seed.js?v=145';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=145';
+import { topbar, orderStatus, typeName } from './shared.js?v=145';
+import { renderOrder, openOrderTab } from './order.js?v=145';
 
 let column = null;
 let columnFor = '';
