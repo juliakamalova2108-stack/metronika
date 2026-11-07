@@ -1681,3 +1681,5 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .mc[data-tilt] .mc__name { margin-bottom: 5px; }
 .mc__thr { margin: 0 0 10px; font: 500 11.5px/1 Inter, sans-serif; color: var(--hi); opacity: .8; }
 .mc__chip .rc-medal svg { stroke-width: 1.6; }
+.mc--s[data-action] { cursor: pointer; }
+.ra-grid .mc.is-view { outline: 2px solid #edf2e8; outline-offset: 3px; }

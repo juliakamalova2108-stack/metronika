@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=225';
-import * as S from './store.js?v=225';
-import { renderOformit, oformitDraft } from './oformit.js?v=225';
-import { roomTotals, svcInfo } from './ocenka.js?v=225';
-import { smetaTotals } from './zakaz.js?v=225';
-import { bookedDays } from './grafik.js?v=225';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=225';
-import { esc, toast } from './ui.js?v=225';
+import { actions, rerender, go } from './core.js?v=226';
+import * as S from './store.js?v=226';
+import { renderOformit, oformitDraft } from './oformit.js?v=226';
+import { roomTotals, svcInfo } from './ocenka.js?v=226';
+import { smetaTotals } from './zakaz.js?v=226';
+import { bookedDays } from './grafik.js?v=226';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=226';
+import { esc, toast } from './ui.js?v=226';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -490,7 +490,9 @@ export function renderHome() {
       d += `<polyline points="${pts.join(' ')}"/>`; }
     return `<svg class="${cls}" viewBox="0 0 120 120" fill="none" aria-hidden="true">${d}</svg>`; };
   const GUI = guilloche('mc__gui');
-  const card = (i, size) => { const r = RANKS[i]; const t = r[2]; const st = i < ri ? 'is-got' : i === ri ? 'is-cur is-got' : 'is-lock';
+  // ПОКАЗ: пока все карты открыты, чтобы их можно было посмотреть (RANKS_PREVIEW = false — вернуть как у мастера).
+  const RANKS_PREVIEW = true;
+  const card = (i, size) => { const r = RANKS[i]; const t = r[2]; const st = i === ri ? 'is-cur is-got' : (i < ri || RANKS_PREVIEW) ? 'is-got' : 'is-lock';
     if (size === 'l') return `<article class="mc mc--t${t} ${st}" data-tilt>
       <div class="mc__metal"></div>${GUI}<div class="mc__sheen"></div>
       <div class="mc__body">
@@ -500,8 +502,8 @@ export function renderHome() {
         <p class="mc__thr">${r[1] === 0 ? 'с первого дня' : `от ${fmt(r[1])} описанных обоев`}</p>
         <div class="mc__row mc__row--end"><span class="mc__owner"><small>Мастер</small>${esc(fullName)}</span><span class="mc__no"><small>Ранг</small>${String(i + 1).padStart(2, '0')} / ${RANKS.length}</span></div>
       </div></article>`;
-    return `<article class="mc mc--s mc--t${t} ${st}"><div class="mc__metal"></div><div class="mc__body">
-      <div class="mc__row"><span class="mc__no">${String(i + 1).padStart(2, '0')}</span>${i < ri || i === ri ? '' : `<span class="mc__lock">${LOCK}</span>`}</div>
+    return `<article class="mc mc--s mc--t${t} ${st}${i === rankView ? ' is-view' : ''}" data-action="home-rank-view" data-i="${i}" role="button" tabindex="0" aria-label="Показать карту «${esc(r[0])}»"><div class="mc__metal"></div><div class="mc__body">
+      <div class="mc__row"><span class="mc__no">${String(i + 1).padStart(2, '0')}</span>${i <= ri || RANKS_PREVIEW ? '' : `<span class="mc__lock">${LOCK}</span>`}</div>
       <div class="mc__chip">${medal(t)}</div>
       <h3 class="mc__name">${esc(r[0])}</h3>
       <span class="mc__foot">${i === ri ? 'ваш ранг' : i < ri ? 'получен' : `от ${fmt(r[1])} обоев`}</span></div></article>`; };
@@ -514,7 +516,7 @@ export function renderHome() {
       return `<section class="ra-tier ra-tier--t${ti + 1}"><header><i></i><b>${tn}</b><span>${n} из ${ids.length}</span></header><div class="ra-grid">${ids.map((i) => card(i, 's')).join('')}</div></section>`; }).join('');
     return `<div class="rk-scrim" data-action="home-ranks-close"></div><section class="rk" role="dialog" aria-label="Ранги мастера">
       <button type="button" class="rk__x" data-action="home-ranks-close" aria-label="Закрыть">×</button>
-      <div class="rk-hero">${card(ri, 'l')}</div>
+      <div class="rk-hero">${card(rankView == null ? ri : rankView, 'l')}</div>
       <div class="rk-next">${nextR ? `<p>Ещё <b>${left} ${plural(left, 'материал', 'материала', 'материалов')}</b> — и карточка «${esc(nextR[0])}» ваша</p>
         <div class="rk-next__bar rc--t${nextR[2]}"><i style="width:${rankPct}%"></i></div><div class="rk-next__row"><span>описано ${described}</span><span>нужно ${fmt(nextR[1])}</span></div>` : '<p>Вся коллекция собрана. Вы — Легенда.</p>'}</div>
       <div class="ra-hd"><h2>Коллекция рангов</h2><span>${got} из ${RANKS.length}</span></div>
@@ -617,6 +619,8 @@ export function renderHome() {
     <button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
 }
 let homeRanks = false;
+let rankView = null;   // какая карта показана крупно (null — текущий ранг мастера)
+actions['home-rank-view'] = (el) => { rankView = Number(el.dataset.i); rerender(); const b = document.querySelector('.rk'); if (b) b.scrollTo({ top: 0, behavior: 'smooth' }); };
 // Наклон главной карты за пальцем/мышью и блик там, где «свет» (одно живое движение экрана).
 const tiltAt = (el, x, y) => { const r = el.getBoundingClientRect(); const px = Math.min(1, Math.max(0, (x - r.left) / r.width)), py = Math.min(1, Math.max(0, (y - r.top) / r.height));
   el.style.setProperty('--rx', `${(0.5 - py) * 14}deg`); el.style.setProperty('--ry', `${(px - 0.5) * 18}deg`); el.style.setProperty('--mx', `${px * 100}%`); el.style.setProperty('--my', `${py * 100}%`); };
@@ -625,7 +629,7 @@ document.addEventListener('pointerleave', () => {}, { passive: true });
 window.addEventListener('deviceorientation', (e) => { const el = document.querySelector('[data-tilt]'); if (!el || e.beta == null) return; const r = el.getBoundingClientRect();
   tiltAt(el, r.left + r.width * (0.5 + Math.max(-0.5, Math.min(0.5, e.gamma / 40))), r.top + r.height * (0.5 + Math.max(-0.5, Math.min(0.5, (e.beta - 45) / 40)))); });
 actions['home-ranks'] = () => { homeRanks = true; rerender(); };
-actions['home-ranks-close'] = () => { homeRanks = false; rerender(); };
+actions['home-ranks-close'] = () => { homeRanks = false; rankView = null; rerender(); };
 actions['home-day'] = (el) => { homeDay = Number(el.dataset.off); rerender(); };
 actions['home-task'] = (el) => { const o = homeOrder(el.dataset.no); const t = (o.tasks || []).find((x) => x.id === el.dataset.id); if (!t) return;
   t.done = !t.done; t.doneToday = t.done ? iso(0) : ''; S.save(); rerender(); };
