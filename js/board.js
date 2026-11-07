@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=226';
-import * as S from './store.js?v=226';
-import { renderOformit, oformitDraft } from './oformit.js?v=226';
-import { roomTotals, svcInfo } from './ocenka.js?v=226';
-import { smetaTotals } from './zakaz.js?v=226';
-import { bookedDays } from './grafik.js?v=226';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=226';
-import { esc, toast } from './ui.js?v=226';
+import { actions, rerender, go } from './core.js?v=227';
+import * as S from './store.js?v=227';
+import { renderOformit, oformitDraft } from './oformit.js?v=227';
+import { roomTotals, svcInfo } from './ocenka.js?v=227';
+import { smetaTotals } from './zakaz.js?v=227';
+import { bookedDays } from './grafik.js?v=227';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=227';
+import { esc, toast } from './ui.js?v=227';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -499,7 +499,7 @@ export function renderHome() {
         <div class="mc__row"><span class="mc__brand">Metronica</span><span class="mc__tier">${TIERS[t - 1]}</span></div>
         <div class="mc__chip">${medal(t)}</div>
         <h3 class="mc__name">${esc(r[0])}</h3>
-        <p class="mc__thr">${r[1] === 0 ? 'с первого дня' : `от ${fmt(r[1])} описанных обоев`}</p>
+        <p class="mc__thr">${r[1] === 0 ? 'с первого дня' : `от ${fmt(r[1])} ${r[1] % 10 === 1 && r[1] % 100 !== 11 ? 'описанного материала' : 'описанных материалов'}`}</p>
         <div class="mc__row mc__row--end"><span class="mc__owner"><small>Мастер</small>${esc(fullName)}</span><span class="mc__no"><small>Ранг</small>${String(i + 1).padStart(2, '0')} / ${RANKS.length}</span></div>
       </div></article>`;
     return `<article class="mc mc--s mc--t${t} ${st}${i === rankView ? ' is-view' : ''}" data-action="home-rank-view" data-i="${i}" role="button" tabindex="0" aria-label="Показать карту «${esc(r[0])}»"><div class="mc__metal"></div><div class="mc__body">
@@ -527,11 +527,22 @@ export function renderHome() {
         <p>До «Мастера» — быстро, до «Профи» — сложнее, со «Знатока» — очень сложно. «Легенда» — 1000 описанных обоев.</p></div></section>`;
   };
 
+  // ── Главная: металлическая карта текущего ранга — сверху; под ней опыт, квадратура и путь до следующего ранга ──
+  const meHtml = `<section class="h-hero2">
+    <p class="h-hi">${hello}, ${esc(fullName.split(' ')[0])}<small>${WDF[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</small></p>
+    <div class="h-cardwrap" data-action="home-ranks" role="button" tabindex="0" aria-label="Ранг ${esc(rank)} — открыть коллекцию рангов">${card(ri, 'l')}</div>
+    <div class="h-stats2">
+      <span><b>${expN}</b><small>${plural(expN, 'запись', 'записи', 'записей')} опыта</small></span>
+      <span><b>${fmt(area)}<i> м²</i></b><small>поклеено</small></span>
+      <span class="h-stats2__next">${nextR ? `<b>${nextR[1] - described}</b><small>до «${esc(nextR[0])}»</small>` : '<b>★</b><small>все ранги</small>'}</span></div>
+    ${nextR ? `<div class="h-rank__bar"><i style="width:${rankPct}%"></i></div>` : ''}
+  </section>`;
+
   // ── Шапка ──
   const head = `<div class="h-bar"><span></span>
       <span class="h-bar__r"><span class="h-icb h-bell" aria-label="Требует действия: ${att.length}">${HI.bell}${att.length ? `<b>${att.length}</b>` : ''}</span>
       <button type="button" class="h-icb h-new" data-action="go" data-to="oformit" aria-label="Новый заказ">${PLUS}<span>Заказ</span></button></span></div>
-    ${proHtml}`;
+    ${meHtml}`;
 
   // ── Главная карточка: сегодняшний выезд ──
   const hero = ([off, key, k, time]) => {

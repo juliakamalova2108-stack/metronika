@@ -1683,3 +1683,18 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .mc__chip .rc-medal svg { stroke-width: 1.6; }
 .mc--s[data-action] { cursor: pointer; }
 .ra-grid .mc.is-view { outline: 2px solid #edf2e8; outline-offset: 3px; }
+/* главная: карта ранга вместо карточки мастера */
+.h-hero2 { display: flex; flex-direction: column; gap: 14px; }
+.h-hi { margin: 0 4px; display: flex; flex-direction: column; gap: 3px; font: 800 24px/1.15 Manrope, Inter, sans-serif; letter-spacing: -0.01em; color: #edf2e8; }
+.h-hi small { font: 500 13px/1.2 Inter, sans-serif; letter-spacing: 0; color: rgba(237, 242, 232, 0.55); }
+.h-hi small::first-letter { text-transform: uppercase; }
+.h-cardwrap { display: grid; place-items: center; perspective: 900px; padding: 4px 0 6px; cursor: pointer; border-radius: 22px; }
+.h-cardwrap:focus-visible { outline: 2px solid #e3eed3; outline-offset: 4px; }
+.h-cardwrap .mc[data-tilt] { width: 100%; max-width: 380px; }
+.h-stats2 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.h-stats2 span { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.045); border: 1px solid rgba(191, 214, 204, 0.14); }
+.h-stats2 b { font: 800 20px/1 Manrope, Inter, sans-serif; color: #edf2e8; }
+.h-stats2 b i { font-style: normal; font-size: 13px; color: rgba(237, 242, 232, 0.6); }
+.h-stats2 small { font: 500 11.5px/1.2 Inter, sans-serif; color: rgba(237, 242, 232, 0.6); }
+.h-stats2__next b { color: #e3eed3; }
+.h-hero2 > .h-rank__bar { margin: -2px 2px 0; }
