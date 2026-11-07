@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=170';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=171';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=170';
-import * as S from './store.js?v=170';
-import { WALLPAPER_TYPES } from './seed.js?v=170';
-import { esc, toast } from './ui.js?v=170';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=170';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=170';
-import { country } from './phonecodes.js?v=170';
-import { suggestAddress } from './address.js?v=170';
-import { suggesters } from './kbd.js?v=170';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=170';
+import { actions, changes, rerender } from './core.js?v=171';
+import * as S from './store.js?v=171';
+import { WALLPAPER_TYPES } from './seed.js?v=171';
+import { esc, toast } from './ui.js?v=171';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=171';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=171';
+import { country } from './phonecodes.js?v=171';
+import { suggestAddress } from './address.js?v=171';
+import { suggesters } from './kbd.js?v=171';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=171';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -285,6 +285,9 @@ pickers['m-type'] = (v, d) => { const m = mat(d); matRoom(m, m.view).res.type = 
 actions['z-mat-add'] = () => {
   const d = D(); const m = mat(d); const r = matRoom(m, m.view);
   const x = r.res; if (!x || !(x.code && x.brand && x.type)) return;
+  // Один штрихкод — один материал в комнате: повторный скан открывает уже добавленную закладку.
+  const same = r.items.findIndex((z) => z.code === x.code);
+  if (same >= 0) { r.active = same; r.total = false; r.panel = ''; r.res = null; toast('Этот материал уже есть в комнате — открыт его отзыв'); save(); return; }
   r.items.push({ code: x.code, brand: x.brand, type: x.type, note: '', rv: 0 }); r.active = r.items.length - 1; r.total = false;
   r.added = { brand: x.brand, type: x.type }; r.panel = ''; r.res = null;
   const room = estimateRooms(d).find((z) => z.key === m.view);
