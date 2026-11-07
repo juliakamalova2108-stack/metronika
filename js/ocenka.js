@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=178';
-import * as S from './store.js?v=178';
-import { SYSTEM_PRICE } from './seed.js?v=178';
-import { shiftsText, hoursFor } from './calc.js?v=178';
-import { esc, toast } from './ui.js?v=178';
-import { logEvent } from './zlog.js?v=178';
+import { actions, changes, rerender } from './core.js?v=179';
+import * as S from './store.js?v=179';
+import { SYSTEM_PRICE } from './seed.js?v=179';
+import { shiftsText, hoursFor } from './calc.js?v=179';
+import { esc, toast } from './ui.js?v=179';
+import { logEvent } from './zlog.js?v=179';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -582,7 +582,7 @@ export function materialStrip(d, view, stat, right, inner = '') {
   const cnt = (x) => { if (!x || !x.list || !x.list.length) return '—';
     const ln = (l) => `<span class="z-pvl"><b>${esc(l.code.slice(-4))}</b> — ${l.rolls || 0}<small> шт.</small></span>`;
     return x.list.slice(0, 2).map(ln).join('') + (x.list.length > 2 ? `<span class="z-pvl z-pvl--more">+${x.list.length - 2} ещё</span>` : ''); };
-  const badge = (x) => (!x || !x.n ? '' : x.miss ? `<i class="z-rvbadge" aria-label="Без отзыва: ${x.miss}">${x.miss}</i>` : '<i class="z-rvbadge z-rvbadge--ok" aria-label="Отзывы оставлены">✓</i>');
+  const badge = (x) => (!x || !x.n ? '' : x.miss ? `<i class="z-rvbadge" aria-label="Без опыта: ${x.miss}">${x.miss}</i>` : '<i class="z-rvbadge z-rvbadge--ok" aria-label="Опыт добавлен по всем материалам">✓</i>');
   return html.replace(/(data-key="([^"]+)">)([\s\S]*?<span class="o-pv__m">)[\s\S]*?(<\/span>)/g, (m0, a, key, mid, c) => a + badge(stat[key]) + mid.replace('class="o-pv__m"', 'class="o-pv__m z-pvm"') + cnt(stat[key]) + c);
 }
 

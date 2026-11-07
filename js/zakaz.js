@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=178';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=179';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=178';
-import * as S from './store.js?v=178';
-import { WALLPAPER_TYPES } from './seed.js?v=178';
-import { esc, toast } from './ui.js?v=178';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=178';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=178';
-import { country } from './phonecodes.js?v=178';
-import { suggestAddress } from './address.js?v=178';
-import { suggesters } from './kbd.js?v=178';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=178';
+import { actions, changes, rerender } from './core.js?v=179';
+import * as S from './store.js?v=179';
+import { WALLPAPER_TYPES } from './seed.js?v=179';
+import { esc, toast } from './ui.js?v=179';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=179';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=179';
+import { country } from './phonecodes.js?v=179';
+import { suggestAddress } from './address.js?v=179';
+import { suggesters } from './kbd.js?v=179';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=179';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -247,9 +247,9 @@ function renderMaterial(d) {
     const done = items.filter((x) => reviewed(x.it.code)).length;
     body = `<div class="o-stack"><p class="o-sec">Опыт по материалам</p>${items.map(({ it }, idx) => { const ok = reviewed(it.code); const x = S.material(it.code);
       return `<section class="z-xp${ok ? ' is-ok' : ''}"><div class="z-xp__top">${MAT_SAMPLE}<span class="z-mline__t"><b>${esc(x ? x.name : it.type)}</b><small>${esc(x ? x.brand : it.brand)} · ${esc(it.code)}</small></span>
-        <i class="z-xp__st">${ok ? '✓ отзыв есть' : 'нет отзыва'}</i></div>
-        <button type="button" class="z-rvshare" data-action="z-share-open" data-i="${idx}">${ok ? 'Добавить ещё отзыв' : 'Поделиться опытом'}</button></section>`; }).join('')}
-      <section class="f-plate o-grand"><p class="o-grand__t">Отзывы по комнате</p><b class="o-grand__sum">${done} из ${items.length}</b><p class="o-grand__x">${done === items.length ? 'Опыт по всем материалам оставлен' : 'Осталось: ' + (items.length - done)}</p></section></div>`;
+        <i class="z-xp__st">${ok ? '✓ опыт есть' : 'нет опыта'}</i></div>
+        <button type="button" class="z-rvshare" data-action="z-share-open" data-i="${idx}">${ok ? 'Дополнить опыт' : 'Поделиться опытом'}</button></section>`; }).join('')}
+      <section class="f-plate o-grand"><p class="o-grand__t">Опыт по комнате</p><b class="o-grand__sum">${done} из ${items.length}</b><p class="o-grand__x">${done === items.length ? 'Опыт по всем материалам оставлен' : 'Осталось: ' + (items.length - done)}</p></section></div>`;
   } else {
     const idx = r.active; const { it, rolls: n, text } = items[idx];
     const x = S.material(it.code); const key = `mat-${room.key}-${idx}`;
@@ -257,7 +257,7 @@ function renderMaterial(d) {
     const reviews = S.reviewsOf(it.code);
     const card = (v) => { const u = S.user(v.authorId); const mine = v.authorId === S.me().id;
       return `<article class="z-rv"><div class="z-rv__who"><span class="z-ava">${esc(u.name[0])}</span><b>${esc(mine ? 'Вы' : u.name.split(' ')[0])}</b><small>${v.at ? new Date(v.at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : ''}</small></div>${(v.photos || []).length ? `<div class="z-rv__ph">${v.photos.map((k) => `<i class="z-ph z-ph--${esc(k)}" aria-label="Фото"></i>`).join('')}</div>` : ''}<p class="z-rv__text">${esc(v.text)}</p></article>`; };
-    const exp = `<div class="z-rvbox"><p class="z-rvbox__t">Опыт мастеров${reviews.length > 1 ? `<span class="z-rvnav"><button type="button" class="z-rvnav__b" data-rv-go="-1" aria-label="Предыдущий отзыв">‹</button><small class="z-rvnav__n"><b>1</b> / ${reviews.length}</small><button type="button" class="z-rvnav__b" data-rv-go="1" aria-label="Следующий отзыв">›</button></span>` : ''}</p>
+    const exp = `<div class="z-rvbox"><p class="z-rvbox__t">Опыт мастеров${reviews.length > 1 ? `<span class="z-rvnav"><button type="button" class="z-rvnav__b" data-rv-go="-1" aria-label="Предыдущий">‹</button><small class="z-rvnav__n"><b>1</b> / ${reviews.length}</small><button type="button" class="z-rvnav__b" data-rv-go="1" aria-label="Следующий">›</button></span>` : ''}</p>
       ${reviews.length ? `<div class="z-rvs">${reviews.map(card).join('')}</div>${reviews.length > 1 ? `<div class="z-rvdots">${reviews.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>` : ''}` : '<p class="z-rv__none">Мастера пока не делились опытом с этим материалом.</p>'}</div>`;
     body = `<section class="z-mplate"><div class="z-mhead">${MAT_SAMPLE}<span class="z-mline__t"><i class="z-mcode">${esc(it.code)}</i><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span>
         <span class="z-mrolls z-mrolls--in"><span class="z-step"><button type="button" class="z-step__b" data-action="z-rolls-step" data-i="${idx}" data-d="-1" aria-label="Меньше">−</button><label class="z-step__f"><input aria-label="Сколько рулонов" inputmode="numeric" value="${n || ''}" placeholder="0" data-change="z-rolls" data-i="${idx}"></label><button type="button" class="z-step__b" data-action="z-rolls-step" data-i="${idx}" data-d="1" aria-label="Больше">+</button></span><small>рулонов</small></span></div>
@@ -315,7 +315,7 @@ actions['z-mat-add'] = () => {
   const x = r.res; if (!x || !(x.code && x.brand && x.type)) return;
   // Один штрихкод — один материал в комнате: повторный скан открывает уже добавленную закладку.
   const same = r.items.findIndex((z) => z.code === x.code);
-  if (same >= 0) { r.active = same; r.total = false; r.panel = ''; r.res = null; toast('Этот материал уже есть в комнате — открыт его отзыв'); save(); return; }
+  if (same >= 0) { r.active = same; r.total = false; r.panel = ''; r.res = null; toast('Этот материал уже есть в комнате — открыта его закладка'); save(); return; }
   r.items.push({ code: x.code, brand: x.brand, type: x.type, note: '', rv: 0 }); r.active = r.items.length - 1; r.total = false;
   r.added = { brand: x.brand, type: x.type }; r.panel = ''; r.res = null;
   const room = estimateRooms(d).find((z) => z.key === m.view);

@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=178';
-import * as S from './store.js?v=178';
-import {oformitDraft} from './oformit.js?v=178';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=178';
-import {esc} from './ui.js?v=178';
+import {actions,changes,rerender,afterRender} from './core.js?v=179';
+import * as S from './store.js?v=179';
+import {oformitDraft} from './oformit.js?v=179';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=179';
+import {esc} from './ui.js?v=179';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -58,7 +58,7 @@ export function sheetTabs(o,color){
     if(i===sel){l=xs[i];ww=SEL_W-SL*.5;}
     else if(sel<0||i<sel){l=xs[i];ww=(i+1<n0?xs[i+1]:xs[i]+TW-SL*.5)-xs[i];}
     else {l=xs[i]+SL*.5;ww=TW-SL;}
-    return `<button type="button" class="gt-b${i===sel?' on':''}" data-action="${o.act}" data-i="${i}" style="left: ${Math.round(l)}px; width: ${Math.round(ww)}px">${i===sel?o.label(i):i+1}${o.mark&&o.mark(i)?'<i class="gt-dot" aria-label="без отзыва"></i>':''}</button>`;};
+    return `<button type="button" class="gt-b${i===sel?' on':''}" data-action="${o.act}" data-i="${i}" style="left: ${Math.round(l)}px; width: ${Math.round(ww)}px">${i===sel?o.label(i):i+1}${o.mark&&o.mark(i)?'<i class="gt-dot" aria-label="без опыта"></i>':''}</button>`;};
   const plusL=n0?plusX+SL*.5:0, plusBW=n0?PW-SL:PW-SL*.5;
   const left=`<div class="gt-scroll"><div class="gt-inner" style="width: ${innerW}px"><svg class="gt-svg" width="${innerW}" height="${H+1}" viewBox="0 0 ${innerW} ${H+1}" aria-hidden="true">${lite}${back}${base}${front}</svg>`+
     [...Array(n0).keys()].map(btn).join('')+
@@ -68,7 +68,7 @@ export function sheetTabs(o,color){
   const right=`<div class="gt-right${tot?' on':''}" style="width: ${SUM_W}px"><svg class="gt-svg" width="${SUM_W}" height="${H+1}" viewBox="0 0 ${SUM_W} ${H+1}" aria-hidden="true">`+
     (tot?`<path class="gt-sel" d="M${SL} ${H+1} L1 1.5 Q.3 0 2.5 0 L${SUM_W-6} 0 Q${SUM_W} 0 ${SUM_W} 6 L${SUM_W} ${H+1} Z"/><path class="gt-hl" d="${sumD}" fill="none" stroke="url(#gtLite2)" stroke-width="1.6" stroke-linejoin="round"/>${lite.replace('gtLite','gtLite2')}`
       :`<path class="gt-back" d="${sumD} Z"/><path class="gt-base" d="M0 ${H-.5} L${SUM_W} ${H-.5}"/>`)+
-    `</svg><button type="button" class="gt-b${tot?' on':''}" data-action="${o.totalAct}" style="left: 6px; width: ${SUM_W-6}px">${o.totalLabel||'Итог'}${o.totalMark?'<i class="gt-dot" aria-label="есть материалы без отзыва"></i>':''}</button></div>`;
+    `</svg><button type="button" class="gt-b${tot?' on':''}" data-action="${o.totalAct}" style="left: 6px; width: ${SUM_W-6}px">${o.totalLabel||'Итог'}${o.totalMark?'<i class="gt-dot" aria-label="есть материалы без опыта"></i>':''}</button></div>`;
   return {html:`<i class="gt-sheet" aria-hidden="true"></i><nav class="gt-tabs" aria-label="${o.name}">${left}${right}</nav>`, radius:'0 0 24px 24px', edges:''};
 }
 function tabs(r,color){
