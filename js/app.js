@@ -1,18 +1,18 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=246';
-import * as S from './store.js?v=246';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=246';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=246';
-import { renderSettlements } from './shared.js?v=246';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=246';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=246';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=246';
-import { renderOformit, onLiveOformit } from './oformit.js?v=246';
-import { onLiveZakaz } from './zakaz.js?v=246';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients } from './board.js?v=246';
-import './kbd.js?v=246';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=246';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=247';
+import * as S from './store.js?v=247';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=247';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=247';
+import { renderSettlements } from './shared.js?v=247';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=247';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=247';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=247';
+import { renderOformit, onLiveOformit } from './oformit.js?v=247';
+import { onLiveZakaz } from './zakaz.js?v=247';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=247';
+import './kbd.js?v=247';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=247';
 
 const VERSION = 'прототип 1.0';
 
@@ -32,7 +32,7 @@ const SCREENS = {
   master: {
     start: 'home',
     nav: [['menu', 'Меню', 'menu'], ['home', 'Главная', 'briefcase'], ['orders', 'Заказы', 'inbox'], ['stats', 'Статистика', 'wallet']],
-    menu: [['home', 'Главная'], ['oformit', 'Сущность'], ['orders', 'Заказы'], ['clients', 'Клиенты'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['profile', 'Профиль']],
+    menu: [['home', 'Главная'], ['oformit', 'Сущность'], ['orders', 'Заказы'], ['clients', 'Клиенты'], ['gallery', 'Галерея'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['profile', 'Профиль']],
   },
 };
 SCREENS.dispatcher = { ...SCREENS.master, menu: [...SCREENS.master.menu.slice(0, 3), ['team', 'Команда'], ...SCREENS.master.menu.slice(3)] };
@@ -52,6 +52,7 @@ function screenFor(name, role) {
   } else {
     if (name === 'home') { S.setDraftKey(null); return renderHome(); }
     if (name === 'clients') { S.setDraftKey(null); return renderClients(); }
+    if (name === 'gallery') return renderGallery();
     if (name === 'money') return null;
     if (name === 'orders') { S.setDraftKey(null); return renderBoard(); }
     if (name.startsWith('bd-order-')) return renderBoardOrder(name.slice(9));
@@ -182,6 +183,7 @@ actions['seg'] = (el) => {
   if (onSegAgent(seg, value)) return;
   if (onSegOrder(seg, value)) return;
   if (onSegMore(seg, value)) return;
+  if (onSegGallery(seg, value)) return;
   onSegPro(seg, value);
 };
 
