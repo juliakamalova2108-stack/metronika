@@ -1,12 +1,12 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=262';
-import * as S from './store.js?v=262';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=262';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=262';
-import { topbar, typeName, renderSettlements } from './shared.js?v=262';
-import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=262';
-import { COUNTRIES, SOON } from './phonecodes.js?v=262';
+import { actions, changes, rerender, go, val } from './core.js?v=263';
+import * as S from './store.js?v=263';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=263';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=263';
+import { topbar, typeName, renderSettlements } from './shared.js?v=263';
+import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=263';
+import { COUNTRIES, SOON } from './phonecodes.js?v=263';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -198,9 +198,10 @@ export function renderSettings() {
   const grp = groups.find((g) => g[2].includes(setTab)) || groups[0];
   const sub = tabs.filter(([k]) => grp[2].includes(k));
   const GI = { profile: ICONS_ST.profile, work: ICONS_ST.work, system: ICONS_ST.system };
-  return `${topbar(grp[1])}
-    ${sub.length > 1 ? `<nav class="plate topbar" style="padding:0 12px" aria-label="Разделы"><div class="tabs" role="tablist">${sub.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === setTab}" class="tabs__item${k === setTab ? ' is-active' : ''}" data-action="seg" data-seg="set-tab" data-value="${k}">${t}</button>`).join('')}</div></nav>` : ''}
-    ${body}
+  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><div class="st">
+    <header class="st-hd"><h1>${grp[1]}</h1><span>Настройки</span></header>
+    ${sub.length > 1 ? `<nav class="st-sub" role="tablist" aria-label="Разделы">${sub.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === setTab}" class="st-sub__t${k === setTab ? ' is-on' : ''}" data-action="seg" data-seg="set-tab" data-value="${k}">${t}</button>`).join('')}</nav>` : ''}
+    ${body}</div>
     <nav class="st-nav" aria-label="Разделы настроек">
       <button type="button" class="st-nav__sq" data-action="menu-open" aria-label="Меню">${ICONS_ST.menu}</button>
       <button type="button" class="st-nav__sq" data-action="st-back" aria-label="Назад">${ICONS_ST.back}</button>

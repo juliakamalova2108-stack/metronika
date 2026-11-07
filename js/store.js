@@ -1,8 +1,8 @@
 // Данные прототипа и все действия над ними. Хранятся только в этом браузере (localStorage).
 // Модель повторяет «Скелет системы»: заказ → звенья передачи → начисления; комнаты → стены → смета.
 
-import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=262';
-import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=262';
+import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=263';
+import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=263';
 
 const KEY = 'metronika-prototype-v2';
 let state;
