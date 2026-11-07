@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=247';
-import * as S from './store.js?v=247';
-import { renderOformit, oformitDraft } from './oformit.js?v=247';
-import { roomTotals, svcInfo } from './ocenka.js?v=247';
-import { smetaTotals } from './zakaz.js?v=247';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=247';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=247';
-import { esc, toast, status, seg } from './ui.js?v=247';
-import { topbar, ORDER_STATUS } from './shared.js?v=247';
+import { actions, rerender, go } from './core.js?v=248';
+import * as S from './store.js?v=248';
+import { renderOformit, oformitDraft } from './oformit.js?v=248';
+import { roomTotals, svcInfo } from './ocenka.js?v=248';
+import { smetaTotals } from './zakaz.js?v=248';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=248';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=248';
+import { esc, toast, status, seg } from './ui.js?v=248';
+import { topbar, ORDER_STATUS } from './shared.js?v=248';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -796,22 +796,14 @@ function galItems() {
 }
 export function renderGallery() {
   const items = galItems();
-  const KIND = { before: 'До', process: 'В процессе', after: 'После' };
-  const shown = items.filter((g) => galKind === 'all' || g.kind === galKind);
-  const groups = {}; shown.forEach((g) => { (groups[g.no] = groups[g.no] || []).push(g); });
   const ph = (g, big) => `<span class="gl-ph gl-ph--${g.pat}${big ? ' gl-ph--big' : ''}"></span>`;
-  const sec = Object.keys(groups).sort().reverse().map((no) => { const c = CL[no];
-    return `<section class="plate gl-sec"><div class="gl-sec__hd"><b>Заказ №${no}</b><small>${esc(c ? c.n : '')}</small><button type="button" class="gl-sec__go" data-action="bd-open" data-no="${no}">заказ ›</button></div>
-      <div class="gl-grid">${groups[no].map((g) => `<button type="button" class="gl-item" data-action="gal-view" data-id="${g.id}">${ph(g)}<span class="gl-tag gl-tag--${g.kind}">${KIND[g.kind]}</span><small>${esc(g.room)}</small></button>`).join('')}</div></section>`; }).join('');
   const v = galView && items.find((g) => g.id === galView);
-  const viewer = v ? `<div class="gl-view" data-action="gal-close"><div class="gl-view__in">${ph(v, true)}
-      <p><span class="gl-tag gl-tag--${v.kind}">${KIND[v.kind]}</span> Заказ №${v.no} · ${esc(v.room)} · ${new Date(v.at + 'T12:00').getDate()} ${MONG[new Date(v.at + 'T12:00').getMonth()]}</p></div></div>` : '';
+  const viewer = v ? `<div class="gl-view" data-action="gal-close"><div class="gl-view__in">${ph(v, true)}</div></div>` : '';
   return `${topbar('Галерея', { right: '<button type="button" class="btn btn--sm gl-add" data-action="gal-add">+ Фото</button>' })}
-    ${seg('gal-kind', [{ value: 'all', label: 'Все' }, { value: 'before', label: 'До' }, { value: 'process', label: 'Процесс' }, { value: 'after', label: 'После' }], galKind)}
-    ${sec || '<section class="plate"><p class="empty">Фото пока нет</p></section>'}${viewer}`;
+    <section class="plate">${items.length ? `<div class="gl-grid">${items.map((g) => `<button type="button" class="gl-item" data-action="gal-view" data-id="${g.id}" aria-label="Фото">${ph(g)}</button>`).join('')}</div>` : '<p class="empty">Фото пока нет</p>'}</section>${viewer}`;
 }
 actions['gal-view'] = (el) => { galView = el.dataset.id; rerender(); };
 actions['gal-close'] = () => { galView = null; rerender(); };
 actions['gal-add'] = () => { const st = S.get(); galItems(); const pats = ['leaf', 'stripe', 'damask', 'dots'];
-  st.gallery.unshift({ id: 'g' + Date.now(), no: '007', room: 'Кухня', kind: 'after', pat: pats[st.gallery.length % 4], at: iso(0) }); S.save(); toast('Фото добавлено в заказ №007'); rerender(); };
+  st.gallery.unshift({ id: 'g' + Date.now(), no: '007', room: 'Кухня', kind: 'after', pat: pats[st.gallery.length % 4], at: iso(0) }); S.save(); toast('Фото добавлено'); rerender(); };
 export function onSegGallery(name, value) { if (name !== 'gal-kind') return false; galKind = value; rerender(); return true; }
