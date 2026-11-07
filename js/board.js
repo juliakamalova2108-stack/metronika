@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=249';
-import * as S from './store.js?v=249';
-import { renderOformit, oformitDraft } from './oformit.js?v=249';
-import { roomTotals, svcInfo } from './ocenka.js?v=249';
-import { smetaTotals } from './zakaz.js?v=249';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=249';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=249';
-import { esc, toast, status, seg } from './ui.js?v=249';
-import { topbar, ORDER_STATUS } from './shared.js?v=249';
+import { actions, rerender, go } from './core.js?v=250';
+import * as S from './store.js?v=250';
+import { renderOformit, oformitDraft } from './oformit.js?v=250';
+import { roomTotals, svcInfo } from './ocenka.js?v=250';
+import { smetaTotals } from './zakaz.js?v=250';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=250';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=250';
+import { esc, toast, status, seg } from './ui.js?v=250';
+import { topbar, ORDER_STATUS } from './shared.js?v=250';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -680,7 +680,7 @@ export function renderHome() {
     ...(glay[selIso] || []).map((x) => ({ t: qTime(x.no), html: `<button type="button" class="h-vis" data-action="bd-open" data-no="${x.no}" style="--c:${x.room.color}"><em>${qTime(x.no)}</em><span class="h-vis__t"><b>${esc(short(CL[x.no].n))} · ${esc(x.room.name)}</b><small>${esc(CL[x.no].a)}</small></span><span class="h-vis__d">${fmt(x.cost)} ₽</span></button>` })),
     ...meas.filter((m) => iso(m.off) === selIso).map((m) => ({ t: m.time, html: `<div class="h-vis" style="--c:#e5484d"><em>${esc(m.time)}</em><span class="h-vis__t"><b>Замер · ${esc(short(m.n))}</b><small>${esc(m.a)}</small></span><span class="h-vis__d">замер</span></div>` })),
   ].sort((x, y) => x.t.padStart(5, '0').localeCompare(y.t.padStart(5, '0')));
-  const calHtml = `<section class="h-block h-cal2"><div class="h-block__hd"><h2>Записи</h2></div>
+  const calHtml = `<section class="h-cal2">
     <div class="h-cal2__in f-plate g-plate">${homeCalendarHtml(monthKey, glay, measBy, selIso, todayIso)}</div>
     <div class="h-cal__day"><p class="h-cal__dt">${selOff === 0 ? 'Сегодня' : selOff === 1 ? 'Завтра' : WDF[selD.getDay()]}, ${selD.getDate()} ${MONG[selD.getMonth()]}</p>
       <div class="h-list">${rows.length ? rows.map((r) => r.html).join('') : '<p class="h-free">На этот день записей нет</p>'}</div></div></section>`;

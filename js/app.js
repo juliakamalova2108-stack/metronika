@@ -1,18 +1,18 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=249';
-import * as S from './store.js?v=249';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=249';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=249';
-import { renderSettlements } from './shared.js?v=249';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=249';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=249';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=249';
-import { renderOformit, onLiveOformit } from './oformit.js?v=249';
-import { onLiveZakaz } from './zakaz.js?v=249';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=249';
-import './kbd.js?v=249';
-import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=249';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=250';
+import * as S from './store.js?v=250';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=250';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=250';
+import { renderSettlements } from './shared.js?v=250';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=250';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=250';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=250';
+import { renderOformit, onLiveOformit } from './oformit.js?v=250';
+import { onLiveZakaz } from './zakaz.js?v=250';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=250';
+import './kbd.js?v=250';
+import { renderProfile, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=250';
 
 const VERSION = 'прототип 1.0';
 
@@ -78,6 +78,7 @@ function tabbar(role, current) {
   }).join('');
 }
 
+const MENU_BARS = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 // Иконки пунктов меню (тонкая линия, currentColor)
 const MI = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const MENU_IC = {
@@ -144,8 +145,11 @@ function render() {
     const ft = view.querySelector('.f-tab.is-active');
     if (ft) { const tr = ft.parentElement; tr.scrollLeft = ft.offsetLeft - (tr.clientWidth - ft.offsetWidth) / 2; }
     bar.hidden = true; if (!drawerEl.classList.contains('is-on')) drawerEl.innerHTML = drawer(role); document.title = 'Метроника'; return; }
-  bar.hidden = false;
-  bar.innerHTML = tabbar(role, name);
+  // Мастер: нижней панели нет — как на главной, одна плавающая кнопка «три полоски» без подписи.
+  const noBar = role !== 'agent';
+  document.body.classList.toggle('nobar', noBar);
+  if (noBar) { bar.hidden = true; bar.innerHTML = ''; view.insertAdjacentHTML('beforeend', `<button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${MENU_BARS}</button>`); }
+  else { bar.hidden = false; bar.innerHTML = tabbar(role, name); }
   if (!drawerEl.classList.contains('is-on')) drawerEl.innerHTML = drawer(role);
   const activeTab = view.querySelector('.tabs__item.is-active');
   if (activeTab) {
