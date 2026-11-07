@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=180';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=181';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=180';
-import * as S from './store.js?v=180';
-import { WALLPAPER_TYPES } from './seed.js?v=180';
-import { esc, toast } from './ui.js?v=180';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=180';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=180';
-import { country } from './phonecodes.js?v=180';
-import { suggestAddress } from './address.js?v=180';
-import { suggesters } from './kbd.js?v=180';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=180';
+import { actions, changes, rerender } from './core.js?v=181';
+import * as S from './store.js?v=181';
+import { WALLPAPER_TYPES } from './seed.js?v=181';
+import { esc, toast } from './ui.js?v=181';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=181';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=181';
+import { country } from './phonecodes.js?v=181';
+import { suggestAddress } from './address.js?v=181';
+import { suggesters } from './kbd.js?v=181';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=181';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -245,7 +245,7 @@ function renderMaterial(d) {
     // Закладка «Опыт»: все материалы комнаты — артикул, производитель, штрихкод; у каждого статус отзыва
     // этого мастера и кнопка «Поделиться опытом». Отзыв пишется на штрихкод.
     const done = items.filter((x) => reviewed(x.it.code)).length;
-    body = `<div class="o-stack"><p class="o-sec">Опыт по материалам</p>${items.map(({ it }, idx) => { const ok = reviewed(it.code); const x = S.material(it.code);
+    body = `<div class="o-stack"><p class="o-sec">Опыт работы с материалом</p>${items.map(({ it }, idx) => { const ok = reviewed(it.code); const x = S.material(it.code);
       return `<section class="z-xp${ok ? ' is-ok' : ''}"><div class="z-xp__top">${MAT_SAMPLE}<span class="z-mline__t"><b>${esc(x ? x.name : it.type)}</b><small>${esc(x ? x.brand : it.brand)} · ${esc(it.code)}</small></span>
         <i class="z-xp__st">${ok ? '✓ опыт есть' : 'нет опыта'}</i></div>
         <button type="button" class="z-rvshare" data-action="z-share-open" data-i="${idx}">${ok ? 'Дополнить опыт' : 'Поделиться опытом'}</button></section>`; }).join('')}
