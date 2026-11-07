@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=239';
-import * as S from './store.js?v=239';
-import {oformitDraft} from './oformit.js?v=239';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=239';
-import {esc} from './ui.js?v=239';
+import {actions,changes,rerender,afterRender} from './core.js?v=240';
+import * as S from './store.js?v=240';
+import {oformitDraft} from './oformit.js?v=240';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=240';
+import {esc} from './ui.js?v=240';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});

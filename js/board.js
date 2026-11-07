@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=239';
-import * as S from './store.js?v=239';
-import { renderOformit, oformitDraft } from './oformit.js?v=239';
-import { roomTotals, svcInfo } from './ocenka.js?v=239';
-import { smetaTotals } from './zakaz.js?v=239';
-import { bookedDays } from './grafik.js?v=239';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=239';
-import { esc, toast } from './ui.js?v=239';
+import { actions, rerender, go } from './core.js?v=240';
+import * as S from './store.js?v=240';
+import { renderOformit, oformitDraft } from './oformit.js?v=240';
+import { roomTotals, svcInfo } from './ocenka.js?v=240';
+import { smetaTotals } from './zakaz.js?v=240';
+import { bookedDays } from './grafik.js?v=240';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=240';
+import { esc, toast } from './ui.js?v=240';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -414,6 +414,7 @@ const HI = {
   bell: ic('<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'),
 };
 let homeDay = 0;
+let homeMonth = 0;
 export function renderHome() {
   homeSeed();
   const now = new Date();
@@ -658,12 +659,36 @@ export function renderHome() {
       <div class="h-hero__who"><b>${esc(m.n)}</b><small>${esc(m.a)}</small></div>
       <div class="h-hero__act"><a class="h-round" href="tel:+7${esc(String(m.ph).replace(/\D/g, '').slice(-10))}" aria-label="Позвонить">${HI.call}</a>
         <a class="h-round" href="https://yandex.ru/maps/?text=${encodeURIComponent('Уфа, ' + m.a)}" target="_blank" rel="noopener" aria-label="Маршрут">${HI.route}</a></div></article>`).join('')}</div>` : '';
+  // ── Календарь: обычный месяц, отмечены дни с записями (выезды — цвет комнаты, замер — жёлтая точка); тап по дню — список ниже ──
+  const recs = {};
+  QUEUE.filter(([, k]) => k).forEach(([off, key, k, time]) => { (recs[off] = recs[off] || []).push({ kind: 'work', off, key, k, time }); });
+  meas.forEach((m) => { (recs[m.off] = recs[m.off] || []).push({ kind: 'meas', ...m }); });
+  const base = dayOf(0); const mFirst = new Date(base.getFullYear(), base.getMonth() + homeMonth, 1, 12);
+  const MONN2 = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+  const lead = (mFirst.getDay() + 6) % 7; const dim = new Date(mFirst.getFullYear(), mFirst.getMonth() + 1, 0).getDate();
+  const cells = [];
+  for (let j = 0; j < lead; j++) cells.push('<span class="h-cd is-out"></span>');
+  for (let dn = 1; dn <= dim; dn++) {
+    const d = new Date(mFirst.getFullYear(), mFirst.getMonth(), dn, 12); const off = Math.round((d - base) / 864e5); const rs = recs[off] || [];
+    const dots = rs.slice(0, 3).map((r) => `<i style="--c:${r.kind === 'meas' ? '#e8d27a' : R[r.key].col}"></i>`).join('');
+    cells.push(`<button type="button" class="h-cd${off === 0 ? ' is-today' : ''}${off === homeDay ? ' is-sel' : ''}${off < 0 ? ' is-past' : ''}${rs.length ? ' has' : ''}" data-action="home-day" data-off="${off}" aria-label="${dn} ${MONG[d.getMonth()]}${rs.length ? `: записей ${rs.length}` : ''}"><b>${dn}</b><span class="h-cd__dots">${dots}</span></button>`);
+  }
+  const selD = dayOf(homeDay); const selR = (recs[homeDay] || []).sort((x, y) => x.time.padStart(5, '0').localeCompare(y.time.padStart(5, '0')));
+  const dayList = selR.length ? selR.map((r) => r.kind === 'meas'
+    ? `<div class="h-vis" style="--c:#e8d27a"><em>${esc(r.time)}</em><span class="h-vis__t"><b>Замер · ${esc(short(r.n))}</b><small>${esc(r.a)}</small></span><span class="h-vis__d">замер</span></div>`
+    : (() => { const x = R[r.key]; return `<button type="button" class="h-vis" data-action="bd-open" data-no="${x.c.no}" style="--c:${x.col}"><em>${r.time}</em><span class="h-vis__t"><b>${esc(short(x.c.n))} · ${esc(x.r)}</b><small>${esc(x.c.a)}</small></span><span class="h-vis__d">${label(ORDER_SH[x.c.no], r.k)}</span></button>`; })()).join('')
+    : '<p class="h-free">На этот день записей нет</p>';
+  const calHtml = `<section class="h-block h-cal"><div class="h-block__hd"><h2>${MONN2[mFirst.getMonth()]}${mFirst.getFullYear() !== base.getFullYear() ? ' ' + mFirst.getFullYear() : ''}</h2>
+      <span class="h-cal__nav"><button type="button" class="h-cal__b" data-action="home-cal-m" data-d="-1" aria-label="Предыдущий месяц">‹</button><button type="button" class="h-cal__b" data-action="home-cal-m" data-d="1" aria-label="Следующий месяц">›</button></span></div>
+    <div class="h-cal__wd">${['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'].map((w) => `<span>${w}</span>`).join('')}</div>
+    <div class="h-cal__grid">${cells.join('')}</div>
+    <div class="h-cal__day"><p class="h-cal__dt">${homeDay === 0 ? 'Сегодня' : homeDay === 1 ? 'Завтра' : `${WDF[selD.getDay()]}`}, ${selD.getDate()} ${MONG[selD.getMonth()]}</p><div class="h-list">${dayList}</div></div></section>`;
   const tasksHtml = `<section class="h-block"><div class="h-block__hd"><h2>Задачи и замеры</h2>${tasks.length ? `<span class="h-sub">задачи ${done} из ${tasks.length}</span>` : ''}</div>
     ${measRows}${taskRows}${meas.some((m) => m.off > 0) || tasks.length ? '' : '<p class="h-free">Задач и замеров пока нет</p>'}</section>`;
 
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     ${homeRanks ? ranksSheet() : ''}
-    <div class="h-page">${head}${heroHtml}${measTodayHtml}${tasksHtml}${weekHtml}${moneyHtml}${stagesHtml}</div>
+    <div class="h-page">${head}${heroHtml}${measTodayHtml}${calHtml}${moneyHtml}${stagesHtml}</div>
     <button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
 }
 let homeRanks = false;
@@ -679,5 +704,6 @@ window.addEventListener('deviceorientation', (e) => { const el = document.queryS
 actions['home-ranks'] = () => { homeRanks = true; rerender(); };
 actions['home-ranks-close'] = () => { homeRanks = false; rankView = null; rerender(); };
 actions['home-day'] = (el) => { homeDay = Number(el.dataset.off); rerender(); };
+actions['home-cal-m'] = (el) => { homeMonth += Number(el.dataset.d); rerender(); };
 actions['home-task'] = (el) => { const o = homeOrder(el.dataset.no); const t = (o.tasks || []).find((x) => x.id === el.dataset.id); if (!t) return;
   t.done = !t.done; t.doneToday = t.done ? iso(0) : ''; S.save(); rerender(); };

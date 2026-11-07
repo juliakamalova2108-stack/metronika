@@ -1856,3 +1856,23 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 
 .h-mtoday { margin-top: 0; }
 .h-hero--meas .h-hero__act { justify-content: flex-start; }
+
+/* Главная: календарь месяца */
+.h-cal__nav { display: flex; gap: 6px; }
+.h-cal__b { all: unset; cursor: pointer; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 600 20px/1 Manrope, sans-serif; color: #edf2e8; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.h-cal__wd, .h-cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; }
+.h-cal__wd span { font: 600 11px Inter, sans-serif; color: rgba(237,242,232,.45); padding: 4px 0 8px; text-transform: uppercase; letter-spacing: .04em; }
+.h-cal__grid { row-gap: 4px; }
+.h-cd { all: unset; cursor: pointer; justify-self: center; width: 42px; height: 46px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.h-cd b { font: 600 15px/1 Manrope, sans-serif; color: #edf2e8; }
+.h-cd.is-past b { color: rgba(237,242,232,.4); }
+.h-cd.is-out { cursor: default; }
+.h-cd__dots { display: flex; gap: 3px; height: 5px; }
+.h-cd__dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--c); }
+.h-cd.has { background: rgba(255,255,255,.05); }
+.h-cd.is-today { box-shadow: inset 0 0 0 1.5px #7ee2a3; }
+.h-cd.is-sel { background: #e3eed3; }
+.h-cd.is-sel b { color: #142220; }
+.h-cal__day { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.08); }
+.h-cal__dt { margin: 0 0 6px; font: 600 13px Inter, sans-serif; color: rgba(237,242,232,.6); }
+.h-cal__dt::first-letter { text-transform: uppercase; }
