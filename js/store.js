@@ -1,8 +1,8 @@
 // Данные прототипа и все действия над ними. Хранятся только в этом браузере (localStorage).
 // Модель повторяет «Скелет системы»: заказ → звенья передачи → начисления; комнаты → стены → смета.
 
-import { makeSeed, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=167';
-import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=167';
+import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=168';
+import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=168';
 
 const KEY = 'metronika-prototype-v2';
 let state;
@@ -13,7 +13,13 @@ function load() {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      if (s && s.version === 2) return s;
+      if (s && s.version === 2) {
+        // Демо-опыт мастеров с материалами добавляется и в уже сохранённые данные.
+        s.reviews = s.reviews || [];
+        const have = new Set(s.reviews.map((r) => r.demo).filter(Boolean));
+        DEMO_REVIEWS.filter((r) => !have.has(r.demo)).forEach((r) => s.reviews.unshift({ ...r, at: new Date(Date.now() + r.day * 864e5).toISOString() }));
+        return s;
+      }
     }
   } catch (e) { /* хранилище недоступно — работаем в памяти */ }
   return freshState();
@@ -166,7 +172,7 @@ export function addMaterial(m) {
   save();
   return rec;
 }
-export const reviewsOf = (barcode) => state.reviews.filter((r) => r.barcode === barcode).slice().reverse();
+export const reviewsOf = (barcode) => state.reviews.filter((r) => r.barcode === barcode).slice().sort((a, b) => String(b.at).localeCompare(String(a.at)));
 export function addReview(barcode, text) { state.reviews.push({ barcode, authorId: me().id, text, at: nowStamp() }); save(); }
 
 // ================= цены =================

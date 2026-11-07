@@ -165,7 +165,7 @@ export function makeSeed() {
       { barcode: '4006296123456', brand: 'Rasch', name: 'Tiles & More', type: 'paper', width: 0.53, length: 10.05, rapport: 0, source: 'maker', status: 'confirmed', makerId: 'mk-rasch' },
       { barcode: '4601234500017', brand: 'Erismann', name: 'Фон под покраску', type: 'paint', width: 1.06, length: 25, rapport: 0, source: 'maker', status: 'confirmed', makerId: 'mk-erismann' },
     ],
-    reviews: [{ barcode: '4601234567890', authorId: 'u-sergey', text: 'Легко стыкуются. После высыхания швы не разошлись.', at: stamp(-30) }],
+    reviews: [{ barcode: '4601234567890', authorId: 'u-sergey', text: 'Легко стыкуются. После высыхания швы не разошлись.', at: stamp(-30) }, ...DEMO_REVIEWS.map((r) => ({ ...r, at: stamp(r.day) }))],
     orders,
     links: [],
     settlements: [],
@@ -178,3 +178,17 @@ export function makeSeed() {
     ],
   };
 }
+
+// Опыт других мастеров с материалами — для показа в «Материале». Фото — условные кадры (шов, угол, стена).
+export const DEMO_REVIEWS = [
+  { demo: 'r1', barcode: '4601234567890', authorId: 'u-andrey', day: -4, photos: ['seam', 'wall'], text: 'Клей наносить только на стену, полотно сухое. Раппорт 64 см — на 2,7 м уходит 3 полосы из рулона, остаток идёт на откосы.' },
+  { demo: 'r2', barcode: '4601234567890', authorId: 'u-oleg', day: -11, photos: ['corner'], text: 'Во внутренних углах заводить на 1–2 см и резать по уровню, иначе рисунок уезжает. Швы прикатывать резиновым валиком, пластиковым — блестят.' },
+  { demo: 'r3', barcode: '4601234567890', authorId: 'u-ivan', day: -19, photos: [], text: 'Тонкие, на тёмной шпаклёвке просвечивают. Лучше прогрунтовать белым.' },
+  { demo: 'r4', barcode: '4607084950012', authorId: 'u-andrey', day: -7, photos: ['wall', 'seam'], text: 'Винил тяжёлый, клей — для виниловых, не универсальный. Стык встык, без нахлёста. За сутки сели ровно.' },
+  { demo: 'r5', barcode: '4607084950012', authorId: 'u-oleg', day: -15, photos: [], text: 'Рисунок крупный, раппорт съедает много — бери на рулон больше, чем по расчёту.' },
+  { demo: 'r6', barcode: '4006296123456', authorId: 'u-ivan', day: -9, photos: ['corner'], text: 'Бумажные: клей на полотно, выдержать 5 минут. Не тянуть — рвутся. Пузыри уходят сами, когда высохнет.' },
+  { demo: 'r8', barcode: '4609876543210', authorId: 'u-oleg', day: -3, photos: ['seam', 'corner'], text: 'Плотные, не тянутся. Клей густой, по стене валиком. Стыки почти не видны даже на просвет.' },
+  { demo: 'r9', barcode: '4609876543210', authorId: 'u-ivan', day: -8, photos: ['wall'], text: 'Резать только новым лезвием на каждую полосу — край мохрится.' },
+  { demo: 'r10', barcode: '4609876543210', authorId: 'u-andrey', day: -16, photos: [], text: 'Брал на кухню, моются нормально. На запас — плюс один рулон обязательно, партии отличаются по тону.' },
+  { demo: 'r7', barcode: '4601234500017', authorId: 'u-andrey', day: -12, photos: ['wall'], text: 'Под покраску — идеально выравнивают мелкие трещины. Красить не раньше чем через двое суток.' },
+];

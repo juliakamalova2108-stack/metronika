@@ -296,3 +296,9 @@
 .mw .z-mplate .z-rvbox { border: 0; border-top: 1px solid var(--g-line-soft); border-radius: 0; background: none; box-shadow: none; margin: 0 14px; padding: 12px 0 14px; }
 .mw .z-mplate .z-rvbox__t, .mw .z-mplate .z-rv__none { margin-left: 0; margin-right: 0; }
 .mw .z-mplate .z-rvs { margin: 0 -14px; }
+/* фото в отзыве мастера — условные кадры */
+.mw .z-rv__ph { display: flex; gap: 6px; }
+.mw .z-ph { display: block; width: 64px; height: 64px; border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18); }
+.mw .z-ph--seam { background: linear-gradient(90deg, #d9cdb6 0 48%, #bfb196 48% 50%, #e3d8c3 50%), #d9cdb6; background-blend-mode: multiply; }
+.mw .z-ph--wall { background: repeating-linear-gradient(90deg, #cfc2a8 0 18px, #c3b598 18px 19px), linear-gradient(180deg, #e8dfcc, #b7a98d); background-blend-mode: multiply; }
+.mw .z-ph--corner { background: linear-gradient(100deg, #e4d9c4 0 52%, #9f9078 52% 54%, #c8baa0 54%); }
