@@ -1678,3 +1678,6 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .mc--s.is-lock .mc__foot, .mc--s.is-lock .mc__no { color: rgba(237,242,232,.45); text-shadow: none; }
 .ra-grid .mc.is-cur { box-shadow: 0 0 0 2px #142220, 0 0 0 3.5px var(--hi), 0 0 24px color-mix(in srgb, var(--m3) 60%, transparent); }
 @media (prefers-reduced-motion: reduce) { .mc[data-tilt]::after { animation: none; display: none; } .mc[data-tilt] { transform: none; } }
+.mc[data-tilt] .mc__name { margin-bottom: 5px; }
+.mc__thr { margin: 0 0 10px; font: 500 11.5px/1 Inter, sans-serif; color: var(--hi); opacity: .8; }
+.mc__chip .rc-medal svg { stroke-width: 1.6; }

@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=224';
-import * as S from './store.js?v=224';
-import { renderOformit, oformitDraft } from './oformit.js?v=224';
-import { roomTotals, svcInfo } from './ocenka.js?v=224';
-import { smetaTotals } from './zakaz.js?v=224';
-import { bookedDays } from './grafik.js?v=224';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=224';
-import { esc, toast } from './ui.js?v=224';
+import { actions, rerender, go } from './core.js?v=225';
+import * as S from './store.js?v=225';
+import { renderOformit, oformitDraft } from './oformit.js?v=225';
+import { roomTotals, svcInfo } from './ocenka.js?v=225';
+import { smetaTotals } from './zakaz.js?v=225';
+import { bookedDays } from './grafik.js?v=225';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=225';
+import { esc, toast } from './ui.js?v=225';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -474,11 +474,11 @@ export function renderHome() {
   // Карточки рангов — как коллекционные образцы обоев: металл ступени (фольга), узор ступени, медальон с инструментом.
   // Полученные — «лицевая» сторона, текущая — крупно сверху, будущие — тёмные, с замком и порогом.
   const MEDAL = [
-    '<path d="M7 20c2-1 3-3 3-6M10 14l6-9a2 2 0 0 1 3 2l-6 9M10 14l3 2"/>',                                                    // кисть
-    '<rect x="4" y="4" width="13" height="6" rx="2"/><path d="M17 7h2v5h-8v3"/><rect x="9.5" y="15" width="3" height="5" rx="1"/>',  // валик
-    '<rect x="3" y="9" width="18" height="6" rx="2"/><circle cx="12" cy="12" r="1.6"/><path d="M8 9v6M16 9v6"/>',             // уровень
-    '<path d="M12 4l2.3 4.8 5.2.7-3.8 3.6.9 5.2L12 16l-4.6 2.3.9-5.2L4.5 9.5l5.2-.7z"/>',                                      // звезда
-    '<path d="M4 17h16l1-9-5 4-4-6-4 6-5-4z"/><path d="M5 20h14"/>',                                                         // корона
+    '<path d="M12 20v-7"/><path d="M12 13c0-4 3-7 7-7 0 4-3 7-7 7z"/><path d="M12 15c0-3-2.5-5.5-6-5.5 0 3 2.5 5.5 6 5.5z"/>',
+    '<path d="M12 4l8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 16l8 4 8-4"/>',
+    '<path d="M7 4h10l4 5-9 11L3 9z"/><path d="M3 9h18"/><path d="M9 4l-2 5 5 11 5-11-2-5"/>',
+    '<path d="M12 3c.6 4.2 2.8 6.4 7 7-4.2.6-6.4 2.8-7 7-.6-4.2-2.8-6.4-7-7 4.2-.6 6.4-2.8 7-7z"/><path d="M19 3v4M17 5h4"/>',
+    '<path d="M4 8l4 4 4-7 4 7 4-4-1.5 10h-13z"/><path d="M6 21h12"/>',
   ];
   const medal = (t) => `<span class="rc-medal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${MEDAL[t - 1]}</svg></span>`;
   const TIERS = ['Старт', 'Мастера', 'Профи', 'Эксперты', 'Вершина'];
@@ -497,6 +497,7 @@ export function renderHome() {
         <div class="mc__row"><span class="mc__brand">Metronica</span><span class="mc__tier">${TIERS[t - 1]}</span></div>
         <div class="mc__chip">${medal(t)}</div>
         <h3 class="mc__name">${esc(r[0])}</h3>
+        <p class="mc__thr">${r[1] === 0 ? 'с первого дня' : `от ${fmt(r[1])} описанных обоев`}</p>
         <div class="mc__row mc__row--end"><span class="mc__owner"><small>Мастер</small>${esc(fullName)}</span><span class="mc__no"><small>Ранг</small>${String(i + 1).padStart(2, '0')} / ${RANKS.length}</span></div>
       </div></article>`;
     return `<article class="mc mc--s mc--t${t} ${st}"><div class="mc__metal"></div><div class="mc__body">
