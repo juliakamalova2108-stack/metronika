@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=211';
-import * as S from './store.js?v=211';
-import { renderOformit, oformitDraft } from './oformit.js?v=211';
-import { roomTotals, svcInfo } from './ocenka.js?v=211';
-import { smetaTotals } from './zakaz.js?v=211';
-import { bookedDays } from './grafik.js?v=211';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=211';
-import { esc, toast } from './ui.js?v=211';
+import { actions, rerender, go } from './core.js?v=212';
+import * as S from './store.js?v=212';
+import { renderOformit, oformitDraft } from './oformit.js?v=212';
+import { roomTotals, svcInfo } from './ocenka.js?v=212';
+import { smetaTotals } from './zakaz.js?v=212';
+import { bookedDays } from './grafik.js?v=212';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=212';
+import { esc, toast } from './ui.js?v=212';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -447,11 +447,11 @@ export function renderHome() {
   // 25 рангов, 5 ступеней по 5 (цвет значка): Старт · Мастера · Профи · Эксперты · Вершина.
   // Порог — описано разных обоев. До Мастера — легко, до Профи — сложнее, с Знатока — очень сложно; Легенда — 1000.
   const RANKS = [
-    ['Новичок', 0, 1], ['Ученик', 1, 1], ['Стажёр', 2, 1], ['Младший специалист', 4, 1], ['Специалист', 6, 1],
-    ['Мастер', 10, 2], ['Супер-мастер', 15, 2], ['Топ-мастер', 20, 2], ['Мега-мастер', 27, 2], ['Грандмастер', 35, 2],
-    ['Профи', 45, 3], ['Супер-профи', 57, 3], ['Топ-профи', 70, 3], ['Мега-профи', 85, 3], ['Чемпион', 102, 3],
-    ['Знаток', 150, 4], ['Эксперт', 200, 4], ['Топ-эксперт', 260, 4], ['Наставник', 330, 4], ['Мэтр', 410, 4],
-    ['Магистр', 500, 5], ['Маэстро', 600, 5], ['Гуру', 720, 5], ['Топ-гуру', 850, 5], ['Легенда', 1000, 5]];
+    ['Новичок', 0, 1], ['Ученик', 1, 1], ['Стажёр', 2, 1], ['Младший специалист', 3, 1], ['Специалист', 5, 1],
+    ['Мастер', 10, 2], ['Супер-мастер', 15, 2], ['Топ-мастер', 20, 2], ['Мега-мастер', 25, 2], ['Грандмастер', 30, 2],
+    ['Профи', 40, 3], ['Супер-профи', 50, 3], ['Топ-профи', 60, 3], ['Мега-профи', 75, 3], ['Чемпион', 100, 3],
+    ['Знаток', 150, 4], ['Эксперт', 200, 4], ['Топ-эксперт', 250, 4], ['Наставник', 300, 4], ['Мэтр', 400, 4],
+    ['Магистр', 500, 5], ['Маэстро', 600, 5], ['Гуру', 700, 5], ['Топ-гуру', 800, 5], ['Легенда', 1000, 5]];
   const ri = RANKS.reduce((k, r, i) => (described >= r[1] ? i : k), 0);
   const rank = RANKS[ri][0], tier = RANKS[ri][2], nextR = RANKS[ri + 1];
   const rankPct = nextR ? Math.max(4, Math.round(((described - RANKS[ri][1]) / (nextR[1] - RANKS[ri][1])) * 100)) : 100;
