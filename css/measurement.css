@@ -274,3 +274,17 @@
 .mw .z-mfoot { display: flex; justify-content: flex-start; padding-top: 2px; }
 .mw .z-mbody .z-mempty { margin: 6px 0; }
 .mw .z-mcode { font: 500 10.5px/1 var(--font-num); font-style: normal; letter-spacing: 0.06em; color: var(--ink-dim); }
+/* «Опыт мастеров»: одно окошко, отзывы листаются вбок, последняя карточка — свой опыт */
+.mw .z-rvbox { padding: 12px 0 14px; border: 0.9px solid var(--g-dark-line); border-radius: 14px; background: linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); box-shadow: var(--deep-shadow); }
+.mw .z-rvbox__t { display: flex; justify-content: space-between; align-items: baseline; margin: 0 14px 10px; font: 600 12px/16px var(--font-body); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-mute); }
+.mw .z-rvbox__t small { font: 400 11px/16px var(--font-body); text-transform: none; letter-spacing: 0; color: var(--ink-dim); }
+.mw .z-rvs { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 14px; scroll-padding: 0 14px; scrollbar-width: none; }
+.mw .z-rvs::-webkit-scrollbar { display: none; }
+.mw .z-rv { flex: 0 0 86%; scroll-snap-align: start; display: flex; flex-direction: column; gap: 8px; min-height: 112px; padding: 12px; border-radius: 12px; border: 1px solid var(--g-line-soft); background: rgba(255, 255, 255, 0.04); }
+.mw .z-rv__who { display: flex; align-items: center; gap: 8px; }
+.mw .z-rv__who b { font: 600 14px/1.2 var(--font-body); color: #fff; }
+.mw .z-rv__who small { margin-left: auto; font: 400 11px/1 var(--font-body); color: var(--ink-dim); }
+.mw .z-rv__text { margin: 0; font: 400 13px/1.45 var(--font-body); color: var(--ink-mute); }
+.mw .z-rv--mine { border-style: dashed; }
+.mw .z-rv--mine textarea { width: 100%; min-height: 64px; }
+.mw .z-rv__send { align-self: flex-end; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--g-btn-line); background: var(--g-btn); box-shadow: var(--btn-shadow); font: 600 13px/1 var(--font-body); color: var(--ink); }

@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=164';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=165';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=164';
-import * as S from './store.js?v=164';
-import { WALLPAPER_TYPES } from './seed.js?v=164';
-import { esc, toast } from './ui.js?v=164';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=164';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=164';
-import { country } from './phonecodes.js?v=164';
-import { suggestAddress } from './address.js?v=164';
-import { suggesters } from './kbd.js?v=164';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=164';
+import { actions, changes, rerender } from './core.js?v=165';
+import * as S from './store.js?v=165';
+import { WALLPAPER_TYPES } from './seed.js?v=165';
+import { esc, toast } from './ui.js?v=165';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=165';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=165';
+import { country } from './phonecodes.js?v=165';
+import { suggestAddress } from './address.js?v=165';
+import { suggesters } from './kbd.js?v=165';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=165';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -230,19 +230,18 @@ function renderMaterial(d) {
   } else {
     const idx = r.active; const { it, rolls: n, text } = items[idx];
     const x = S.material(it.code); const key = `mat-${room.key}-${idx}`;
-    const mineTab = (segState[key] || 'all') === 'mine';
-    const reviews = S.reviewsOf(it.code).filter((v) => v.authorId !== S.me().id);
-    const rv = reviews[(it.rv || 0) % Math.max(1, reviews.length)];
-    const exp = mineTab
-      ? `<div class="o-card z-exp"><button type="button" class="z-photo" data-action="z-photo" aria-label="Добавить фото">+</button>
-          ${area('z-m-note-' + idx, '', it.note || '', { ph: 'Как клеится, стыкуется, на что обратить внимание', live: `z-mnote:${idx}` })}</div>
-          ${row(btn('Поделиться опытом', 'z-mat-share', { data: `data-i="${idx}"` }))}`
-      : `<div class="o-card z-exp">${rv ? `<div class="z-exp__who"><span class="z-ava">${esc(S.user(rv.authorId).name[0])}</span><b>${esc(S.user(rv.authorId).name.split(' ')[0])}</b>
-          ${reviews.length > 1 ? `<span class="z-exp__nav"><button type="button" class="f-icon-btn" data-action="z-rv" data-i="${idx}" data-d="-1" aria-label="Предыдущий отзыв">‹</button><button type="button" class="f-icon-btn" data-action="z-rv" data-i="${idx}" data-d="1" aria-label="Следующий отзыв">›</button></span>` : ''}</div>
-          <p class="z-exp__text">${esc(rv.text)}</p>` : '<p class="z-muted">Мастера пока не делились опытом с этим материалом.</p>'}</div>`;
+    // «Опыт мастеров» — одно окошко: отзывы листаются вбок, последняя карточка — свой опыт.
+    const reviews = S.reviewsOf(it.code);
+    const card = (v) => { const u = S.user(v.authorId); const mine = v.authorId === S.me().id;
+      return `<article class="z-rv"><div class="z-rv__who"><span class="z-ava">${esc(u.name[0])}</span><b>${esc(mine ? 'Вы' : u.name.split(' ')[0])}</b><small>${v.at ? new Date(v.at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : ''}</small></div><p class="z-rv__text">${esc(v.text)}</p></article>`; };
+    const mineCard = `<article class="z-rv z-rv--mine"><div class="z-rv__who"><b>Мой опыт</b></div>
+      ${area('z-m-note-' + idx, '', it.note || '', { ph: 'Как клеится, стыкуется, на что обратить внимание', live: `z-mnote:${idx}` })}
+      <button type="button" class="z-rv__send" data-action="z-mat-share" data-i="${idx}">Поделиться</button></article>`;
+    const exp = `<section class="z-rvbox"><p class="z-rvbox__t">Опыт мастеров<small>${reviews.length ? reviews.length + ' · листайте' : 'пока нет'}</small></p>
+      <div class="z-rvs">${reviews.map(card).join('')}${mineCard}</div></section>`;
     body = `<div class="z-mhead">${MAT_SAMPLE}<span class="z-mline__t"><i class="z-mcode">${esc(it.code)}</i><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span>
         <span class="z-mrolls"><b>${n || '—'}</b><small>${n ? 'рулонов' : ''}</small></span></div>
-      ${seg(key, [['all', 'Опыт мастеров'], ['mine', 'Мой опыт']], segState[key] || 'all')}${exp}
+      ${exp}
       <div class="z-mfoot"><button type="button" class="wall-delete" data-action="z-mat-del" data-i="${idx}" aria-label="Убрать материал из комнаты">${TRASH_SVG}</button></div>`;
   }
   const folds = `<div class="mw z-mw" style="--rc: ${color}">${t.html}<div class="wallbody z-mbody" style="border-radius: ${t.radius}">${body}</div></div>`;
