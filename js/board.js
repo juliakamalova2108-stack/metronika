@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=244';
-import * as S from './store.js?v=244';
-import { renderOformit, oformitDraft } from './oformit.js?v=244';
-import { roomTotals, svcInfo } from './ocenka.js?v=244';
-import { smetaTotals } from './zakaz.js?v=244';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=244';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=244';
-import { esc, toast } from './ui.js?v=244';
+import { actions, rerender, go } from './core.js?v=245';
+import * as S from './store.js?v=245';
+import { renderOformit, oformitDraft } from './oformit.js?v=245';
+import { roomTotals, svcInfo } from './ocenka.js?v=245';
+import { smetaTotals } from './zakaz.js?v=245';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=245';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=245';
+import { esc, toast } from './ui.js?v=245';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -560,7 +560,7 @@ export function renderHome() {
 
   // ── Шапка ──
   const head = `<div class="h-bar"><span></span>
-      <span class="h-bar__r"><span class="h-icb h-bell" aria-label="Требует действия: ${att.length}">${HI.bell}${att.length ? `<b>${att.length}</b>` : ''}</span>
+      <span class="h-bar__r">%%BELL%%
       <button type="button" class="h-icb h-new" data-action="go" data-to="oformit" aria-label="Новый заказ">${PLUS}<span>Заказ</span></button></span></div>
     ${meHtml}`;
 
@@ -685,12 +685,48 @@ export function renderHome() {
   const tasksHtml = `<section class="h-block"><div class="h-block__hd"><h2>Задачи и замеры</h2>${tasks.length ? `<span class="h-sub">задачи ${done} из ${tasks.length}</span>` : ''}</div>
     ${measRows}${taskRows}${meas.some((m) => m.off > 0) || tasks.length ? '' : '<p class="h-free">Задач и замеров пока нет</p>'}</section>`;
 
+  // ── Уведомления (колокольчик): что требует действия + напоминания о ближайших выездах и замерах ──
+  const N = [];
+  const CAL = ic('<rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>');
+  const nAdd = (id, k, icon, t, sub, when, act) => N.push({ id, k, icon, t, sub, when, act });
+  const toTab = (no, tab) => `data-action="home-notif-go" data-to="bd-edit" data-no="${no}" data-tab="${tab}"`;
+  const toOrder = (no) => `data-action="home-notif-go" data-to="bd-open" data-no="${no}"`;
+  // замеры: сегодня и завтра
+  meas.filter((m) => m.off <= 1).forEach((m) => nAdd(`meas-${m.no}-${iso(m.off)}`, 'meas', RULER, m.off === 0 ? `Сегодня замер в ${m.time}` : `Завтра замер в ${m.time}`, `№${m.no} · ${short(m.n)} · ${m.a}`, m.off === 0 ? 'сегодня' : 'завтра', m.demo ? toTab(m.no, 'smeta') : ''));
+  // выезды: завтра и старт заказа через 2–3 дня
+  const firstOff = {}; QUEUE.forEach(([off, key]) => { if (key && off >= 0) { const no = R[key].c.no; if (firstOff[no] == null) firstOff[no] = off; } });
+  QUEUE.filter(([off, key]) => off === 1 && key).forEach(([, key, , time]) => { const x = R[key]; nAdd(`visit-${x.c.no}-${key}-${iso(1)}`, 'visit', CAL, `Завтра выезд в ${time}`, `№${x.c.no} · ${short(x.c.n)} · ${x.r}`, 'завтра', toOrder(x.c.no)); });
+  Object.entries(firstOff).filter(([no, off]) => off >= 2 && off <= 3 && !QUEUE.some(([o2, key]) => o2 < 0 && key && R[key].c.no === no))
+    .forEach(([no, off]) => nAdd(`start-${no}-${iso(off)}`, 'visit', CAL, `Через ${off} ${off === 1 ? 'день' : 'дня'} начинается заказ №${no}`, `${short(CL[no].n)} · ${CL[no].a}`, `через ${off} дн`, toOrder(no)));
+  // что требует действия
+  att.forEach((a) => nAdd(`att-${a.k}-${a.no}`, a.k, a.icon, a.t, a.s, '', toTab(a.no, a.tab)));
+  // материала нет, а выезд через 1–2 дня
+  Object.entries(firstOff).filter(([, off]) => off >= 1 && off <= 2).forEach(([no, off]) => { const o = homeOrder(no);
+    const has = o.mat && Object.values(o.mat.rooms || {}).some((r) => r.added || (r.items || []).length);
+    if (!has) nAdd(`mat-${no}`, 'roll', HI.roll, 'Материал не добавлен', `№${no} · ${short(CL[no].n)} · выезд ${off === 1 ? 'завтра' : 'через 2 дня'}`, '', toTab(no, 'material')); });
+  const readSet = new Set(S.get().notifRead || []);
+  const unreadN = N.filter((x) => !readSet.has(x.id)).length;
+  const bellHtml = `<button type="button" class="h-icb h-bell" data-action="home-notif" aria-label="Уведомления${unreadN ? `: ${unreadN} новых` : ''}">${HI.bell}${unreadN ? `<b>${unreadN}</b>` : ''}</button>`;
+  const notifSheet = () => `<div class="rk-scrim" data-action="home-notif-close"></div><section class="rk nt" role="dialog" aria-label="Уведомления">
+      <button type="button" class="rk__x" data-action="home-notif-close" aria-label="Закрыть">×</button>
+      <div class="nt__hd"><h2>Уведомления</h2>${unreadN ? '<button type="button" class="nt__all" data-action="home-notif-all">Прочитать все</button>' : ''}</div>
+      ${N.length ? `<div class="nt__list">${N.map((x) => `<button type="button" class="nt__row nt__row--${x.k}${readSet.has(x.id) ? ' is-read' : ''}" data-id="${x.id}" ${x.act || 'data-action="home-notif-read"'}>
+        <span class="nt__ic">${x.icon}</span><span class="nt__t"><b>${esc(x.t)}</b><small>${esc(x.sub)}</small></span>${readSet.has(x.id) ? '' : '<i class="nt__dot"></i>'}</button>`).join('')}</div>`
+        : '<p class="h-free">Уведомлений нет</p>'}</section>`;
+
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
-    ${homeRanks ? ranksSheet() : ''}
-    <div class="h-page">${head}${heroHtml}${measTodayHtml}${calHtml}</div>
+    ${homeRanks ? ranksSheet() : ''}${homeNotif ? notifSheet() : ''}
+    <div class="h-page">${head.replace('%%BELL%%', bellHtml)}${heroHtml}${measTodayHtml}${calHtml}</div>
     <button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
 }
 let homeRanks = false;
+let homeNotif = false;
+const notifRead = (id) => { const st = S.get(); st.notifRead = st.notifRead || []; if (id && !st.notifRead.includes(id)) st.notifRead.push(id); S.save(); };
+actions['home-notif'] = () => { homeNotif = true; rerender(); };
+actions['home-notif-close'] = () => { homeNotif = false; rerender(); };
+actions['home-notif-read'] = (el) => { notifRead(el.dataset.id); rerender(); };
+actions['home-notif-all'] = () => { document.querySelectorAll('.nt__row').forEach((r) => notifRead(r.dataset.id)); rerender(); };
+actions['home-notif-go'] = (el) => { notifRead(el.dataset.id); homeNotif = false; actions[el.dataset.to](el); };
 let rankView = null;   // какая карта показана крупно (null — текущий ранг мастера)
 actions['home-rank-view'] = (el) => { rankView = Number(el.dataset.i); rerender(); const b = document.querySelector('.rk'); if (b) b.scrollTo({ top: 0, behavior: 'smooth' }); };
 // Наклон главной карты за пальцем/мышью и блик там, где «свет» (одно живое движение экрана).
