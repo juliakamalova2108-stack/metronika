@@ -1438,6 +1438,8 @@ body.fig .h-page { padding-bottom: 88px; }
 /* цвет значка ранга по ступени: начало — серо-зелёный, середина — лайм, верх — золото, Гуру/Легенда — перелив */
 .h-rate--t1 { background: rgba(255, 255, 255, 0.08); border-color: rgba(214, 229, 194, 0.22); color: rgba(237, 242, 232, 0.85); }
 .h-rate--t2 { background: linear-gradient(180deg, rgba(227, 238, 211, 0.24), rgba(159, 211, 169, 0.16)); border-color: rgba(214, 229, 194, 0.4); color: #e3eed3; }
-.h-rate--t3 { background: linear-gradient(180deg, rgba(242, 196, 109, 0.28), rgba(232, 145, 58, 0.16)); border-color: rgba(242, 196, 109, 0.5); color: #f6d58f; }
-.h-rate--t4 { background: linear-gradient(120deg, #f6d58f, #e3eed3, #9fd3e8, #f6d58f); background-size: 300% 100%; animation: rankShine 6s linear infinite; border-color: transparent; color: #17292a; }
+.h-rate--t4 { background: linear-gradient(180deg, rgba(242, 196, 109, 0.28), rgba(232, 145, 58, 0.16)); border-color: rgba(242, 196, 109, 0.5); color: #f6d58f; }
+.h-rate--t5 { background: linear-gradient(120deg, #f6d58f, #e3eed3, #9fd3e8, #f6d58f); background-size: 300% 100%; animation: rankShine 6s linear infinite; border-color: transparent; color: #17292a; }
 @keyframes rankShine { to { background-position: 300% 0; } }
+/* ступень «Профи» — бирюза */
+.h-rate--t3 { background: linear-gradient(180deg, rgba(126, 214, 214, 0.26), rgba(122, 167, 214, 0.16)); border-color: rgba(126, 214, 214, 0.45); color: #bdeeee; }
