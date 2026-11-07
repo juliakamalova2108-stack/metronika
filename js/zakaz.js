@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=168';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=169';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=168';
-import * as S from './store.js?v=168';
-import { WALLPAPER_TYPES } from './seed.js?v=168';
-import { esc, toast } from './ui.js?v=168';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=168';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=168';
-import { country } from './phonecodes.js?v=168';
-import { suggestAddress } from './address.js?v=168';
-import { suggesters } from './kbd.js?v=168';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=168';
+import { actions, changes, rerender } from './core.js?v=169';
+import * as S from './store.js?v=169';
+import { WALLPAPER_TYPES } from './seed.js?v=169';
+import { esc, toast } from './ui.js?v=169';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=169';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=169';
+import { country } from './phonecodes.js?v=169';
+import { suggestAddress } from './address.js?v=169';
+import { suggesters } from './kbd.js?v=169';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=169';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -234,8 +234,8 @@ function renderMaterial(d) {
     const reviews = S.reviewsOf(it.code).filter((v) => v.authorId !== S.me().id);
     const card = (v) => { const u = S.user(v.authorId); const mine = v.authorId === S.me().id;
       return `<article class="z-rv"><div class="z-rv__who"><span class="z-ava">${esc(u.name[0])}</span><b>${esc(mine ? 'Вы' : u.name.split(' ')[0])}</b><small>${v.at ? new Date(v.at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : ''}</small></div>${(v.photos || []).length ? `<div class="z-rv__ph">${v.photos.map((k) => `<i class="z-ph z-ph--${esc(k)}" aria-label="Фото"></i>`).join('')}</div>` : ''}<p class="z-rv__text">${esc(v.text)}</p></article>`; };
-    const exp = `<div class="z-rvbox"><p class="z-rvbox__t">Опыт мастеров<small>${reviews.length > 1 ? reviews.length + ' · листайте' : ''}</small></p>
-      ${reviews.length ? `<div class="z-rvs">${reviews.map(card).join('')}</div>` : '<p class="z-rv__none">Мастера пока не делились опытом с этим материалом.</p>'}</div>`;
+    const exp = `<div class="z-rvbox"><p class="z-rvbox__t">Опыт мастеров${reviews.length > 1 ? `<span class="z-rvnav"><button type="button" class="z-rvnav__b" data-rv-go="-1" aria-label="Предыдущий отзыв">‹</button><small class="z-rvnav__n"><b>1</b> / ${reviews.length}</small><button type="button" class="z-rvnav__b" data-rv-go="1" aria-label="Следующий отзыв">›</button></span>` : ''}</p>
+      ${reviews.length ? `<div class="z-rvs">${reviews.map(card).join('')}</div>${reviews.length > 1 ? `<div class="z-rvdots">${reviews.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>` : ''}` : '<p class="z-rv__none">Мастера пока не делились опытом с этим материалом.</p>'}</div>`;
     body = `<section class="z-mplate"><div class="z-mhead">${MAT_SAMPLE}<span class="z-mline__t"><i class="z-mcode">${esc(it.code)}</i><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span>
         <span class="z-mrolls"><b>${n || '—'}</b><small>${n ? 'рулонов' : ''}</small></span></div>
       ${exp}</section>
@@ -612,3 +612,18 @@ document.addEventListener('kb-pick', (ev) => {
   if (c.err) { delete c.err.street; if (x.house) delete c.err.house; }
   save();
 });
+
+// Листание отзывов: пальцем — вбок, мышкой — стрелками ‹ ›; точки и «1 / 3» показывают, какой отзыв открыт.
+const rvIndex = (sc) => { const c = sc.querySelector('.z-rv'); return c ? Math.round(sc.scrollLeft / (c.offsetWidth + 10)) : 0; };
+const rvMark = (box) => { const sc = box.querySelector('.z-rvs'); if (!sc) return; const i = rvIndex(sc);
+  box.querySelectorAll('.z-rvdots i').forEach((d, k) => d.classList.toggle('on', k === i));
+  const nb = box.querySelector('.z-rvnav__n b'); if (nb) nb.textContent = i + 1; };
+document.addEventListener('click', (ev) => {
+  const b = ev.target.closest && ev.target.closest('[data-rv-go]'); if (!b) return;
+  ev.preventDefault(); ev.stopPropagation();
+  const box = b.closest('.z-rvbox'); const sc = box && box.querySelector('.z-rvs'); if (!sc) return;
+  const c = sc.querySelector('.z-rv'); const n = sc.querySelectorAll('.z-rv').length;
+  const i = Math.max(0, Math.min(n - 1, rvIndex(sc) + Number(b.dataset.rvGo)));
+  sc.scrollTo({ left: i * (c.offsetWidth + 10), behavior: 'smooth' });
+}, true);
+document.addEventListener('scroll', (ev) => { const sc = ev.target; if (sc.classList && sc.classList.contains('z-rvs')) rvMark(sc.closest('.z-rvbox')); }, true);
