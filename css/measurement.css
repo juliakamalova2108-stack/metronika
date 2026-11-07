@@ -1,540 +1,263 @@
-.mw { --ink:#edf0e7; --font-num:Manrope,sans-serif; --font-body:Inter,sans-serif; :root{--font-body:Inter,sans-serif;--font-num:Manrope,sans-serif;--ink:#edf0e7}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 35% 25%,#33534e77,transparent 65%),#092c2c;color:var(--ink);font:14px/1.4 var(--font-body);min-height:100vh}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid #ffd262;outline-offset:4px}main{max-width:600px;margin:36px auto;padding:0 18px}.wallcard{padding:0;filter:drop-shadow(0 10px 20px #001e1f80)}.walltab{width:214px;height:64px;margin-bottom:-1px;display:flex;align-items:center;padding:0 32px;border:1px solid #a4c4b6;border-bottom:0;border-radius:26px 30px 0 0;background:linear-gradient(150deg,#66837b80,#2f514b99);font:700 30px/1 var(--font-num)}.wallbody{border:1px solid #9cbdb1;border-radius:0 26px 26px 26px;background:linear-gradient(125deg,#68867a40,#19443e40 70%);box-shadow:inset 0 1px 2px #e1f3d142;overflow:hidden}.equation{display:grid;grid-template-columns:minmax(0,1fr) minmax(108px,.8fr) minmax(0,1fr);gap:5px;align-items:end;padding:32px 20px 26px;border-bottom:1px solid #bad3c12e}.eqplate{height:96px;border-radius:8px;position:relative;padding:13px 10px}.gross{border:1.5px solid #f7d36c;background:linear-gradient(135deg,#c9a64899,#ba9c3a35);box-shadow:inset 0 1px 7px #e6d89055}.gross b{font-weight:600;font-size:13px;display:block}.gross strong{font:700 21px/1.7 var(--font-num);white-space:nowrap}.opgroup{align-self:stretch;display:flex;flex-direction:column;justify-content:flex-end;gap:28px;padding-bottom:29px}.opgroup .caption{text-align:center;white-space:nowrap;font-size:11px;font-weight:600}.operators{display:flex;align-items:center;justify-content:space-around;gap:2px;color:#f8d265}.operators .IC{display:block;width:27px;height:37px}.operators .symbol{font:500 25px/1 var(--font-body);color:#edf0e7}.net{border:1.5px solid #89d9b4;background:linear-gradient(110deg,#28835eae,#3e9f6544);display:flex;align-items:center;gap:6px;box-shadow:inset 0 1px 7px #c4f2c655}.nettext{position:relative;z-index:1;min-width:0;flex:1}.nettext b{font-size:11px;font-weight:500;white-space:nowrap}.nettext strong{display:block;font:700 20px/1.5 var(--font-num);white-space:nowrap}.netgraphic{width:39%;height:62px;flex-shrink:0}.netgraphic svg{width:100%;height:100%;overflow:visible}.measurement{padding:21px 28px 0 50px}.dimension{height:46px;position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:5px}.dimline{position:absolute;left:0;right:0;top:23px;height:1px;background:#e9eee1}.dimline:before,.dimline:after{content:'';position:absolute;height:27px;width:1px;background:#e9eee1;top:-13px}.dimline:before{left:0}.dimline:after{right:0}.dimarrow{position:absolute;inset:0;width:100%;height:46px}.lengthfield{position:relative;display:flex;align-items:center;gap:4px;height:38px;padding:0 13px;border:2px solid #ffe193;border-radius:9px;background:linear-gradient(#e8c878,#efd89a);box-shadow:inset 0 1px 3px #715c3577,0 0 0 2px #bca655,0 2px 6px #071d1e80;color:#123b35}.lengthfield input{width:67px;min-width:0;border:0;background:none;outline:0;text-align:right;color:inherit;font:700 24px/1 var(--font-num);padding:0}.lengthfield span{font:600 17px var(--font-num)}.drawing{position:relative;line-height:0}.wall-svg{width:100%;height:auto;display:block;overflow:visible}.wall-svg text{fill:#edf0e7;font-family:var(--font-body)}.wall-svg .hole{cursor:pointer}.wall-svg .hole:hover rect{stroke:#f3cc65;fill:#b3c4a618}.heightdim{position:absolute;left:-40px;top:0;bottom:0;width:30px;display:flex;align-items:center;justify-content:center;font-size:13px;white-space:nowrap;line-height:1.4}.heightdim:before{content:'';position:absolute;left:14px;top:0;bottom:0;width:1px;background:#d3e4d3}.heightdim span{background:#163c37;position:relative;padding:5px 0}.heightcap{position:absolute;left:9px;right:0;border-top:1px solid #d3e4d3;top:0}.heightcap.bottom{top:auto;bottom:0}.joblist{position:absolute;left:5%;top:44%;width:53%;display:flex;flex-direction:column;gap:7px;line-height:1.4}.job{display:flex;align-items:center;gap:7px;position:relative;background:transparent;border:0;color:var(--ink);padding:2px 0;min-height:25px;text-align:left;width:100%;font-size:12px}.job i{height:17px;width:4px;border-radius:2px;flex:none;background:var(--wc)}.job span{flex:1;min-width:0}.job b{font-size:12px;white-space:nowrap;font-weight:600}.job:hover{background:#d5e3cb12}.job-empty{color:#c9d9c18a;font-size:12px;padding-top:15px}.footer{display:flex;align-items:center;gap:8px;margin:34px 15px 20px;border-radius:20px;border:1px solid #b2cdb94a;background:#6a887d25;padding:15px 13px}.addwork,.iconbutton{border:1px solid #a4bfb880;background:linear-gradient(#50716880,#23483f90);box-shadow:inset 0 1px 1px #eef3d833,0 3px 6px #021b1d40;border-radius:13px;height:55px;color:var(--ink)}.addwork{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;font-weight:600;font-size:18px}.addwork .plusicon{width:18px;height:18px;color:#ffc944}.iconbutton{width:51px;flex:none;display:grid;place-items:center}.iconbutton .IC{width:27px;height:31px;display:block}.price{margin-left:4px;padding-left:13px;border-left:1px solid #a4bdbb6a;flex:none}.price small{display:block;color:#b5c8be;font-size:14px}.price b{font:700 27px/1.5 var(--font-num);white-space:nowrap}.ed,.sheet2{font-family:var(--font-body)}.ed h3 .IC{width:28px;height:30px;display:inline-block;vertical-align:middle}.sheet2 .wl button{cursor:pointer}.ed input{min-width:0}.emptywarn{font-size:12px;color:#ffd278;text-align:center;margin:10px}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px;max-width:1280px;margin:auto}.comparison img,.comparison iframe{width:100%;border:0}.comparison iframe{height:1000px}.comparison img{height:auto}body.qa{background:#102c2c}.comparison h2{font-size:14px}
-@media(max-width:480px){main{margin:24px auto;padding:0 10px}.walltab{height:51px;width:166px;font-size:24px;padding-left:24px}.equation{padding:24px 12px 22px;grid-template-columns:1fr .85fr 1fr;gap:4px}.eqplate{height:80px;padding:9px 6px}.gross b,.nettext b{font-size:10px}.gross strong,.nettext strong{font-size:16px}.opgroup{gap:25px;padding-bottom:24px}.opgroup .caption{font-size:9px}.operators .IC{width:21px;height:29px}.operators .symbol{font-size:20px}.netgraphic{height:50px;width:30%}.measurement{padding:16px 16px 0 38px}.heightdim{left:-31px;width:24px;font-size:11px}.joblist{gap:3px;width:54%}.job,.job b{font-size:10px;min-height:23px}.job{gap:4px}.job i{height:15px;width:3px}.footer{margin:26px 10px 16px;padding:11px 8px;gap:5px}.addwork{font-size:15px;height:48px}.iconbutton{width:41px;height:48px}.price{padding-left:8px;margin-left:1px}.price small{font-size:11px}.price b{font-size:21px}.lengthfield{height:35px}.lengthfield input{font-size:22px;width:61px}}
-.joblist{width:46%}.netgraphic{width:34%}@media(max-width:480px){.joblist{width:46%}.netgraphic{width:32%}}
-.job,.job b{font-size:14px}.walltab{clip-path:polygon(0 0,87% 0,100% 100%,0 100%);width:235px}@media(max-width:480px){.job,.job b{font-size:11px}.walltab{width:190px}}
-.opening-list{width:min(460px,calc(100vw - 24px));max-height:85vh;padding:22px;display:flex;flex-direction:column;gap:16px}.opening-list-head{display:flex;align-items:center;justify-content:space-between;gap:14px}.opening-list-head h3{margin:0;display:flex;align-items:center;gap:10px}.list-close{border:1px solid #a1bcb066;border-radius:6px;background:#21443c;color:#edf0e7;padding:8px 10px;font-size:12px}.opening-list-rows{overflow-y:auto;min-height:0;max-height:60vh}.opening-list-row{padding:14px 0;border-top:1px solid #b4c6bc33}.opening-row-title{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;font-size:14px}.opening-row-title strong{font-family:var(--font-num)}.opening-row-fields{display:grid;grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr) auto;gap:8px;align-items:end}.opening-row-fields label{display:flex;flex-direction:column;gap:5px;font-size:11px;color:#c7d9ce}.opening-row-fields input{width:100%;height:40px;border:1px solid #a6c2b588;border-radius:6px;background:#638078;color:#fff;padding:0 8px;font-size:16px}.opening-row-fields>span{align-self:center;margin-top:16px}.remove-opening{height:40px;border:1px solid #f1ada666;border-radius:6px;background:#713d3933;color:#ffc0b9;padding:0 8px;font-size:11px}.opening-list-total{display:flex;justify-content:space-between;border-top:1px solid #b4c6bc55;padding-top:14px;font-size:14px}.opening-empty{color:#bbcec2;font-size:14px}.netgraphic svg{object-fit:contain}.mini-opening-diagram{aspect-ratio:auto!important;height:100%!important}@media(max-width:380px){.opening-list{padding:16px}.opening-row-fields{gap:5px}.remove-opening{padding:0 5px}}
-.wall-tabs{display:flex;align-items:end;gap:5px;flex-wrap:wrap}.wall-tab,.new-wall{border:1px solid #a4c4b680;background:#234a43;color:#c2d5ca;padding:12px 17px;border-radius:16px 16px 0 0;font:600 18px var(--font-num);cursor:pointer}.wall-tab.selected{background:linear-gradient(150deg,#66837bd0,#2f514bcc);color:#fff;border-bottom-color:transparent}.new-wall{font-size:27px;padding:4px 14px;align-self:center;border-radius:12px;color:#ffd16b}.total-tab{margin-left:auto}.drawing{border:1px solid #bfd9cd;min-height:210px;display:grid;grid-template-columns:53% 47%;align-items:stretch}.drawing .joblist{position:relative;top:auto!important;left:auto;width:auto;padding:14px 10px;grid-column:1;grid-row:1;justify-content:flex-start}.opening-columns{grid-column:2;grid-row:1;display:grid;grid-template-columns:3fr 2fr;gap:18px;padding:0 18px 0 0;align-items:stretch;line-height:1.4}.opening-shape{background:#082f2f;color:#edf0e7;border:1px solid #c9daca;padding:10px 3px;min-width:0;text-align:center;align-self:stretch;font-size:13px}.opening-shape.win{margin-top:30px;margin-bottom:48px;min-height:112px}.opening-shape.door{margin-top:42px;margin-bottom:-1px;min-height:168px}.opening-values{display:flex;flex-direction:column;gap:7px}.opening-values>span{white-space:nowrap}.netgraphic{position:absolute;right:6px;top:8px;bottom:0;height:auto!important;width:34%}.netgraphic .mini-room-wall{width:100%;height:100%;overflow:hidden}.nettext{max-width:70%}.room-summary{padding:24px}.room-summary h2{margin-top:0;font-size:22px}.summary-areas{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-bottom:18px}.summary-areas span{font-size:11px;color:#bacec1}.summary-areas b{display:block;font-size:17px;color:#edf0e7}.summary-wall{border-top:1px solid #9cbdb140;padding:12px 0}.summary-wall h3{display:flex;justify-content:space-between;font-size:16px}.summary-wall small{font-size:12px;font-weight:400}.room-summary p{font-size:12px;line-height:1.7}.room-summary p b{float:right}.room-price{display:flex;justify-content:space-between;border-top:1px solid #9cbdb180;padding-top:20px;font-size:20px}@media(max-width:480px){.wall-tab{padding:12px;font-size:15px}.opening-columns{gap:10px;padding-right:10px}.opening-shape{font-size:10px}.drawing .joblist{padding:12px 6px}.summary-areas b{font-size:14px}.room-summary{padding:16px}}
-.opening-shape{display:flex;align-items:flex-start;justify-content:center}.opening-values{width:100%}
+/* =====================================================================
+   Замер (вкладка «Замер» в «Оформить заказ», «Смета» в открытом заказе)
+   Один файл, без слоёв. Цвета задаются только здесь, в переменных .mw:
+   основа — графит, всё цветное — от цвета комнаты (--rc, его ставит js).
+   ===================================================================== */
 
+.mw {
+  /* цвет комнаты и его светлый оттенок */
+  --rc: #3b82f6;
+  --rc-light: color-mix(in srgb, var(--rc) 62%, #fff);
+  --rc-line: color-mix(in srgb, var(--rc) 45%, transparent);
+  /* графит */
+  --g-sheet: #3b3b3c;      /* пластина и выбранная закладка */
+  --g-sheet-mid: #333334;
+  --g-sheet-low: #2c2c2d;
+  --g-tab: #262627;        /* свёрнутые закладки */
+  --g-deep: #1d1d1e;       /* стена и «S рабочая» */
+  --g-deep-2: #232324;
+  --g-light: #555557;      /* «S общая» */
+  --g-light-2: #4a4a4c;
+  --g-btn: #2b2b2c;        /* кнопки, поля размеров */
+  --g-field: #1f1f20;
+  --g-line: rgba(255, 255, 255, 0.22);
+  --g-line-soft: rgba(255, 255, 255, 0.12);
+  /* шрифты замера */
+  --font-num: Manrope, sans-serif;
+  --font-body: Inter, sans-serif;
+  /* текст */
+  --ink: #edf0e7;
+  --ink-mute: rgba(237, 242, 232, 0.7);
+  --ink-dim: rgba(237, 242, 232, 0.6);
+  /* миллиметровка */
+  --paper:
+    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px) 0 0 / 30px 30px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px) 0 0 / 30px 30px,
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 6px 6px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 6px 6px;
+  --deep-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.55), inset 0 4px 10px rgba(0, 0, 0, 0.6);
+  --btn-shadow: 0 4px 7px rgba(0, 0, 0, 0.2), 0 2px 2.5px rgba(0, 0, 0, 0.3), inset 0 -2px 2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  /* засечка размерной линии */
+  --slash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M1 11L11 1' stroke='rgba(237,242,232,0.85)' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+
+  position: relative; margin-bottom: 24px; color: var(--ink);
+  filter: drop-shadow(0 22px 22px rgba(0, 0, 0, 0.55));
 }
-.mw .drawing{min-height:210px;height:auto}.mw .iconbutton svg{width:26px;height:30px}.mw .heightdim input{width:45px;background:#163c37;color:#edf0e7;border:1px solid #a4bfb8;font-size:11px}.mw .mw-dialog{max-height:80vh;overflow-y:auto}.mw .job span{overflow-wrap:anywhere}.mw .joblist{min-height:210px}.mw .wallbody{margin-bottom:24px}.mw .mw-opening-form{width:min(420px,calc(100vw - 24px));padding:24px;max-height:85vh;overflow-y:auto}.mw-opening-form h3{margin:0 0 12px}.mw-size-drawing{display:grid;grid-template-columns:90px 1fr;grid-template-rows:80px 200px;gap:16px;margin-bottom:24px}.mw-size-top{grid-column:2;position:relative;display:flex;justify-content:center;align-items:center;border-left:1px solid #bfd9cd;border-right:1px solid #bfd9cd}.mw-size-top:before{content:'';position:absolute;left:0;right:0;top:50%;border-top:1px solid #bfd9cd}.mw-size-left{grid-row:2;position:relative;display:flex;align-items:center;justify-content:center;border-top:1px solid #bfd9cd;border-bottom:1px solid #bfd9cd}.mw-size-left:before{content:'';position:absolute;top:0;bottom:0;left:50%;border-left:1px solid #bfd9cd}.mw-size-drawing label{position:relative;background:#294b46;padding:5px;border-radius:8px;display:block;width:90px}.mw-size-drawing label span{display:block;font-size:11px;margin-bottom:5px;color:#d5e4d7}.mw-size-drawing input{width:100%;border:1px solid #ffe193;border-radius:6px;background:#e8ce87;color:#143b35;padding:8px 4px;font:700 18px Manrope,sans-serif;text-align:center}.mw-size-figure{grid-column:2;grid-row:2;display:flex;justify-content:center;align-items:stretch;background:#123a35;border:1px solid #bed8cd}.mw-size-figure svg{width:100%;height:100%;color:#d2e7df}.mw-size-figure.is-door{width:65%;justify-self:center}@media(max-width:380px){.mw-size-drawing{grid-template-columns:76px 1fr;gap:10px}.mw-size-drawing label{width:76px}.mw .mw-opening-form{padding:18px}}
-.o-same .o-svc.mw-same-services{grid-template-columns:minmax(0,1fr) auto}
-.mw .wall-tabs{position:relative;display:flex;flex-wrap:nowrap;align-items:end;gap:0;padding:0 4px;overflow-x:auto;overflow-y:hidden;isolation:isolate;margin-bottom:-1px;scrollbar-width:none}.mw .wall-tabs::-webkit-scrollbar{display:none}.mw .wall-tab{position:relative;flex:none;min-width:62px;height:48px;margin-right:-10px;padding:0 20px 0 16px;border-radius:15px 22px 0 0;border:1px solid #8ca99c;background:#294840;color:#b8ccc0;font:600 14px var(--font-num);box-shadow:inset 0 1px #ffffff18}.mw .wall-tab.selected{z-index:3;min-width:112px;height:53px;border-color:#9cbdb1;border-bottom-color:#345a50;background:linear-gradient(145deg,#46695f,#345a50);color:#f4f5e9}.mw .new-wall{position:relative;z-index:4;flex:none;width:38px;height:38px;margin:0 5px 6px 16px;padding:0;border-radius:10px;border:1px solid #a4bfb880;background:#31534a;color:#ffd16b;font-size:24px;line-height:1}.mw .wall-tab.total-tab{margin-left:auto;margin-right:0}.mw .wallbody{position:relative;border-top-left-radius:0;background:linear-gradient(125deg,#405e55,#244940 70%)}.mw .wall-card-tools{position:absolute;top:10px;left:12px;z-index:3}.mw .wall-delete{display:grid;place-items:center;width:30px;height:30px;padding:5px;border:1px solid #a7c1b255;border-radius:8px;background:#183a34;color:#d2dfd4}.mw .wall-delete svg{width:19px;height:19px}.mw .equation{padding-top:48px}.mw .room-summary{padding:22px 18px}.mw .sum-heading small{font-size:10px;letter-spacing:.14em;color:#aac9b8}.mw .sum-heading h2{font:700 20px var(--font-num);margin:3px 0 18px}.mw .summary-areas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:0 0 20px}.mw .summary-areas span{padding:10px 8px;border:1px solid #a0c3ad55;border-radius:9px;background:#163d354f;color:#c2d4c8;font-size:10px}.mw .summary-areas span:first-child{border-color:#e4c76099;background:#b9953540}.mw .summary-areas span:last-child{border-color:#82d2a588;background:#27835c55}.mw .summary-areas b{display:block;margin-top:4px;color:#fff;font:700 15px var(--font-num);white-space:nowrap}.mw .sum-section-title{margin:4px 0 10px;color:#e6efe4;font-weight:700;font-size:14px}.mw .sum-wall{border:1px solid #a3c6b64a;background:#173b344d;border-radius:12px;margin-bottom:8px;padding:12px}.mw .sum-wall-head{display:flex;justify-content:space-between;align-items:center;font-size:14px}.mw .sum-wall-head span{color:#c2d3c7;font:600 12px var(--font-num)}.mw .sum-wall-areas{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:12px 0;color:#b9cfc2;font-size:10px}.mw .sum-wall-areas b{display:block;color:#eef4e7;font:700 12px var(--font-num);margin-top:3px}.mw .sum-details{border-top:1px solid #bad4c62c;padding-top:7px}.mw .sum-details>div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:4px 0;color:#dbe9de;font-size:12px}.mw .sum-details>div>span:last-child,.mw .sum-details b{flex:none;color:#fff;font-weight:600}.mw .sum-services{border:1px solid #a3c6b64a;border-radius:12px;padding:8px 12px;margin-bottom:16px}.mw .sum-services small{display:block;color:#b5cabc;font-size:10px}.mw .room-price{align-items:center;padding:15px 12px;border:1px solid #c6d9a977;background:#789b5c38;border-radius:10px;font-size:14px}.mw .room-price strong{font:700 20px var(--font-num)}@media(max-width:380px){.mw .summary-areas b{font-size:12px}.mw .summary-areas span{padding:8px 5px}.mw .wall-tab{min-width:53px;padding-left:13px;padding-right:16px}.mw .wall-tab.selected{min-width:99px}}
-.mw .wall-tabs{z-index:4;margin-bottom:-2px}.mw .wall-tab.selected{border-bottom:2px solid #345a50}
-.mw .wall-tabs{padding:5px 5px 0;gap:0;isolation:isolate;margin-bottom:-1px;overflow-x:auto;scrollbar-width:none}
-.mw .wall-tab{height:47px;min-width:64px;margin-right:-15px;padding:0 20px 1px 15px;border:1px solid #bdd4c38a;border-bottom:0;border-radius:16px 20px 0 0;background:linear-gradient(150deg,rgba(137,170,156,.52),rgba(45,75,68,.92) 58%,#203d37);box-shadow:inset 0 1px 1px #f1f8e854, -4px -2px 10px #071c1b70,2px 0 5px #051e1b66;color:#d2e4d8;transition:background .2s,box-shadow .2s}
-.mw .wall-tab.selected{z-index:3;height:53px;min-width:115px;background:linear-gradient(145deg,#668b7dcc,#365a4fe8 68%,#34564c);border-color:#b3cfc0ad;border-bottom:0;color:#f6f8ef;box-shadow:inset 0 1px 1px #fff7,-5px -3px 12px #061a1a77,5px -2px 12px #081d1b55}
-.mw .wall-tab.total-tab{margin-right:0}
-.mw .new-wall{z-index:4;flex:none;width:43px;height:43px;margin:0 5px 5px 20px;border-radius:14px;border:1.5px dashed rgba(230,242,204,.55);background:rgba(230,242,204,.06);box-shadow:none;color:#e6f2cc;font:500 26px var(--font-body)}
-.mw .wallbody{border-top:0;border-radius:0 24px 24px 24px;background:linear-gradient(145deg,#34564c,#274a40 70%);box-shadow:inset 0 1px 0 #e1f3d12e,0 8px 20px #051b1b55}
-/* Выбранный вариант «Контур чертежа»: непрозрачные закладки. */
-.mw .wall-tabs{padding:5px 4px 0;margin-bottom:-1px}.mw .wall-tab{flex:none;min-width:66px;height:47px;margin-right:-20px;padding:0 22px 0 11px;clip-path:polygon(0 100%,0 31%,7% 7%,75% 7%,100% 100%);border:0;border-radius:0;background:linear-gradient(155deg,#57786c,#31554b);box-shadow:none;filter:drop-shadow(-5px -4px 5px #03191688);color:#e0ece2;font-size:13px}.mw .wall-tab.selected{min-width:126px;height:53px;padding-right:30px;clip-path:polygon(0 100%,0 25%,6% 4%,76% 4%,100% 100%);border:0;background:linear-gradient(150deg,#96b7a1,#568776 55%,#345d50);box-shadow:none;filter:drop-shadow(-5px -4px 6px #03191688);color:#fff}.mw .wall-tab.total-tab{min-width:82px;margin-left:auto;margin-right:0}.mw .new-wall{width:66px;height:47px;margin:0 -20px 0 0;padding:0 22px 0 11px;clip-path:polygon(0 100%,0 31%,7% 7%,75% 7%,100% 100%);border:0;border-radius:0;background:linear-gradient(155deg,#57786c,#31554b);box-shadow:none;filter:drop-shadow(-5px -4px 5px #03191688);color:#e6f2cc;font-size:23px}.mw .wallbody{background:linear-gradient(115deg,#345d50,#24473d);border-top:0;border-radius:0 15px 24px 24px;box-shadow:inset 0 1px #c4dacc55,0 -6px 18px #02191755}@media(max-width:480px){.mw .wall-tab,.mw .new-wall{min-width:54px;width:54px;margin-right:-19px;padding-left:8px;padding-right:18px}.mw .wall-tab.selected{width:auto;min-width:110px}.mw .wall-tab.total-tab{width:auto;min-width:68px}}
+.mw, .mw *, .mw *::before, .mw *::after { box-sizing: border-box; }
+.mw button, .mw input { font: inherit; color: inherit; }
+.mw button { cursor: pointer; }
 
-/* ===== Вид по макету «Замер — осовременить формы» (графит, закладки-каскад, миллиметровка) ===== */
-/* ===== Замер · «современно»: раскладка та же, меняются только формы ===== */
-.mw { --mint: #6fd6a2; --glass: rgba(220, 232, 226, 0.10); --line: rgba(226, 238, 230, 0.20); }
-/* Закладки стен: те же папки, только мягче и легче */
-.mw .wall-tabs { gap: 4px; padding: 0 2px; margin-bottom: -1px; }
-.mw .wall-tab { height: 42px; min-width: 52px; margin-right: 0; padding: 0 16px; border-radius: 14px 14px 0 0; border: 1px solid var(--line); border-bottom: 0;
-  background: rgba(220, 232, 226, 0.06); color: rgba(237, 242, 232, 0.6); font: 600 14px/1 var(--font-num); box-shadow: none; }
-.mw .wall-tab.selected { height: 48px; min-width: 104px; color: #fff; font-size: 16px; border-color: rgba(255, 249, 235, 0.34);
-  background: linear-gradient(180deg, rgba(150, 175, 165, 0.42), rgba(104, 133, 126, 0.34)); }
-.mw .wall-tab.selected::before { content: ''; position: absolute; left: 16px; right: 16px; top: 0; height: 2px; border-radius: 0 0 2px 2px; background: var(--amber); }
-.mw .new-wall { width: 34px; height: 34px; margin: 0 6px 7px 8px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--amber) 70%, transparent); background: color-mix(in srgb, var(--amber) 8%, transparent); color: var(--amber); font: 400 22px/1 var(--font-body); }
-.mw .wall-tab.total-tab { margin-left: auto; }
-/* Карточка стены — стеклянная пластина приложения */
-.mw .wallbody { border-radius: 0 22px 22px 22px; border: 1px solid rgba(255, 249, 235, 0.34);
-  background: linear-gradient(180deg, rgba(150, 175, 165, 0.34) 0, rgba(104, 133, 126, 0.22) 60px, rgba(80, 108, 104, 0.16) 100%);
-  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 3px 7px rgba(7, 27, 32, 0.18), 0 16px 28px rgba(6, 18, 22, 0.4), inset 0 1px 1.5px rgba(255, 250, 237, 0.14); }
-.mw .wall-card-tools { top: 12px; left: 12px; }
-.mw .wall-delete { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--line); background: rgba(10, 26, 27, 0.35); color: rgba(237, 242, 232, 0.75); }
-/* S общая − окна − двери = S рабочая */
-.mw .equation { padding: 52px 16px 22px; gap: 6px; border-bottom: 1px solid rgba(226, 238, 230, 0.10); }
-.mw .eqplate { height: 86px; border-radius: 16px; padding: 12px; }
-.mw .gross { border: 1px solid color-mix(in srgb, var(--amber) 55%, transparent); background: linear-gradient(160deg, color-mix(in srgb, var(--amber) 20%, transparent), color-mix(in srgb, var(--amber) 6%, transparent)); box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.18); }
-.mw .net { border: 1px solid rgba(111, 214, 162, 0.6); background: linear-gradient(160deg, rgba(111, 214, 162, 0.24), rgba(111, 214, 162, 0.07)); box-shadow: inset 0 1px 0 rgba(210, 255, 230, 0.18); }
-.mw .gross b, .mw .nettext b { display: block; font: 600 11px/14px var(--font-body); letter-spacing: 0.04em; text-transform: uppercase; }
-.mw .gross b { color: var(--amber); }
-.mw .nettext b { color: var(--mint); }
-.mw .gross strong, .mw .nettext strong { display: block; margin-top: 10px; font: 700 21px/24px var(--font-num); color: #fff; }
-.mw .opgroup .caption { font: 500 11px/14px var(--font-body); color: rgba(237, 242, 232, 0.7); }
-.mw .operators { color: rgba(237, 242, 232, 0.55); font: 400 18px/1 var(--font-body); }
-.mw .operators .IC { color: var(--amber); }
-.mw .netgraphic { opacity: 0.55; }
-/* Длина — аккуратная «капсула» на размерной линии */
-.mw .dimline { background: rgba(237, 242, 232, 0.45); }
-.mw .dimline::before, .mw .dimline::after { background: rgba(237, 242, 232, 0.45); height: 14px; top: -7px; }
-.mw .lengthfield { height: 42px; padding: 0 14px; border-radius: 14px; border: 1.5px solid var(--amber); color: #fff;
-  background: rgba(10, 28, 29, 0.78); box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 12%, transparent), 0 6px 14px rgba(3, 14, 15, 0.45); }
-.mw .lengthfield input { color: #fff; font: 700 22px/1 var(--font-num); }
-.mw .lengthfield input::placeholder { color: rgba(237, 242, 232, 0.4); }
-.mw .lengthfield span { font: 500 14px var(--font-num); color: rgba(237, 242, 232, 0.6); }
-/* Рисунок стены: та же схема, тонкие линии, проёмы — стеклом */
-.mw .drawing { border: 1px solid rgba(237, 242, 232, 0.35); border-radius: 4px 4px 0 0;
-  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--amber) 9%, transparent) 0 6px, transparent 6px 12px); }
-.mw .heightdim::before { background: rgba(237, 242, 232, 0.45); }
-.mw .heightdim span { padding: 3px 6px; border-radius: 8px; background: rgba(10, 28, 29, 0.85); font: 600 12px/1 var(--font-num); color: #fff; }
-.mw .joblist { gap: 8px; }
-.mw .job { gap: 8px; padding: 4px 8px 4px 0; border-radius: 8px; font: 500 13px/16px var(--font-body); }
-.mw .job i { width: 4px; height: 20px; border-radius: 4px; box-shadow: 0 0 8px var(--wc); }
-.mw .job b { font: 700 13px/16px var(--font-num); }
-.mw .opening-shape { border: 1.5px solid rgba(214, 229, 194, 0.75); border-radius: 6px 6px 0 0; background: rgba(9, 26, 27, 0.72); box-shadow: inset 0 0 0 4px rgba(214, 229, 194, 0.06); }
-.mw .opening-values > span { display: inline-block; padding: 3px 6px; border-radius: 7px; background: rgba(237, 242, 232, 0.10); font: 600 12px/1.2 var(--font-num); color: #fff; }
-/* Низ карточки: «Услуги», окно, дверь, «Итого» */
-.mw .footer { margin: 26px 12px 14px; padding: 10px; gap: 8px; border-radius: 18px; border: 1px solid rgba(226, 238, 230, 0.14); background: rgba(8, 24, 25, 0.38); }
-.mw .addwork { height: 50px; border-radius: 14px; border: 0; background: linear-gradient(180deg, #eef7d9, #d3e4b3); color: #13292b; font: 700 16px/1 var(--font-body);
-  box-shadow: 0 6px 14px rgba(3, 14, 15, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6); }
-.mw .iconbutton { width: 50px; height: 50px; border-radius: 14px; border: 1px solid var(--line); background: rgba(220, 232, 226, 0.08); color: #e6f2cc; box-shadow: none; }
-.mw .price { border-left: 1px solid rgba(226, 238, 230, 0.16); padding-left: 12px; }
-.mw .price small { font: 500 11px/14px var(--font-body); color: rgba(237, 242, 232, 0.6); text-transform: uppercase; letter-spacing: 0.04em; }
-.mw .price b { font: 700 24px/30px var(--font-num); color: #fff; }
-/* Итог по комнате */
-.mw .room-summary { padding: 20px 16px; }
-.mw .sum-heading small { color: var(--amber); letter-spacing: 0.12em; }
-.mw .summary-areas span { border-radius: 14px; border: 1px solid var(--line); background: rgba(8, 24, 25, 0.32); }
-.mw .summary-areas span:first-child { border-color: color-mix(in srgb, var(--amber) 55%, transparent); background: color-mix(in srgb, var(--amber) 10%, transparent); }
-.mw .summary-areas span:last-child { border-color: rgba(111, 214, 162, 0.6); background: rgba(111, 214, 162, 0.12); }
-.mw .summary-areas b { font: 700 16px/20px var(--font-num); }
-.mw .sum-wall { border-radius: 16px; border: 1px solid rgba(226, 238, 230, 0.14); background: rgba(8, 24, 25, 0.32); }
-.mw .sum-wall-areas b { font: 700 13px/16px var(--font-num); }
-.mw .sum-details { border-top: 1px dashed rgba(226, 238, 230, 0.16); }
-.mw .room-price { margin-top: 6px; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(111, 214, 162, 0.5); background: rgba(111, 214, 162, 0.10); }
-.mw .room-price strong { font: 700 24px/28px var(--font-num); }
-/* Окно / дверь — размеры */
-.mw-opening-form { border-radius: 22px; }
-.mw-opening-form h3 { font: 700 20px/24px var(--font-num); }
-.mw-size-drawing label { background: none; padding: 0; }
-.mw-size-drawing label span { font: 500 11px/14px var(--font-body); color: rgba(237, 242, 232, 0.65); text-align: center; }
-.mw-size-drawing input { height: 42px; border-radius: 14px; border: 1.5px solid var(--amber); background: rgba(10, 28, 29, 0.85); color: #fff;
-  font: 700 18px/1 var(--font-num); box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 12%, transparent); }
-.mw-size-drawing input::placeholder { color: rgba(237, 242, 232, 0.4); }
-.mw-size-figure { border-radius: 10px 10px 0 0; border: 1.5px solid rgba(214, 229, 194, 0.75); background: rgba(9, 26, 27, 0.72); }
-.mw-size-top, .mw-size-left { border-color: rgba(237, 242, 232, 0.4); }
-.mw-size-top::before, .mw-size-left::before { border-color: rgba(237, 242, 232, 0.4); }
-.mw .new-wall { clip-path: none; }
-.mw .netgraphic { width: 24% !important; top: 12px; bottom: 12px; right: 8px; opacity: 0.4; }
-.mw .nettext { max-width: 76%; }
-.mw .job span { overflow-wrap: normal; word-break: normal; hyphens: auto; }
-.mw .new-wall { padding: 0; flex: none; width: 34px; min-width: 34px; height: 34px; }
-.mw .opening-values { padding-top: 4px; }
-.mw .job { font-size: 12px; }
-.mw .job b { font-size: 12px; }
-/* ===== Проёмы на рисунке стены ===== */
-/* Вариант А · «как на стройке»: пол внизу, общая линия перемычки сверху (пунктир).
-   Дверь стоит на полу и доходит до перемычки, окно висит под той же перемычкой, внизу подоконник. */
-.mw .opening-columns { position: relative; grid-template-columns: 3fr 2fr; gap: 14px; padding: 0 14px 0 0; align-items: start; }
-.mw .opening-columns::before { content: ''; position: absolute; left: -6px; right: 4px; top: 44px; border-top: 1px dashed rgba(237, 242, 232, 0.28); }
-.mw .opening-shape { position: relative; margin: 44px 0 0; padding: 8px 4px; border-radius: 2px; align-self: start; }
-.mw .opening-shape.win { min-height: 96px; height: auto;
-  border: 1.5px solid rgba(214, 229, 194, 0.8); border-bottom-width: 4px;
-  background: linear-gradient(rgba(214, 229, 194, 0.35), rgba(214, 229, 194, 0.35)) 50% 0 / 1.5px 100% no-repeat,
-              linear-gradient(rgba(214, 229, 194, 0.35), rgba(214, 229, 194, 0.35)) 0 45% / 100% 1.5px no-repeat,
-              rgba(120, 175, 190, 0.10); }
-.mw .opening-shape.door { align-self: stretch; min-height: 0; margin-bottom: -1px; border: 1.5px solid rgba(214, 229, 194, 0.8); border-bottom: 0;
-  background: rgba(9, 26, 27, 0.72); }
-.mw .opening-shape.door::after { content: ''; position: absolute; right: 7px; top: 56%; width: 3px; height: 12px; border-radius: 2px; background: rgba(214, 229, 194, 0.85); }
-.mw .opening-values { gap: 4px; align-items: center; }
-.mw .opening-values > span { background: rgba(9, 26, 27, 0.82); font-size: 11px; }
-.mw .under__ops { grid-template-columns: 3fr 2fr; gap: 14px; padding-right: 14px; }
-/* Вариант Б · «карточки»: окна и двери — две одинаковые карточки с крупным значком и списком площадей */
-/* А · поправка: дверь шире, ниже и прижата к окну */
-.mw .opening-columns { grid-template-columns: 1.2fr 1fr; gap: 6px; padding-right: 10px; }
-.mw .opening-columns::before { display: none; }
-.mw .opening-shape.door { margin-top: 62px; }
-.mw .opening-shape.door::after { right: 8px; top: 52%; }
-.mw .under__ops { grid-template-columns: 1.2fr 1fr; gap: 6px; padding-right: 10px; }
-/* А · дверь вплотную к краю стены, окно рядом с ней — под работы остаётся больше места */
-.mw .drawing { grid-template-columns: 58% 42%; }
-.mw .opening-columns { padding-right: 0; }
-.mw .opening-shape.door { margin-right: -1px; }
-.mw .under { grid-template-columns: 58% 42%; }
-.mw .under__ops { padding-right: 0; }
-/* Длина и высота — одинаковые капсулы, поменьше, в сантиметрах */
-.mw .lengthfield { height: 34px; padding: 0 10px; gap: 3px; border-radius: 12px; border-width: 1.5px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 12%, transparent), 0 4px 10px rgba(3, 14, 15, 0.4); }
-.mw .lengthfield input { width: 40px; text-align: right; font: 700 18px/1 var(--font-num); }
-.mw .lengthfield span { font: 500 12px var(--font-num); color: rgba(237, 242, 232, 0.6); }
-.mw .measurement { padding-left: 70px; }
-.mw .heightdim { left: -66px; width: 62px; background: none; }
-.mw .heightdim::before { left: 50%; }
-.mw .hfield { position: relative; z-index: 1; }
-/* Окно размеров: те же капсулы */
-.mw-size-drawing label { width: auto; }
-.mw-size-drawing label > span:first-child { display: block; margin-bottom: 4px; }
-.mw-size-drawing .lengthfield { display: inline-flex; align-items: center; justify-content: center; }
-.mw-size-drawing .lengthfield input { height: auto; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; width: 40px; text-align: right; font: 700 18px/1 var(--font-num); color: #fff; }
-.mw-size-drawing { grid-template-columns: 96px 1fr; }
-.mw-dlg-area { margin: 0 0 4px; text-align: center; font: 400 13px/18px var(--font-body); color: rgba(237, 242, 232, 0.7); }
-.mw-dlg-area b { font: 700 16px var(--font-num); color: #fff; }
-.mw .lengthfield { padding: 0 9px; }
-.mw .lengthfield input, .mw-size-drawing .lengthfield input { width: 36px; }
-.mw .measurement { padding-left: 80px; }
-.mw .heightdim { left: -78px; width: 74px; }
-.mw .heightdim input { width: 36px; height: auto; border: 0; padding: 0; background: none; font: 700 18px/1 var(--font-num); color: #fff; }
-.mw .heightdim .lengthfield span { padding: 0; background: none; font: 500 12px var(--font-num); color: rgba(237, 242, 232, 0.6); }
-/* Высота — капсула стоит вертикально вдоль размерной линии; при вводе поворачивается горизонтально */
-.mw .measurement { padding-left: 54px; }
-.mw .heightdim { left: -46px; width: 38px; }
-.mw .hfield { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-90deg); transition: transform 0.25s cubic-bezier(.3, 1.4, .5, 1), box-shadow 0.2s; }
-.mw .hfield:focus-within { transform: translate(-28%, -50%) rotate(0deg); z-index: 6; box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 25%, transparent), 0 8px 18px rgba(3, 14, 15, 0.55); }
-/* Размерные линии как в чертеже: тонкая линия, засечки 45° на концах, выносные линии от углов стены. Одинаково для длины и высоты. */
-.mw { --dim: rgba(237, 242, 232, 0.6); --slash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M1 11L11 1' stroke='rgba(237,242,232,0.85)' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E"); }
-/* длина — сверху */
-.mw .dimline { top: 17px; left: -6px; right: -6px; height: 12px; background:
-  var(--slash) 0 50% / 12px 12px no-repeat, var(--slash) 100% 50% / 12px 12px no-repeat,
-  linear-gradient(var(--dim), var(--dim)) 50% 50% / calc(100% - 12px) 1px no-repeat; }
-.mw .dimline::before, .mw .dimline::after { top: 0; height: 34px; width: 1px; background: var(--dim); }
-.mw .dimline::before { left: 6px; }
-.mw .dimline::after { right: 6px; left: auto; }
-/* высота — слева */
-.mw .heightdim::before { left: calc(50% - 6px); top: -6px; bottom: -6px; width: 12px; background:
-  var(--slash) 50% 0 / 12px 12px no-repeat, var(--slash) 50% 100% / 12px 12px no-repeat,
-  linear-gradient(var(--dim), var(--dim)) 50% 50% / 1px calc(100% - 12px) no-repeat; }
-.mw .heightdim::after { content: ''; position: absolute; left: calc(50% - 6px); right: -6px; top: 0; bottom: 0; border-top: 1px solid var(--dim); border-bottom: 1px solid var(--dim); pointer-events: none; }
-/* Цвет — цвет комнаты (Спальня — синяя), а не жёлтый */
-.mw { --amber: color-mix(in srgb, var(--rc, #3b82f6) 62%, #fff); }
-.fly { background: var(--amber); }
-/* Капсулы непрозрачные — линия за ними не просвечивает */
-.mw .lengthfield, .mw-size-drawing .lengthfield { background: #142a2c; }
-/* Справа такой же отступ, как слева; названия работ — коротко, в одну строку */
-.mw .measurement { padding-right: 10px; }
-.mw .job span { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; min-width: 0; line-height: 15px; hyphens: none; }
-/* ===== Парящая пластина + закладки слоями, друг под другом =====
-   Выбранная закладка — впереди и слита с пластиной. Остальные уходят назад: каждая следующая ниже, темнее
-   и лежит под предыдущей; передняя бросает на заднюю тень, по верху каждой — лёгкий засвет. */
-/* парящая пластина: блик по верхней грани, свет в левом углу, глубокая мягкая тень и отсвет цвета комнаты под ней */
-/* тень-«пятно» под пластиной — она висит над фоном */
-/* закладки — общее */
-/* выбранная — впереди всех, тот же материал, что пластина */
-/* остальные — слоями назад: ниже, темнее, каждая под предыдущей */
-/* «Итог» — справа, тоже позади пластины, тень в другую сторону */
-/* Б · трапеция: те же слои, но бока скошены, как у закладок папки */
-/* плавные «впадины» у основания выбранной закладки — она вырастает из пластины */
-/* закладки позади — все одного размера; первая закладка начинается ровно от левого края пластины */
-/* ===== Форма закладок: современная ===== */
-/* А · мягкие: большие скругления сверху, плавная впадина у основания */
-/* Б · волна: правый бок каждой закладки — плавная S-кривая, как у новых вкладок браузеров; следующая закладка уходит под волну предыдущей */
-/* ===== Графит + закладки-каскад (выбрано) ===== */
-.mw .gt-tabs { position: relative; z-index: 3; display: flex; justify-content: space-between; align-items: flex-end; height: 44px; margin: 0 0 -1px; }
-.mw .gt-left, .mw .gt-right { position: relative; height: 44px; }
-.mw .gt-svg { position: absolute; left: 0; top: 0; display: block; z-index: 1; }
-.mw .gt-front { position: absolute; z-index: 2; left: 0; top: 0; width: 120px; height: 45px; clip-path: path("M0 45 L0 4 Q0 0 4 0 L94 0 L120 45 Z");
-  background: radial-gradient(circle 260px at 41px 45px, color-mix(in srgb, var(--rc) 42%, transparent), color-mix(in srgb, var(--rc) 0%, transparent)), #34474a; }
-.mw .gt-lines { position: absolute; left: 0; top: 0; z-index: 3; }
-.mw .gt-b { z-index: 4; }
-.mw .gt-b { position: absolute; top: 0; height: 44px; padding: 0; border: 0; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-  font: 600 15px/1 var(--font-num); color: rgba(214, 226, 230, 0.62); pointer-events: auto; }
-.mw .gt-b.on { font: 700 16px/1 var(--font-num); color: #fff; }
-.mw .gt-b.add { font: 300 24px/1 var(--font-body); color: var(--amber); }
-.mw .gt-right .gt-b { font: 600 13px/1 var(--font-body); }
-.mw .wallbody { border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 0 24px 24px 24px; backdrop-filter: none; -webkit-backdrop-filter: none;
-  background: radial-gradient(circle 260px at 40px 0, color-mix(in srgb, var(--rc) 42%, transparent), color-mix(in srgb, var(--rc) 0%, transparent)), linear-gradient(180deg, #34474a 0, #2a393c 300px, #222f33 100%);
-  box-shadow: 0 24px 40px -18px rgba(2, 10, 12, 0.9), 0 50px 70px -40px rgba(2, 10, 12, 0.8); }
-.mw .wallbody::before, .mw .wallbody::after { display: none; }
-.mw .footer--sum { background: rgba(0, 0, 0, 0.22); }
-/* Лист стены: закладка и пластина — один фон, без шва */
-.mw { position: relative; filter: drop-shadow(0 22px 22px rgba(2, 10, 12, 0.55)); }
-.mw .gt-sheet { position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 0 0 24px 24px; clip-path: polygon(0 4px, 1.2px 1.2px, 4px 0, 94px 0, 120px 44px, calc(100% - 24.00px) 44.00px, calc(100% - 17.79px) 44.82px, calc(100% - 12.00px) 47.22px, calc(100% - 7.03px) 51.03px, calc(100% - 3.22px) 56.00px, calc(100% - 0.82px) 61.79px, calc(100% - 0.00px) 68.00px, 100% 100%, 0 100%);
-  background: radial-gradient(circle 260px at 41px 44px, color-mix(in srgb, var(--rc) 42%, transparent), color-mix(in srgb, var(--rc) 0%, transparent)), linear-gradient(180deg, #2f3f41 0, #2f3f41 44px, #243133 340px, #1b2628 100%); }
-.mw .wallbody { position: relative; z-index: 1; background: none !important; box-shadow: none !important; border-style: solid; border-color: rgba(255, 255, 255, 0.18); border-width: 0 1px 1px 1px; border-radius: 0 24px 24px 24px; }
-.mw .wallbody::before { display: block !important; content: ''; position: absolute; top: 0; left: 119px; right: -1px; height: 24px; border-top: 1px solid rgba(255, 255, 255, 0.18); border-right: 1px solid rgba(255, 255, 255, 0.18); border-top-right-radius: 24px; pointer-events: none; }
-.mw .gt-tabs { z-index: auto; }
-.mw .gt-svg { z-index: 0; }
-.mw .gt-sheet { z-index: 1; }
-.mw .wallbody { z-index: 2; }
-.mw .gt-lines { z-index: 3; }
-.mw .gt-b { z-index: 4; }
-.mw .gt-left, .mw .gt-right { z-index: auto; }
-/* Площади — компактно: строка ниже, корзина переехала в строку «Итого по стене» */
-.mw .equation { padding: 14px 12px 12px; gap: 4px; }
-.mw .eqplate { height: 58px; padding: 8px 10px; border-radius: 14px; }
-.mw .gross b, .mw .nettext b { font-size: 10px; line-height: 12px; }
-.mw .gross strong, .mw .nettext strong { margin-top: 6px; font-size: 18px; line-height: 22px; }
-.mw .netgraphic { display: none; }
-.mw .nettext { max-width: 100%; }
-.mw .opgroup { gap: 6px; padding-bottom: 12px; }
-.mw .opgroup .caption { font-size: 10px; }
-.mw .operators .IC { width: 20px; height: 26px; }
-.mw .wall-card-tools { top: auto; bottom: 23px; left: 24px; z-index: 3; }
-.mw .footer--sum { padding-left: 56px; }
-/* S общая / S рабочая парят над пластиной: свой плотный фон, блик сверху, тень под ними */
-.mw .equation { padding-bottom: 18px; }
-.mw .eqplate { transform: translateY(-3px); }
-.mw .gross { background: linear-gradient(160deg, color-mix(in srgb, var(--rc) 55%, #2c3b40), color-mix(in srgb, var(--rc) 30%, #1d2a2e)) !important; border: 1px solid color-mix(in srgb, var(--amber) 55%, transparent);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 2px 3px rgba(2, 10, 12, 0.45), 0 16px 22px -8px rgba(2, 10, 12, 0.85), 0 18px 26px -14px color-mix(in srgb, var(--rc) 55%, transparent) !important; }
-.mw .net { background: linear-gradient(160deg, #3a7a61, #275441) !important; border: 1px solid rgba(111, 214, 162, 0.6);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 2px 3px rgba(2, 10, 12, 0.45), 0 16px 22px -8px rgba(2, 10, 12, 0.85), 0 18px 26px -14px rgba(111, 214, 162, 0.45) !important; }
-.mw .eqplate::after { content: ''; position: absolute; left: 12%; right: 12%; bottom: -14px; height: 12px; border-radius: 50%; background: rgba(0, 0, 0, 0.6); filter: blur(6px); pointer-events: none; }
-.mw .gross::after { background: color-mix(in srgb, var(--rc) 30%, rgba(0, 0, 0, 0.7)); }
-.mw .eqplate { transform: translateY(-5px); }
-.mw .equation { padding-bottom: 22px; }
-/* Стена — миллиметровка, рабочая площадь залита зелёными полосами (как «S рабочая»); окна и двери — вырезы */
-.mw .drawing { border: 1px solid rgba(111, 214, 162, 0.65); background:
-  repeating-linear-gradient(135deg, rgba(111, 214, 162, 0.20) 0 5px, transparent 5px 11px),
-  linear-gradient(rgba(111, 214, 162, 0.24) 1px, transparent 1px) 0 0 / 30px 30px,
-  linear-gradient(90deg, rgba(111, 214, 162, 0.24) 1px, transparent 1px) 0 0 / 30px 30px,
-  linear-gradient(rgba(111, 214, 162, 0.09) 1px, transparent 1px) 0 0 / 6px 6px,
-  linear-gradient(90deg, rgba(111, 214, 162, 0.09) 1px, transparent 1px) 0 0 / 6px 6px,
-  rgba(111, 214, 162, 0.07) !important; }
-.mw .opening-shape.win { background: linear-gradient(rgba(214, 229, 194, 0.35), rgba(214, 229, 194, 0.35)) 50% 0 / 1.5px 100% no-repeat,
-  linear-gradient(rgba(214, 229, 194, 0.35), rgba(214, 229, 194, 0.35)) 0 45% / 100% 1.5px no-repeat, #1a2a2c; }
-.mw .opening-shape.door { background: #182628; }
-/* Работы — без цветных меток слева */
-.mw .job i { display: none; }
-.mw .job { padding-left: 2px; text-shadow: 0 1px 3px rgba(6, 20, 18, 0.9), 0 0 8px rgba(6, 20, 18, 0.7); }
-/* Работы — отдельные парящие карточки на стене: название и сумма, тень под ними */
-.mw .joblist { gap: 8px; padding: 12px 10px 12px 10px !important; }
-.mw .job { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; width: 100%; padding: 8px 10px; border-radius: 12px; text-shadow: none;
-  background: linear-gradient(160deg, rgba(36, 60, 56, 0.96), rgba(22, 40, 37, 0.96)); border: 1px solid rgba(111, 214, 162, 0.45);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 14px -6px rgba(2, 10, 12, 0.8); }
-.mw .job span { font: 500 12.5px/15px var(--font-body); color: rgba(237, 242, 232, 0.88); }
-.mw .job b { font: 700 16px/18px var(--font-num); color: #8fe3b8; }
-/* Работы — компактные строки-чипы: название и сумма в одну строку, влезает 5+ */
-.mw .joblist { gap: 4px; padding: 8px 6px !important; }
-.mw .job { flex-direction: row; align-items: center; justify-content: space-between; gap: 6px; min-height: 0; height: 26px; padding: 0 8px; border-radius: 8px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 8px -4px rgba(2, 10, 12, 0.8); }
-.mw .job span { flex: 1; min-width: 0; display: block !important; -webkit-line-clamp: unset; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: 500 11.5px/26px var(--font-body); }
-.mw .job b { flex: none; font: 700 12.5px/26px var(--font-num); }
-/* «S рабочая» заштрихована так же, как рабочая площадь на стене */
-.mw .net { background: repeating-linear-gradient(135deg, rgba(111, 214, 162, 0.26) 0 5px, transparent 5px 11px), linear-gradient(160deg, #2f6651, #224a3a) !important; }
-.mw .nettext strong { text-shadow: 0 1px 4px rgba(6, 25, 18, 0.9); }
-/* Значки окна и двери между плашками — такие же, как на стене */
-.mw .operators .IC { position: relative; display: block; box-sizing: border-box; color: transparent; }
-.mw .operators .IC svg { display: none; }
-.mw .operators .IC:nth-child(2) { width: 20px; height: 20px; border: 1.5px solid rgba(214, 229, 194, 0.85); border-bottom-width: 3px; border-radius: 1px;
-  background: linear-gradient(rgba(214, 229, 194, 0.45), rgba(214, 229, 194, 0.45)) 50% 0 / 1px 100% no-repeat, linear-gradient(rgba(214, 229, 194, 0.45), rgba(214, 229, 194, 0.45)) 0 45% / 100% 1px no-repeat, #1a2a2c; }
-.mw .operators .IC:nth-child(4) { width: 15px; height: 26px; border: 1.5px solid rgba(214, 229, 194, 0.85); border-bottom: 0; border-radius: 1px; background: #182628; }
-.mw .operators .IC:nth-child(4)::after { content: ''; position: absolute; right: 2px; top: 52%; width: 2px; height: 5px; border-radius: 1px; background: rgba(214, 229, 194, 0.85); }
-.mw .operators { align-items: flex-end; }
-.mw .nettext b { color: #fff !important; text-shadow: 0 1px 3px rgba(6, 25, 18, 0.9); }
-/* Ряд кнопок: «+ Услуги» — зелёная (работы зелёные), окно и дверь — графитовые плитки с теми же значками, что на стене; «+» нарисован ровно по центру */
-.mw .u-btn { height: 46px; border-radius: 14px; transition: transform .12s ease-out, box-shadow .12s ease-out; }
-.mw .u-svc { margin-right: 10px; gap: 8px; border: 1px solid rgba(111, 214, 162, 0.65); color: #fff; font: 600 15px/1 var(--font-body);
-  background: linear-gradient(160deg, #3a7a61, #26503f);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 3px rgba(2, 10, 12, 0.45), 0 12px 18px -8px rgba(2, 10, 12, 0.85), 0 14px 22px -14px rgba(111, 214, 162, 0.5); }
-.mw .u-svc .u-plus { position: static; flex: none; width: 18px; height: 18px; border-radius: 50%; font-size: 0; box-shadow: none;
-  background: linear-gradient(#26503f, #26503f) center / 8px 2px no-repeat, linear-gradient(#26503f, #26503f) center / 2px 8px no-repeat, #bff0d6; }
-.mw .u-op { border: 1px solid rgba(255, 255, 255, 0.16); background: linear-gradient(160deg, #3a4b4d, #273537);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 3px rgba(2, 10, 12, 0.45), 0 12px 18px -8px rgba(2, 10, 12, 0.85); }
-.mw .u-op svg { display: none; }
-.mw .u-op::before { content: ''; display: block; box-sizing: border-box; border: 1.5px solid rgba(214, 229, 194, 0.9); border-radius: 1px; }
-.mw .u-op[data-fly="win"]::before { width: 22px; height: 22px; border-bottom-width: 3px;
-  background: linear-gradient(rgba(214, 229, 194, 0.5), rgba(214, 229, 194, 0.5)) 50% 0 / 1px 100% no-repeat, linear-gradient(rgba(214, 229, 194, 0.5), rgba(214, 229, 194, 0.5)) 0 45% / 100% 1px no-repeat, #1a2a2c; }
-.mw .u-op[data-fly="door"]::before { width: 16px; height: 26px; margin-top: 4px; border-bottom: 0; background: linear-gradient(rgba(214, 229, 194, 0.9), rgba(214, 229, 194, 0.9)) right 2px top 52% / 2px 5px no-repeat, #182628; }
-.mw .u-op .u-plus { top: -6px; right: -6px; width: 18px; height: 18px; font-size: 0; border: 2px solid #1f2b2d; box-sizing: content-box;
-  background: linear-gradient(#13221f, #13221f) center / 8px 2px no-repeat, linear-gradient(#13221f, #13221f) center / 2px 8px no-repeat, var(--amber);
-  box-shadow: 0 2px 5px rgba(2, 10, 12, 0.6); }
-.mw .u-btn:active { transform: translateY(1px) scale(0.98); }
-/* Окно размеров: только сама дверь / окно, как на стене, и размеры как на стене; «Отмена» и «ОК» */
-.mw .od2 { margin: 0 0 14px; padding: 18px 16px 16px; border-radius: 22px; display: flex; flex-direction: column; align-items: center; gap: 10px;
-  background: radial-gradient(circle 220px at 30% 0, color-mix(in srgb, var(--rc) 22%, transparent), color-mix(in srgb, var(--rc) 0%, transparent)), linear-gradient(180deg, #2f3f41, #1f2b2d); border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 24px 40px -18px rgba(2, 10, 12, 0.9); }
-.mw .od2__t { margin: 0; font: 700 18px/22px var(--font-num); color: #fff; }
-.mw .od2-meas { padding: 6px 0 0 54px; margin: 0 auto; }
-.mw .od2-drawing { border: 0 !important; background: none !important; display: block; min-height: 0; }
-.mw .od2-drawing .heightdim { left: -46px; }
-.mw .od2-fig { position: relative; width: 100%; height: 100%; box-sizing: border-box; border: 1.5px solid rgba(214, 229, 194, 0.9); }
-.mw .od2-fig.door { border-bottom: 0; background: #182628; }
-.mw .od2-fig.door::after { content: ''; position: absolute; right: 9px; top: 52%; width: 3px; height: 14px; border-radius: 2px; background: rgba(214, 229, 194, 0.9); }
-.mw .od2-fig.win { border-bottom-width: 5px; background: linear-gradient(rgba(214, 229, 194, 0.45), rgba(214, 229, 194, 0.45)) 50% 0 / 1.5px 100% no-repeat,
-  linear-gradient(rgba(214, 229, 194, 0.45), rgba(214, 229, 194, 0.45)) 0 45% / 100% 1.5px no-repeat, #1a2a2c; }
-.mw .od2__area { margin: 2px 0 0; font: 400 13px/18px var(--font-body); color: rgba(237, 242, 232, 0.7); }
-.mw .od2__area b { font: 700 16px var(--font-num); color: #fff; }
-.mw .od2__btns { align-self: stretch; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
-.mw .od2-b { height: 46px; border-radius: 14px; cursor: pointer; font: 600 15px/1 var(--font-body); color: #edf2e8; border: 1px solid rgba(255, 255, 255, 0.16);
-  background: linear-gradient(160deg, #3a4b4d, #273537); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 16px -8px rgba(2, 10, 12, 0.85); }
-.mw .od2-b.ok { color: #fff; border-color: color-mix(in srgb, var(--amber) 70%, transparent); background: linear-gradient(160deg, color-mix(in srgb, var(--rc) 85%, #fff), var(--rc));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 10px 18px -8px color-mix(in srgb, var(--rc) 70%, transparent); }
-/* Переключатель вариантов проёмов */
-/* Кнопки под своими колонками: «Услуги» — под работами, окно — под окнами, дверь — под дверями */
-.mw .under { display: grid; grid-template-columns: 53% 47%; margin: 12px 0 0; }
-.mw .under__ops { display: grid; grid-template-columns: 3fr 2fr; gap: 18px; padding-right: 18px; }
-.mw .u-btn { position: relative; height: 50px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
-.mw .u-svc { margin-right: 12px; border: 0; background: linear-gradient(180deg, #eef7d9, #d3e4b3); color: #13292b; font: 700 15px/1 var(--font-body);
-  box-shadow: 0 6px 14px rgba(3, 14, 15, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6); }
-.mw .u-svc .u-plus { font: 400 20px/1 var(--font-body); color: #3c6a3a; }
-.mw .u-op { border: 1px solid rgba(226, 238, 230, 0.2); background: rgba(220, 232, 226, 0.08); color: #e6f2cc; padding: 0; }
-.mw .u-op svg { width: 24px; height: 28px; }
-.mw .u-op .u-plus { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
-  background: var(--amber); color: #13221f; font: 700 15px/1 var(--font-body); box-shadow: 0 2px 6px rgba(3, 14, 15, 0.5); }
-.mw .u-btn:active { transform: scale(0.96); }
-.mw .footer--sum { justify-content: space-between; align-items: baseline; padding: 12px 16px; margin-top: 16px; }
-.mw .footer--sum span { font: 500 12px/16px var(--font-body); color: rgba(237, 242, 232, 0.65); text-transform: uppercase; letter-spacing: 0.04em; }
-.mw .footer--sum b { font: 700 24px/30px var(--font-num); color: #fff; }
-@media (max-width: 480px) { .mw .under__ops { gap: 10px; padding-right: 10px; } }
-/* Летящий ярлык и посадка */
-.fly { position: fixed; z-index: 200; pointer-events: none; padding: 5px 10px; border-radius: 10px; white-space: nowrap;
-  background: var(--amber); color: #13221f; font: 700 13px/1.2 Manrope, sans-serif; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45); }
-.fly--svc { background: #e6f2cc; }
-.land { animation: land 0.45s cubic-bezier(.2, 1.6, .4, 1) both; }
-@keyframes land { 0% { transform: scale(1.5); background: color-mix(in srgb, var(--amber) 60%, transparent) !important; } 100% { transform: scale(1); } }
-.hit { animation: hit 0.6s ease-out; }
-@keyframes hit { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--amber) 80%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
-.mw .v-new { display: contents; }
-
-/* ===== прототип: дополнения к макету ===== */
-.mw .wallbody::before { display: none !important; }
-.mw .gt-edge { position: absolute; z-index: 1; top: 0; height: 24px; box-sizing: border-box; border: 0 solid rgba(255, 255, 255, 0.18); border-top-width: 1px; pointer-events: none; }
-.mw .gt-tabs { position: relative; }
-.mw .job-empty { font: 500 12px/16px var(--font-body); color: rgba(237, 242, 232, 0.7); padding: 6px 4px; }
-.mw .opening-values:empty { display: none; }
-/* окна поверх экрана */
-.mw.mw--dlg { position: fixed; z-index: 31; left: 16px; right: 16px; top: 50%; transform: translateY(-50%); max-width: 390px; margin: 0 auto; filter: none; max-height: 86vh; overflow-y: auto; }
-.mw.mw--dlg .od2 { margin: 0; }
-.mw .od2--list { align-items: stretch; }
-.mw .od2--list .od2__t { align-self: center; }
-.mw .od2__btns--one { grid-template-columns: 1fr; }
-.mw .od2 .opening-list-row { padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.1); }
-.mw .od2 .opening-row-fields input { background: #142a2c; border: 1.5px solid var(--amber); border-radius: 10px; color: #fff; font: 700 16px var(--font-num); }
-.mw .mw-none { margin: 4px 0; font: 400 13px/18px var(--font-body); color: rgba(237, 242, 232, 0.6); text-align: center; }
-/* итог заказа — пластины без закладок */
-.mw.mw--plain { filter: none; }
-.mw.mw--plain h3 { margin: 14px 4px 8px; font: 700 17px/22px var(--font-num); color: #fff; }
-.mw.mw--plain .wallbody { border-width: 1px; border-radius: 24px !important; background: linear-gradient(180deg, #2f3f41, #1b2628) !important; box-shadow: 0 20px 34px -18px rgba(2, 10, 12, 0.9) !important; }
-/* лист заканчивается ровно по пластине: отступ снизу — у всего блока, а не у пластины */
-.mw .wallbody { margin-bottom: 0 !important; }
-.mw:not(.mw--dlg) { margin-bottom: 24px; }
-/* Стена — просто миллиметровка: без заливки и диагональной штриховки */
-.mw .drawing { border: 1px solid rgba(237, 242, 232, 0.35); background:
-  linear-gradient(rgba(237, 242, 232, 0.16) 1px, transparent 1px) 0 0 / 30px 30px,
-  linear-gradient(90deg, rgba(237, 242, 232, 0.16) 1px, transparent 1px) 0 0 / 30px 30px,
-  linear-gradient(rgba(237, 242, 232, 0.06) 1px, transparent 1px) 0 0 / 6px 6px,
-  linear-gradient(90deg, rgba(237, 242, 232, 0.06) 1px, transparent 1px) 0 0 / 6px 6px,
-  transparent !important; }
-.mw .od2-drawing { border: 0 !important; background: none !important; }
-/* «S общая» — приглушённая пластина, без цветного свечения */
-.mw .gross { background: linear-gradient(160deg, color-mix(in srgb, var(--rc) 22%, #22302f), color-mix(in srgb, var(--rc) 12%, #1b2729)) !important;
-  border: 1px solid color-mix(in srgb, var(--amber) 35%, transparent) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 2px 3px rgba(2, 10, 12, 0.45), 0 12px 18px -10px rgba(2, 10, 12, 0.8) !important; }
-.mw .gross::after { background: rgba(0, 0, 0, 0.55); }
-/* «S рабочая» — та же миллиметровка, что на стене, без заливки и свечения */
-.mw .net { border: 1px solid rgba(237, 242, 232, 0.35) !important; background:
-  linear-gradient(rgba(237, 242, 232, 0.16) 1px, transparent 1px) 0 0 / 30px 30px,
-  linear-gradient(90deg, rgba(237, 242, 232, 0.16) 1px, transparent 1px) 0 0 / 30px 30px,
-  linear-gradient(rgba(237, 242, 232, 0.06) 1px, transparent 1px) 0 0 / 6px 6px,
-  linear-gradient(90deg, rgba(237, 242, 232, 0.06) 1px, transparent 1px) 0 0 / 6px 6px,
-  rgba(10, 26, 27, 0.25) !important;
-  box-shadow: 0 2px 3px rgba(2, 10, 12, 0.45), 0 12px 18px -10px rgba(2, 10, 12, 0.8) !important; }
-/* Основная пластина — графит, без цветного свечения комнаты */
-.mw .gt-sheet { background: linear-gradient(180deg, #34373a 0, #34373a 44px, #2a2d30 340px, #1f2124 100%) !important; }
-.mw .gt-svg path { fill: #272a2d; }
-.mw.mw--plain .wallbody { background: linear-gradient(180deg, #34373a, #1f2124) !important; }
-/* Графит без оттенка: чистые серые, «S общая» тоже графит (без цвета комнаты) */
-.mw .gt-sheet { background: linear-gradient(180deg, #363636 0, #363636 44px, #2c2c2c 340px, #222222 100%) !important; }
-.mw .gt-svg path { fill: #2a2a2a; }
-.mw.mw--plain .wallbody { background: linear-gradient(180deg, #363636, #222222) !important; }
-.mw .gross { background: linear-gradient(160deg, #444444, #333333) !important; border: 1px solid rgba(255, 255, 255, 0.22) !important; }
-.mw .gross b { color: rgba(255, 255, 255, 0.75) !important; }
-.mw .gross::after { background: rgba(0, 0, 0, 0.55) !important; }
-
-/* ===== Замер в цветах «Очереди» (как доска заказов и карточка заказа) ===== */
-/* Акцент вместо цвета комнаты — светло-оливковый, как подсвеченные кнопки приложения */
-/* (акцент — цвет комнаты, см. --amber выше) */
-/* Основная пластина — как стеклянная пластина карточки заказа */
-.mw .gt-sheet { background: linear-gradient(180deg, #4a5d5c 0, #4a5d5c 44px, #3d5152 340px, #33484a 100%) !important; }
-.mw .gt-svg path { fill: #203030; stroke: rgba(255, 249, 235, 0.22); }
-.mw.mw--plain .wallbody { background: linear-gradient(180deg, #4a5d5c, #33484a) !important; border-color: rgba(255, 249, 235, 0.34) !important; }
-/* «S общая» — как плашки «Стоимость / Срок» в итоге заказа */
-.mw .gross { background: linear-gradient(180deg, #687b7a, #738582) !important; border: 0.9px solid rgba(6, 18, 20, 0.78) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 6px 12px -6px rgba(2, 10, 12, 0.7) !important; }
-.mw .gross b { color: rgba(237, 242, 232, 0.85) !important; }
-.mw .gross::after { background: rgba(0, 0, 0, 0.45) !important; }
-/* Тёмные «утопленные» поля — как карточки в очереди; на них миллиметровка */
-.mw .net, .mw .drawing { border: 0.9px solid rgba(5, 13, 15, 0.75) !important; background:
-  linear-gradient(rgba(237, 242, 232, 0.13) 1px, transparent 1px) 0 0 / 30px 30px,
-  linear-gradient(90deg, rgba(237, 242, 232, 0.13) 1px, transparent 1px) 0 0 / 30px 30px,
-  linear-gradient(rgba(237, 242, 232, 0.05) 1px, transparent 1px) 0 0 / 6px 6px,
-  linear-gradient(90deg, rgba(237, 242, 232, 0.05) 1px, transparent 1px) 0 0 / 6px 6px,
-  linear-gradient(180deg, #182829, #203030) !important;
-  box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.16), inset 0 1.5px 2px rgba(1, 6, 9, 0.55), inset 0 4px 10px rgba(1, 8, 10, 0.7) !important; }
-.mw .od2-drawing { border: 0 !important; background: none !important; box-shadow: none !important; }
-.mw .opening-shape.win, .mw .opening-shape.door { background-color: #152324 !important; }
-
-/* «Одинаковая высота / услуги» в замере — акцент без синего; плитки комнат сверху — как в «Оценке» (с цветным отблеском комнаты) */
-
-/* Кнопки под стеной — как кнопки приложения (.f-btn): тёмные, светлая рамка, полоска-индикатор внизу */
-.mw .u-btn { border-radius: 6px !important; border: 1px solid rgba(204, 222, 209, 0.55) !important; background: #213839 !important; color: #edf0e7 !important;
-  box-shadow: 0 4px 7px rgba(4, 13, 15, 0.16), 0 2px 2.5px rgba(1, 6, 9, 0.27), inset 0 -2px 2px rgba(6, 18, 20, 0.34), inset 0 1px 1px rgba(224, 242, 227, 0.36) !important; }
-.mw .u-svc { font: 500 15px/16px var(--font-body) !important; overflow: hidden; }
-.mw .u-svc::after { content: ''; position: absolute; left: 8px; right: 8px; bottom: 3px; height: 1.5px; border-radius: 1px;
-  background: linear-gradient(90deg, #9eb57d, #e6f2cc 40%, #deedc2 60%, #b0c78c); }
-/* Плюсики: светлый кружок с тёмным крестиком (как кнопка «Добавить комнату») */
-.mw .u-plus { font-size: 0 !important; width: 18px !important; height: 18px !important; border-radius: 50% !important; box-sizing: border-box !important;
-  background: linear-gradient(#22383a, #22383a) center / 9px 2px no-repeat, linear-gradient(#22383a, #22383a) center / 2px 9px no-repeat, linear-gradient(180deg, #e6f2cc, #c9dcae) !important;
-  box-shadow: 0 2px 4px rgba(2, 10, 12, 0.5) !important; }
-.mw .u-op .u-plus { position: absolute !important; top: -7px !important; right: -7px !important; width: 20px !important; height: 20px !important; border: 2px solid #33484a !important; box-sizing: content-box !important; }
-/* Удаление стены — в нижнем левом углу, внутри строки «Итого по стене», не наезжает на текст */
-.mw .wall-card-tools { top: auto !important; bottom: 25px !important; left: 27px !important; }
-.mw .wall-delete { width: 34px !important; height: 34px !important; border-radius: 6px !important; border: 1px solid rgba(204, 222, 209, 0.55) !important; background: #213839 !important; color: #edf0e7 !important;
-  box-shadow: 0 2px 2.5px rgba(1, 6, 9, 0.27), inset 0 1px 1px rgba(224, 242, 227, 0.3) !important; }
-.mw .footer--sum { padding-left: 58px !important; align-items: center !important; }
-/* ===== Закладки стен: ряд листается вбок, «Итог» закреплён справа ===== */
-.mw .gt-tabs { display: flex !important; align-items: flex-end; height: 45px !important; margin: 0 0 -1px !important; position: relative; z-index: 3 !important; }
-.mw .gt-scroll { position: relative; flex: 1 1 auto; min-width: 0; height: 45px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
-  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 18px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 18px), transparent); }
+/* ---------- закладки стен: ряд листается вбок, «Итог» закреплён справа ---------- */
+.mw .gt-sheet { position: absolute; top: 44px; right: 0; bottom: 0; left: 0; z-index: 1; pointer-events: none; border-radius: 0 0 24px 24px;
+  background: linear-gradient(180deg, var(--g-sheet) 0, var(--g-sheet) 44px, var(--g-sheet-mid) 340px, var(--g-sheet-low) 100%); }
+.mw .gt-tabs { position: relative; z-index: 3; display: flex; align-items: flex-end; height: 45px; margin-bottom: -1px; }
+.mw .gt-tabs::before { content: ''; position: absolute; left: 0; right: 0; bottom: 1px; height: 1px; background: var(--g-line); pointer-events: none; }
+.mw .gt-scroll { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; height: 45px; overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
 .mw .gt-scroll::-webkit-scrollbar { display: none; }
 .mw .gt-inner { position: relative; height: 45px; }
-.mw .gt-right { position: relative; flex: none; height: 45px; z-index: 2; filter: drop-shadow(-6px 0 6px rgba(3, 14, 15, 0.45)); }
+.mw .gt-right { position: relative; z-index: 1; flex: none; height: 45px; margin-left: -25px; filter: drop-shadow(-6px 0 6px rgba(0, 0, 0, 0.45)); }
 .mw .gt-right.on { filter: none; }
 .mw .gt-svg { position: absolute; left: 0; top: 0; z-index: 0; overflow: visible; }
-.mw .gt-svg .gt-back { fill: #203030 !important; stroke: rgba(255, 249, 235, 0.22) !important; stroke-width: 1; }
-.mw .gt-svg .gt-sel { fill: #4a5d5c !important; stroke: none !important; }
-.mw .gt-svg .gt-base { fill: none !important; stroke: rgba(255, 249, 235, 0.22) !important; stroke-width: 1; }
-.mw .gt-b { z-index: 4; }
-.mw .gt-right .gt-b { font: 600 13px/1 var(--font-body); }
-.mw .gt-right.on .gt-b { color: #fff; font-weight: 700; }
-/* Лист — прямоугольник под закладками; цвет верха совпадает с выбранной закладкой */
-.mw .gt-sheet { top: 44px !important; clip-path: none !important; border-radius: 0 0 24px 24px !important; }
-.mw .gt-edge { display: none !important; }
-.mw .gt-svg .gt-hl { fill: none !important; }
+.mw .gt-svg .gt-back { fill: var(--g-tab); stroke: var(--g-line); stroke-width: 1; }
+.mw .gt-svg .gt-sel { fill: var(--g-sheet); stroke: none; }
+.mw .gt-svg .gt-hl { fill: none; stroke: var(--g-line); stroke-width: 1; }
 .mw .gt-svg .gt-base { display: none; }
-.mw .gt-tabs::before { content: ''; position: absolute; left: 0; right: 0; bottom: 1px; height: 1px; background: rgba(255, 249, 235, 0.22); z-index: 0; pointer-events: none; }
-.mw .gt-scroll, .mw .gt-right { z-index: 1; }
-.mw .gt-right .gt-b { align-items: center; padding-bottom: 7px !important; box-sizing: border-box; }
-/* «+» в конце ряда упирается в «Итог» наклон к наклону; без затухания края */
-.mw .gt-scroll { -webkit-mask-image: none !important; mask-image: none !important; }
-.mw .gt-right { margin-left: -25px; }
-/* Кнопки под стеной выровнены по колонкам рисунка: «Услуги» — под списком работ, «+окно» — под окном, «+дверь» — под дверью */
-.mw .under { grid-template-columns: 58% 42% !important; padding: 0 0.9px !important; box-sizing: border-box; }
-.mw .u-svc { margin-right: 8px !important; }
-.mw .under__ops { grid-template-columns: 1.2fr 1fr !important; gap: 6px !important; padding-right: 0 !important; }
+.mw .gt-b { position: absolute; top: 0; z-index: 4; height: 44px; padding: 0; border: 0; background: none;
+  display: flex; align-items: center; justify-content: center; font: 600 15px/1 var(--font-num); color: rgba(214, 226, 230, 0.62); }
+.mw .gt-b.on { font: 700 16px/1 var(--font-num); color: #fff; }
+.mw .gt-b.add { font: 300 24px/1 var(--font-body); color: var(--rc-light); }
+.mw .gt-right .gt-b { padding-bottom: 7px; font: 600 13px/1 var(--font-body); }
+.mw .gt-right.on .gt-b { font-weight: 700; color: #fff; }
 
-/* ===== Основной цвет — графит; всё цветное — от цвета комнаты (--rc), светлый оттенок — --amber ===== */
-.mw { --gr-sheet: #3b3b3c; --gr-sheet2: #2c2c2d; --gr-back: #262627; --gr-deep: #1d1d1e; --gr-deep2: #232324; --gr-line: rgba(255, 255, 255, 0.22); }
-.mw .gt-sheet { background: linear-gradient(180deg, var(--gr-sheet) 0, var(--gr-sheet) 44px, #333334 340px, var(--gr-sheet2) 100%) !important; }
-.mw .gt-svg .gt-sel { fill: var(--gr-sheet) !important; }
-.mw .gt-svg .gt-back { fill: var(--gr-back) !important; stroke: var(--gr-line) !important; }
-.mw .gt-tabs::before { background: var(--gr-line); }
-.mw.mw--plain .wallbody { background: linear-gradient(180deg, var(--gr-sheet), var(--gr-sheet2)) !important; border-color: var(--gr-line) !important; }
-.mw .gt-b.add { color: var(--amber) !important; }
-/* S общая — светлый графит с рамкой цвета комнаты */
-.mw .gross { background: linear-gradient(180deg, #555557, #4a4a4c) !important; border: 1px solid color-mix(in srgb, var(--rc) 55%, transparent) !important; }
-.mw .gross b { color: var(--amber) !important; }
-/* S рабочая и стена — тёмный графит с миллиметровкой */
-.mw .net, .mw .drawing { background:
-  linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px) 0 0 / 30px 30px,
-  linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px) 0 0 / 30px 30px,
-  linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 6px 6px,
-  linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 6px 6px,
-  linear-gradient(180deg, var(--gr-deep), var(--gr-deep2)) !important;
-  border: 1px solid color-mix(in srgb, var(--rc) 45%, transparent) !important;
-  box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.55), inset 0 4px 10px rgba(0, 0, 0, 0.6) !important; }
-.mw .od2-drawing { border: 0 !important; background: none !important; box-shadow: none !important; }
-.mw .opening-shape.win, .mw .opening-shape.door { background-color: #19191a !important; border-color: color-mix(in srgb, var(--rc) 50%, #ddd) !important; }
-/* Кнопки — графит, рамка и полоска-индикатор цвета комнаты */
-.mw .u-btn { background: #2b2b2c !important; border-color: color-mix(in srgb, var(--rc) 40%, rgba(255, 255, 255, 0.35)) !important;
-  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.2), 0 2px 2.5px rgba(0, 0, 0, 0.3), inset 0 -2px 2px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important; }
-.mw .u-svc::after { background: linear-gradient(90deg, var(--rc), var(--amber) 45%, var(--amber) 55%, var(--rc)) !important; }
-.mw .u-plus { background: linear-gradient(#232324, #232324) center / 9px 2px no-repeat, linear-gradient(#232324, #232324) center / 2px 9px no-repeat, linear-gradient(180deg, var(--amber), color-mix(in srgb, var(--rc) 70%, #fff)) !important; }
-.mw .u-op .u-plus { border-color: var(--gr-sheet2) !important; }
-.mw .wall-delete { background: #2b2b2c !important; border-color: rgba(255, 255, 255, 0.3) !important; }
-.mw .footer--sum { background: rgba(0, 0, 0, 0.18) !important; border-color: rgba(255, 255, 255, 0.12) !important; }
-/* Мелочи, что оставались зелёными: поля размеров, значки окна/двери, переключатель «Одинаковая высота» */
-.mw .lengthfield, .mw-size-drawing .lengthfield { background: #1f1f20 !important; }
-.mw .operators .IC:nth-child(2), .mw .operators .IC:nth-child(4) { border-color: var(--amber) !important; background-color: #1d1d1e !important; }
-.mw .operators .IC:nth-child(4)::after { background: var(--amber) !important; }
-.mw .operators .IC:nth-child(2) { background-image: linear-gradient(var(--amber), var(--amber)), linear-gradient(var(--amber), var(--amber)) !important; background-size: 1px 100%, 100% 1px !important; background-position: 50% 0, 0 45% !important; background-repeat: no-repeat !important; }
-.mw .u-op::before { border-color: var(--amber) !important; }
-.mw .u-op[data-fly="win"]::before { background: linear-gradient(var(--amber), var(--amber)) 50% 0 / 1px 100% no-repeat, linear-gradient(var(--amber), var(--amber)) 0 45% / 100% 1px no-repeat, #1d1d1e !important; }
-.mw .u-op[data-fly="door"]::before { background: linear-gradient(var(--amber), var(--amber)) right 2px top 52% / 2px 5px no-repeat, #1d1d1e !important; }
-.mw-screen .o-same.o-same--v2 .o-tog.is-on, .mw-screen .o-same .o-tog.is-on { background: var(--rc) !important; }
-.mw .opening-shape.door::after { background: var(--amber) !important; }
-.mw .opening-shape.win { background-image: linear-gradient(color-mix(in srgb, var(--amber) 60%, transparent), color-mix(in srgb, var(--amber) 60%, transparent)), linear-gradient(color-mix(in srgb, var(--amber) 60%, transparent), color-mix(in srgb, var(--amber) 60%, transparent)) !important;
-  background-size: 1.5px 100%, 100% 1.5px !important; background-position: 50% 0, 0 45% !important; background-repeat: no-repeat !important; }
-/* Поля сантиметров: ширина задаётся под число (см. fitInput), не ужимается */
-.mw .lengthfield input, .mw-size-drawing .lengthfield input, .mw-screen .o-qty input { min-width: 0; max-width: none; flex: none; }
-.mw .lengthfield { width: auto; max-width: none; }
-/* «Одинаковая высота»: окошко с числом растёт вместе с числом */
-.mw-screen .o-same .o-qty { width: auto !important; min-width: 70px; flex: none; }
-.mw-screen .o-same .o-qty input { width: auto; }
-.mw-screen .o-same.o-same--v2 .o-svc { grid-template-columns: minmax(70px, auto) minmax(0, 1fr) auto !important; }
+/* ---------- пластина ---------- */
+.mw .wallbody { position: relative; z-index: 2; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.18); border-top: 0; border-radius: 0 0 24px 24px; }
+
+/* S общая − окна − двери = S рабочая */
+.mw .equation { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr) minmax(0, 1fr); gap: 4px; align-items: end;
+  padding: 14px 12px 22px; border-bottom: 1px solid rgba(226, 238, 230, 0.1); }
+.mw .eqplate { position: relative; height: 58px; padding: 8px 10px; border-radius: 14px; transform: translateY(-5px); }
+.mw .eqplate::after { content: ''; position: absolute; left: 12%; right: 12%; bottom: -14px; height: 12px; border-radius: 50%; background: rgba(0, 0, 0, 0.6); filter: blur(6px); pointer-events: none; }
+.mw .gross { background: linear-gradient(180deg, var(--g-light), var(--g-light-2)); border: 1px solid color-mix(in srgb, var(--rc) 55%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 6px 12px -6px rgba(0, 0, 0, 0.7); }
+.mw .gross::after { background: rgba(0, 0, 0, 0.45); }
+.mw .net { display: flex; align-items: center; gap: 6px; background: var(--paper), linear-gradient(180deg, var(--g-deep), var(--g-deep-2));
+  border: 1px solid var(--rc-line); box-shadow: var(--deep-shadow); }
+.mw .nettext { position: relative; z-index: 1; flex: 1; min-width: 0; }
+.mw .gross b, .mw .nettext b { display: block; font: 600 10px/12px var(--font-body); letter-spacing: 0.04em; text-transform: uppercase; }
+.mw .gross b { color: var(--rc-light); }
+.mw .gross strong, .mw .nettext strong { display: block; margin-top: 6px; font: 700 18px/22px var(--font-num); color: #fff; white-space: nowrap; }
+.mw .opgroup { display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; padding-bottom: 12px; }
+.mw .opgroup .caption { text-align: center; white-space: nowrap; font: 500 10px/14px var(--font-body); color: var(--ink-mute); }
+.mw .operators { display: flex; align-items: flex-end; justify-content: space-around; gap: 2px; font: 400 18px/18px var(--font-body); color: rgba(237, 242, 232, 0.55); }
+.mw .operators .IC { position: relative; display: block; color: transparent; border: 1px solid var(--rc-light); border-radius: 1px; background-color: var(--g-deep); }
+.mw .operators .IC:nth-child(2) { width: 20px; height: 20px; border-bottom-width: 3px;
+  background-image: linear-gradient(var(--rc-light), var(--rc-light)), linear-gradient(var(--rc-light), var(--rc-light));
+  background-size: 1px 100%, 100% 1px; background-position: 50% 0, 0 45%; background-repeat: no-repeat; }
+.mw .operators .IC:nth-child(4) { width: 15px; height: 26px; border-bottom: 0; }
+.mw .operators .IC:nth-child(4)::after { content: ''; position: absolute; right: 2px; top: 52%; width: 2px; height: 5px; border-radius: 1px; background: var(--rc-light); }
+
+/* ---------- чертёж стены ---------- */
+.mw .measurement { padding: 16px 10px 0 54px; }
+.mw .dimension { position: relative; display: flex; align-items: center; justify-content: center; height: 46px; margin-bottom: 5px; }
+.mw .dimline { position: absolute; left: -6px; right: -6px; top: 17px; height: 12px;
+  background: var(--slash) 0 50% / 12px 12px no-repeat, var(--slash) 100% 50% / 12px 12px no-repeat,
+    linear-gradient(var(--ink-dim), var(--ink-dim)) 50% 50% / calc(100% - 12px) 1px no-repeat; }
+.mw .dimline::before, .mw .dimline::after { content: ''; position: absolute; top: 0; width: 1px; height: 34px; background: var(--ink-dim); }
+.mw .dimline::before { left: 6px; }
+.mw .dimline::after { right: 6px; }
+
+/* поля сантиметров: ширина под число задаётся в js (fitInput) */
+.mw .lengthfield { position: relative; display: flex; align-items: center; gap: 3px; height: 34px; padding: 0 9px; border: 1px solid var(--rc-light); border-radius: 12px;
+  background: var(--g-field); color: #fff; box-shadow: 0 0 0 3px color-mix(in srgb, var(--rc-light) 12%, transparent), 0 4px 10px rgba(0, 0, 0, 0.4); }
+.mw .lengthfield input { flex: none; min-width: 0; width: 36px; padding: 0; border: 0; background: none; outline: 0; text-align: right; font: 700 18px/1 var(--font-num); color: #fff; }
+.mw .lengthfield input::placeholder { color: rgba(237, 242, 232, 0.4); }
+.mw .lengthfield span { font: 500 12px var(--font-num); color: var(--ink-dim); }
+
+.mw .drawing { position: relative; display: grid; grid-template-columns: 58% 42%; align-items: stretch; min-height: 210px; line-height: 0;
+  border: 1px solid var(--rc-line); border-radius: 4px 4px 0 0; background: var(--paper), linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); box-shadow: var(--deep-shadow); }
+/* высота — слева, капсула стоит вертикально; при вводе поворачивается горизонтально */
+.mw .heightdim { position: absolute; left: -46px; top: 0; bottom: 0; width: 38px; display: flex; align-items: center; justify-content: center; white-space: nowrap; line-height: 1.4; font-size: 11px; }
+.mw .heightdim::before { content: ''; position: absolute; left: calc(50% - 6px); top: -6px; bottom: -6px; width: 12px;
+  background: var(--slash) 50% 0 / 12px 12px no-repeat, var(--slash) 50% 100% / 12px 12px no-repeat,
+    linear-gradient(var(--ink-dim), var(--ink-dim)) 50% 50% / 1px calc(100% - 12px) no-repeat; }
+.mw .heightdim::after { content: ''; position: absolute; left: calc(50% - 6px); right: -6px; top: 0; bottom: 0; border-top: 1px solid var(--ink-dim); border-bottom: 1px solid var(--ink-dim); pointer-events: none; }
+.mw .hfield { position: absolute; z-index: 1; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-90deg);
+  transition: transform 0.25s cubic-bezier(.3, 1.4, .5, 1), box-shadow 0.2s; }
+.mw .hfield:focus-within { z-index: 6; transform: translate(-28%, -50%) rotate(0deg);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--rc-light) 25%, transparent), 0 8px 18px rgba(0, 0, 0, 0.55); }
+
+/* работы на стене — строки-чипы */
+.mw .joblist { position: relative; grid-column: 1; grid-row: 1; display: flex; flex-direction: column; justify-content: flex-start; gap: 4px; min-height: 210px; padding: 8px 6px; line-height: 1.4; }
+.mw .job { display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%; height: 26px; padding: 0 8px; border-radius: 8px;
+  border: 1px solid var(--rc-line); background: linear-gradient(160deg, var(--g-btn), var(--g-deep)); color: var(--ink); text-align: left;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 8px -4px rgba(0, 0, 0, 0.8); }
+.mw .job span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: 500 11.5px/26px var(--font-body); color: rgba(237, 242, 232, 0.88); }
+.mw .job b { flex: none; font: 700 12.5px/26px var(--font-num); color: var(--rc-light); }
+.mw .job-empty { padding: 6px 4px; font: 500 12px/16px var(--font-body); color: var(--ink-mute); }
+
+/* окно и дверь на стене */
+.mw .opening-columns { position: relative; grid-column: 2; grid-row: 1; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 6px; align-items: start; line-height: 1.4; }
+.mw .opening-shape { position: relative; display: flex; align-items: flex-start; justify-content: center; padding: 8px 4px; border: 1.5px solid color-mix(in srgb, var(--rc) 50%, #ddd);
+  border-radius: 2px; background-color: #19191a; text-align: center; font-size: 10px; line-height: 14px; box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.04); }
+.mw .opening-shape.win { min-height: 96px; margin: 30px 0 48px; border-bottom-width: 4px;
+  background-image: linear-gradient(color-mix(in srgb, var(--rc-light) 60%, transparent), color-mix(in srgb, var(--rc-light) 60%, transparent)),
+    linear-gradient(color-mix(in srgb, var(--rc-light) 60%, transparent), color-mix(in srgb, var(--rc-light) 60%, transparent));
+  background-size: 1.5px 100%, 100% 1.5px; background-position: 50% 0, 0 45%; background-repeat: no-repeat; }
+.mw .opening-shape.door { align-self: stretch; margin: 62px -1px -1px 0; border-bottom: 0; }
+.mw .opening-shape.door::after { content: ''; position: absolute; right: 8px; top: 52%; width: 3px; height: 12px; border-radius: 2px; background: var(--rc-light); }
+.mw .opening-values { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; padding-top: 4px; }
+.mw .opening-values:empty { display: none; }
+.mw .opening-values > span { display: inline-block; padding: 3px 6px; border-radius: 7px; background: rgba(0, 0, 0, 0.82); font: 600 11px/1.2 var(--font-num); color: #fff; white-space: nowrap; }
+
+/* кнопки под стеной — по колонкам рисунка: «Услуги» под работами, «+окно» под окном, «+дверь» под дверью */
+.mw .under { display: grid; grid-template-columns: 58% 42%; margin-top: 12px; padding: 0 1px; }
+.mw .under__ops { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 6px; }
+.mw .u-btn { position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; height: 50px; padding: 0; border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--rc) 40%, rgba(255, 255, 255, 0.35)); background: var(--g-btn); color: var(--ink); box-shadow: var(--btn-shadow);
+  transition: transform .12s ease-out; }
+.mw .u-btn:active { transform: scale(0.97); }
+.mw .u-svc { margin-right: 8px; padding: 1px 6px; overflow: hidden; font: 500 15px/16px var(--font-body); }
+.mw .u-svc::after { content: ''; position: absolute; left: 8px; right: 8px; bottom: 3px; height: 1.5px; border-radius: 1px;
+  background: linear-gradient(90deg, var(--rc), var(--rc-light) 45%, var(--rc-light) 55%, var(--rc)); }
+.mw .u-plus { flex: none; width: 18px; height: 18px; border-radius: 50%; font-size: 0;
+  background: linear-gradient(var(--g-deep-2), var(--g-deep-2)) center / 9px 2px no-repeat, linear-gradient(var(--g-deep-2), var(--g-deep-2)) center / 2px 9px no-repeat,
+    linear-gradient(180deg, var(--rc-light), color-mix(in srgb, var(--rc) 70%, #fff));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); }
+.mw .u-op .u-plus { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border: 2px solid var(--g-sheet-low); box-sizing: content-box; }
+.mw .u-op::before { content: ''; display: block; border: 1px solid var(--rc-light); border-radius: 1px; background-color: var(--g-deep); }
+.mw .u-op[data-fly="win"]::before { width: 22px; height: 22px; border-bottom-width: 3px;
+  background-image: linear-gradient(var(--rc-light), var(--rc-light)), linear-gradient(var(--rc-light), var(--rc-light));
+  background-size: 1px 100%, 100% 1px; background-position: 50% 0, 0 45%; background-repeat: no-repeat; }
+.mw .u-op[data-fly="door"]::before { width: 16px; height: 26px; margin-top: 4px; border-bottom: 0;
+  background-image: linear-gradient(var(--rc-light), var(--rc-light)); background-size: 2px 5px; background-position: right 2px top 52%; background-repeat: no-repeat; }
+
+/* итог по стене и удаление стены (в её левом углу) */
+.mw .emptywarn { margin: 10px; text-align: center; font-size: 12px; color: #ffd278; }
+.mw .wall-card-tools { position: absolute; z-index: 3; left: 27px; bottom: 25px; }
+.mw .wall-delete { display: grid; place-items: center; width: 34px; height: 34px; padding: 5px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--g-btn); color: var(--ink); box-shadow: 0 2px 2.5px rgba(0, 0, 0, 0.27), inset 0 1px 1px rgba(255, 255, 255, 0.3); }
+.mw .wall-delete svg { width: 19px; height: 19px; }
+.mw .footer--sum { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 56px; margin: 16px 12px 14px; padding: 12px 16px 12px 58px;
+  border: 1px solid var(--g-line-soft); border-radius: 18px; background: rgba(0, 0, 0, 0.18); }
+.mw .footer--sum span { font: 500 12px/16px var(--font-body); color: rgba(237, 242, 232, 0.65); text-transform: uppercase; letter-spacing: 0.04em; }
+.mw .footer--sum b { font: 700 24px/30px var(--font-num); color: #fff; }
+
+/* ---------- итог по комнате ---------- */
+.mw .room-summary { padding: 20px 16px; }
+.mw .sum-heading small { font-size: 10px; letter-spacing: 0.14em; color: var(--rc-light); }
+.mw .sum-heading h2 { margin: 3px 0 18px; font: 700 20px var(--font-num); }
+.mw .summary-areas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding-bottom: 20px; }
+.mw .summary-areas span { padding: 10px 8px; border-radius: 14px; border: 1px solid var(--g-line-soft); background: rgba(0, 0, 0, 0.18); font-size: 10px; color: var(--ink-mute); }
+.mw .summary-areas span:first-child { border-color: color-mix(in srgb, var(--rc) 55%, transparent); background: linear-gradient(180deg, var(--g-light), var(--g-light-2)); }
+.mw .summary-areas span:last-child { border-color: var(--rc-line); background: var(--paper), linear-gradient(180deg, var(--g-deep), var(--g-deep-2)); }
+.mw .summary-areas b { display: block; margin-top: 4px; font: 700 16px/20px var(--font-num); color: #fff; white-space: nowrap; }
+.mw .sum-section-title { margin: 4px 0 10px; font: 700 14px/1.35 var(--font-num); color: #e6efe4; }
+.mw .sum-wall { margin-bottom: 8px; padding: 12px; border-radius: 16px; border: 1px solid var(--g-line-soft); background: rgba(0, 0, 0, 0.2); }
+.mw .sum-wall-head { display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
+.mw .sum-wall-head span { font: 600 12px/1.35 var(--font-num); color: var(--ink-mute); }
+.mw .sum-wall-areas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 12px 0; font-size: 10px; color: var(--ink-mute); }
+.mw .sum-wall-areas b { display: block; margin-top: 3px; font: 700 12px/1.35 var(--font-num); color: #fff; }
+.mw .sum-details { padding-top: 7px; border-top: 1px solid var(--g-line-soft); }
+.mw .sum-details > div { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 4px 0; font-size: 12px; color: #dfe6dc; }
+.mw .sum-details > div > span:last-child, .mw .sum-details b { flex: none; font-weight: 600; color: #fff; }
+.mw .sum-services { margin-bottom: 16px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--g-line-soft); }
+.mw .sum-services small { display: block; font-size: 10px; color: var(--ink-mute); }
+.mw .room-price { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding: 14px 16px; border-radius: 16px;
+  border: 1px solid var(--rc-line); background: color-mix(in srgb, var(--rc) 12%, transparent); font-size: 14px; }
+.mw .room-price strong { font: 700 20px/1.35 var(--font-num); color: #fff; }
+
+/* итог по всем комнатам — пластины без закладок */
+.mw.mw--plain { filter: none; }
+.mw.mw--plain h3 { margin: 14px 4px 8px; font: 700 17px/22px var(--font-num); color: #fff; }
+.mw.mw--plain .wallbody { border: 1px solid var(--g-line); border-radius: 24px !important; background: linear-gradient(180deg, var(--g-sheet), var(--g-sheet-low));
+  box-shadow: 0 20px 34px -18px rgba(0, 0, 0, 0.9); }
+
+/* ---------- окна поверх экрана: размеры окна/двери, список проёмов ---------- */
+.mw.mw--dlg { position: fixed; z-index: 31; left: 16px; right: 16px; top: 50%; transform: translateY(-50%); max-width: 390px; max-height: 86vh; margin: 0 auto; overflow-y: auto; filter: none; }
+.mw .od2 { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 16px 16px; border-radius: 22px; border: 1px solid var(--g-line);
+  background: linear-gradient(180deg, var(--g-sheet), var(--g-sheet-low)); box-shadow: 0 24px 40px -18px rgba(0, 0, 0, 0.9); }
+.mw .od2__t { margin: 0; font: 700 18px/22px var(--font-num); color: #fff; }
+.mw .od2-meas { margin: 0 auto; padding: 6px 0 0 54px; }
+.mw .od2-drawing { display: block; min-height: 0; border: 0; background: none; box-shadow: none; }
+.mw .od2-fig { position: relative; width: 100%; height: 100%; border: 1.5px solid var(--rc-light); background: var(--g-deep); }
+.mw .od2-fig.win { border-bottom-width: 5px;
+  background-image: linear-gradient(color-mix(in srgb, var(--rc-light) 55%, transparent), color-mix(in srgb, var(--rc-light) 55%, transparent)),
+    linear-gradient(color-mix(in srgb, var(--rc-light) 55%, transparent), color-mix(in srgb, var(--rc-light) 55%, transparent));
+  background-size: 1.5px 100%, 100% 1.5px; background-position: 50% 0, 0 45%; background-repeat: no-repeat; }
+.mw .od2-fig.door { border-bottom: 0; }
+.mw .od2-fig.door::after { content: ''; position: absolute; right: 9px; top: 52%; width: 3px; height: 14px; border-radius: 2px; background: var(--rc-light); }
+.mw .od2__area { margin: 2px 0 0; font: 400 13px/18px var(--font-body); color: var(--ink-mute); }
+.mw .od2__area b { font: 700 16px var(--font-num); color: #fff; }
+.mw .od2__btns { align-self: stretch; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+.mw .od2__btns--one { grid-template-columns: 1fr; }
+.mw .od2-b { height: 46px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.16); background: var(--g-btn); font: 600 15px/1 var(--font-body); color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 10px 16px -8px rgba(0, 0, 0, 0.85); }
+.mw .od2-b.ok { color: #fff; border-color: color-mix(in srgb, var(--rc-light) 70%, transparent); background: linear-gradient(160deg, color-mix(in srgb, var(--rc) 85%, #fff), var(--rc));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 10px 18px -8px color-mix(in srgb, var(--rc) 70%, transparent); }
+.mw .od2--list { align-items: stretch; }
+.mw .od2--list .od2__t { align-self: center; }
+.mw .opening-list-row { padding: 10px 0; border-top: 1px solid var(--g-line-soft); }
+.mw .opening-row-title { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; font-size: 14px; }
+.mw .opening-row-title strong { font-family: var(--font-num); }
+.mw .opening-row-fields { display: grid; grid-template-columns: minmax(0, 1fr) 12px minmax(0, 1fr) auto; gap: 5px; align-items: end; }
+.mw .opening-row-fields label { display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: var(--ink-mute); }
+.mw .opening-row-fields input { width: 100%; height: 40px; padding: 0 8px; border: 1.5px solid var(--rc-light); border-radius: 10px; background: var(--g-field); font: 700 16px var(--font-num); color: #fff; }
+.mw .opening-row-fields > span { align-self: center; margin-top: 16px; }
+.mw .remove-opening { height: 40px; padding: 0 5px; border: 1px solid #f1ada666; border-radius: 6px; background: #713d3933; color: #ffc0b9; font-size: 11px; }
+.mw .mw-none { margin: 4px 0; text-align: center; font: 400 13px/18px var(--font-body); color: var(--ink-dim); }
+
+/* ---------- полёт ярлыка в свою колонку ---------- */
+.fly { position: fixed; z-index: 200; pointer-events: none; padding: 5px 10px; border-radius: 10px; white-space: nowrap;
+  color: #13221f; font: 700 13px/1.2 Manrope, sans-serif; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45); }
+.land { animation: mw-land 0.45s cubic-bezier(.2, 1.6, .4, 1) both; }
+@keyframes mw-land { 0% { transform: scale(1.5); } 100% { transform: scale(1); } }
+.hit { animation: mw-hit 0.6s ease-out; }
+@keyframes mw-hit { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--rc-light) 80%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+
+/* ---------- верх экрана (общие блоки «Оценки»): плитки комнат не трогаем ---------- */
+/* «Одинаковая высота»: окошко растёт с числом; переключатель — цвет комнаты */
+.mw-screen .o-same.o-same--v2 .o-svc { grid-template-columns: minmax(70px, auto) minmax(0, 1fr) auto; }
+.mw-screen .o-same .o-qty { width: auto; min-width: 70px; flex: none; }
+.mw-screen .o-same .o-qty input { width: auto; min-width: 0; max-width: none; flex: none; }
+.mw-screen .o-same .o-tog.is-on { background: var(--rc); }

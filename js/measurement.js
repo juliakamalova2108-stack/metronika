@@ -1,11 +1,11 @@
-// «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»). Функции и раскладка — как у Codex;
-// вид — по согласованному макету «Замер — осовременить формы»: графитовый лист с закладками-каскадом, парящие плашки площадей,
-// стена-миллиметровка с зелёной штриховкой, кнопки под своими колонками, размеры в сантиметрах, полёт ярлыка.
-import {actions,changes,rerender,afterRender} from './core.js?v=148';
-import * as S from './store.js?v=148';
-import {oformitDraft} from './oformit.js?v=148';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=148';
-import {esc} from './ui.js?v=148';
+// «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
+// Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
+// размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
+import {actions,changes,rerender,afterRender} from './core.js?v=149';
+import * as S from './store.js?v=149';
+import {oformitDraft} from './oformit.js?v=149';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=149';
+import {esc} from './ui.js?v=149';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -36,7 +36,7 @@ const TRASH='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 4h6M
 // светлый оттенок цвета комнаты для блика кромки
 const light=c=>{const m=/^#?([0-9a-f]{6})$/i.exec(c||'');if(!m)return '#cfe0ff';const v=parseInt(m[1],16),f=x=>Math.round(x+(255-x)*.45);return `rgb(${f(v>>16&255)},${f(v>>8&255)},${f(v&255)})`;};
 // Лист стены: выбранная закладка и пластина — один фон (.gt-sheet с вырезом по силуэту), остальные закладки — позади.
-const H=44, SL=26, SEL_W=104, SUM_W=76, ROW_W=358;
+const H=44, SL=26, SEL_W=104, SUM_W=76;
 function tabs(r,color){
   // Закладки стен листаются вбок: ширина закладок постоянная, «+» идёт за последней стеной,
   // «Итог» закреплён справа. Выбранная закладка нарисована цветом листа и сливается с ним.
@@ -87,7 +87,7 @@ afterRender.push(()=>{
   sc.addEventListener('scroll',()=>{tabScroll=sc.scrollLeft;},{passive:true});
 });
 
-// ---------- итог комнаты (как у Codex) ----------
+// ---------- итог комнаты ----------
 function summary(r,edges=''){
  let g=0,o=0,a=0,c=0;const by=new Map();
  const rows=r.walls.map((w,i)=>{const ga=gross(w,r),ho=holes(w),ne=net(w,r),co=cost(w,r);g+=ga;o+=ho;a+=ne;c+=co;w.svcs.forEach(id=>{const old=by.get(id)||{area:0,sum:0};old.area+=ne;old.sum+=Math.round(ne*svcInfo(id).price);by.set(id,old)});return '<section class="sum-wall"><div class="sum-wall-head"><strong>Стена '+(i+1)+'</strong><span>'+cm(w.len)+' × '+cm(r.sameH?r.h:w.h)+' см</span></div><div class="sum-wall-areas"><span>Общая <b>'+n(ga)+' м²</b></span><span>Проёмы <b>−'+n(ho)+' м²</b></span><span>Рабочая <b>'+n(ne)+' м²</b></span></div><div class="sum-details">'+w.opens.map(x=>'<div>'+esc(x.type)+' <span>'+(x.width&&x.height?cm(x.width)+' × '+cm(x.height)+' см · ':'')+n(x.area)+' м²</span></div>').join('')+w.svcs.map(id=>'<div>'+esc(svcInfo(id).name)+' <span>'+rub(Math.round(ne*svcInfo(id).price))+'</span></div>').join('')+'</div></section>'}).join('');
@@ -170,14 +170,14 @@ afterRender.push(()=>{
   const a=src.getBoundingClientRect(),b=target.getBoundingClientRect();
   const el=document.createElement('div');el.className='fly'+(f.kind==='svc'?' fly--svc':'');el.textContent=f.text;document.body.appendChild(el);
   const x0=a.left+a.width/2-el.offsetWidth/2,y0=a.top+a.height/2-el.offsetHeight/2,x1=b.left+b.width/2-el.offsetWidth/2,y1=b.top+b.height/2-el.offsetHeight/2;
-  el.style.background=getComputedStyle(src).getPropertyValue('--amber')||'';el.style.left=x0+'px';el.style.top=y0+'px';target.style.visibility='hidden';
+  el.style.background=getComputedStyle(src).getPropertyValue('--rc-light')||'';el.style.left=x0+'px';el.style.top=y0+'px';target.style.visibility='hidden';
   const dx=x1-x0,dy=y1-y0;
   const done=()=>{el.remove();target.style.visibility='';target.classList.add('land');const sh=target.closest('.opening-shape');if(sh){sh.classList.remove('hit');void sh.offsetWidth;sh.classList.add('hit');}};
   if(!el.animate||matchMedia('(prefers-reduced-motion: reduce)').matches){done();return;}
   el.animate([{transform:'translate(0,0) scale(.5)',opacity:0},{transform:'translate(0,-14px) scale(1.1)',opacity:1,offset:.18},{transform:`translate(${dx*.55}px,${dy*.55-70}px) scale(1.05)`,opacity:1,offset:.6},{transform:`translate(${dx}px,${dy}px) scale(.85)`,opacity:1}],{duration:780,easing:'cubic-bezier(.35,.6,.3,1)'}).onfinish=done;
 });
 
-// ---------- действия (логика Codex; длины в сантиметрах) ----------
+// ---------- действия (длины в сантиметрах) ----------
 actions['mw-pick']=()=>{state(oformitDraft()).view='pick';save()};
 actions['mw-room']=el=>{state(oformitDraft()).view=el.dataset.key;save()};
 actions['mw-wall']=el=>{const r=current();r.active=+el.dataset.i;r.total=false;r.mwDialog=null;save()};
@@ -209,7 +209,7 @@ actions['mw-confirm-opening']=()=>{const r=current(),o=r.newOpening;
   r.newOpening=null;r.mwDialog=null;save()};
 
 // Поля сантиметров растут под ввод: базовая ширина — 3 цифры, длиннее число (например 15000) — поле шире.
-const FIT_SEL='.mw .lengthfield input, .mw-size-drawing .lengthfield input, .mw-screen .o-qty input';
+const FIT_SEL='.mw .lengthfield input, .mw-screen .o-qty input';
 function fitInput(inp){const n=Math.max(3,String(inp.value||inp.placeholder||'').length);inp.style.width=`calc(${n}ch + 2px)`;}
 afterRender.push(()=>document.querySelectorAll(FIT_SEL).forEach(fitInput));
 document.addEventListener('input',ev=>{const t=ev.target;if(t&&t.matches&&t.matches(FIT_SEL))fitInput(t);},true);
