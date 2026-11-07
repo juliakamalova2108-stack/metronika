@@ -442,3 +442,19 @@
 .mw #gtLite stop { stop-color: #e6f2cc !important; }
 /* «Одинаковая высота / услуги» в замере — акцент без синего; плитки комнат сверху — как в «Оценке» (с цветным отблеском комнаты) */
 .mw-screen .o-same-wrap, .mw-screen .o-same { --rc: #a9bf86 !important; }
+/* Кнопки под стеной — как кнопки приложения (.f-btn): тёмные, светлая рамка, полоска-индикатор внизу */
+.mw .u-btn { border-radius: 6px !important; border: 1px solid rgba(204, 222, 209, 0.55) !important; background: #213839 !important; color: #edf0e7 !important;
+  box-shadow: 0 4px 7px rgba(4, 13, 15, 0.16), 0 2px 2.5px rgba(1, 6, 9, 0.27), inset 0 -2px 2px rgba(6, 18, 20, 0.34), inset 0 1px 1px rgba(224, 242, 227, 0.36) !important; }
+.mw .u-svc { font: 500 15px/16px var(--font-body) !important; overflow: hidden; }
+.mw .u-svc::after { content: ''; position: absolute; left: 8px; right: 8px; bottom: 3px; height: 1.5px; border-radius: 1px;
+  background: linear-gradient(90deg, #9eb57d, #e6f2cc 40%, #deedc2 60%, #b0c78c); }
+/* Плюсики: светлый кружок с тёмным крестиком (как кнопка «Добавить комнату») */
+.mw .u-plus { font-size: 0 !important; width: 18px !important; height: 18px !important; border-radius: 50% !important; box-sizing: border-box !important;
+  background: linear-gradient(#22383a, #22383a) center / 9px 2px no-repeat, linear-gradient(#22383a, #22383a) center / 2px 9px no-repeat, linear-gradient(180deg, #e6f2cc, #c9dcae) !important;
+  box-shadow: 0 2px 4px rgba(2, 10, 12, 0.5) !important; }
+.mw .u-op .u-plus { position: absolute !important; top: -7px !important; right: -7px !important; width: 20px !important; height: 20px !important; border: 2px solid #33484a !important; box-sizing: content-box !important; }
+/* Удаление стены — в нижнем левом углу, внутри строки «Итого по стене», не наезжает на текст */
+.mw .wall-card-tools { top: auto !important; bottom: 25px !important; left: 27px !important; }
+.mw .wall-delete { width: 34px !important; height: 34px !important; border-radius: 6px !important; border: 1px solid rgba(204, 222, 209, 0.55) !important; background: #213839 !important; color: #edf0e7 !important;
+  box-shadow: 0 2px 2.5px rgba(1, 6, 9, 0.27), inset 0 1px 1px rgba(224, 242, 227, 0.3) !important; }
+.mw .footer--sum { padding-left: 58px !important; align-items: center !important; }
