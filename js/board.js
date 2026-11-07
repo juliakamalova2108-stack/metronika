@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=231';
-import * as S from './store.js?v=231';
-import { renderOformit, oformitDraft } from './oformit.js?v=231';
-import { roomTotals, svcInfo } from './ocenka.js?v=231';
-import { smetaTotals } from './zakaz.js?v=231';
-import { bookedDays } from './grafik.js?v=231';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=231';
-import { esc, toast } from './ui.js?v=231';
+import { actions, rerender, go } from './core.js?v=232';
+import * as S from './store.js?v=232';
+import { renderOformit, oformitDraft } from './oformit.js?v=232';
+import { roomTotals, svcInfo } from './ocenka.js?v=232';
+import { smetaTotals } from './zakaz.js?v=232';
+import { bookedDays } from './grafik.js?v=232';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=232';
+import { esc, toast } from './ui.js?v=232';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -500,7 +500,6 @@ export function renderHome() {
         <div class="mc__row"><span class="mc__brand">Metronica</span>${stats ? `<button type="button" class="mc__tier mc__tier--btn" data-action="home-ranks" aria-label="Открыть ранги">${TIERS[t - 1]} ›</button>` : `<span class="mc__tier">${TIERS[t - 1]}</span>`}</div>
         <div class="mc__chip">${medal(t)}</div>
         <h3 class="mc__name">${esc(r[0])}</h3>
-        <p class="mc__thr">${r[1] === 0 ? 'с первого дня' : `от ${fmt(r[1])} ${r[1] % 10 === 1 && r[1] % 100 !== 11 ? 'описанного материала' : 'описанных материалов'}`}</p>
         <div class="mc__row mc__row--end"><span class="mc__owner"><small>Мастер</small>${esc(fullName)}</span><span class="mc__no"><small>Ранг</small>${String(i + 1).padStart(2, '0')} / ${RANKS.length}</span></div>
         ${stats ? `<div class="mc__stats"><span><small>Поклеено</small><b>${fmt(area)} м²</b></span><span><small>Опыт</small><b>${expN}</b></span></div>` : ''}
       </div></article>`;
