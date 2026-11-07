@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»). Функции и раскладка — как у Codex;
 // вид — по согласованному макету «Замер — осовременить формы»: графитовый лист с закладками-каскадом, парящие плашки площадей,
 // стена-миллиметровка с зелёной штриховкой, кнопки под своими колонками, размеры в сантиметрах, полёт ярлыка.
-import {actions,changes,rerender,afterRender} from './core.js?v=145';
-import * as S from './store.js?v=145';
-import {oformitDraft} from './oformit.js?v=145';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=145';
-import {esc} from './ui.js?v=145';
+import {actions,changes,rerender,afterRender} from './core.js?v=146';
+import * as S from './store.js?v=146';
+import {oformitDraft} from './oformit.js?v=146';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings} from './ocenka.js?v=146';
+import {esc} from './ui.js?v=146';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -36,12 +36,12 @@ const TRASH='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 4h6M
 // светлый оттенок цвета комнаты для блика кромки
 const light=c=>{const m=/^#?([0-9a-f]{6})$/i.exec(c||'');if(!m)return '#cfe0ff';const v=parseInt(m[1],16),f=x=>Math.round(x+(255-x)*.45);return `rgb(${f(v>>16&255)},${f(v>>8&255)},${f(v&255)})`;};
 // Лист стены: выбранная закладка и пластина — один фон (.gt-sheet с вырезом по силуэту), остальные закладки — позади.
-const H=44, SL=26, SEL_W=120, SUM_W=76, ROW_W=358;
+const H=44, SL=26, SEL_W=104, SUM_W=76, ROW_W=358;
 function tabs(r,color){
   // Закладки стен листаются вбок: ширина закладок постоянная, «+» идёт за последней стеной,
   // «Итог» закреплён справа. Выбранная закладка нарисована цветом листа и сливается с ним.
   const n0=r.walls.length, sel=r.total?-1:r.active;
-  const TW=62, PW=64;                                    // ширина невыбранной закладки и «+»
+  const TW=72, PW=2*(72-SL+2)+SL-2;               // невыбранная закладка; «+» шириной как две свёрнутые
   const w=i=>i===sel?SEL_W:TW;
   const xs=[];let x=0;for(let i=0;i<n0;i++){xs.push(x);x+=w(i)-SL+2;}
   const plusX=x, innerW=plusX+PW;
@@ -79,7 +79,10 @@ afterRender.push(()=>{
   const sc=document.querySelector('.mw .gt-scroll');if(!sc)return;
   const on=sc.querySelector('.gt-b.on');const key=(on&&on.dataset.i)||'total';
   sc.scrollLeft=tabScroll;
-  if(on&&key!==tabSelKey){const l=on.offsetLeft,r2=l+on.offsetWidth+30;if(l<sc.scrollLeft+8||r2>sc.scrollLeft+sc.clientWidth)sc.scrollLeft=Math.max(0,l-(sc.clientWidth-on.offsetWidth)/2);}
+  if(on&&key!==tabSelKey){const vis=sc.clientWidth-26;                 // правые 25px закрыты «Итогом»
+    const last=!on.parentElement.querySelector('.gt-b[data-action="mw-wall"][data-i="'+(+key+1)+'"]');
+    if(last)sc.scrollLeft=sc.scrollWidth;                                 // последняя стена — видно её и «+»
+    else{const l=on.offsetLeft,r2=l+on.offsetWidth+30;if(l<sc.scrollLeft+8||r2>sc.scrollLeft+vis)sc.scrollLeft=Math.max(0,l-(vis-on.offsetWidth)/2);}}
   tabSelKey=key;tabScroll=sc.scrollLeft;
   sc.addEventListener('scroll',()=>{tabScroll=sc.scrollLeft;},{passive:true});
 });
