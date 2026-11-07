@@ -1,11 +1,11 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=182';
-import * as S from './store.js?v=182';
-import {oformitDraft} from './oformit.js?v=182';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=182';
-import {esc} from './ui.js?v=182';
+import {actions,changes,rerender,afterRender} from './core.js?v=183';
+import * as S from './store.js?v=183';
+import {oformitDraft} from './oformit.js?v=183';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=183';
+import {esc} from './ui.js?v=183';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -75,7 +75,7 @@ export function sheetTabs(o,color){
     :`<g class="${cls}"><path class="gt-back" d="${d} Z"/></g>`;
   const paths=o.square?shape(sumD,'gt-slant')+shape(sqD,'gt-sq'):shape(sumD,'');
   const right=`<div class="gt-right${tot?' on':''}${o.square?' gt-right--sq':''}" style="width: ${SW}px"><svg class="gt-svg" width="${SW}" height="${H+1}" viewBox="0 0 ${SW} ${H+1}" aria-hidden="true">${tot?lite.replace('gtLite','gtLite2'):''}${paths}`+
-    `</svg><button type="button" class="gt-b${tot?' on':''}" data-action="${o.totalAct}" style="left: ${o.square?SL:6}px; width: ${SW-(o.square?SL:6)}px">${o.totalLabel||'Итог'}${o.totalMark?'<i class="gt-dot" aria-label="есть материалы без опыта"></i>':''}</button></div>`;
+    `</svg><button type="button" class="gt-b${tot?' on':''}" data-action="${o.totalAct}" style="left: ${o.square?SL:6}px; width: ${SW-(o.square?SL:6)}px">${o.totalLabel||'Итог'}${o.totalBlink?'<i class="gt-dot gt-dot--blink" aria-label="эти обои вы уже клеили"></i>':o.totalMark?'<i class="gt-dot" aria-label="есть материалы без опыта"></i>':''}</button></div>`;
   return {html:`<i class="gt-sheet" aria-hidden="true"></i><nav class="gt-tabs" aria-label="${o.name}">${left}${right}</nav>`, radius:'0 0 24px 24px', edges:''};
 }
 function tabs(r,color){
