@@ -1708,3 +1708,9 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .mc__stats small { white-space: nowrap; }
 .h-next { display: flex; flex-direction: column; gap: 8px; margin: 0 4px; }
 .h-next span { font: 500 13px/1.3 Inter, sans-serif; color: rgba(237, 242, 232, 0.7); }
+.mc__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.h-cardwrap { cursor: default; }
+.mc__tier--btn { position: relative; z-index: 4; padding: 7px 12px; border-radius: 20px; border: 1px solid color-mix(in srgb, var(--hi) 45%, transparent);
+  background: color-mix(in srgb, var(--m2) 45%, rgba(255,255,255,.08)); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  font: 700 12px/1 Manrope, Inter, sans-serif; letter-spacing: .03em; color: var(--ink); cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
+.mc__tier--btn:focus-visible { outline: 2px solid var(--hi); outline-offset: 2px; }
