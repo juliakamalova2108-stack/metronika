@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=186';
-import * as S from './store.js?v=186';
-import { renderOformit, oformitDraft } from './oformit.js?v=186';
-import { roomTotals, svcInfo } from './ocenka.js?v=186';
-import { smetaTotals } from './zakaz.js?v=186';
-import { bookedDays } from './grafik.js?v=186';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=186';
-import { esc, toast } from './ui.js?v=186';
+import { actions, rerender, go } from './core.js?v=187';
+import * as S from './store.js?v=187';
+import { renderOformit, oformitDraft } from './oformit.js?v=187';
+import { roomTotals, svcInfo } from './ocenka.js?v=187';
+import { smetaTotals } from './zakaz.js?v=187';
+import { bookedDays } from './grafik.js?v=187';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=187';
+import { esc, toast } from './ui.js?v=187';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -381,3 +381,87 @@ actions['ch-send'] = (btn) => {
     const i = document.querySelector(`.ch-msg[data-at="${m.at}"] .ch-st`); if (i) i.outerHTML = `<i class="ch-st ch-st--${st}" aria-label="${ST_T[st]}">${ST_I[st]}</i>`; }, ms);
   step('sent', 500); step('delivered', 1500); if (!solo) step('read', 3500);
 };
+
+// ================= Главная мастера — дашборд =================
+// Только то, на что мастер реагирует каждый день: «Сегодня» (куда ехать), «Требует действия»,
+// «Ближайшие дни», «Деньги», «Задачи на сегодня». Всё остальное — в «Заказах».
+// Пока на примерных заказах доски (QUEUE / DEMO), как и «Заказы».
+const PLUS = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="#edf0e7" stroke-width="2.2" stroke-linecap="round"/></svg>';
+const I_ORD = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3" stroke="#A3AEBE" stroke-width="1.8"/><path d="M8 9h8M8 13h8M8 17h5" stroke="#A3AEBE" stroke-width="1.8" stroke-linecap="round"/></svg>';
+const I_MON = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="6.5" width="17" height="13" rx="2.5" stroke="#A3AEBE" stroke-width="1.8"/><path d="M16 13h2M3.5 10h17" stroke="#A3AEBE" stroke-width="1.8" stroke-linecap="round"/></svg>';
+const homeOrder = (no) => { seedOrder(no); return S.get().oformit['ord-' + no]; };
+const isoDay = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+// Демо-задачи на сегодня — один раз в примерные заказы.
+function homeSeed() {
+  Object.keys(DEMO).forEach((no) => {
+    const o = homeOrder(no);
+    if (o.homeSeed) return; o.homeSeed = true; o.tasks = o.tasks || [];
+    if (no === '007') o.tasks.push({ id: 'ht-007', text: 'Купить клей для виниловых обоев', who: 'me', due: iso(0), done: false });
+    if (no === '004') o.tasks.push({ id: 'ht-004', text: 'Забрать уровень у Ивана', who: 'me', due: iso(0), done: false });
+  });
+  S.save();
+}
+export function renderHome() {
+  homeSeed();
+  const today = QUEUE.filter(([off, k]) => off === 0 && k);
+  const next = QUEUE.filter(([off, k]) => off > 0 && k);
+  const shown = today.length ? today : next.slice(0, 1);
+  // 1. Сегодня
+  const visit = ([off, key, k, time]) => {
+    const x = R[key]; const c = x.c; const sh = ORDER_SH[c.no];
+    const map = 'https://yandex.ru/maps/?text=' + encodeURIComponent('Уфа, ' + c.a);
+    return `<article class="f-plate h-visit" style="--c:${x.col}">
+      <div class="h-visit__top"><span class="h-visit__time"><b>${time}</b><small>${off === 0 ? 'сегодня' : `${WD[dayOf(off).getDay()]}, ${dayOf(off).getDate()} ${MON[dayOf(off).getMonth()]}`}</small></span>
+        <span class="h-visit__who"><b>${esc(c.n)}</b><small>${esc(c.a)}</small></span></div>
+      <div class="h-visit__job"><span class="bd-room" style="--c:${x.col}">${esc(x.r)}<small>${esc(x.f)}</small></span><span class="h-visit__day">${label(sh, k)} из ${sh.length} · №${c.no}</span></div>
+      <div class="h-visit__btns"><a class="h-btn" href="tel:${esc(c.ph.replace(/[^+\d]/g, ''))}">${PH}<span>Позвонить</span></a>
+        <a class="h-btn" href="${map}" target="_blank" rel="noopener">${RT}<span>Маршрут</span></a>
+        <button type="button" class="h-btn h-btn--lit" data-action="bd-open" data-no="${c.no}"><span>Открыть заказ</span></button></div></article>`;
+  };
+  const todayHtml = `<p class="h-sec">${today.length ? `Сегодня · ${today.length} ${today.length === 1 ? 'выезд' : 'выезда'}` : 'Сегодня выездов нет · ближайший'}</p>
+    <div class="h-visits">${shown.map(visit).join('')}</div>`;
+  // 2. Требует действия
+  const nextOff = (no) => { const r = QUEUE.find(([off, k]) => off >= 0 && k && R[k].c.no === no); return r ? r[0] : null; };
+  const att = [];
+  Object.keys(DEMO).forEach((no) => {
+    const o = homeOrder(no); const c = CL[no];
+    const n = unread(o); if (n) att.push(['chat', `№${no} ${c.n.split(' ')[1] || c.n}: ${n} ${n === 1 ? 'новое сообщение' : 'новых сообщения'} в чате`, no, 'chat']);
+    const paid = o.fin ? o.fin.pays.reduce((a, p) => a + p.amount, 0) : 0; const off = nextOff(no);
+    if (!paid && off != null && off <= 1) att.push(['warn', `№${no} ${c.n.split(' ')[1] || c.n}: выезд ${off === 0 ? 'сегодня' : 'завтра'}, аванс не внесён`, no, 'finance']);
+    if (o.sm && !o.smSent) att.push(['warn', `№${no} ${c.n.split(' ')[1] || c.n}: замер сделан, смета клиенту не отправлена`, no, 'smeta']);
+    const items = o.mat ? Object.values(o.mat.rooms || {}).flatMap((r) => r.items || []) : [];
+    const miss = [...new Set(items.map((it) => it.code))].filter((code) => !S.reviewsOf(code).some((v) => v.authorId === S.me().id)).length;
+    if (miss) att.push(['info', `№${no} ${c.n.split(' ')[1] || c.n}: опыт по материалу не записан (${miss})`, no, 'material']);
+  });
+  const attHtml = att.length ? `<p class="h-sec">Требует действия · ${att.length}</p><section class="f-plate h-att">${att.map(([kind, text, no, t]) =>
+    `<button type="button" class="h-att__row h-att__row--${kind}" data-action="bd-edit" data-no="${no}" data-tab="${t}"><i></i><span>${esc(text)}</span><b>›</b></button>`).join('')}</section>` : '';
+  // 3. Ближайшие дни
+  const days = [1, 2, 3, 4, 5].map((off) => [off, QUEUE.filter(([o2, k]) => o2 === off && k)]);
+  const daysHtml = `<p class="h-sec">Ближайшие дни</p><section class="f-plate h-days">${days.map(([off, rows]) => {
+    const d = dayOf(off);
+    return `<div class="h-day"><span class="h-day__d"><small>${WD[d.getDay()]}</small><b>${d.getDate()}</b></span><span class="h-day__list">${rows.length ? rows.map(([, key, , time]) => { const x = R[key];
+      return `<button type="button" class="h-day__row" data-action="bd-open" data-no="${x.c.no}"><em>${time}</em><span>${esc(x.c.n.split(' ')[1] || x.c.n)} · ${esc(x.r)}</span><i style="--c:${x.col}"></i></button>`; }).join('') : '<span class="h-day__free">свободно</span>'}</span></div>`; }).join('')}</section>`;
+  // 4. Деньги
+  const now = new Date(); const ym = isoDay(now).slice(0, 7);
+  let got = 0, wait = 0;
+  Object.keys(DEMO).forEach((no) => { const o = homeOrder(no);
+    const pays = (o.fin && o.fin.pays) || []; got += pays.filter((p) => String(p.date || '').slice(0, 7) === ym).reduce((a, p) => a + p.amount, 0);
+    const sum = ((o.est && o.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0); wait += Math.max(0, sum - pays.reduce((a, p) => a + p.amount, 0)); });
+  const moneyHtml = `<p class="h-sec">Деньги</p><section class="h-money"><button type="button" class="f-plate h-money__c" data-action="go" data-to="money"><small>Получено за ${['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'][now.getMonth()]}</small><b>${fmt(got)} ₽</b></button>
+    <button type="button" class="f-plate h-money__c" data-action="go" data-to="money"><small>Ожидается по заказам</small><b>${fmt(wait)} ₽</b></button></section>`;
+  // 5. Задачи на сегодня
+  const tasks = Object.keys(DEMO).flatMap((no) => ((homeOrder(no).tasks) || []).filter((t) => !t.done || t.doneToday === iso(0)).filter((t) => !t.due || t.due <= iso(0)).map((t) => ({ t, no })));
+  const tasksHtml = `<p class="h-sec">Задачи на сегодня</p><section class="f-plate h-tasks">${tasks.length ? tasks.map(({ t, no }) =>
+    `<button type="button" class="h-task${t.done ? ' is-done' : ''}" data-action="home-task" data-no="${no}" data-id="${esc(t.id)}"><i>${t.done ? '✓' : ''}</i><span>${esc(t.text)}<small>№${no}</small></span></button>`).join('') : '<p class="h-none">На сегодня задач нет</p>'}</section>`;
+  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
+    <header class="h-head"><small>${WD[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</small><b>Добрый день, ${esc((S.me().name || '').split(' ')[0])}</b></header>
+    ${todayHtml}${attHtml}${daysHtml}${moneyHtml}${tasksHtml}
+    <nav class="f-nav f-nav--tabs h-nav" aria-label="Нижнее меню">
+      <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>
+      <button type="button" class="f-nav__tab" data-action="go" data-to="orders">${I_ORD}<span>Заказы</span></button>
+      <button type="button" class="h-plus" data-action="go" data-to="oformit" aria-label="Новый заказ">${PLUS}</button>
+      <button type="button" class="f-nav__tab" data-action="go" data-to="money">${I_MON}<span>Начисления</span></button>
+    </nav>`;
+}
+actions['home-task'] = (el) => { const o = homeOrder(el.dataset.no); const t = (o.tasks || []).find((x) => x.id === el.dataset.id); if (!t) return;
+  t.done = !t.done; t.doneToday = t.done ? iso(0) : ''; S.save(); rerender(); };
