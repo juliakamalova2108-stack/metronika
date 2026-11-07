@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=261';
-import * as S from './store.js?v=261';
-import { SYSTEM_PRICE } from './seed.js?v=261';
-import { shiftsText, hoursFor } from './calc.js?v=261';
-import { esc, toast } from './ui.js?v=261';
-import { logEvent } from './zlog.js?v=261';
+import { actions, changes, rerender } from './core.js?v=262';
+import * as S from './store.js?v=262';
+import { SYSTEM_PRICE } from './seed.js?v=262';
+import { shiftsText, hoursFor } from './calc.js?v=262';
+import { esc, toast } from './ui.js?v=262';
+import { logEvent } from './zlog.js?v=262';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -36,18 +36,19 @@ const SVC = [
   { id: 'paintwp', name: 'Окраска обоев', price: 250, norm: 6 },
 ];
 export const SVC_LIST = SVC;
-// Цена и норма — из прайса мастера (Настройки), иначе рекомендованные значения из макета.
-export function svcInfo(id) {
-  const s = SVC.find((x) => x.id === id);
+// Список услуг мастера (Настройки → Работа → Услуги): стандартные названия + свои; можно менять, удалять, добавлять.
+// Пока мастер не открывал список — берётся стандартный с его текущими ценами.
+export function defaultSvcList(withPrices = true) {
   const me = S.me();
-  let price = s.price;
-  let norm = s.norm;
-  if (s.type) price = (me.price && me.price[s.type]) || SYSTEM_PRICE[s.type];
-  else {
-    const own = me.settings && me.settings.services && me.settings.services[id];
-    if (own) { price = own.price; norm = own.norm || norm; }
-  }
-  return { ...s, price, norm };
+  return SVC.map((s) => { let price = null; let norm = s.norm;
+    if (withPrices) { if (s.type) price = (me.price && me.price[s.type]) || SYSTEM_PRICE[s.type]; else { const own = me.settings && me.settings.services && me.settings.services[s.id]; price = own ? own.price : s.price; norm = (own && own.norm) || s.norm; } }
+    return { id: s.id, name: s.name, price, norm, type: s.type || '' }; });
+}
+export function svcList() { const me = S.me(); return (me && me.settings && me.settings.svcList) || defaultSvcList(); }
+export function svcInfo(id) {
+  const own = svcList().find((x) => x.id === id);
+  const s = own || SVC.find((x) => x.id === id) || { id, name: id, price: 0, norm: 1 };
+  return { ...s, price: Number(s.price) || 0, norm: Number(s.norm) || (SVC.find((x) => x.id === id) || {}).norm || 1 };
 }
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
@@ -157,11 +158,11 @@ function servicesView(e, r) {
   return `${carousel(e, roomTabs(r))}
     <section class="f-plate o-sheet o-sheet--chips o-sheet--svc">
       <p class="o-chips__t">Какие работы в комнате?</p>
-      <div class="o-chips o-chips--svc">${SVC.map((s0) => {
+      <div class="o-chips o-chips--svc">${svcList().map((s0) => {
         const s = svcInfo(s0.id);
         const on = sel.includes(s.id);
         return `<button type="button" class="o-chip o-chip--svc${on ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" role="switch" aria-checked="${on}" data-action="o-svc-toggle" data-id="${s.id}">
-          <span class="o-chip__t"><span>${esc(SHORT[s.id] || s.name)}</span><small>${fmt(s.price)} ₽/м²</small></span><i class="o-chip__ok" aria-hidden="true">✓</i></button>`;
+          <span class="o-chip__t"><span>${esc(((SVC.find((x) => x.id === s.id) || {}).name === s.name ? SHORT[s.id] : '') || s.name)}</span><small>${s.price ? `${fmt(s.price)} ₽/м²` : 'цена не задана'}</small></span><i class="o-chip__ok" aria-hidden="true">✓</i></button>`;
       }).join('')}</div>
       <div class="f-btn-row"><button type="button" class="f-btn" data-action="o-svc-done">${added ? `Добавить · ${added}` : 'Готово'}</button></div>
     </section>`;
@@ -423,7 +424,7 @@ actions['o-svc-done'] = () => {
   const e = D(); const r = roomOf(e, e.view);
   const pick = r.pick || [];
   pick.filter((id) => !r.svcs.some((x) => x.id === id)).forEach((id) => r.svcs.push({ id, qty: sameOn(r) && r.sameQty ? r.sameQty : 0 }));
-  r.svcs.sort((a, b) => SVC.findIndex((s) => s.id === a.id) - SVC.findIndex((s) => s.id === b.id));
+  { const L = svcList(); r.svcs.sort((a, b) => L.findIndex((s) => s.id === a.id) - L.findIndex((s) => s.id === b.id)); }
   r.pick = null; r.panel = '';
   if (r.status === 'saved') r.status = 'editing';
   save();

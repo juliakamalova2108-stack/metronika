@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=261';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=262';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=261';
-import * as S from './store.js?v=261';
-import { WALLPAPER_TYPES } from './seed.js?v=261';
-import { esc, toast } from './ui.js?v=261';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=261';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=261';
-import { country } from './phonecodes.js?v=261';
-import { suggestAddress } from './address.js?v=261';
-import { suggesters } from './kbd.js?v=261';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=261';
+import { actions, changes, rerender } from './core.js?v=262';
+import * as S from './store.js?v=262';
+import { WALLPAPER_TYPES } from './seed.js?v=262';
+import { esc, toast } from './ui.js?v=262';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=262';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=262';
+import { country } from './phonecodes.js?v=262';
+import { suggestAddress } from './address.js?v=262';
+import { suggesters } from './kbd.js?v=262';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip } from './ocenka.js?v=262';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -398,7 +398,7 @@ function renderLegacySmeta(d) {
         ${w.opens.length ? `<div class="z-chips">${w.opens.map((o, k) => `<span class="z-chip">${esc(o.type)} · ${numTxt(o.area)} м² <button type="button" data-action="z-open-del" data-i="${i}" data-k="${k}" aria-label="Убрать">×</button></span>`).join('')}</div>` : ''}
       </div>
       ${row(btn('Окна и проёмы', 'z-open-add', { data: `data-i="${i}"` }), btn('Добавить услуги', 'z-wsvc-open', { data: `data-i="${i}"` }))}
-      ${w.pick ? `<div class="o-list o-list--svc z-wsvc">${SVC_LIST.map((x) => { const on = w.pick.includes(x.id); const s0 = svcInfo(x.id); return `<button type="button" class="o-row o-row--svc" role="switch" aria-checked="${on}" data-action="z-wsvc-toggle" data-i="${i}" data-id="${x.id}"><span class="o-row__text"><span>${esc(s0.name)}</span><small>от ${fmt(s0.price)} ₽/м²</small></span><span class="o-tog${on ? ' is-on' : ''}"><i></i></span></button>`; }).join('')}</div>
+      ${w.pick ? `<div class="o-list o-list--svc z-wsvc">${svcList().map((x) => { const on = w.pick.includes(x.id); const s0 = svcInfo(x.id); return `<button type="button" class="o-row o-row--svc" role="switch" aria-checked="${on}" data-action="z-wsvc-toggle" data-i="${i}" data-id="${x.id}"><span class="o-row__text"><span>${esc(s0.name)}</span><small>от ${fmt(s0.price)} ₽/м²</small></span><span class="o-tog${on ? ' is-on' : ''}"><i></i></span></button>`; }).join('')}</div>
         ${row(btn('Готово', 'z-wsvc-done', { data: `data-i="${i}"` }))}` : ''}
       ${lines.map(lineCard).join('')}
     </section>`;
@@ -443,7 +443,7 @@ actions['z-wsvc-open'] = (el) => { const w = SR().walls[Number(el.dataset.i)]; w
 actions['z-wsvc-toggle'] = (el) => { const w = SR().walls[Number(el.dataset.i)]; const id = el.dataset.id; w.pick = w.pick.includes(id) ? w.pick.filter((x) => x !== id) : [...w.pick, id]; save(); };
 actions['z-wsvc-done'] = (el) => {
   const d = D(); const R = SR(); const w = R.walls[Number(el.dataset.i)];
-  w.svcs = SVC_LIST.map((x) => x.id).filter((id) => w.pick.includes(id)); w.pick = null;
+  w.svcs = svcList().map((x) => x.id).filter((id) => w.pick.includes(id)); w.pick = null;
   logEvent(d, 'Обновлена смета', `Стоимость работ: ${fmt(smetaTotals(d).total)} ₽`);
   save();
 };
