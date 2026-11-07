@@ -1929,3 +1929,28 @@ button.h-bell { cursor: pointer; font: inherit; }
 .f-nav__menu svg { width: 26px !important; height: 26px !important; margin: 0 !important; }
 /* Обычные экраны мастера: панели нет, место под плавающую кнопку */
 body.nobar #view { padding-bottom: 96px; }
+
+/* ══ Настройки мастера — из готовых компонентов ══ */
+.st2-top { margin: 0 0 12px; }
+.st2 { display: flex; flex-direction: column; gap: 12px; padding-bottom: 100px; position: relative; z-index: 1; }
+.st2-plate { gap: 12px; }
+.st2-list { display: flex; flex-direction: column; gap: 8px; }
+.st2-list.is-off { opacity: .45; }
+.st2-go { flex: none; font: 600 18px var(--font-body); color: #a8bdb2; }
+.st2-kv { justify-content: space-between; cursor: default; }
+.st2-kv b { font: 700 18px var(--font-body); color: #edf2e8; }
+.st2-me { display: flex; align-items: center; gap: 14px; }
+.st2-me__t { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.st2-me__t b { font: 600 18px/22px var(--font-body); color: #edf2e8; }
+.st2-me__t small { font: 400 13px var(--font-body); color: #a8bdb2; }
+.st2-day { display: flex; flex-direction: column; gap: 8px; }
+.st2-pal { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; padding: 4px 4px 8px; }
+.st2-sw { aspect-ratio: 1; border-radius: 50%; border: 0; cursor: pointer; background: var(--s); box-shadow: inset 0 0 0 2px rgba(255,255,255,.15); }
+.st2-sw.is-on { box-shadow: 0 0 0 3px #1d3133, 0 0 0 5px #edf2e8; }
+.st2-reset { display: block; margin: 4px auto 0; font-size: 12.5px; color: #a8bdb2; }
+.st2-del { color: #ff9a9a; }
+.st2-back { width: 50px; height: 50px; flex: none; }
+.f-nav .st2-back + .f-botnav { margin-left: 2px; }
+.z-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.st2 .pf-ph { width: 78px; height: 78px; }
+.f-nav .st2-back + .f-botnav .f-topnav__track { gap: 0; justify-content: space-around; left: 6px; right: 6px; }
