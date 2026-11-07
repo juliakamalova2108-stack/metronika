@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Карты рангов — Мастера</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,700&family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#d6e5c2}a:hover{color:#fff}
+/* Металлическая карта: шлифовка + металл ступени, гильош (муар двух колец гравировки), медальон-чип, тиснение */
+.mc{--m1:#6d7a77;--m2:#3e4a48;--m3:#a9b6b1;--hi:#e8efeb;--ink:#f2f6f3;position:relative;isolation:isolate;overflow:hidden;width:350px;height:221px;border-radius:20px;color:var(--ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 0 0 1px rgba(255,255,255,.12),0 34px 60px -22px rgba(0,0,0,.9),0 12px 24px -12px rgba(0,0,0,.6)}
+.mc.t2{--m1:#5f7a5c;--m2:#2f4a35;--m3:#b6cf9e;--hi:#eef7e0}
+.mc.t3{--m1:#4f8486;--m2:#1f4648;--m3:#9fe0dc;--hi:#e2fbf8}
+.mc.t4{--m1:#b88a33;--m2:#6b4a12;--m3:#f2d58a;--hi:#fff6d8;--ink:#fff8e6}
+.mc.t5{--m1:#1d2426;--m2:#0c1112;--m3:#3a4547;--hi:#ffffff}
+.metal{position:absolute;inset:0;z-index:-3;background:repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,rgba(0,0,0,.035) 1px 2px,transparent 2px 3px),linear-gradient(115deg,var(--m2) 0%,var(--m1) 28%,var(--m3) 46%,var(--m1) 62%,var(--m2) 100%)}
+.mc.t5 .metal{background:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px),radial-gradient(120% 90% at 80% 10%,#2a3436,#0b1011 70%)}
+.gui{position:absolute;z-index:-2;right:-70px;top:50%;width:270px;height:270px;margin-top:-135px;border-radius:50%;opacity:.38;
+  background:repeating-radial-gradient(circle at 46% 50%,transparent 0 5px,var(--hi) 5.4px 5.9px),repeating-radial-gradient(circle at 54% 50%,transparent 0 5px,var(--hi) 5.4px 5.9px);
+  -webkit-mask:radial-gradient(circle,transparent 30%,#000 32%,#000 68%,transparent 70%);mask:radial-gradient(circle,transparent 30%,#000 32%,#000 68%,transparent 70%)}
+.mc.t5 .gui{opacity:.6;--hi:#b9e3f2}
+.sheen{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.22) 44%,transparent 58%),radial-gradient(70% 60% at 22% 12%,rgba(255,255,255,.22),transparent 60%)}
+.mc.t5 .sheen{mix-blend-mode:color-dodge;opacity:.6;background:conic-gradient(from 200deg at 70% 30%,#f6d58f,#9fd3e8,#d8b4f0,#b6f0c8,#f6d58f)}
+.body{position:relative;height:100%;box-sizing:border-box;padding:16px 18px;display:flex;flex-direction:column}
+.row{display:flex;justify-content:space-between;align-items:center}
+.brand{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:700;font-size:20px;letter-spacing:.02em;color:var(--hi);text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.tier{font:600 11px/1 Manrope,Inter,sans-serif;letter-spacing:.04em;color:var(--hi);opacity:.85}
+.chip{margin-top:12px;display:grid;place-items:center;width:46px;height:36px;border-radius:9px;color:rgba(60,40,6,.85);
+  background:linear-gradient(135deg,#f7e2a6,#c99a3e 45%,#f3d98f 60%,#a77a26);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),inset 0 -2px 3px rgba(0,0,0,.25),0 2px 6px rgba(0,0,0,.35)}
+.chip svg{width:22px;height:22px;stroke-width:1.6}
+.name{margin-top:auto;font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;font-size:34px;line-height:1;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.28),0 -1px 0 rgba(0,0,0,.45),0 2px 8px rgba(0,0,0,.35)}
+.mc.t4 .name{color:#fff2c7}
+.mc.t5 .name{background:linear-gradient(100deg,#f6d58f,#e3eed3 35%,#9fd3e8 65%,#d8b4f0);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+.thr{margin:5px 0 10px;font:500 11.5px/1 Inter,sans-serif;color:var(--hi);opacity:.8}
+.who{display:flex;flex-direction:column;gap:3px;font:600 12.5px/1 Manrope,Inter,sans-serif;letter-spacing:.06em;color:var(--ink);text-shadow:0 1px 0 rgba(0,0,0,.4)}
+.who small{font:500 9px/1 Inter,sans-serif;letter-spacing:.04em;color:var(--hi);opacity:.75}
+.who.r{align-items:flex-end}
+</style>
+</helmet>
+<div style="width: 390px; min-height: 1460px; box-sizing: border-box; padding: 36px 20px 40px; background: radial-gradient(1200px 700px at 20% 0%, #2b4244 0%, #182829 55%, #121f20 100%); font-family: Inter, sans-serif; color: #edf2e8; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 10px; max-width: 1900px; width: 100%; margin: 0 auto">
+<h1 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; font-size: 36px; line-height: 1; color: #edf2e8">Ранги · Мастера</h1>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: rgba(237, 242, 232, 0.7)">Вид на телефоне, ширина 390 px.</p>
+</div>
+<sc-for list="{{tiers}}" as="tier" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; gap: 22px; max-width: 1900px; width: 100%; margin: 0 auto">
+<div style="display: flex; align-items: baseline; gap: 16px">
+<h2 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; font-size: 36px; color: #edf2e8">{{tier.name}}</h2>
+<span style="font-family: Manrope, Inter, sans-serif; font-weight: 600; font-size: 15px; color: rgba(237, 242, 232, 0.6)">{{tier.range}}</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 18px">
+<sc-for list="{{tier.cards}}" as="c" hint-placeholder-count="5">
+<div class="mc t{{tier.k}}">
+<div class="metal"></div>
+<div class="gui"></div>
+<div class="sheen"></div>
+<div class="body">
+<div class="row"><span class="brand">Metronica</span><span class="tier">{{tier.name}}</span></div>
+<div class="chip">
+<sc-if value="{{tier.i1}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20v-7"></path><path d="M12 13c0-4 3-7 7-7 0 4-3 7-7 7z"></path><path d="M12 15c0-3-2.5-5.5-6-5.5 0 3 2.5 5.5 6 5.5z"></path></svg></sc-if>
+<sc-if value="{{tier.i2}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l8 4-8 4-8-4z"></path><path d="M4 12l8 4 8-4"></path><path d="M4 16l8 4 8-4"></path></svg></sc-if>
+<sc-if value="{{tier.i3}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10l4 5-9 11L3 9z"></path><path d="M3 9h18"></path><path d="M9 4l-2 5 5 11 5-11-2-5"></path></svg></sc-if>
+<sc-if value="{{tier.i4}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.6 4.2 2.8 6.4 7 7-4.2.6-6.4 2.8-7 7-.6-4.2-2.8-6.4-7-7 4.2-.6 6.4-2.8 7-7z"></path><path d="M19 3v4M17 5h4"></path></svg></sc-if>
+<sc-if value="{{tier.i5}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8l4 4 4-7 4 7 4-4-1.5 10h-13z"></path><path d="M6 21h12"></path></svg></sc-if>
+</div>
+<div class="name">{{c.name}}</div>
+<div class="thr">{{c.thr}}</div>
+<div class="row"><span class="who"><small>Мастер</small>Сергей Волков</span><span class="who r"><small>Ранг</small>{{c.no}} / 25</span></div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1460}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const T = [
+      ['Старт', 'от 0 до 5 обоев', [['Новичок', 0], ['Ученик', 1], ['Стажёр', 2], ['Младший специалист', 3], ['Специалист', 5]]],
+      ['Мастера', 'от 10 до 30 обоев', [['Мастер', 10], ['Супер-мастер', 15], ['Топ-мастер', 20], ['Мега-мастер', 25], ['Грандмастер', 30]]],
+      ['Профи', 'от 40 до 100 обоев', [['Профи', 40], ['Супер-профи', 50], ['Топ-профи', 60], ['Мега-профи', 75], ['Чемпион', 100]]],
+      ['Эксперты', 'от 150 до 400 обоев', [['Знаток', 150], ['Эксперт', 200], ['Топ-эксперт', 250], ['Наставник', 300], ['Мэтр', 400]]],
+      ['Вершина', 'от 500 до 1000 обоев', [['Магистр', 500], ['Маэстро', 600], ['Гуру', 700], ['Топ-гуру', 800], ['Легенда', 1000]]]
+    ];
+    let n = 0;
+    const tiers = T.map((t, ti) => ({
+      k: ti + 1, name: t[0], range: t[1],
+      i1: ti === 0, i2: ti === 1, i3: ti === 2, i4: ti === 3, i5: ti === 4,
+      cards: t[2].map((r) => { n += 1; return { name: r[0], no: String(n).padStart(2, '0'), thr: r[1] === 0 ? 'с первого дня' : 'от ' + r[1].toLocaleString('ru-RU') + ' описанных обоев' }; })
+    }));
+    return { tiers: [tiers[1]] };
+  }
+}
+</script>
+</body>
+</html>
