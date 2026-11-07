@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=176';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=177';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=176';
-import * as S from './store.js?v=176';
-import { WALLPAPER_TYPES } from './seed.js?v=176';
-import { esc, toast } from './ui.js?v=176';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=176';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=176';
-import { country } from './phonecodes.js?v=176';
-import { suggestAddress } from './address.js?v=176';
-import { suggesters } from './kbd.js?v=176';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=176';
+import { actions, changes, rerender } from './core.js?v=177';
+import * as S from './store.js?v=177';
+import { WALLPAPER_TYPES } from './seed.js?v=177';
+import { esc, toast } from './ui.js?v=177';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=177';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=177';
+import { country } from './phonecodes.js?v=177';
+import { suggestAddress } from './address.js?v=177';
+import { suggesters } from './kbd.js?v=177';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, materialStrip } from './ocenka.js?v=177';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -185,6 +185,7 @@ function rollsFor(w, it) {
 }
 const CHEV = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const TRASH_SVG = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5" stroke="#EDF0E7" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const plural = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? b : c);
 const matTitle = (it) => { const x = S.material(it.code); return x ? `${x.brand} · ${x.name}` : it.brand; };
 
 function renderMaterial(d) {
@@ -207,15 +208,25 @@ function renderMaterial(d) {
   stat.total = { n: allCodes.length, miss: allCodes.filter((c) => !reviewed(c)).length, list: allCodes.map((c) => ({ code: c, rolls: sumBy(c) })) };
 
   if (m.view === 'total') {
+    // Итог — как в «Замере» и «Оценке»: свёрнутые плашки комнат (раскрываются нажатием),
+    // внутри — материал: артикул, производитель, штрихкод, количество. Ниже — итог по материалам и всего рулонов.
+    const art = (it) => { const x = S.material(it.code); return x ? x.name : it.type; };
+    const brand = (it) => { const x = S.material(it.code); return x ? x.brand : it.brand; };
+    const head = '<div class="o-tline o-tline--h z-tline"><span>Артикул · производитель · штрихкод</span><span>Кол-во</span></div>';
+    const line = (it, q) => `<div class="o-tline z-tline"><span class="o-tline__n"><b>${esc(art(it))}</b><small>${esc(brand(it))} · ${esc(it.code)}</small></span><b>${q} шт.</b></div>`;
+    const qty = (it) => Number(it.rolls) || 0;
+    const roomsHtml = rooms.map((er) => { const items = matRoom(m, er.key).items; const sum = items.reduce((a, it) => a + qty(it), 0);
+      const k = 'msum:' + er.key; const on = matSumOpen.has(k);
+      return `<section class="o-sroom${on ? ' is-open' : ''}" style="--rc:${er.color || '#7c8f8a'}"><button type="button" class="o-sroom__head" data-action="z-msum-toggle" data-key="${esc(k)}" aria-expanded="${on}">
+        <span class="o-sroom__name"><b>${esc(er.name)}</b><small>${items.length} ${plural(items.length, 'материал', 'материала', 'материалов')}</small></span>
+        <span class="o-sroom__sum"><b>${sum} шт.</b><small>рулонов</small></span><span class="o-sroom__chev">${CHEV}</span></button>
+        <div class="o-sroom__list">${items.length ? head + items.map((it) => line(it, qty(it))).join('') : '<p class="mw-none">Материал не добавлен</p>'}</div></section>`; }).join('');
     const by = new Map();
-    rooms.forEach((er) => calc[er.key].items.forEach(({ it, rolls: n }) => { const k = it.code; const o = by.get(k) || { it, n: 0, rooms: [] }; o.n += n; o.rooms.push(`${er.name} ${n}`); by.set(k, o); }));
+    rooms.forEach((er) => matRoom(m, er.key).items.forEach((it) => { const o = by.get(it.code) || { it, n: 0 }; o.n += qty(it); by.set(it.code, o); }));
     const lines = [...by.values()];
-    const list = lines.length ? `<div class="o-tline o-tline--h"><span>Материал</span><span>Рулонов</span><span></span><span>Где</span></div>` + lines.map((o) =>
-      `<div class="o-tline z-buy"><span class="o-tline__n">${esc(matTitle(o.it))}<small>${esc(o.it.type)} · ${esc(o.it.code)}</small></span><b>${o.n}</b><span></span><span class="z-buy__w">${esc(o.rooms.join(', '))}</span></div>`).join('')
-      : '<p class="z-muted">Материал ещё не добавлен ни в одну комнату.</p>';
-    return `${materialStrip(d, 'total', stat, '')}
-      <section class="f-plate o-bywork"><p class="o-sec o-sec--in">Список закупки</p>${list}</section>
-      <section class="f-plate o-grand"><p class="o-grand__t">Всего рулонов</p><b class="o-grand__sum">${rolls.total}</b><p class="o-grand__x">${lines.length} ${lines.length === 1 ? 'артикул' : 'артикула'} · ${rooms.length} комн.</p></section>`;
+    return `<div class="mw-screen">${materialStrip(d, 'total', stat, '')}<div class="mw mw--plain"><div class="wallbody room-summary"><div class="o-stack"><p class="o-sec">Комнаты</p>${roomsHtml}
+      <section class="f-plate o-bywork"><p class="o-sec o-sec--in">Итого по материалам</p>${lines.length ? head + lines.map((o) => line(o.it, o.n)).join('') : '<p class="mw-none">Материал ещё не добавлен</p>'}</section>
+      <section class="f-plate o-grand"><p class="o-grand__t">Всего рулонов</p><b class="o-grand__sum">${lines.reduce((a, o) => a + o.n, 0)} шт.</b><p class="o-grand__x">${lines.length} ${plural(lines.length, 'артикул', 'артикула', 'артикулов')} · ${rooms.length} ${plural(rooms.length, 'комната', 'комнаты', 'комнат')}</p></section></div></div></div></div>`;
   }
 
   const room = rooms.find((r) => r.key === m.view);
@@ -276,6 +287,8 @@ function renderMaterial(d) {
 // Рулоны материала мастер вписывает сам (для статистики): поле или − / +.
 actions['z-rolls-step'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.rolls = Math.max(0, (Number(it.rolls) || 0) + Number(el.dataset.d)); save(); };
 changes['z-rolls'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.rolls = Math.max(0, parseInt(String(el.value).replace(/\D/g, ''), 10) || 0); save(); };
+const matSumOpen = new Set();
+actions['z-msum-toggle'] = (el) => { const k = el.dataset.key; if (matSumOpen.has(k)) matSumOpen.delete(k); else matSumOpen.add(k); rerender(); };
 actions['z-mat-tab'] = (el) => { const m = mat(D()); const r = matRoom(m, m.view); r.active = Number(el.dataset.i); r.total = false; save(); };
 actions['z-mat-total'] = () => { const m = mat(D()); const r = matRoom(m, m.view); if (r.items.length) r.total = true; save(); };
 actions['z-mat-fold'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.open = !it.open; save(); };

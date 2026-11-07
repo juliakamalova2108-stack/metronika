@@ -322,3 +322,7 @@
 .mw .z-step__f input { width: 46px; height: 34px; padding: 0; border-radius: 8px; border: 1px solid var(--g-line-soft); background: rgba(9, 18, 19, 0.45); text-align: center; font: 700 20px/1 var(--font-num); color: var(--rc-light); outline: none; }
 .mw .z-step__f input::placeholder { color: rgba(237, 242, 232, 0.35); }
 .mw .z-mrolls--in small { align-self: center; }
+/* итог «Материала»: строки материала — артикул / производитель · штрихкод / количество */
+.z-tline { grid-template-columns: minmax(0, 1fr) auto !important; }
+.z-tline .o-tline__n { display: flex; flex-direction: column; gap: 2px; }
+.z-tline .o-tline__n small { font: 400 11.5px/1.3 var(--font-body); color: rgba(237, 242, 232, 0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
