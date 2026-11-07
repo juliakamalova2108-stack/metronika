@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=187';
-import * as S from './store.js?v=187';
-import { renderOformit, oformitDraft } from './oformit.js?v=187';
-import { roomTotals, svcInfo } from './ocenka.js?v=187';
-import { smetaTotals } from './zakaz.js?v=187';
-import { bookedDays } from './grafik.js?v=187';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=187';
-import { esc, toast } from './ui.js?v=187';
+import { actions, rerender, go } from './core.js?v=190';
+import * as S from './store.js?v=190';
+import { renderOformit, oformitDraft } from './oformit.js?v=190';
+import { roomTotals, svcInfo } from './ocenka.js?v=190';
+import { smetaTotals } from './zakaz.js?v=190';
+import { bookedDays } from './grafik.js?v=190';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=190';
+import { esc, toast } from './ui.js?v=190';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -401,67 +401,131 @@ function homeSeed() {
   });
   S.save();
 }
+// Иконки дашборда (тонкая линия 1.7, цвет — currentColor).
+const ic = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const HI = {
+  call: ic('<path d="M6.6 3.5l2.6.4 1.2 3.6-1.8 1.4a12 12 0 0 0 6.5 6.5l1.4-1.8 3.6 1.2.4 2.6c-.2 1.2-1.3 2.1-2.5 2A16.5 16.5 0 0 1 4.6 6c-.1-1.2.8-2.3 2-2.5Z"/>'),
+  route: ic('<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.4"/>'),
+  chat: ic('<path d="M4 5.5h16v10.5H9.5L5 19.5V16H4z"/><path d="M8 9.5h8M8 12.5h5"/>'),
+  coin: ic('<circle cx="12" cy="12" r="8"/><path d="M14.5 9.5c-.4-.9-1.4-1.5-2.5-1.5-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2c-1.1 0-2.1-.6-2.5-1.5M12 6.5v1.5M12 16v1.5"/>'),
+  doc: ic('<path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5v4h4M10 12h5M10 15.5h5"/>'),
+  roll: ic('<rect x="5" y="4" width="10" height="16" rx="2"/><path d="M15 6h2.5a1.5 1.5 0 0 1 1.5 1.5V20"/><path d="M9 4v16"/>'),
+  arrow: ic('<path d="M5 12h14M13 6l6 6-6 6"/>'),
+  bell: ic('<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'),
+};
+let homeDay = 0;
 export function renderHome() {
   homeSeed();
+  const now = new Date();
+  const WDF = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+  const short = (n) => n.split(' ')[1] || n;
   const today = QUEUE.filter(([off, k]) => off === 0 && k);
-  const next = QUEUE.filter(([off, k]) => off > 0 && k);
-  const shown = today.length ? today : next.slice(0, 1);
-  // 1. Сегодня
-  const visit = ([off, key, k, time]) => {
-    const x = R[key]; const c = x.c; const sh = ORDER_SH[c.no];
-    const map = 'https://yandex.ru/maps/?text=' + encodeURIComponent('Уфа, ' + c.a);
-    return `<article class="f-plate h-visit" style="--c:${x.col}">
-      <div class="h-visit__top"><span class="h-visit__time"><b>${time}</b><small>${off === 0 ? 'сегодня' : `${WD[dayOf(off).getDay()]}, ${dayOf(off).getDate()} ${MON[dayOf(off).getMonth()]}`}</small></span>
-        <span class="h-visit__who"><b>${esc(c.n)}</b><small>${esc(c.a)}</small></span></div>
-      <div class="h-visit__job"><span class="bd-room" style="--c:${x.col}">${esc(x.r)}<small>${esc(x.f)}</small></span><span class="h-visit__day">${label(sh, k)} из ${sh.length} · №${c.no}</span></div>
-      <div class="h-visit__btns"><a class="h-btn" href="tel:${esc(c.ph.replace(/[^+\d]/g, ''))}">${PH}<span>Позвонить</span></a>
-        <a class="h-btn" href="${map}" target="_blank" rel="noopener">${RT}<span>Маршрут</span></a>
-        <button type="button" class="h-btn h-btn--lit" data-action="bd-open" data-no="${c.no}"><span>Открыть заказ</span></button></div></article>`;
-  };
-  const todayHtml = `<p class="h-sec">${today.length ? `Сегодня · ${today.length} ${today.length === 1 ? 'выезд' : 'выезда'}` : 'Сегодня выездов нет · ближайший'}</p>
-    <div class="h-visits">${shown.map(visit).join('')}</div>`;
-  // 2. Требует действия
+  const upcoming = QUEUE.filter(([off, k]) => off > 0 && k);
+  const heroRows = today.length ? today : upcoming.slice(0, 1);
+
+  // ── Требует действия (считаем заранее: счётчик нужен в шапке) ──
   const nextOff = (no) => { const r = QUEUE.find(([off, k]) => off >= 0 && k && R[k].c.no === no); return r ? r[0] : null; };
   const att = [];
   Object.keys(DEMO).forEach((no) => {
-    const o = homeOrder(no); const c = CL[no];
-    const n = unread(o); if (n) att.push(['chat', `№${no} ${c.n.split(' ')[1] || c.n}: ${n} ${n === 1 ? 'новое сообщение' : 'новых сообщения'} в чате`, no, 'chat']);
+    const o = homeOrder(no); const who = `№${no} · ${short(CL[no].n)}`;
+    const n = unread(o); if (n) att.push({ k: 'chat', icon: HI.chat, t: n === 1 ? 'Новое сообщение' : `${n} новых сообщения`, s: who, no, tab: 'chat' });
     const paid = o.fin ? o.fin.pays.reduce((a, p) => a + p.amount, 0) : 0; const off = nextOff(no);
-    if (!paid && off != null && off <= 1) att.push(['warn', `№${no} ${c.n.split(' ')[1] || c.n}: выезд ${off === 0 ? 'сегодня' : 'завтра'}, аванс не внесён`, no, 'finance']);
-    if (o.sm && !o.smSent) att.push(['warn', `№${no} ${c.n.split(' ')[1] || c.n}: замер сделан, смета клиенту не отправлена`, no, 'smeta']);
+    if (!paid && off != null && off <= 1) att.push({ k: 'money', icon: HI.coin, t: 'Аванс не внесён', s: `${who} · выезд ${off === 0 ? 'сегодня' : 'завтра'}`, no, tab: 'finance' });
+    if (o.sm && !o.smSent) att.push({ k: 'doc', icon: HI.doc, t: 'Смета не отправлена', s: `${who} · замер готов`, no, tab: 'smeta' });
     const items = o.mat ? Object.values(o.mat.rooms || {}).flatMap((r) => r.items || []) : [];
     const miss = [...new Set(items.map((it) => it.code))].filter((code) => !S.reviewsOf(code).some((v) => v.authorId === S.me().id)).length;
-    if (miss) att.push(['info', `№${no} ${c.n.split(' ')[1] || c.n}: опыт по материалу не записан (${miss})`, no, 'material']);
+    if (miss) att.push({ k: 'roll', icon: HI.roll, t: 'Опыт по материалу не записан', s: who, no, tab: 'material' });
   });
-  const attHtml = att.length ? `<p class="h-sec">Требует действия · ${att.length}</p><section class="f-plate h-att">${att.map(([kind, text, no, t]) =>
-    `<button type="button" class="h-att__row h-att__row--${kind}" data-action="bd-edit" data-no="${no}" data-tab="${t}"><i></i><span>${esc(text)}</span><b>›</b></button>`).join('')}</section>` : '';
-  // 3. Ближайшие дни
-  const days = [1, 2, 3, 4, 5].map((off) => [off, QUEUE.filter(([o2, k]) => o2 === off && k)]);
-  const daysHtml = `<p class="h-sec">Ближайшие дни</p><section class="f-plate h-days">${days.map(([off, rows]) => {
+
+  // ── Шапка ──
+  const head = `<div class="h-bar"><button type="button" class="h-icb" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>
+      <span class="h-bar__r"><span class="h-icb h-bell" aria-label="Требует действия: ${att.length}">${HI.bell}${att.length ? `<b>${att.length}</b>` : ''}</span>
+      <button type="button" class="h-icb h-new" data-action="go" data-to="oformit" aria-label="Новый заказ">${PLUS}<span>Заказ</span></button></span></div>
+    <header class="h-head"><small>${WDF[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</small><h1>${esc((S.me().name || '').split(' ')[0])}</h1></header>`;
+
+  // ── Главная карточка: сегодняшний выезд ──
+  const hero = ([off, key, k, time]) => {
+    const x = R[key]; const c = x.c; const sh = ORDER_SH[c.no];
+    const map = 'https://yandex.ru/maps/?text=' + encodeURIComponent('Уфа, ' + c.a);
     const d = dayOf(off);
-    return `<div class="h-day"><span class="h-day__d"><small>${WD[d.getDay()]}</small><b>${d.getDate()}</b></span><span class="h-day__list">${rows.length ? rows.map(([, key, , time]) => { const x = R[key];
-      return `<button type="button" class="h-day__row" data-action="bd-open" data-no="${x.c.no}"><em>${time}</em><span>${esc(x.c.n.split(' ')[1] || x.c.n)} · ${esc(x.r)}</span><i style="--c:${x.col}"></i></button>`; }).join('') : '<span class="h-day__free">свободно</span>'}</span></div>`; }).join('')}</section>`;
-  // 4. Деньги
-  const now = new Date(); const ym = isoDay(now).slice(0, 7);
-  let got = 0, wait = 0;
-  Object.keys(DEMO).forEach((no) => { const o = homeOrder(no);
-    const pays = (o.fin && o.fin.pays) || []; got += pays.filter((p) => String(p.date || '').slice(0, 7) === ym).reduce((a, p) => a + p.amount, 0);
-    const sum = ((o.est && o.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0); wait += Math.max(0, sum - pays.reduce((a, p) => a + p.amount, 0)); });
-  const moneyHtml = `<p class="h-sec">Деньги</p><section class="h-money"><button type="button" class="f-plate h-money__c" data-action="go" data-to="money"><small>Получено за ${['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'][now.getMonth()]}</small><b>${fmt(got)} ₽</b></button>
-    <button type="button" class="f-plate h-money__c" data-action="go" data-to="money"><small>Ожидается по заказам</small><b>${fmt(wait)} ₽</b></button></section>`;
-  // 5. Задачи на сегодня
-  const tasks = Object.keys(DEMO).flatMap((no) => ((homeOrder(no).tasks) || []).filter((t) => !t.done || t.doneToday === iso(0)).filter((t) => !t.due || t.due <= iso(0)).map((t) => ({ t, no })));
-  const tasksHtml = `<p class="h-sec">Задачи на сегодня</p><section class="f-plate h-tasks">${tasks.length ? tasks.map(({ t, no }) =>
-    `<button type="button" class="h-task${t.done ? ' is-done' : ''}" data-action="home-task" data-no="${no}" data-id="${esc(t.id)}"><i>${t.done ? '✓' : ''}</i><span>${esc(t.text)}<small>№${no}</small></span></button>`).join('') : '<p class="h-none">На сегодня задач нет</p>'}</section>`;
+    const when = off === 0 ? 'Сегодня' : `${WD[d.getDay()]}, ${d.getDate()} ${MON[d.getMonth()]}`;
+    const segs = sh.map((_, i) => `<i class="${i < k ? 'past' : i === k ? 'on' : ''}"></i>`).join('');
+    return `<article class="h-hero" style="--c:${x.col}">
+      <div class="h-hero__glow" aria-hidden="true"></div>
+      <div class="h-hero__top"><span class="h-pill"><i></i>${when}</span><span class="h-hero__no">№${c.no}</span></div>
+      <div class="h-hero__time">${time}</div>
+      <div class="h-hero__who"><b>${esc(c.n)}</b><small>${esc(c.a)}</small></div>
+      <div class="h-hero__job"><span class="h-room"><i></i>${esc(x.r)}<small>${esc(x.f)}</small></span>
+        <span class="h-prog"><span class="h-prog__bar">${segs}</span><small>день ${k + 1} из ${sh.length}</small></span></div>
+      <div class="h-hero__act"><a class="h-round" href="tel:${esc(c.ph.replace(/[^+\d]/g, ''))}" aria-label="Позвонить">${HI.call}</a>
+        <a class="h-round" href="${map}" target="_blank" rel="noopener" aria-label="Маршрут">${HI.route}</a>
+        <button type="button" class="h-go" data-action="bd-open" data-no="${c.no}">Открыть заказ ${HI.arrow}</button></div></article>`;
+  };
+  const heroHtml = `<div class="h-heros${heroRows.length > 1 ? ' is-many' : ''}">${heroRows.map(hero).join('')}</div>`;
+
+  // ── Требует действия ──
+  const attHtml = att.length ? `<section class="h-block"><div class="h-block__hd"><h2>Требует действия</h2><span class="h-count">${att.length}</span></div>
+    <div class="h-att">${att.map((a) => `<button type="button" class="h-att__row h-att__row--${a.k}" data-action="bd-edit" data-no="${a.no}" data-tab="${a.tab}">
+      <span class="h-att__ic">${a.icon}</span><span class="h-att__t"><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span><span class="h-att__go">›</span></button>`).join('')}</div></section>` : '';
+
+  // ── Неделя: загрузка по дням — столбики часов (8 ч = полная смена), слои цвета комнат; выбранный день раскрыт списком ──
+  const week = [0, 1, 2, 3, 4, 5, 6].map((off) => [off, QUEUE.filter(([o2, k]) => o2 === off && k)]);
+  const sel = week.find(([off]) => off === homeDay) || week[0];
+  const hrs = ([, key, k]) => ORDER_SH[R[key].c.no][k] * SHIFT_HOURS;
+  const weekH = week.reduce((a, [, rows]) => a + rows.reduce((b, r) => b + hrs(r), 0), 0);
+  const hMax = Math.max(SHIFT_HOURS, ...week.map(([, rows]) => rows.reduce((a, r) => a + hrs(r), 0)));
+  const strip = week.map(([off, rows]) => { const d = dayOf(off); const h = rows.reduce((a, r) => a + hrs(r), 0);
+    return `<button type="button" class="h-wd${off === homeDay ? ' is-sel' : ''}${off === 0 ? ' is-today' : ''}" data-action="home-day" data-off="${off}" aria-label="${d.getDate()} ${MON[d.getMonth()]}: ${h} ч">
+      <span class="h-wd__h">${h ? `${h}ч` : ''}</span><span class="h-wd__col">${rows.map((r) => `<i style="--c:${R[r[1]].col};height:${(hrs(r) / hMax) * 100}%"></i>`).join('')}</span>
+      <small>${off === 0 ? 'сег' : WD[d.getDay()]}</small><b>${d.getDate()}</b></button>`; }).join('');
+  const list = sel[1].length ? sel[1].map(([, key, k, time]) => { const x = R[key];
+    return `<button type="button" class="h-vis" data-action="bd-open" data-no="${x.c.no}" style="--c:${x.col}"><em>${time}</em><span class="h-vis__t"><b>${esc(short(x.c.n))} · ${esc(x.r)}</b><small>${esc(x.c.a)}</small></span><span class="h-vis__d">${label(ORDER_SH[x.c.no], k)}</span></button>`; }).join('')
+    : '<p class="h-free">Свободный день</p>';
+  const weekHtml = `<section class="h-block"><div class="h-block__hd"><h2>Загрузка недели</h2><span class="h-sub">${weekH} ч из ${7 * SHIFT_HOURS}</span></div>
+    <div class="h-week">${strip}</div><div class="h-list">${list}</div></section>`;
+
+  // ── Деньги ──
+  const ym = isoDay(now).slice(0, 7);
+  let got = 0, total = 0, paidAll = 0;
+  Object.keys(DEMO).forEach((no) => { const o = homeOrder(no); const pays = (o.fin && o.fin.pays) || [];
+    got += pays.filter((p) => String(p.date || '').slice(0, 7) === ym).reduce((a, p) => a + p.amount, 0);
+    paidAll += pays.reduce((a, p) => a + p.amount, 0);
+    total += ((o.est && o.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0); });
+  const pct = total ? Math.max(2, Math.round((paidAll / total) * 100)) : 0;
+  const MONN = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+  // Доход по месяцам — последние 6 месяцев (прошлые месяцы — примерные данные для показа), текущий подсвечен.
+  const HIST = [38400, 52100, 46900, 61300, 57800];
+  const months = [...HIST, got].map((v, i) => { const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1); return { v, m: MON[d.getMonth()], cur: i === 5 }; });
+  const vmax = Math.max(...months.map((x) => x.v), 1);
+  const avg = Math.round(HIST.reduce((a, v) => a + v, 0) / HIST.length);
+  const bars = months.map((x) => `<span class="h-mb${x.cur ? ' is-cur' : ''}"><em>${x.v >= 1000 ? Math.round(x.v / 1000) + 'к' : x.v}</em><i style="height:${Math.max(4, (x.v / vmax) * 100)}%"></i><small>${x.m}</small></span>`).join('');
+  const moneyHtml = `<section class="h-block h-money" data-action="go" data-to="money">
+    <div class="h-block__hd"><h2>Деньги</h2><span class="h-sub">начисления ›</span></div>
+    <div class="h-money__big"><b>${fmt(total - paidAll)}<small> ₽</small></b><span>ожидается по заказам в работе</span></div>
+    <div class="h-money__bar"><i style="width:${pct}%"></i></div>
+    <div class="h-money__row"><span><i class="g"></i>получено <b>${fmt(paidAll)} ₽</b></span><span>всего по заказам <b>${fmt(total)} ₽</b></span></div>
+    <div class="h-chart"><div class="h-chart__hd"><span>Доход по месяцам</span><span>в среднем ${fmt(avg)} ₽</span></div>
+      <div class="h-mbars" style="--avg:${(avg / vmax) * 100}%">${bars}<b class="h-mbars__avg"></b></div></div></section>`;
+
+  // ── Заказы по этапам — кольцо ──
+  const STG = [['Замер', 1, '#d6c15a'], ['Согласование', 1, '#e8913a'], ['Очередь', 3, '#7aa7d6'], ['В работе', 1, '#7ee2a3'], ['Выполнено', 12, 'rgba(214,229,194,.35)']];
+  const stTot = STG.reduce((a, x) => a + x[1], 0); let acc = 0; const R0 = 34, C0 = 2 * Math.PI * R0;
+  const ring = STG.map(([, n, col]) => { const len = (n / stTot) * C0; const seg = `<circle r="${R0}" cx="44" cy="44" fill="none" stroke="${col}" stroke-width="10" stroke-dasharray="${Math.max(0, len - 2)} ${C0}" stroke-dashoffset="${-acc}" transform="rotate(-90 44 44)"/>`; acc += len; return seg; }).join('');
+  const active = STG.slice(0, 4).reduce((a, x) => a + x[1], 0);
+  const stagesHtml = `<section class="h-block h-stg" data-action="go" data-to="orders"><div class="h-block__hd"><h2>Заказы</h2><span class="h-sub">все заказы ›</span></div>
+    <div class="h-stg__in"><svg class="h-ring" viewBox="0 0 88 88" aria-hidden="true"><circle r="${R0}" cx="44" cy="44" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="10"/>${ring}
+      <text x="44" y="44" text-anchor="middle" class="h-ring__n">${active}</text><text x="44" y="58" text-anchor="middle" class="h-ring__s">в работе</text></svg>
+      <ul class="h-leg">${STG.map(([t, n, col]) => `<li><i style="background:${col}"></i><span>${t}</span><b>${n}</b></li>`).join('')}</ul></div></section>`;
+
+  // ── Задачи на сегодня ──
+  const tasks = Object.keys(DEMO).flatMap((no) => ((homeOrder(no).tasks) || []).filter((t) => (!t.done || t.doneToday === iso(0)) && (!t.due || t.due <= iso(0))).map((t) => ({ t, no })));
+  const done = tasks.filter((x) => x.t.done).length;
+  const tasksHtml = `<section class="h-block"><div class="h-block__hd"><h2>Задачи на сегодня</h2>${tasks.length ? `<span class="h-sub">${done} из ${tasks.length}</span>` : ''}</div>
+    ${tasks.length ? tasks.map(({ t, no }) => `<button type="button" class="h-task${t.done ? ' is-done' : ''}" data-action="home-task" data-no="${no}" data-id="${esc(t.id)}"><i>${t.done ? ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>') : ''}</i><span>${esc(t.text)}<small>№${no} · ${esc(short(CL[no].n))}</small></span></button>`).join('') : '<p class="h-free">На сегодня задач нет</p>'}</section>`;
+
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
-    <header class="h-head"><small>${WD[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</small><b>Добрый день, ${esc((S.me().name || '').split(' ')[0])}</b></header>
-    ${todayHtml}${attHtml}${daysHtml}${moneyHtml}${tasksHtml}
-    <nav class="f-nav f-nav--tabs h-nav" aria-label="Нижнее меню">
-      <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>
-      <button type="button" class="f-nav__tab" data-action="go" data-to="orders">${I_ORD}<span>Заказы</span></button>
-      <button type="button" class="h-plus" data-action="go" data-to="oformit" aria-label="Новый заказ">${PLUS}</button>
-      <button type="button" class="f-nav__tab" data-action="go" data-to="money">${I_MON}<span>Начисления</span></button>
-    </nav>`;
+    <div class="h-page">${head}${heroHtml}${attHtml}${weekHtml}${moneyHtml}${stagesHtml}${tasksHtml}</div>`;
 }
+actions['home-day'] = (el) => { homeDay = Number(el.dataset.off); rerender(); };
 actions['home-task'] = (el) => { const o = homeOrder(el.dataset.no); const t = (o.tasks || []).find((x) => x.id === el.dataset.id); if (!t) return;
   t.done = !t.done; t.doneToday = t.done ? iso(0) : ''; S.save(); rerender(); };
