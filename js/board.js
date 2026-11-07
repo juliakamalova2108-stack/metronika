@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=203';
-import * as S from './store.js?v=203';
-import { renderOformit, oformitDraft } from './oformit.js?v=203';
-import { roomTotals, svcInfo } from './ocenka.js?v=203';
-import { smetaTotals } from './zakaz.js?v=203';
-import { bookedDays } from './grafik.js?v=203';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=203';
-import { esc, toast } from './ui.js?v=203';
+import { actions, rerender, go } from './core.js?v=204';
+import * as S from './store.js?v=204';
+import { renderOformit, oformitDraft } from './oformit.js?v=204';
+import { roomTotals, svcInfo } from './ocenka.js?v=204';
+import { smetaTotals } from './zakaz.js?v=204';
+import { bookedDays } from './grafik.js?v=204';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=204';
+import { esc, toast } from './ui.js?v=204';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -444,10 +444,10 @@ export function renderHome() {
   const area = 3862;                                                          // поклеено, м² (прошлое — примерные данные)
   // Ранг мастера — по опыту: сколько разных обоев (штрихкодов) он описал. Цвет значка — по ступени.
   const described = new Set(S.get().reviews.filter((v) => v.authorId === meId).map((v) => v.barcode)).size;
-  // 28 рангов, 4 ступени цвета: старт (1–7), рабочая (8–14), высшая (15–21), вершина (22–28). Порог — описано обоев.
+  // 29 рангов, 4 ступени цвета: старт (1–7), рабочая (8–15), высшая (16–22), вершина (23–29). Порог — описано обоев.
   const RANKS = [
     ['Новичок', 0, 1], ['Ученик', 1, 1], ['Стажёр', 2, 1], ['Помощник', 3, 1], ['Младший специалист', 5, 1], ['Специалист', 8, 1], ['Старший специалист', 12, 1],
-    ['Мастер', 15, 2], ['Мастер-универсал', 18, 2], ['Топ-мастер', 22, 2], ['Грандмастер', 26, 2], ['Профи', 30, 2], ['Супер-профи', 35, 2], ['Мега-профи', 40, 2],
+    ['Мастер', 15, 2], ['Супер-мастер', 18, 2], ['Топ-мастер', 22, 2], ['Мега-мастер', 26, 2], ['Грандмастер', 30, 2], ['Профи', 34, 2], ['Супер-профи', 38, 2], ['Мега-профи', 42, 2],
     ['Элита', 46, 3], ['Знаток', 53, 3], ['Эксперт', 61, 3], ['Топ-эксперт', 70, 3], ['Виртуоз', 80, 3], ['Наставник', 92, 3], ['Мэтр', 105, 3],
     ['Ас', 120, 4], ['Маэстро', 140, 4], ['Гуру', 165, 4], ['Титан', 195, 4], ['Икона', 230, 4], ['Легенда', 275, 4], ['Бессмертный', 330, 4]];
   const ri = RANKS.reduce((k, r, i) => (described >= r[1] ? i : k), 0);
