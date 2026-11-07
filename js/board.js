@@ -3,14 +3,14 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=220';
-import * as S from './store.js?v=220';
-import { renderOformit, oformitDraft } from './oformit.js?v=220';
-import { roomTotals, svcInfo } from './ocenka.js?v=220';
-import { smetaTotals } from './zakaz.js?v=220';
-import { bookedDays } from './grafik.js?v=220';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=220';
-import { esc, toast } from './ui.js?v=220';
+import { actions, rerender, go } from './core.js?v=223';
+import * as S from './store.js?v=223';
+import { renderOformit, oformitDraft } from './oformit.js?v=223';
+import { roomTotals, svcInfo } from './ocenka.js?v=223';
+import { smetaTotals } from './zakaz.js?v=223';
+import { bookedDays } from './grafik.js?v=223';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=223';
+import { esc, toast } from './ui.js?v=223';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -470,27 +470,41 @@ export function renderHome() {
       <span class="h-me__st"><small>Поклеено</small><b>${fmt(area)}<i> м²</i></b><em>за всё время</em></span></div>
     ${nextR ? `<div class="h-rank"><div class="h-rank__bar"><i style="width:${rankPct}%"></i></div><span>до ранга «${esc(nextR[0])}» — опишите ещё ${nextR[1] - described} ${plural(nextR[1] - described, 'материал', 'материала', 'материалов')}</span></div>` : ''}</section>`;
 
-  // ── Панель «Ранги»: где мастер сейчас, сколько осталось, правила и вся лестница ──
+  // ── Панель «Ранги» ──
+  // Карточки рангов — как коллекционные образцы обоев: металл ступени (фольга), узор ступени, медальон с инструментом.
+  // Полученные — «лицевая» сторона, текущая — крупно сверху, будущие — тёмные, с замком и порогом.
+  const MEDAL = [
+    '<path d="M7 20c2-1 3-3 3-6M10 14l6-9a2 2 0 0 1 3 2l-6 9M10 14l3 2"/>',                                                    // кисть
+    '<rect x="4" y="4" width="13" height="6" rx="2"/><path d="M17 7h2v5h-8v3"/><rect x="9.5" y="15" width="3" height="5" rx="1"/>',  // валик
+    '<rect x="3" y="9" width="18" height="6" rx="2"/><circle cx="12" cy="12" r="1.6"/><path d="M8 9v6M16 9v6"/>',             // уровень
+    '<path d="M12 4l2.3 4.8 5.2.7-3.8 3.6.9 5.2L12 16l-4.6 2.3.9-5.2L4.5 9.5l5.2-.7z"/>',                                      // звезда
+    '<path d="M4 17h16l1-9-5 4-4-6-4 6-5-4z"/><path d="M5 20h14"/>',                                                         // корона
+  ];
+  const medal = (t) => `<span class="rc-medal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${MEDAL[t - 1]}</svg></span>`;
   const TIERS = ['Старт', 'Мастера', 'Профи', 'Эксперты', 'Вершина'];
+  const card = (i, size) => { const r = RANKS[i]; const t = r[2]; const st = i < ri ? 'is-got' : i === ri ? 'is-cur is-got' : 'is-lock';
+    return `<article class="rc rc--${size} rc--t${t} ${st}"><div class="rc__in">
+      <div class="rc__top"><span>№ ${String(i + 1).padStart(2, '0')}</span><span>${TIERS[t - 1]}</span></div>
+      ${medal(t)}<h3 class="rc__name">${esc(r[0])}</h3>
+      <p class="rc__foot">${i === ri ? 'ваш ранг' : i < ri ? 'получен' : `${LOCK}от ${fmt(r[1])} обоев`}</p></div></article>`; };
+  const LOCK = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
   const ranksSheet = () => {
     const left = nextR ? nextR[1] - described : 0;
-    const ladder = TIERS.map((tn, ti) => { const rs = RANKS.map((r, i) => [r, i]).filter(([r]) => r[2] === ti + 1);
-      const doneN = rs.filter(([, i]) => i <= ri).length; const state = doneN === rs.length ? 'is-passed' : doneN ? 'is-active' : 'is-locked';
-      return `<div class="rk-tier rk-tier--t${ti + 1} ${state}"><div class="rk-tier__hd"><span class="rk-tier__ic">${ti + 1}</span><span class="rk-tier__t">${tn}<small>${fmt(rs[0][0][1])}–${fmt(rs[rs.length - 1][0][1])} обоев</small></span><span class="rk-tier__c">${doneN}/${rs.length}</span></div>
-        <div class="rk-tier__bar"><i style="width:${(doneN / rs.length) * 100}%"></i></div>${rs.map(([r, i]) =>
-      `<div class="rk-row${i < ri ? ' is-done' : i === ri ? ' is-cur' : ''}"><span class="rk-row__n">${i < ri ? '✓' : i + 1}</span><b>${esc(r[0])}</b><span class="rk-row__v">${i < ri ? 'пройден' : i === ri ? 'вы здесь' : `от ${fmt(r[1])}`}</span></div>`).join('')}</div>`; }).join('');
+    const got = ri + 1;
+    const album = TIERS.map((tn, ti) => { const ids = RANKS.map((r, i) => [r, i]).filter(([r]) => r[2] === ti + 1).map(([, i]) => i);
+      const n = ids.filter((i) => i <= ri).length;
+      return `<section class="ra-tier ra-tier--t${ti + 1}"><header><i></i><b>${tn}</b><span>${n} из ${ids.length}</span></header><div class="ra-grid">${ids.map((i) => card(i, 's')).join('')}</div></section>`; }).join('');
     return `<div class="rk-scrim" data-action="home-ranks-close"></div><section class="rk" role="dialog" aria-label="Ранги мастера">
-      <div class="rk__hd"><h2>Ранги мастера</h2><button type="button" class="rk__x" data-action="home-ranks-close" aria-label="Закрыть">×</button></div>
-      <div class="rk-me"><span class="h-rate h-rate--t${tier}">${esc(rank)}</span>
-        <div class="rk-me__big">${nextR ? `<b>${left}</b><span>${plural(left, 'материал', 'материала', 'материалов')} до ранга «${esc(nextR[0])}»</span>` : '<b>★</b><span>Высший ранг — вы Легенда</span>'}</div>
-        <div class="h-rank__bar"><i style="width:${rankPct}%"></i></div>
-        <div class="rk-me__row"><span>описано обоев: <b>${described}</b></span>${nextR ? `<span>нужно: <b>${fmt(nextR[1])}</b></span>` : ''}</div></div>
-      <div class="rk-rules"><p class="rk-rules__t">Как растёт ранг</p>
-        <p>• Ранг даётся за <b>опыт</b>: сколько разных обоев вы описали в «Моём опыте» (закладка в «Материале»).</p>
-        <p>• Одни обои (один штрихкод) засчитываются один раз — сколько бы записей о них ни было.</p>
-        <p>• Квадратура «Поклеено» на ранг не влияет.</p>
-        <p>• До «Мастера» — быстро, до «Профи» — сложнее, со «Знатока» — очень сложно. «Легенда» — 1000 описанных обоев.</p></div>
-      <div class="rk-ladder">${ladder}</div></section>`;
+      <button type="button" class="rk__x" data-action="home-ranks-close" aria-label="Закрыть">×</button>
+      <div class="rk-hero">${card(ri, 'l')}</div>
+      <div class="rk-next">${nextR ? `<p>Ещё <b>${left} ${plural(left, 'материал', 'материала', 'материалов')}</b> — и карточка «${esc(nextR[0])}» ваша</p>
+        <div class="rk-next__bar rc--t${nextR[2]}"><i style="width:${rankPct}%"></i></div><div class="rk-next__row"><span>описано ${described}</span><span>нужно ${fmt(nextR[1])}</span></div>` : '<p>Вся коллекция собрана. Вы — Легенда.</p>'}</div>
+      <div class="ra-hd"><h2>Коллекция рангов</h2><span>${got} из ${RANKS.length}</span></div>
+      ${album}
+      <div class="rk-rules"><p class="rk-rules__t">Как получить новую карточку</p>
+        <p>Опишите опыт работы с обоями во вкладке «Мой опыт» в разделе «Материал». Каждые новые обои — шаг к следующему рангу.</p>
+        <p>Одни и те же обои засчитываются один раз. Квадратура на ранг не влияет.</p>
+        <p>До «Мастера» — быстро, до «Профи» — сложнее, со «Знатока» — очень сложно. «Легенда» — 1000 описанных обоев.</p></div></section>`;
   };
 
   // ── Шапка ──

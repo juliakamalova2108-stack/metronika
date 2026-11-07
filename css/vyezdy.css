@@ -1516,3 +1516,89 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 .rk-tier .rk-row b { color: color-mix(in srgb, var(--c) 45%, #edf2e8); }
 .rk-tier .rk-row:not(.is-done):not(.is-cur) .rk-row__v { color: color-mix(in srgb, var(--c) 60%, rgba(237, 242, 232, 0.6)); }
 .rk-tier .rk-row:not(.is-done):not(.is-cur) .rk-row__n { color: color-mix(in srgb, var(--c) 70%, #edf2e8); background: color-mix(in srgb, var(--c) 12%, transparent); }
+
+/* ================= Ранги — коллекционные карточки =================
+   Карточка = образец обоев с фольгированным тиснением. Металл ступени: сланец · нефрит · аквамарин · золото · перламутр.
+   Узор ступени: полоска · ромб · волна · дамаск-точка · голограмма. Одно движение — блик по главной карточке при открытии. */
+.rc { --f1: #dfe7e2; --f2: #8fa39b; --f3: #4e605c; --pat: repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 1px, transparent 1px 7px);
+  position: relative; isolation: isolate; border-radius: 16px; padding: 1.5px;
+  background: linear-gradient(145deg, var(--f1), var(--f2) 35%, var(--f3) 60%, var(--f1) 85%, var(--f2)); box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.8); }
+.rc--t2 { --f1: #f1f8e4; --f2: #a9c98f; --f3: #3e6a4a;
+  --pat: repeating-linear-gradient(45deg, rgba(241,248,228,.07) 0 1px, transparent 1px 11px), repeating-linear-gradient(-45deg, rgba(241,248,228,.07) 0 1px, transparent 1px 11px); }
+.rc--t3 { --f1: #dcfbf8; --f2: #5fc4c1; --f3: #1d5e63;
+  --pat: radial-gradient(circle at 50% 120%, transparent 9px, rgba(220,251,248,.08) 9.5px 10.5px, transparent 11px) 0 0 / 22px 12px; }
+.rc--t4 { --f1: #fff4c9; --f2: #e2b04a; --f3: #7d5310;
+  --pat: radial-gradient(circle, rgba(255,244,201,.12) 1.2px, transparent 1.8px) 0 0 / 12px 12px, radial-gradient(circle, rgba(255,244,201,.07) 1.2px, transparent 1.8px) 6px 6px / 12px 12px; }
+.rc--t5 { --f1: #fdf3d6; --f2: #b9e3f2; --f3: #d9c1f2;
+  background: conic-gradient(from 210deg, #f6d58f, #e3eed3, #9fd3e8, #d8b4f0, #f6d58f);
+  --pat: conic-gradient(from 0deg at 30% 20%, rgba(246,213,143,.10), rgba(159,211,232,.10), rgba(216,180,240,.10), rgba(246,213,143,.10)); }
+.rc__in { position: relative; overflow: hidden; height: 100%; display: flex; flex-direction: column; align-items: center; border-radius: 14.5px;
+  background: var(--pat), radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--f2) 28%, #172624) 0%, #142220 55%, #0f1a19 100%); }
+.rc__top { align-self: stretch; display: flex; justify-content: space-between; font: 600 10px/1 Manrope, Inter, sans-serif; color: color-mix(in srgb, var(--f1) 70%, transparent); }
+.rc-medal { display: grid; place-items: center; border-radius: 50%; color: #172624;
+  background: radial-gradient(circle at 35% 30%, var(--f1), var(--f2) 55%, var(--f3));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--f2) 25%, transparent), 0 8px 18px -6px color-mix(in srgb, var(--f2) 70%, transparent), inset 0 1px 1px rgba(255,255,255,.6); }
+.rc--t5 .rc-medal { background: conic-gradient(from 210deg, #f6d58f, #e3eed3, #9fd3e8, #d8b4f0, #f6d58f); }
+.rc__name { margin: 0; text-align: center; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; letter-spacing: 0.01em; line-height: 1.02;
+  background: linear-gradient(180deg, var(--f1) 20%, var(--f2) 75%, var(--f3)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.rc--t5 .rc__name { background: linear-gradient(100deg, #f6d58f, #e3eed3 35%, #9fd3e8 65%, #d8b4f0); -webkit-background-clip: text; background-clip: text; }
+.rc__foot { display: flex; align-items: center; gap: 4px; margin: 0; font: 500 11px/1.2 Inter, sans-serif; color: color-mix(in srgb, var(--f1) 75%, transparent); }
+.rc__foot svg { width: 11px; height: 11px; }
+/* размер S — в коллекции */
+.rc--s { aspect-ratio: 3 / 4.2; }
+.rc--s .rc__in { padding: 9px 8px 10px; gap: 8px; }
+.rc--s .rc-medal { width: 38px; height: 38px; margin-top: 4px; }
+.rc--s .rc-medal svg { width: 20px; height: 20px; }
+.rc--s .rc__name { flex: 1; display: flex; align-items: center; font-size: 17px; }
+/* размер L — главная карточка */
+.rc--l { width: 232px; aspect-ratio: 3 / 4.1; border-radius: 22px; padding: 2px; transform: perspective(700px) rotateX(4deg) rotateY(-6deg);
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.9), 0 0 60px -10px color-mix(in srgb, var(--f2) 45%, transparent); }
+.rc--l .rc__in { border-radius: 20px; padding: 16px 16px 18px; gap: 14px; }
+.rc--l .rc__top { font-size: 12px; }
+.rc--l .rc-medal { width: 84px; height: 84px; margin-top: 10px; }
+.rc--l .rc-medal svg { width: 42px; height: 42px; stroke-width: 1.5; }
+.rc--l .rc__name { flex: 1; display: flex; align-items: center; font-size: 38px; }
+.rc--l .rc__foot { font: 600 12px/1 Inter, sans-serif; padding: 6px 12px; border-radius: 20px; background: color-mix(in srgb, var(--f2) 18%, transparent); color: var(--f1); }
+/* блик по главной карточке — один раз при открытии */
+.rc--l .rc__in::after { content: ''; position: absolute; inset: -40% -60%; background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.28) 50%, transparent 60%);
+  transform: translateX(-60%); animation: rcShine 1.6s .25s cubic-bezier(.2,.7,.2,1) both; pointer-events: none; }
+@keyframes rcShine { to { transform: translateX(60%); } }
+/* закрытые — тёмная сторона, металл приглушён */
+.rc.is-lock { background: linear-gradient(145deg, color-mix(in srgb, var(--f2) 35%, #22302e), #1a2725 60%, color-mix(in srgb, var(--f2) 25%, #22302e)); box-shadow: none; }
+.rc.is-lock .rc__in { background: var(--pat), #121d1c; }
+.rc.is-lock .rc-medal { background: color-mix(in srgb, var(--f2) 14%, #1a2826); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--f2) 30%, transparent); color: color-mix(in srgb, var(--f2) 55%, transparent); }
+.rc.is-lock .rc__name { background: none; color: color-mix(in srgb, var(--f1) 38%, transparent); }
+/* текущая в коллекции — отмечена кольцом */
+.ra-grid .rc.is-cur { box-shadow: 0 0 0 2px #142220, 0 0 0 4px var(--f1), 0 0 22px color-mix(in srgb, var(--f2) 60%, transparent); }
+
+/* панель */
+.rk { gap: 18px; padding-top: 22px; }
+.rk__x { position: absolute; top: 14px; right: 14px; z-index: 3; }
+.rk-hero { display: grid; place-items: center; padding: 18px 0 8px; position: relative; }
+.rk-hero::before { content: ''; position: absolute; width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle, rgba(214, 229, 194, 0.16), transparent 65%); z-index: -1; }
+.rk-next { display: flex; flex-direction: column; gap: 10px; text-align: center; }
+.rk-next p { margin: 0; font: 400 15px/1.4 Inter, sans-serif; color: rgba(237, 242, 232, 0.75); }
+.rk-next p b { color: #edf2e8; font-weight: 600; }
+.rk-next__bar { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.rk-next__bar i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--f2), var(--f1)); }
+.rk-next__bar.rc--t1 { --f1: #dfe7e2; --f2: #8fa39b; } .rk-next__bar.rc--t2 { --f1: #f1f8e4; --f2: #a9c98f; } .rk-next__bar.rc--t3 { --f1: #dcfbf8; --f2: #5fc4c1; }
+.rk-next__bar.rc--t4 { --f1: #fff4c9; --f2: #e2b04a; } .rk-next__bar.rc--t5 { --f1: #e3eed3; --f2: #9fd3e8; }
+.rk-next__bar.rc--t1, .rk-next__bar.rc--t2, .rk-next__bar.rc--t3, .rk-next__bar.rc--t4, .rk-next__bar.rc--t5 { padding: 0; box-shadow: none; border-radius: 3px; background: rgba(255, 255, 255, 0.08); }
+.rk-next__row { display: flex; justify-content: space-between; font: 500 12px/1 Manrope, Inter, sans-serif; color: rgba(237, 242, 232, 0.45); }
+.ra-hd { display: flex; align-items: baseline; justify-content: space-between; margin-top: 6px; }
+.ra-hd h2 { margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; font-size: 26px; color: #edf2e8; }
+.ra-hd span { font: 600 13px/1 Manrope, Inter, sans-serif; color: rgba(237, 242, 232, 0.55); }
+.ra-tier header { display: flex; align-items: center; gap: 8px; margin: 2px 2px 10px; }
+.ra-tier header i { width: 18px; height: 3px; border-radius: 2px; }
+.ra-tier header b { flex: 1; font: 600 14px/1 Inter, sans-serif; color: #edf2e8; }
+.ra-tier header span { font: 600 12px/1 Manrope, Inter, sans-serif; color: rgba(237, 242, 232, 0.5); }
+.ra-tier--t1 header i { background: #8fa39b; } .ra-tier--t2 header i { background: #a9c98f; } .ra-tier--t3 header i { background: #5fc4c1; }
+.ra-tier--t4 header i { background: #e2b04a; } .ra-tier--t5 header i { background: linear-gradient(90deg, #f6d58f, #9fd3e8, #d8b4f0); }
+.ra-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (prefers-reduced-motion: reduce) { .rc--l .rc__in::after { animation: none; display: none; } }
+.ra-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rc { min-width: 0; }
+.rc--s .rc__name { font-size: 15.5px; overflow-wrap: anywhere; hyphens: auto; }
+.rc--s .rc__top span:last-child { display: none; }
+.rc--s .rc__foot { font-size: 10.5px; white-space: nowrap; }
+.rc--s .rc__name { hyphens: manual; overflow-wrap: normal; }
