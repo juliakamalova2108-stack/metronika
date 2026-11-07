@@ -1,12 +1,12 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=259';
-import * as S from './store.js?v=259';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=259';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=259';
-import { topbar, typeName, renderSettlements } from './shared.js?v=259';
-import { ROOMS, roomColor } from './ocenka.js?v=259';
-import { COUNTRIES, SOON } from './phonecodes.js?v=259';
+import { actions, changes, rerender, go, val } from './core.js?v=260';
+import * as S from './store.js?v=260';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=260';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=260';
+import { topbar, typeName, renderSettlements } from './shared.js?v=260';
+import { ROOMS, roomColor } from './ocenka.js?v=260';
+import { COUNTRIES, SOON } from './phonecodes.js?v=260';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -75,6 +75,15 @@ export function renderProfile() {
 
 // ================= настройки =================
 let setTab = 'profile';
+const SI = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICONS_ST = {
+  menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>',
+  back: SI('<path d="M15 5l-7 7 7 7"/>'),
+  profile: SI('<circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/>'),
+  work: SI('<rect x="3.5" y="7" width="17" height="12" rx="2.5"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12.5h17"/>'),
+  system: SI('<circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6 6l1.6 1.6M16.4 16.4L18 18M6 18l1.6-1.6M16.4 7.6L18 6"/>'),
+};
+actions['st-back'] = () => { if (history.length > 1) history.back(); else go('home'); };
 export function renderProfileTab() { setTab = 'profile'; history.replaceState(null, '', '#settings'); return renderSettings(); }
 const NOTIFY_PLATE = (st) => `<section class="plate">
       <h2 class="plate__title">Уведомления</h2>
@@ -180,9 +189,20 @@ export function renderSettings() {
       ${btnRow([{ label: 'Добавить партнёра', action: 'partner-add', primary: true }])}
     </section>`;
   }
-  return `${topbar('Настройки')}
-    <nav class="plate topbar" style="padding:0 12px" aria-label="Разделы настроек"><div class="tabs" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === setTab}" class="tabs__item${k === setTab ? ' is-active' : ''}" data-action="seg" data-seg="set-tab" data-value="${k}">${t}</button>`).join('')}</div></nav>
-    ${body}`;
+  // Три раздела внизу: Профиль · Работа · Система; внутри раздела — вкладки сверху, если их несколько.
+  const groups = isAgent ? [['profile', 'Профиль', ['profile']], ['work', 'Агент', ['agent']], ['system', 'Система', ['general']]]
+    : [['profile', 'Профиль', ['profile']], ['work', 'Работа', ['services', 'rooms', 'schedule']], ['system', 'Система', ['notify']]];
+  const grp = groups.find((g) => g[2].includes(setTab)) || groups[0];
+  const sub = tabs.filter(([k]) => grp[2].includes(k));
+  const GI = { profile: ICONS_ST.profile, work: ICONS_ST.work, system: ICONS_ST.system };
+  return `${topbar(grp[1])}
+    ${sub.length > 1 ? `<nav class="plate topbar" style="padding:0 12px" aria-label="Разделы"><div class="tabs" role="tablist">${sub.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === setTab}" class="tabs__item${k === setTab ? ' is-active' : ''}" data-action="seg" data-seg="set-tab" data-value="${k}">${t}</button>`).join('')}</div></nav>` : ''}
+    ${body}
+    <nav class="st-nav" aria-label="Разделы настроек">
+      <button type="button" class="st-nav__sq" data-action="menu-open" aria-label="Меню">${ICONS_ST.menu}</button>
+      <button type="button" class="st-nav__sq" data-action="st-back" aria-label="Назад">${ICONS_ST.back}</button>
+      <div class="st-nav__tabs" role="tablist">${groups.map(([k, t, ks]) => `<button type="button" role="tab" aria-selected="${grp[0] === k}" class="st-nav__tab${grp[0] === k ? ' is-on' : ''}" data-action="seg" data-seg="set-tab" data-value="${ks[0]}">${GI[k]}<span>${t}</span></button>`).join('')}</div>
+    </nav>`;
 }
 
 changes['set-country'] = (el) => {

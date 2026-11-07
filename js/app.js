@@ -1,18 +1,18 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=259';
-import * as S from './store.js?v=259';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=259';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=259';
-import { renderSettlements } from './shared.js?v=259';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=259';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=259';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=259';
-import { renderOformit, onLiveOformit } from './oformit.js?v=259';
-import { onLiveZakaz } from './zakaz.js?v=259';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=259';
-import './kbd.js?v=259';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=259';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=260';
+import * as S from './store.js?v=260';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=260';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=260';
+import { renderSettlements } from './shared.js?v=260';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=260';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=260';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=260';
+import { renderOformit, onLiveOformit } from './oformit.js?v=260';
+import { onLiveZakaz } from './zakaz.js?v=260';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=260';
+import './kbd.js?v=260';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=260';
 
 const VERSION = 'прототип 1.0';
 
@@ -147,7 +147,7 @@ function render() {
   // Мастер: нижней панели нет — как на главной, одна плавающая кнопка «три полоски» без подписи.
   const noBar = role !== 'agent';
   document.body.classList.toggle('nobar', noBar);
-  if (noBar) { bar.hidden = true; bar.innerHTML = ''; view.insertAdjacentHTML('beforeend', `<button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${MENU_BARS}</button>`); }
+  if (noBar) { bar.hidden = true; bar.innerHTML = ''; if (!view.querySelector('.st-nav')) view.insertAdjacentHTML('beforeend', `<button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${MENU_BARS}</button>`); }
   else { bar.hidden = false; bar.innerHTML = tabbar(role, name); }
   if (!drawerEl.classList.contains('is-on')) drawerEl.innerHTML = drawer(role);
   const activeTab = view.querySelector('.tabs__item.is-active');

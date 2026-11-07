@@ -449,3 +449,16 @@ body.is-auth .app { padding-bottom: 0; }
 .pf-reset { display: block; margin: 10px auto 0; font-size: 12.5px; opacity: .6; }
 .drawer__av { overflow: hidden; }
 .drawer__av img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Настройки: нижняя навигация — меню, назад и три раздела */
+.st-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(30, 48, 50, 0.96), rgba(20, 36, 38, 0.99)); border-top: 1px solid rgba(214,229,194,.12); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.st-nav__sq { flex: none; width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; cursor: pointer; padding: 0; color: #d6e5c2;
+  background: rgba(27, 44, 46, 0.82); border: 1px solid rgba(214, 229, 194, 0.22); box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.55); }
+.st-nav__sq svg { width: 24px; height: 24px; }
+.st-nav__tabs { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 18px; background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.st-nav__tab { all: unset; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 44px; border-radius: 14px; font: 600 11px Manrope, Inter, sans-serif; color: rgba(237,242,232,.65); }
+.st-nav__tab svg { width: 20px; height: 20px; }
+.st-nav__tab.is-on { background: #e3eed3; color: #142220; }
+.st-nav__tab:focus-visible, .st-nav__sq:focus-visible { outline: 2px solid #d6e5c2; outline-offset: 2px; }
+@media (min-width: 520px) { .st-nav { left: 50%; right: auto; width: 480px; transform: translateX(-50%); border-radius: 22px 22px 0 0; } }
