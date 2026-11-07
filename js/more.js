@@ -1,11 +1,11 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=252';
-import * as S from './store.js?v=252';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=252';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=252';
-import { topbar, typeName, renderSettlements } from './shared.js?v=252';
-import { COUNTRIES, SOON } from './phonecodes.js?v=252';
+import { actions, changes, rerender, go, val } from './core.js?v=253';
+import * as S from './store.js?v=253';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=253';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=253';
+import { topbar, typeName, renderSettlements } from './shared.js?v=253';
+import { COUNTRIES, SOON } from './phonecodes.js?v=253';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -70,7 +70,7 @@ export const NOTIFY_KINDS = [
 export function renderSettings() {
   const me = S.me();
   const isAgent = S.hasRole(me, 'agent');
-  const tabs = isAgent ? [['general', 'Общие'], ['agent', 'Агент']] : [['general', 'Общие'], ['notify', 'Уведомления'], ['price', 'Прайс'], ['services', 'Услуги'], ['rooms', 'Комнаты'], ['schedule', 'График']];
+  const tabs = isAgent ? [['general', 'Общие'], ['agent', 'Агент']] : [['general', 'Общие'], ['notify', 'Уведомления'], ['services', 'Услуги'], ['rooms', 'Комнаты'], ['schedule', 'График']];
   if (!tabs.some(([k]) => k === setTab)) setTab = 'general';
   const st = me.settings;
   let body = '';
@@ -104,14 +104,13 @@ export function renderSettings() {
       <p class="small">Эти уведомления собираются в колокольчике на главной.</p>
       ${NOTIFY_KINDS.map(([k, t, d]) => `<label class="toggle-row"><span><b>${t}</b><small>${d}</small></span><input type="checkbox" class="switch" data-change="set-notify-kind" data-k="${k}" ${kinds[k] !== false ? 'checked' : ''} ${st.notify.on ? '' : 'disabled'}/></label>`).join('')}
     </section>`;
-  } else if (setTab === 'price') {
+  } else if (setTab === 'services') {
     body = `<section class="plate">
       <h2 class="plate__title">Поклейка, ₽ за м²</h2>
       ${WALLPAPER_TYPES.map((t) => field({ id: `pr-${t.id}`, label: `${t.name} · система ${SYSTEM_PRICE[t.id]}`, value: String(me.price[t.id]), inputmode: 'numeric', suffix: '₽', attrs: `data-change="set-price" data-type="${t.id}"` })).join('')}
       <p class="small">${S.hasRole(me, 'dispatcher') ? 'Ваши мастера работают по этому прайсу в ваших заказах.' : 'По этим ценам агенты видят предварительную стоимость. В заказах диспетчера действуют его цены.'} В уже принятых заказах цены не меняются.</p>
-    </section>`;
-  } else if (setTab === 'services') {
-    body = `<section class="plate">
+    </section>
+    <section class="plate">
       <h2 class="plate__title">Услуги: цена и норма выработки</h2>
       <p class="small">Норма — сколько успеваете за час. Из неё считается срок в рабочих днях по 8 часов.</p>
       ${SERVICES.filter((s) => s.id !== 'paste').map((s) => { const v = st.services[s.id]; return `<div class="well"><b>${esc(s.name)}</b><div class="grid-2">
