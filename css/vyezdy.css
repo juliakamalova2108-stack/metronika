@@ -1388,3 +1388,9 @@ body.fig .h-page { padding-bottom: 32px; }
   background: rgba(27, 44, 46, 0.82); border: 1px solid rgba(214, 229, 194, 0.22); box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.6); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
 .h-menu svg { width: 26px; height: 26px; }
 body.fig .h-page { padding-bottom: 88px; }
+/* кнопка меню выровнена по краю колонки контента (на широком экране не уезжает к краю окна) */
+.h-menu { left: max(16px, calc(50% - 224px)); }
+/* «Меню» везде — только три полоски, без подписи */
+.f-nav__menu span { display: none; }
+.f-nav__menu { width: 56px; }
+.f-nav__menu svg { width: 26px; height: 26px; }
