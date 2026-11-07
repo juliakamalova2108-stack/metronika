@@ -1,12 +1,12 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=256';
-import * as S from './store.js?v=256';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=256';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=256';
-import { topbar, typeName, renderSettlements } from './shared.js?v=256';
-import { ROOMS, roomColor } from './ocenka.js?v=256';
-import { COUNTRIES, SOON } from './phonecodes.js?v=256';
+import { actions, changes, rerender, go, val } from './core.js?v=257';
+import * as S from './store.js?v=257';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=257';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=257';
+import { topbar, typeName, renderSettlements } from './shared.js?v=257';
+import { ROOMS, roomColor } from './ocenka.js?v=257';
+import { COUNTRIES, SOON } from './phonecodes.js?v=257';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -62,7 +62,6 @@ export function renderProfile() {
       ${field({ id: 'pf-city', label: 'Ближайший город', value: st.city || '', placeholder: 'Например, Уфа', attrs: 'list="pf-cities" data-change="pf-loc" data-k="city" autocomplete="off"' })}
       <datalist id="pf-cities">${PF_CITIES.map((c) => `<option value="${c}">`).join('')}</datalist>
       ${field({ id: 'pf-place', label: 'Населённый пункт', value: st.place || '', placeholder: 'Город, посёлок или село', attrs: 'data-change="pf-loc" data-k="place" autocomplete="off"' })}
-      <p class="small">По стране в поле «Телефон» клиента стоит её код. По городу вам показываются заказы рядом.</p>
     </section>
     ${body}
     <section class="plate">
