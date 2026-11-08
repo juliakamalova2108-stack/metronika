@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=392';
-import * as S from './store.js?v=392';
-import { renderOformit, oformitDraft } from './oformit.js?v=392';
-import { roomTotals, svcInfo } from './ocenka.js?v=392';
-import { smetaTotals } from './zakaz.js?v=392';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=392';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=392';
-import { esc, toast, status, seg } from './ui.js?v=392';
-import { topbar, ORDER_STATUS } from './shared.js?v=392';
+import { actions, rerender, go } from './core.js?v=393';
+import * as S from './store.js?v=393';
+import { renderOformit, oformitDraft } from './oformit.js?v=393';
+import { roomTotals, svcInfo } from './ocenka.js?v=393';
+import { smetaTotals } from './zakaz.js?v=393';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=393';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=393';
+import { esc, toast, status, seg } from './ui.js?v=393';
+import { topbar, ORDER_STATUS } from './shared.js?v=393';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -246,14 +246,14 @@ const PLUS_NAV = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path 
 const plusBtn = (no) => `<button type="button" class="f-icon-btn bd-back" data-action="vs-plus" data-no="${no}" aria-label="Добавить комнату">${PLUS_NAV}</button>`;
 // Верх экрана комнаты: узкая строка «Информация по заказу» — открывает то же окно, что было во вкладке «Инфо» (клиент, оценка, план, источник, с «Изменить»); справа чат
 function orderTop(no) { const n = unread(S.get().oformit['ord-' + no] || {});
-  return `<div class="bd-vtop-row"><section class="f-plate bd-vtop bd-vtop--c"><button type="button" class="bd-vtop__h" data-action="go" data-to="bd-info-${no}"><b>Информация по заказу</b><i class="bd-vtop__chev bd-vtop__chev--go">${CHEV}</i></button></section><button type="button" class="f-icon-btn bd-vtop__chat" data-action="bd-edit" data-no="${no}" data-tab="chat" aria-label="Чат заказа">${CHAT}${n ? `<b class="f-nav__badge">${n}</b>` : ''}</button></div>`; }
+  return `<div class="bd-vtop-row"><div class="f-btn-row"><button type="button" class="f-btn" data-action="go" data-to="bd-info-${no}">Информация по заказу</button></div><button type="button" class="f-icon-btn bd-vtop__chat" data-action="bd-edit" data-no="${no}" data-tab="chat" aria-label="Чат заказа">${CHAT}${n ? `<b class="f-nav__badge">${n}</b>` : ''}</button></div>`; }
 // После «Сохранить» / «Отмена» в форме — назад в визит, на тот же шаг
 const backTo = (no) => { const v = flowOf(no).visit; if (v && v.open) vsGo(no, v.step); else go('bd-order-' + no); };
 const RS_T = { done: 'готово', refuse: 'отказ' };
 // Комнаты — в нижней панели: листаются вбок вместе с остальными кнопками. Значок — статус комнаты.
 const roomTabs = (no, d, f) => { const v = f.visit || {}; return ((d.est && d.est.rooms) || []).map((r) => { const st = (f.rs || {})[r.key]; return `<button type="button" class="f-tab bd-rtab${v.room === r.key ? ' is-active' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="vs-room" data-no="${no}" data-k="${r.key}">${st ? (st.st === 'done' ? '✓ ' : '× ') : ''}${esc(r.name)}</button>`; }).join(''); };
 // Вкладки комнаты сверху — тот же сегмент, что в «Статистике»
-const roomSeg = (no, v) => `<div class="f-topnav sd-seg bd-vseg"><div class="f-topnav__track" role="tablist">${VS_TABS.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === (v.tab || 'material')}" class="f-tab${k === (v.tab || 'material') ? ' is-active' : ''}" data-action="vs-tab" data-no="${no}" data-k="${k}">${t}</button>`).join('')}</div></div>`;
+const roomSeg = (no, v) => `<div class="z-seg bd-vseg" role="tablist">${VS_TABS.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === (v.tab || 'material')}" class="f-btn${k === (v.tab || 'material') ? ' f-btn--lit' : ''}" data-action="vs-tab" data-no="${no}" data-k="${k}">${t}</button>`).join('')}</div>`;
 // «Материал» нельзя пропустить: нужен хотя бы один материал и опыт мастера по каждому
 function vsExpMsg(no, t) { if (t !== 'material') return ''; const d = S.get().oformit['ord-' + no]; const rk = (flowOf(no).visit || {}).room; const mr = (d && d.mat && d.mat.rooms) || {}; const codes = [...new Set((rk ? [mr[rk]] : Object.values(mr)).filter(Boolean).flatMap((r) => (r.items || []).map((i) => i.code)))];
   if (!codes.length) return 'Добавьте материал комнаты — отсканируйте штрихкод';

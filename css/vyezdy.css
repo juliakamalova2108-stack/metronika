@@ -2836,19 +2836,8 @@ a.f-btn { display: flex; align-items: center; justify-content: center; text-deco
 .bd-rtab.is-active { color: #edf0e7; }
 .bd-rtab::before { content: ''; position: absolute; left: 12px; right: 12px; bottom: 4px; height: 3px; border-radius: 2px; background: var(--rc); opacity: .55; }
 .bd-rtab.is-active::before { opacity: 1; }
-.bd-vseg { margin: 0 0 10px; width: 100%; }
-/* «Информация по заказу» — узкая строка вверху на всю ширину, как остальные плашки; справа чат */
-.bd-vtop { margin: 0 0 10px; padding: 0 14px; display: grid; gap: 8px; }
-.bd-vtop:not(.bd-vtop--c) { padding-bottom: 12px; }
-.bd-vtop__bar { display: flex; align-items: center; gap: 6px; }
-.bd-vtop__h { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 0; background: none; cursor: pointer; padding: 8px 0; text-align: left; color: inherit; }
-.bd-vtop__h b { font: 600 14px/18px var(--font-body); color: #edf2e8; }
-.bd-vtop__chev { display: inline-flex; width: 20px; flex: none; transition: transform .2s; } .bd-vtop__chev.is-open { transform: rotate(180deg); }
+.bd-vseg { margin: 0 0 10px; }
 .bd-vtop-row { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; }
-.bd-vtop-row .bd-vtop { flex: 1; min-width: 0; margin: 0; }
+.bd-vtop-row .f-btn-row { flex: 1; min-width: 0; }
 .bd-vtop__chat { flex: none; width: 48px; height: 48px; position: relative; }
 .bd-vtop__chat svg { width: 26px; height: 26px; }
-.bd-vtop .bd-cl b { white-space: nowrap; font-size: 18px; }
-.bd-vtop .bd-cl__ic { gap: 6px; }
-.bd-vtop .bd-cl__ic .f-icon-btn { width: 40px; height: 40px; }
-.bd-vtop__chev--go { transform: rotate(-90deg); }
