@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=327';
-import * as S from './store.js?v=327';
-import { esc, toast } from './ui.js?v=327';
-import { selectField, pickers } from './oformit.js?v=327';
+import { actions, rerender, val } from './core.js?v=329';
+import * as S from './store.js?v=329';
+import { esc, toast } from './ui.js?v=329';
+import { selectField, pickers } from './oformit.js?v=329';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -85,7 +85,7 @@ function data() {
   });
   lost.forEach((x, i) => { const r = Math.sin((i + 1) * 91.17) * 43758.5453, f = (r - Math.floor(r)) * 100; let acc = 0; x.src = (SRC.find(([, w]) => (acc += w) >= f) || SRC[0])[0]; });
   orders.forEach((o) => { const h = (k) => { const x = Math.sin(+o.no * 12.9898 + k * 78.233) * 43758.5453; return x - Math.floor(x); };
-    o.queue = 3 + Math.round(h(1) * 5); o.waitD = Math.round(2 + h(2) * h(2) * 16); });
+    o.queue = 3 + Math.round(h(1) * 5); o.withMeas = h(3) < 0.62; o.waitD = Math.round(2 + h(2) * h(2) * 16); });
   DATA = { orders, ops, lost };
   return DATA;
 }
@@ -384,23 +384,23 @@ function effInner(A, B, LY, lyLbl, lyCol, tile, scope, mser, si, part) {
   const funnel = (a) => { let v = a.leads; return STG.map(([t, lose]) => { const drop = a.L.filter((x) => lose.includes(x.reason)); v -= drop.length; return { t, v: t === 'Выполнено' ? a.n : v, drop, lose }; }); };
   const FN = funnel(A), FB = B.leads ? funnel(B) : null, top = FN[0].v || 1;
   const FC = [['#4f8dff', '#2f6be0'], ['#45a6f5', '#2a86d6'], ['#3cc4d8', '#1fa3b8'], ['#3fd6a6', '#1fb383'], ['#4be37f', '#22c05c']];
-  const RH = 58, BH = 44, W = 220, cx = W / 2, wd = (i) => W * (1 - i * 0.15);
+  const RH = 40, BH = 32, W = 158, cx = W / 2, wd = (i) => W * (1 - i * 0.15);
   const band = (i) => { const y0 = i * RH, w = wd(i), m = y0 + BH / 2;
     const con = i < FN.length - 1 ? `<path d="M${cx - w / 2 + 10} ${y0 + BH} H${cx + w / 2 - 10} L${cx + wd(i + 1) / 2 - 10} ${y0 + RH} H${cx - wd(i + 1) / 2 + 10}Z" fill="url(#fg${i})" opacity=".22"/>` : '';
-    return `${con}<rect x="${cx - w / 2}" y="${y0}" width="${w}" height="${BH}" rx="13" fill="url(#fg${i})"/><rect x="${cx - w / 2 + 1}" y="${y0 + 1}" width="${w - 2}" height="${BH / 2}" rx="12" fill="#fff" opacity=".08"/>
-      <text x="${cx}" y="${m + 5.5}" text-anchor="middle" class="sd-fun2__p">${i ? Math.round((FN[i].v / top) * 100) + '%' : '100%'}</text>`; };
+    return `${con}<rect x="${cx - w / 2}" y="${y0}" width="${w}" height="${BH}" rx="10" fill="url(#fg${i})"/><rect x="${cx - w / 2 + 1}" y="${y0 + 1}" width="${w - 2}" height="${BH / 2}" rx="9" fill="#fff" opacity=".08"/>
+      <text x="${cx}" y="${m + 4.5}" text-anchor="middle" class="sd-fun2__p">${i ? Math.round((FN[i].v / top) * 100) + '%' : '100%'}</text>`; };
   const svg = `<svg class="sd-fun2__svg" viewBox="0 0 ${W} ${(FN.length - 1) * RH + BH}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><defs>${FC.map(([c1, c2], i) => `<linearGradient id="fg${i}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${c2}"/><stop offset=".5" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>`).join('')}<filter id="fgl" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="7"/></filter></defs>
-    <g opacity=".3" filter="url(#fgl)">${FN.map((_, i) => `<rect x="${cx - wd(i) / 2}" y="${i * RH}" width="${wd(i)}" height="${BH}" rx="13" fill="url(#fg${i})"/>`).join('')}</g>${FN.map((_, i) => band(i)).join('')}</svg>`;
-  const labels = `<div class="sd-fun2__l">${FN.map((x, i) => `<div class="sd-fun2__it" style="height:${i < FN.length - 1 ? RH : BH}px"><small>${x.t}</small><b>${x.v}${i && x.drop.length ? `<em>−${x.drop.length}</em>` : ''}</b></div>`).join('')}</div>`;
-  const fun = `<div class="sd-fun2">${labels}${svg}</div>${FN.some((x) => x.drop.length) ? `<p class="sd-fun2__n">Красным — сколько заявок отвалилось на этом шаге</p>` : ''}`;
+    <g opacity=".3" filter="url(#fgl)">${FN.map((_, i) => `<rect x="${cx - wd(i) / 2}" y="${i * RH}" width="${wd(i)}" height="${BH}" rx="10" fill="url(#fg${i})"/>`).join('')}</g>${FN.map((_, i) => band(i)).join('')}</svg>`;
+  const labels = `<div class="sd-fun2__l">${FN.map((x, i) => `<div class="sd-fun2__it" style="height:${i < FN.length - 1 ? RH : BH}px"><small>${x.t}</small><b class="sd-fun2__v">${x.v}</b>${i && x.drop.length ? `<em>−${x.drop.length}</em>` : '<span></span>'}</div>`).join('')}</div>`;
+  const fun = `<div class="sd-fun2">${labels}${svg}</div>`;
   const hero = `<section class="h-block sd-hero"><small>Воронка ${fsrc === 'all' ? 'по всем источникам' : `«${esc(fsrc)}»`} ${scope}</small><div class="sd-hero__v"><b>${conv}<i>%</i></b>${B.leads ? `<span class="sd-vs">${dTag(delta(conv, convB))}<small>${prevName()}</small></span>` : ''}</div><p class="sd-hero__s">обращений дошло до выполненного заказа</p>
-    ${fun}${strip}</section>`;
+    ${fun}</section>`;
   const avg = (a, k) => (a.n ? a[k] / a.n : 0), days = (a) => Math.max(1, a.days);
   const trav = (a) => a.travel / days(a), wt = (a) => a.wait / days(a), spd = (a) => (a.workH ? a.m2 / a.workH : 0), rsp = (a) => avg(a, 'resp');
   const tilesE = `<div class="sd-tiles">${tile('В дороге за день', hmS(trav(A)), dTag(delta(trav(A), trav(B)), true), prevName(), bars(mser(trav), si, P7[1]))}${tile('Замер в среднем', hmS(avg(A, 'measure')), dTag(delta(avg(A, 'measure'), avg(B, 'measure')), true), prevName(), bars(mser((a) => avg(a, 'measure')), si, P7[3]))}</div>`;
   const qA = (a) => (a.n ? a.queue / a.n : 0), wA = (a) => (a.n ? a.waitD / a.n : 0);
   const dd = (d) => { const n = Math.round(d); return n >= 14 ? `${Math.round(n / 7)}<i class="sd-tu"> ${plural(Math.round(n / 7), 'неделя', 'недели', 'недель')}</i>` : `${n}<i class="sd-tu"> ${plural(n, 'день', 'дня', 'дней')}</i>`; };
-  const tilesL = `<div class="sd-tiles">${tile('Очередь в среднем', `${Math.round(qA(A))}<i class="sd-tu"> ${plural(Math.round(qA(A)), 'клиент', 'клиента', 'клиентов')}</i>`, dTag(delta(qA(A), qA(B))), prevName(), bars(mser(qA), si, P7[0]))}${tile('Клиент ждёт нас', dd(wA(A)), dTag(delta(wA(A), wA(B)), true), prevName(), bars(mser(wA), si, P7[5]))}</div>`;
+  const tilesL = `<div class="sd-tiles">${tile('Очередь в среднем', `${Math.round(qA(A))}<i class="sd-tu"> ${plural(Math.round(qA(A)), 'клиент', 'клиента', 'клиентов')}</i>`, dTag(delta(qA(A), qA(B))), prevName(), bars(mser(qA), si, P7[0]))}${tile('Клиент ждёт нас', dd(wA(A)), dTag(delta(wA(A), wA(B)), true), prevName(), bars(mser(wA), si, P7[5]))}${tile('С замером', A.O.filter((o) => o.withMeas).length, dTag(delta(A.O.filter((o) => o.withMeas).length, B.O.filter((o) => o.withMeas).length)), prevName(), bars(mser((a) => a.O.filter((o) => o.withMeas).length), si, P7[3]))}${tile('Без замера', A.O.filter((o) => !o.withMeas).length, dTag(delta(A.O.filter((o) => !o.withMeas).length, B.O.filter((o) => !o.withMeas).length)), prevName(), bars(mser((a) => a.O.filter((o) => !o.withMeas).length), si, P7[2]))}</div>`;
   const TMf = (a) => [['Выполнение заказа', a.workH * 60, P7[2]], ['Дорога', a.travel, P7[1]], ['Замер', a.measure, P7[3]]];
   const TM = TMf(A).map(([t, v, col], i) => ({ key: 'tm:' + t, t, v: Math.round(v / 60), pv: Math.round(TMf(B)[i][1] / 60), col })).filter((x) => x.v);
   const hrs = (a) => Math.round(a.workH + (a.travel + a.measure) / 60), H = hrs(A) || 1;
