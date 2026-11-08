@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=362';
-import * as S from './store.js?v=362';
-import { renderOformit, oformitDraft } from './oformit.js?v=362';
-import { roomTotals, svcInfo } from './ocenka.js?v=362';
-import { smetaTotals } from './zakaz.js?v=362';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=362';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=362';
-import { esc, toast, status, seg } from './ui.js?v=362';
-import { topbar, ORDER_STATUS } from './shared.js?v=362';
+import { actions, rerender, go } from './core.js?v=363';
+import * as S from './store.js?v=363';
+import { renderOformit, oformitDraft } from './oformit.js?v=363';
+import { roomTotals, svcInfo } from './ocenka.js?v=363';
+import { smetaTotals } from './zakaz.js?v=363';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=363';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=363';
+import { esc, toast, status, seg } from './ui.js?v=363';
+import { topbar, ORDER_STATUS } from './shared.js?v=363';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -77,10 +77,11 @@ export function renderBoard() {
   let rows = QUEUE.filter(([, k]) => !k || stOf(R[k].c.no) === stage);
   if (stage !== 'queue') rows = rows.filter(([, k]) => k);
   const listed = new Set(rows.filter(([, k]) => k).map(([, k]) => R[k].c.no));
-  const extra = Object.keys(DEMO).filter((no) => stOf(no) === stage && !listed.has(no) || (stage === 'done' && ['closed'].includes(stOf(no))));
+  const extra = [...Object.keys(DEMO), ...MY()].filter((no) => stOf(no) === stage && !listed.has(no) || (stage === 'done' && ['closed'].includes(stOf(no))));
   if (q) rows = rows.filter(([, k]) => k && [R[k].c.n, R[k].c.a, R[k].c.ph, R[k].c.no].join(' ').toLowerCase().includes(q));
-  const xcards = extra.map((no) => { const d = S.get().oformit['ord-' + no], c = CL[no], f = flowOf(no);
-    const off = f.st === 'measure' && DEMO[no].meas != null ? DEMO[no].meas : f.st === 'approval' ? (f.call || 1) : 0;
+  const xcards = extra.map((no) => { const d = S.get().oformit['ord-' + no], f = flowOf(no), cl = d.cl || {}, c = CL[no] || { n: cl.name || 'Клиент', a: [cl.street, cl.house && 'д. ' + cl.house, cl.flat && 'кв. ' + cl.flat].filter(Boolean).join(', ') };
+    const mOff = d.sched && d.sched.measure ? Math.round((new Date(d.sched.measure + 'T12:00:00') - dayOf(0)) / 864e5) : 0;
+    const off = f.st === 'measure' ? (DEMO[no] && DEMO[no].meas != null ? DEMO[no].meas : mOff) : f.st === 'approval' ? (f.call || 1) : 0;
     const sum = ((d.est && d.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0);
     return `<div class="bd-slot">${leaf(dayOf(off), off === 0, f.st === 'measure' ? `${d.cl.hour}:${d.cl.min}` : '')}<button type="button" class="bd-card" data-action="bd-open" data-no="${no}">
       <span class="bd-top"><span class="bd-who"><b>${esc(c.n)}</b><small>${esc(c.a)}</small></span><span class="bd-sum"><b>${sum ? fmt(sum) + ' ₽' : '—'}</b><small>№${no}</small></span></span>
@@ -170,6 +171,7 @@ function workDays(d) {
 }
 // ── Путь заказа: на каждом этапе в карточке — блок «Сейчас» с одним следующим шагом ──
 const FL_NAME = { measure: 'Замер', approval: 'Согласование', queue: 'Очередь', work: 'В работе', done: 'Выполнено', closed: 'Заказ завершён', refused: 'Отказ' };
+const MY = () => S.get().myOrders || [];
 const FL_START = { '004': 'queue', '007': 'work', '011': 'queue', '014': 'queue', '015': 'measure', '016': 'measure' };
 let flAsk = '';
 export const setFlAsk = (v) => { flAsk = v; };
@@ -239,8 +241,8 @@ actions['fl-pay'] = (el) => flSet(el, (f, d) => { const rooms = (d.est && d.est.
   d.fin = d.fin || { pays: [], exps: [] }; const paid = d.fin.pays.reduce((a, x) => a + x.amount, 0); d.fin.pays.push({ kind: 'Оплата', amount: Math.max(0, tot - paid), date: iso(0), method: el.dataset.k }); toast('Оплата записана'); });
 actions['fl-to'] = (el) => { const [to, plan] = el.dataset.k.split('+'); flAsk = ''; flSet(el, (f) => { f.st = to; if (to === 'work') { f.day = 1; f.shift = {}; } }); if (plan) go('bd-edit-' + el.dataset.no + '-schedule'); };
 export function renderBoardOrder(no) {
-  if (!DEMO[no]) return null;
-  seedOrder(no);
+  if (!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) return null;
+  if (DEMO[no]) seedOrder(no);
   S.setDraftKey('ord-' + no);
   restore = true; // «назад» (кнопкой или жестом) вернёт на тот же этап и то же место списка
   const d = oformitDraft(); const c = d.cl || {}; const rooms = (d.est && d.est.rooms) || [];
@@ -306,9 +308,9 @@ function beginEdit(d, t) {
   S.save();
 }
 export function renderBoardEdit(no, t) {
-  if (!DEMO[no] || !TAB_T[t]) return null;
+  if ((!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) || !TAB_T[t]) return null;
   if (t === 'chat') return renderBoardChat(no);
-  seedOrder(no);
+  if (DEMO[no]) seedOrder(no);
   S.setDraftKey('ord-' + no);
   if (startEdit === t) { startEdit = ''; beginEdit(oformitDraft(), t); }
   const c = CL[no];
@@ -400,11 +402,11 @@ const CLIP = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M
 let showParts = false;
 const hhmm = (iso) => new Date(iso).toTimeString().slice(0, 5);
 function renderBoardChat(no) {
-  seedOrder(no);
+  if (DEMO[no]) seedOrder(no);
   S.setDraftKey('ord-' + no);
   const d = oformitDraft(); d.chat = d.chat || [];
   d.chat.forEach((m) => { m.read = true; }); S.save();
-  const c = CL[no]; const me = S.me();
+  const c = CL[no] || { n: (oformitDraft().cl || {}).name || 'Клиент' }; const me = S.me();
   const parts = PARTS[no] || [];
   const AV_C = ['#5b5f8f', '#8a6a3f', '#4f7a8f'];
   const tile = (n, r) => `<span class="ch-part"><b>${esc(n)}</b><small>${esc(r)}</small></span>`;

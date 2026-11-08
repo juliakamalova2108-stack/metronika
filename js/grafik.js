@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=362';
-import * as S from './store.js?v=362';
-import { SHIFT_HOURS } from './calc.js?v=362';
-import { esc, toast } from './ui.js?v=362';
-import { logEvent } from './zlog.js?v=362';
-import { estimateRooms, roomTotals } from './ocenka.js?v=362';
+import { actions, rerender } from './core.js?v=363';
+import * as S from './store.js?v=363';
+import { SHIFT_HOURS } from './calc.js?v=363';
+import { esc, toast } from './ui.js?v=363';
+import { logEvent } from './zlog.js?v=363';
+import { estimateRooms, roomTotals } from './ocenka.js?v=363';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
