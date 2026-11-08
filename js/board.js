@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=372';
-import * as S from './store.js?v=372';
-import { renderOformit, oformitDraft } from './oformit.js?v=372';
-import { roomTotals, svcInfo } from './ocenka.js?v=372';
-import { smetaTotals } from './zakaz.js?v=372';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=372';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=372';
-import { esc, toast, status, seg } from './ui.js?v=372';
-import { topbar, ORDER_STATUS } from './shared.js?v=372';
+import { actions, rerender, go } from './core.js?v=373';
+import * as S from './store.js?v=373';
+import { renderOformit, oformitDraft } from './oformit.js?v=373';
+import { roomTotals, svcInfo } from './ocenka.js?v=373';
+import { smetaTotals } from './zakaz.js?v=373';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=373';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=373';
+import { esc, toast, status, seg } from './ui.js?v=373';
+import { topbar, ORDER_STATUS } from './shared.js?v=373';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -301,7 +301,7 @@ export function renderVisit(no) {
   S.save();
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${head}${body}
     <nav class="f-nav f-nav--tabs bd-vnav" aria-label="Шаги выезда"><button type="button" class="f-icon-btn bd-back" ${A('vs-prev')} aria-label="Назад"${v.step ? '' : ' disabled'}>${BACK}</button>
-      ${v.step < STEPS.length - 1 && can !== false ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn${can ? ' f-btn--lit' : ''}" ${A('vs-next')}${can ? '' : ' disabled'}>Дальше</button></div>` : v.step < STEPS.length - 1 ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn" disabled>Дальше</button></div>` : '<span class="bd-navfree"></span>'}</nav>`;
+      ${v.step < STEPS.length - 1 && can !== false ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn${can ? ' f-btn--lit' : ''}" ${A('vs-next')}${can ? '' : ' disabled'}>Дальше</button></div>` : v.step < STEPS.length - 1 ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn" disabled>Дальше</button></div>` : '<span class="bd-navfree"></span>'}${infoBtn(no)}${chatBtn(no, d)}</nav>`;
 }
 const vs = (el, fn) => { const no = el.dataset.no, f = flowOf(no); fn(f.visit, f); S.save(); rerender(); };
 const noOfHash = () => location.hash.slice(10);
@@ -339,7 +339,7 @@ actions['fl-refuse'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; con
 actions['fl-pay'] = (el) => flSet(el, (f, d) => { const rooms = (d.est && d.est.rooms) || []; const sm = d.sm ? smetaTotals(d) : null; const tot = sm && sm.total ? sm.total : rooms.reduce((a, r) => a + roomTotals(r).total, 0);
   d.fin = d.fin || { pays: [], exps: [] }; const paid = d.fin.pays.reduce((a, x) => a + x.amount, 0); d.fin.pays.push({ kind: 'Оплата', amount: Math.max(0, tot - paid), date: iso(0), method: el.dataset.k }); toast('Оплата записана'); });
 actions['fl-to'] = (el) => { const [to, plan] = el.dataset.k.split('+'); flAsk = ''; flSet(el, (f) => { f.st = to; if (to === 'work') { f.day = 1; f.shift = {}; } }); if (plan) go('bd-edit-' + el.dataset.no + '-schedule'); };
-export function renderBoardOrder(no) {
+export function renderBoardOrder(no, info) {
   if (!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) return null;
   if (DEMO[no]) seedOrder(no);
   S.setDraftKey('ord-' + no);
@@ -351,7 +351,7 @@ export function renderBoardOrder(no) {
   const addr = [c.street, c.house && 'д. ' + c.house, c.flat && 'кв. ' + c.flat].filter(Boolean).join(', ');
   // Клиент, номер и этап — сверху экрана; внизу только «назад» (место в нижней панели свободно).
   const head = '';
-  const mid = `<div class="bd-navslot"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="К заказам">${BACK}</button><span class="bd-navfree"></span></div>`;
+  const mid = info ? `<div class="bd-navslot"><button type="button" class="f-icon-btn bd-back" data-action="bd-to-order" data-no="${no}" aria-label="Назад">${BACK}</button><span class="bd-navfree"></span></div>` : `<div class="bd-navslot"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="К заказам">${BACK}</button><span class="bd-navfree"></span></div>`;
   const client = block('Клиент', no, 'client', `<div class="bd-clname"><b>${esc(c.name || '')}</b><small>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</small></div><div class="bd-cl"><div><b>${esc(c.phone || '')}</b><small>${esc(addr)}${c.entrance ? ` · подъезд ${esc(c.entrance)}` : ''}${c.floor ? ` · этаж ${esc(c.floor)}` : ''}</small><small>Приезд <em>с ${esc(c.hour || '—')}:${esc(c.min || '00')}</em></small></div>
     <span class="bd-cl__ic"><a class="f-icon-btn" href="tel:${esc((c.phone || '').replace(/[^+\d]/g, ''))}" aria-label="Позвонить">${PH}</a><a class="f-icon-btn" href="https://yandex.ru/maps/?text=${encodeURIComponent(addr)}" target="_blank" rel="noopener" aria-label="Маршрут">${RT}</a></span></div>${c.comment ? `<p class="bd-note">${esc(c.comment)}</p>` : ''}`);
   const roomsHtml = rooms.map((r) => { const t = roomTotals(r); const on = openRooms.has(r.key);
@@ -375,12 +375,16 @@ export function renderBoardOrder(no) {
   const openTasks = (d.tasks || []).filter((t) => !t.done);
   if (openTasks.length) extra.push(block('Задачи', no, 'tasks', openTasks.slice(0, 3).map((t) => `<p class="bd-line"><b>${esc(t.text)}</b>${t.due ? `<small>до ${esc(t.due)}</small>` : ''}</p>`).join('')));
   const more = extra.join('');
+  if (info) return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${client}${est}${sched}${chan}
+    <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${mid}${chatBtn(no, d)}</nav>`;
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${head}${client}${flowBlock(no, d, tot, days)}${est}${sched}${sum}${chan}${zam}${more}
     <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${mid}${chatBtn(no, d)}</nav>`;
 }
 // Правка блока — та же форма, что при оформлении; «назад» возвращает в сводку заказа.
 // Чат заказа — кнопка справа в нижней навигации; красная цифра — непрочитанные сообщения не от мастера.
 const CHAT = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5h16v10.5H9.5L5 19.5V16H4z" stroke="#A3AEBE" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 9.5h8M8 12.5h5" stroke="#A3AEBE" stroke-width="1.6" stroke-linecap="round"/></svg>';
+const INFO = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="#A3AEBE" stroke-width="1.8"/><path d="M12 11v5" stroke="#A3AEBE" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.8" r="1" fill="#A3AEBE"/></svg>';
+const infoBtn = (no) => `<button type="button" class="f-nav__tab" data-action="go" data-to="bd-info-${no}" aria-label="Информация о заказе">${INFO}<span>Инфо</span></button>`;
 const unread = (d) => (d.chat || []).filter((m) => m.who !== S.me().id && !m.read).length;
 const chatBtn = (no, d) => { const n = unread(d); return `<button type="button" class="f-nav__tab f-nav__chat" data-action="bd-edit" data-no="${no}" data-tab="chat" aria-label="Чат заказа">${CHAT}${n ? `<b class="f-nav__badge">${n}</b>` : ''}<span>Чат</span></button>`; };
 // Правка блока — только этот раздел (та же форма, что при оформлении), без вкладок других разделов.
@@ -417,7 +421,7 @@ export function renderBoardEdit(no, t) {
   const navHtml = ''; // шапка (назад, раздел, клиент) — в нижней навигации между «Меню» и «Чатом»
   const dd = oformitDraft();
   if (t === 'chat') { (dd.chat || []).forEach((m) => { m.read = true; }); S.save(); }
-  const html = renderOformit('order', { only: t, navHtml, navRight: mid + (t === 'chat' ? '<span class="f-nav__chat"></span>' : chatBtn(no, dd)) });
+  const html = renderOformit('order', { only: t, navHtml, navRight: mid + ((flowOf(no).visit || {}).open && t !== 'chat' ? infoBtn(no) : '') + (t === 'chat' ? '<span class="f-nav__chat"></span>' : chatBtn(no, dd)) });
   // Вместо «Редактировать / Редактирование» — «Отмена»: правка уже включена.
   return html.replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
 }
