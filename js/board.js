@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=364';
-import * as S from './store.js?v=364';
-import { renderOformit, oformitDraft } from './oformit.js?v=364';
-import { roomTotals, svcInfo } from './ocenka.js?v=364';
-import { smetaTotals } from './zakaz.js?v=364';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=364';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=364';
-import { esc, toast, status, seg } from './ui.js?v=364';
-import { topbar, ORDER_STATUS } from './shared.js?v=364';
+import { actions, rerender, go } from './core.js?v=365';
+import * as S from './store.js?v=365';
+import { renderOformit, oformitDraft } from './oformit.js?v=365';
+import { roomTotals, svcInfo } from './ocenka.js?v=365';
+import { smetaTotals } from './zakaz.js?v=365';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=365';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=365';
+import { esc, toast, status, seg } from './ui.js?v=365';
+import { topbar, ORDER_STATUS } from './shared.js?v=365';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -785,7 +785,10 @@ export function renderHome() {
       .map((v) => ({ id: o.id, no: String(o.no), off: offOf(v.date), time: v.time, n: o.client.name, a: [o.client.street, o.client.house].filter(Boolean).join(', ') + (o.client.flat ? `, кв. ${o.client.flat}` : ''), ph: o.client.phone })));
   // Примерные замеры для показа (пока в демо-заказах нет будущих замеров)
   const DEMO_MEAS = Object.keys(DEMO).filter((no) => DEMO[no].meas != null).map((no) => { const x = DEMO[no]; return { no, demo: true, off: x.meas, time: `${Number(x.hour)}:${x.min || '00'}`, n: CL[no].n, a: CL[no].a, ph: x.ph }; });
-  const meas = (realMeas.length ? realMeas : DEMO_MEAS).sort((x, y) => x.off - y.off || x.time.localeCompare(y.time));
+  Object.keys(DEMO).forEach(seedOrder);
+  MY().forEach((no) => { const d = S.get().oformit['ord-' + no]; if (!d || flowOf(no).st !== 'measure' || !d.sched || !d.sched.measure) return; const cl = d.cl || {};
+    DEMO_MEAS.push({ no, demo: true, off: offOf(d.sched.measure), time: `${Number(cl.hour || 10)}:${cl.min || '00'}`, n: cl.name || 'Клиент', a: [cl.street, cl.house && 'д. ' + cl.house, cl.flat && 'кв. ' + cl.flat].filter(Boolean).join(', '), ph: cl.phone || '' }); });
+  const meas = (realMeas.length ? realMeas : DEMO_MEAS).filter((m) => !m.demo || DEMO[m.no] ? (!m.demo || flowOf(m.no).st === 'measure') : true).sort((x, y) => x.off - y.off || x.time.localeCompare(y.time));
   const RULER = ic('<path d="M3.5 15.5l12-12 5 5-12 12z"/><path d="M7 12l2 2M9.5 9.5l1.5 1.5M12 7l2 2"/>');
   const whenOf = (off) => { if (off === 0) return 'сегодня'; if (off === 1) return 'завтра'; const d = dayOf(off); return `${WD[d.getDay()]}, ${d.getDate()} ${MON[d.getMonth()]}`; };
   const measToday = meas.filter((m) => m.off === 0);
@@ -803,7 +806,7 @@ export function renderHome() {
       <div class="h-hero__who"><b>${esc(m.n)}</b><small>${esc(m.a)}</small></div>
       <div class="h-hero__act"><a class="h-round" href="tel:+7${esc(String(m.ph).replace(/\D/g, '').slice(-10))}" aria-label="Позвонить">${HI.call}</a>
         <a class="h-round" href="https://yandex.ru/maps/?text=${encodeURIComponent('Уфа, ' + m.a)}" target="_blank" rel="noopener" aria-label="Маршрут">${HI.route}</a>
-        <button type="button" class="h-go h-go--meas" ${m.demo ? `data-action="bd-edit" data-no="${m.no}" data-tab="smeta"` : `data-action="go" data-to="p-order-${esc(m.id)}"`}>Открыть замер ${HI.arrow}</button></div></article>`).join('')}</div>` : '';
+        <button type="button" class="h-go h-go--meas" ${m.demo ? `data-action="go" data-to="bd-visit-${m.no}"` : `data-action="go" data-to="p-order-${esc(m.id)}"`}>${m.demo && flowOf(m.no).visit && flowOf(m.no).visit.step ? 'Продолжить замер' : 'Начать замер'} ${HI.arrow}</button></div></article>`).join('')}</div>` : '';
   // ── Календарь — тот же, что во вкладке «График»: дни комнат цветом, название и сумма за день, «З» — замер; тап по дню — список ниже ──
   const glay = homeLayout(Object.keys(DEMO).map((no) => ({ no, d: homeOrder(no) })));
   const measBy = {}; meas.forEach((m) => { const k = iso(m.off); measBy[k] = (measBy[k] || 0) + 1; });
