@@ -2463,3 +2463,4 @@ body.nobar #view { padding-bottom: 96px; }
 
 .sd-nav4 .f-topnav__track { gap: 0; justify-content: space-between; left: 12px; right: 12px; overflow: visible; -webkit-mask-image: none; mask-image: none; }
 .sd-nav4 .f-tab { font-size: 14px; }
+.sd-dleg b { white-space: normal; line-height: 1.2; }
