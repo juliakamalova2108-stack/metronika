@@ -1,8 +1,8 @@
 // Данные прототипа и все действия над ними. Хранятся только в этом браузере (localStorage).
 // Модель повторяет «Скелет системы»: заказ → звенья передачи → начисления; комнаты → стены → смета.
 
-import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=338';
-import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=338';
+import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=340';
+import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=340';
 
 const KEY = 'metronika-prototype-v2';
 let state;
@@ -782,3 +782,17 @@ export function displayName(viewer, personId, orderId) {
   return person.name;
 }
 export const SERVICES_LIST = SERVICES;
+
+// ── Валюта: по стране по умолчанию, можно выбрать любую (в т.ч. доллары) ──
+export const CURRENCIES = [
+  ['RUB', '₽', 'Российский рубль'], ['USD', '$', 'Доллар США'], ['EUR', '€', 'Евро'],
+  ['BYN', 'Br', 'Белорусский рубль'], ['KZT', '₸', 'Казахстанский тенге'], ['UZS', 'сўм', 'Узбекский сум'],
+  ['KGS', 'сом', 'Киргизский сом'], ['TJS', 'смн', 'Таджикский сомони'], ['AMD', '֏', 'Армянский драм'],
+  ['AZN', '₼', 'Азербайджанский манат'], ['GEL', '₾', 'Грузинский лари'], ['MDL', 'L', 'Молдавский лей'],
+];
+const CTRY_CUR = { RU: 'RUB', 'Беларусь': 'BYN', 'Казахстан': 'KZT', 'Узбекистан': 'UZS', 'Кыргызстан': 'KGS', 'Таджикистан': 'TJS', 'Армения': 'AMD', 'Азербайджан': 'AZN', 'Грузия': 'GEL', 'Молдова': 'MDL' };
+export const countryCurrency = (c) => CTRY_CUR[c] || 'RUB';
+export function currency() { let u = null; try { u = me(); } catch (e) { u = null; } const st = (u && u.settings) || {}; const code = st.currency || countryCurrency(st.country || 'RU'); return CURRENCIES.find((x) => x[0] === code) || CURRENCIES[0]; }
+// Все экраны пишут «₽» — подменяем знак при выводе, если выбрана другая валюта
+export const withCur = (html) => { if (typeof html !== 'string') return html; const c = currency(); return c[0] === 'RUB' ? html : html.replace(/₽(?!\u2060)/g, c[1]); };
+export const curLabel = (x) => `${x[1] === '₽' ? '₽\u2060' : x[1]} · ${x[2]}`; // \u2060 — знак не подменяется

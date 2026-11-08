@@ -1,20 +1,20 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=338';
-import * as S from './store.js?v=338';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=338';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=338';
-import { renderSettlements } from './shared.js?v=338';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=338';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=338';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=338';
-import { renderOformit, onLiveOformit } from './oformit.js?v=338';
-import { onLiveZakaz } from './zakaz.js?v=338';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=338';
-import { renderStatsMaster } from './stats.js?v=338';
-import './kbd.js?v=338';
-import { renderSettingsFig } from './settings.js?v=338';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=338';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=340';
+import * as S from './store.js?v=340';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=340';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=340';
+import { renderSettlements } from './shared.js?v=340';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=340';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=340';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=340';
+import { renderOformit, onLiveOformit } from './oformit.js?v=340';
+import { onLiveZakaz } from './zakaz.js?v=340';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=340';
+import { renderStatsMaster } from './stats.js?v=340';
+import './kbd.js?v=340';
+import { renderSettingsFig } from './settings.js?v=340';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=340';
 
 const VERSION = 'прототип 1.0';
 
@@ -140,7 +140,7 @@ function render() {
     if (location.hash.slice(1) !== name) history.replaceState(null, '', '#' + name);
     html = screenFor(name, role);
   }
-  view.innerHTML = html;
+  view.innerHTML = S.withCur(html);
   // Экраны, перенесённые из Figma один в один, рисуют свою нижнюю навигацию.
   const fig = name === 'oformit' || name === 'home' || ((name === 'settings' || name === 'profile' || name === 'stats') && role !== 'agent') || ((name === 'current' || name === 'orders' || name.startsWith('bd-order-') || name.startsWith('bd-edit-')) && role !== 'agent');
   document.body.classList.toggle('fig', fig);
@@ -152,7 +152,7 @@ function render() {
   const noBar = role !== 'agent';
   document.body.classList.toggle('nobar', noBar);
   if (noBar) { bar.hidden = true; bar.innerHTML = ''; if (!view.querySelector('.st-nav')) view.insertAdjacentHTML('beforeend', `<button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${MENU_BARS}</button>`); }
-  else { bar.hidden = false; bar.innerHTML = tabbar(role, name); }
+  else { bar.hidden = false; bar.innerHTML = S.withCur(tabbar(role, name)); }
   if (!drawerEl.classList.contains('is-on')) drawerEl.innerHTML = drawer(role);
   const activeTab = view.querySelector('.tabs__item.is-active');
   if (activeTab) {
