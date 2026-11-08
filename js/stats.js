@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=286';
-import * as S from './store.js?v=286';
-import { esc, toast } from './ui.js?v=286';
-import { selectField, pickers } from './oformit.js?v=286';
+import { actions, rerender, val } from './core.js?v=287';
+import * as S from './store.js?v=287';
+import { esc, toast } from './ui.js?v=287';
+import { selectField, pickers } from './oformit.js?v=287';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -231,22 +231,25 @@ function bubbles(rows) {
       : p.r >= 13 ? `<text x="${p.cx}" y="${p.cy + 4}" text-anchor="middle" class="sd-bub__p" fill="${col}">${pc}%</text>` : '';
     return `<circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${p.r.toFixed(1)}" fill="${p.x.col}"/>${lab}`; }).join('')}</svg></span>`;
 }
-function mosaic(rows, H = 128) {
+// сокращение под ширину: целиком → «Демонт.» → инициалы «VS»
+const abbr = (t, n) => { if (t.length <= n) return t; if (n >= 4) { let c = t.slice(0, n - 1).trimEnd(); while (c.length > 3 && /[аеёиоуыэюяйьъaeiouy\s]$/i.test(c)) c = c.slice(0, -1); return c + '.'; } const w = t.split(/[\s.-]+/).filter(Boolean); return (w.length > 1 ? w.map((x) => x[0]).join('') : t.slice(0, 2)).slice(0, Math.max(1, n)); };
+function mosaic(rows, H = 150) {
   if (!rows.length) return '<span class="sd-note">Нет данных за период</span>';
-  const tot = rows.reduce((a, x) => a + x.v, 0) || 1, cells = [];
-  const split = (list, x, y, w, h) => {
-    if (!list.length) return;
-    if (list.length === 1) { cells.push({ r: list[0], x, y, w, h }); return; }
-    const sum = list.reduce((a, r) => a + r.v, 0); let acc = 0, i = 0;
-    while (i < list.length - 1 && acc + list[i].v <= sum / 2) acc += list[i++].v;
-    if (i === 0) acc = list[i++].v;
-    const f = acc / sum, A = list.slice(0, i), B = list.slice(i);
-    if (w * 3.1 >= (h / 100) * H) { split(A, x, y, w * f, h); split(B, x + w * f, y, w * (1 - f), h); }
-    else { split(A, x, y, w, h * f); split(B, x, y + h * f, w, h * (1 - f)); }
-  };
-  split([...rows].sort((a, b) => (a.rest ? 1 : 0) - (b.rest ? 1 : 0) || b.v - a.v), 0, 0, 100, 100);
-  return `<span class="sd-mos" style="height:${H}px" role="img" aria-label="${esc(rows.map((x) => `${x.t} ${Math.round((x.v / tot) * 100)}%`).join(', '))}">${cells.map((c) => { const pc = Math.round((c.r.v / tot) * 100), wpx = c.w * 3.1, hpx = (c.h / 100) * H;
-    return `<i style="left:${c.x}%;top:${c.y}%;width:${c.w}%;height:${c.h}%"><span style="background:${c.r.col};color:${ink(c.r.col)}">${wpx > 50 && hpx > 40 ? `<b>${esc(shortName(c.r.t, Math.floor(wpx / 7.2)))}</b><em>${pc}%</em>` : wpx > 30 && hpx > 18 ? `<em>${pc}%</em>` : ''}</span></i>`; }).join('')}</span>`;
+  const tot = rows.reduce((a, x) => a + x.v, 0) || 1, W = 320, cells = [];
+  // «squarified» раскладка: плитки как можно ближе к квадрату — больше места под подписи
+  const list = [...rows].sort((a, b) => (a.rest ? 1 : 0) - (b.rest ? 1 : 0) || b.v - a.v).map((r) => ({ r, a: (r.v / tot) * W * H }));
+  let x = 0, y = 0, w = W, h = H, row = [];
+  const worst = (rw, side) => { const s2 = rw.reduce((a, c) => a + c.a, 0), mx = Math.max(...rw.map((c) => c.a)), mn = Math.min(...rw.map((c) => c.a)); return Math.max((side * side * mx) / (s2 * s2), (s2 * s2) / (side * side * mn)); };
+  const lay = (rw) => { const s2 = rw.reduce((a, c) => a + c.a, 0);
+    if (w >= h) { const cw = s2 / h; let cy = y; rw.forEach((c) => { const ch = c.a / cw; cells.push({ r: c.r, x, y: cy, w: cw, h: ch }); cy += ch; }); x += cw; w -= cw; }
+    else { const ch = s2 / w; let cx = x; rw.forEach((c) => { const cw = c.a / ch; cells.push({ r: c.r, x: cx, y, w: cw, h: ch }); cx += cw; }); y += ch; h -= ch; } };
+  list.forEach((c) => { const side = Math.min(w, h); if (!row.length || worst([...row, c], side) <= worst(row, side)) row.push(c); else { lay(row); row = [c]; } });
+  if (row.length) lay(row);
+  return `<span class="sd-mos" style="height:${H}px" role="img" aria-label="${esc(rows.map((r) => `${r.t} ${Math.round((r.v / tot) * 100)}%`).join(', '))}">${cells.map((c) => { const pc = Math.round((c.r.v / tot) * 100), wpx = c.w, hpx = c.h, n = Math.floor((wpx - 14) / 7.6);
+    let lab = '';
+    if (hpx >= 36 && wpx >= 22) lab = `<b>${esc(abbr(c.r.t, n))}</b><em>${pc}%</em>`;
+    else if (hpx >= 16 && wpx >= 18) lab = wpx >= 64 ? `<b class="one">${esc(abbr(c.r.t, n - 4))} <em>${pc}%</em></b>` : `<b class="one">${esc(abbr(c.r.t, n))}</b>`;
+    return `<i style="left:${(c.x / W) * 100}%;top:${(c.y / H) * 100}%;width:${(c.w / W) * 100}%;height:${(c.h / H) * 100}%"><span class="${wpx < 60 || hpx < 36 ? 'is-sm' : ''}" style="background:${c.r.col};color:${ink(c.r.col)}">${lab}</span></i>`; }).join('')}</span>`;
 }
 const nice = (v) => { if (v <= 0) return 1; const e = Math.pow(10, Math.floor(Math.log10(v))), f = v / e; return ([1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find((x) => x >= f) || 10) * e; };
 const seg2 = (items, cur, act) => `<div class="f-topnav sd-seg"><div class="f-topnav__track" role="tablist">${items.map(([key, t]) => `<button type="button" role="tab" aria-selected="${key === cur}" class="f-tab${key === cur ? ' is-active' : ''}" data-action="${act}" data-k="${key}">${t}</button>`).join('')}</div></div>`;

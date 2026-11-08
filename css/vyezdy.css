@@ -2290,3 +2290,11 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-cl__more .sd-cl__ch.up { transform: rotate(180deg); }
 
 .sd-cl__more--ops { border-top: 0; padding: 8px 0 4px; font-size: 12px; }
+
+.sd-mos > i > span.is-sm { padding: 4px 5px; }
+.sd-mos > i > span.is-sm b { font-size: 11px; }
+.sd-mos > i > span.is-sm em { font-size: 11px; }
+.sd-mos b.one { display: block; font: 700 11px/1.1 Manrope, sans-serif; white-space: nowrap; overflow: hidden; }
+.sd-mos b.one em { font-size: 11px; opacity: .85; }
+
+.sd-mos b { text-overflow: clip !important; }
