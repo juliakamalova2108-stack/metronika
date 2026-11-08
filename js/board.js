@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=373';
-import * as S from './store.js?v=373';
-import { renderOformit, oformitDraft } from './oformit.js?v=373';
-import { roomTotals, svcInfo } from './ocenka.js?v=373';
-import { smetaTotals } from './zakaz.js?v=373';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=373';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=373';
-import { esc, toast, status, seg } from './ui.js?v=373';
-import { topbar, ORDER_STATUS } from './shared.js?v=373';
+import { actions, rerender, go } from './core.js?v=375';
+import * as S from './store.js?v=375';
+import { renderOformit, oformitDraft } from './oformit.js?v=375';
+import { roomTotals, svcInfo } from './ocenka.js?v=375';
+import { smetaTotals } from './zakaz.js?v=375';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=375';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=375';
+import { esc, toast, status, seg } from './ui.js?v=375';
+import { topbar, ORDER_STATUS } from './shared.js?v=375';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -425,7 +425,6 @@ export function renderBoardEdit(no, t) {
   // Вместо «Редактировать / Редактирование» — «Отмена»: правка уже включена.
   return html.replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
 }
-actions['vs-addroom'] = (el) => { const no = location.hash.replace(/^#bd-edit-(\d+)-.*/, '$1'); startEdit = 'estimate'; go(`bd-edit-${no}-estimate`); };
 actions['bd-edit'] = (el) => { startEdit = el.dataset.tab; go(`bd-edit-${el.dataset.no}-${el.dataset.tab}`); };
 actions['bd-to-order'] = (el) => { showParts = false; const no = el.dataset.no, f = flowOf(no), v = f.visit;
   if (v && v.open) { const scr = VS_SCR[v.kind][vsSteps(v.kind)[v.step]]; if (scr && location.hash.includes('-' + scr)) return vsGo(no, Math.max(0, v.step - 1)); return vsGo(no, v.step); }

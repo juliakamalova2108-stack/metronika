@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=373';
-import * as S from './store.js?v=373';
-import { SYSTEM_PRICE } from './seed.js?v=373';
-import { shiftsText, hoursFor } from './calc.js?v=373';
-import { esc, toast } from './ui.js?v=373';
-import { logEvent } from './zlog.js?v=373';
+import { actions, changes, rerender } from './core.js?v=375';
+import * as S from './store.js?v=375';
+import { SYSTEM_PRICE } from './seed.js?v=375';
+import { shiftsText, hoursFor } from './calc.js?v=375';
+import { esc, toast } from './ui.js?v=375';
+import { logEvent } from './zlog.js?v=375';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -579,7 +579,7 @@ export function materialStrip(d, view, stat, right, inner = '') {
   const e = est(d);
   const html = carousel({ ...e, view }, view === 'total' ? '' : right, inner)
     .replace(/data-action="o-view"/g, 'data-action="z-mat-view"')
-    .replace(/data-action="o-add"/, 'data-action="vs-addroom"')
+    .replace(/data-action="o-add"/g, 'data-action="z-mat-pick"')
     .replace(/<i class="o-pv__ok"[^>]*>✓<\/i>/g, '');
   // На плитке — строки «последние 4 цифры штрихкода — сколько рулонов»: «7890 — 4». Больше двух — «+N ещё».
   const cnt = (x) => { if (!x || !x.list || !x.list.length) return '—';
@@ -588,6 +588,20 @@ export function materialStrip(d, view, stat, right, inner = '') {
   const badge = (x) => (!x || !x.n ? '' : x.miss ? `<i class="z-rvbadge" aria-label="Без опыта: ${x.miss}">${x.miss}</i>` : '<i class="z-rvbadge z-rvbadge--ok" aria-label="Опыт добавлен по всем материалам">✓</i>');
   return html.replace(/(data-key="([^"]+)">)([\s\S]*?<span class="o-pv__m">)[\s\S]*?(<\/span>)/g, (m0, a, key, mid, c) => a + badge(stat[key]) + mid.replace('class="o-pv__m"', 'class="o-pv__m z-pvm"') + cnt(stat[key]) + c);
 }
+
+// «Материал»: выбор комнаты — тот же, что в «Замере», только комнаты (без работ и денег).
+export function materialRoomPicker(d, m) {
+  const e = est(d);
+  return pickView({ ...e, rooms: e.rooms.map((r) => ({ ...r, svcs: [] })), view: 'pick', floor: m.floor || 1 })
+    .replace(/data-action="o-view"/g, 'data-action="z-mat-view"')
+    .replace(/data-action="o-add"/g, 'data-action="z-mat-pick"')
+    .replace(/data-action="o-floor"/g, 'data-action="z-mat-floor"')
+    .replace(/data-action="o-room-add"/g, 'data-action="z-mat-add-room"')
+    .replace(/(class="o-pv o-pv--sum[\s\S]*?<span class="o-pv__m">)[\s\S]*?(<\/span>)/, '$1—$2')
+    + (e.confirm ? confirmDialog(e.confirm) : '');
+}
+export const materialStart = measurementStart;
+export function materialAddRoom(el, m) { const e = est(S.get().oformit[S.draftKey()]); e.floor = m.floor || 1; actions['o-room-add'](el); m.view = e.view; S.save(); rerender(); }
 
 export function measurementSettings(original, r) {
   const base={color:original.color};

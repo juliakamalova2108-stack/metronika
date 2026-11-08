@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=373';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=375';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=373';
-import * as S from './store.js?v=373';
-import { WALLPAPER_TYPES } from './seed.js?v=373';
-import { esc, toast } from './ui.js?v=373';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=373';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=373';
-import { country } from './phonecodes.js?v=373';
-import { suggestAddress } from './address.js?v=373';
-import { suggesters } from './kbd.js?v=373';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip } from './ocenka.js?v=373';
+import { actions, changes, rerender } from './core.js?v=375';
+import * as S from './store.js?v=375';
+import { WALLPAPER_TYPES } from './seed.js?v=375';
+import { esc, toast } from './ui.js?v=375';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=375';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=375';
+import { country } from './phonecodes.js?v=375';
+import { suggestAddress } from './address.js?v=375';
+import { suggesters } from './kbd.js?v=375';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=375';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -190,8 +190,9 @@ const matTitle = (it) => { const x = S.material(it.code); return x ? `${x.brand}
 
 function renderMaterial(d) {
   const rooms = estimateRooms(d);
-  if (!rooms.length) return noRooms('Материал');
   const m = mat(d);
+  const st0 = materialStart(d); if (st0) return st0;   // комнат нет (заявка с Авито или от агента) — «Добавить комнату»
+  if (!rooms.length || m.view === 'pick') return materialRoomPicker(d, m);
   if (m.view !== 'total' && !rooms.some((r) => r.key === m.view)) m.view = rooms[0].key;
   // рулоны по комнатам — для плиток и итога
   const calc = Object.fromEntries(rooms.map((er) => { const w = roomWallArea(d, er.key, er); const items = matRoom(m, er.key).items;
@@ -296,6 +297,12 @@ actions['z-msum-toggle'] = (el) => { const k = el.dataset.key; if (matSumOpen.ha
 actions['z-mat-tab'] = (el) => { const m = mat(D()); const r = matRoom(m, m.view); r.active = Number(el.dataset.i); r.total = false; save(); };
 actions['z-mat-total'] = () => { const m = mat(D()); const r = matRoom(m, m.view); if (r.items.length) { r.total = true; r.items.forEach((it) => { if (it.known) it.seen = true; }); } save(); };
 actions['z-mat-fold'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.open = !it.open; save(); };
+actions['z-mat-pick'] = () => { const d = D(), m = mat(d), rs = estimateRooms(d);
+  if (m.view === 'pick' || !rs.length) { if (!rs.length) { measurementClosePickM(d); save(); return; } m.view = m.back && (m.back === 'total' || rs.some((r) => r.key === m.back)) ? m.back : rs[rs.length - 1].key; }
+  else { m.back = m.view; m.view = 'pick'; }
+  save(); window.scrollTo(0, 0); };
+actions['z-mat-floor'] = (el) => { mat(D()).floor = Number(el.dataset.f); save(); };
+actions['z-mat-add-room'] = (el) => materialAddRoom(el, mat(D()));
 actions['z-mat-view'] = (el) => { mat(D()).view = el.dataset.key; save(); };
 actions['z-scan-open'] = () => { const m = mat(D()); const r = matRoom(m, m.view); r.panel = r.panel === 'scan' ? '' : 'scan'; save(); };
 actions['z-scan-close'] = () => { const m = mat(D()); matRoom(m, m.view).panel = ''; save(); };
