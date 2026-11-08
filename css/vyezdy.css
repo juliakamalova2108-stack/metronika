@@ -2529,3 +2529,4 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-fun2__p { fill: #0f2a1c; stroke: none; font-size: 12.5px; }
 .sd-fun2__it { padding-bottom: 4px; }
 .sd-fun2__p { fill: #0c2618; }
+.sd-tile__h { margin: 2px 0 6px; font: 500 11px/1.3 Inter, sans-serif; color: rgba(237,242,232,.5); grid-column: 1 / -1; }

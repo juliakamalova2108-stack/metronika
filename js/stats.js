@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=335';
-import * as S from './store.js?v=335';
-import { esc, toast } from './ui.js?v=335';
-import { selectField, pickers } from './oformit.js?v=335';
+import { actions, rerender, val } from './core.js?v=336';
+import * as S from './store.js?v=336';
+import { esc, toast } from './ui.js?v=336';
+import { selectField, pickers } from './oformit.js?v=336';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -401,7 +401,7 @@ function effInner(A, B, LY, lyLbl, lyCol, tile, scope, mser, si, part) {
   const tilesE = `<div class="sd-tiles">${tile('В дороге за день', hmS(trav(A)), dTag(delta(trav(A), trav(B)), true), prevName(), bars(mser(trav), si, P7[1]))}${tile('Замер в среднем', hmS(avg(A, 'measure')), dTag(delta(avg(A, 'measure'), avg(B, 'measure')), true), prevName(), bars(mser((a) => avg(a, 'measure')), si, P7[3]))}</div>`;
   const qA = (a) => (a.n ? a.queue / a.n : 0), wA = (a) => (a.n ? a.waitD / a.n : 0);
   const dd = (d) => { const n = Math.round(d); return n >= 14 ? `${Math.round(n / 7)}<i class="sd-tu"> ${plural(Math.round(n / 7), 'неделя', 'недели', 'недель')}</i>` : `${n}<i class="sd-tu"> ${plural(n, 'день', 'дня', 'дней')}</i>`; };
-  const tilesL = `<div class="sd-tiles">${tile('Очередь в среднем', `${Math.round(qA(A))}<i class="sd-tu"> ${plural(Math.round(qA(A)), 'клиент', 'клиента', 'клиентов')}</i>`, dTag(delta(qA(A), qA(B))), prevName(), bars(mser(qA), si, P7[0]))}${tile('Среднее ожидание', dd(wA(A)), dTag(delta(wA(A), wA(B)), true), prevName(), bars(mser(wA), si, P7[5]))}${tile('Выполнено с замером', A.O.filter((o) => o.withMeas).length, dTag(delta(A.O.filter((o) => o.withMeas).length, B.O.filter((o) => o.withMeas).length)), prevName(), bars(mser((a) => a.O.filter((o) => o.withMeas).length), si, P7[3]))}${tile('Выполнено без замера', A.O.filter((o) => !o.withMeas).length, dTag(delta(A.O.filter((o) => !o.withMeas).length, B.O.filter((o) => !o.withMeas).length)), prevName(), bars(mser((a) => a.O.filter((o) => !o.withMeas).length), si, P7[2]))}</div>`;
+  const tilesL = `<div class="sd-tiles">${tile('Очередь в среднем', `${Math.round(qA(A))}<i class="sd-tu"> ${plural(Math.round(qA(A)), 'клиент', 'клиента', 'клиентов')}</i>`, dTag(delta(qA(A), qA(B))), prevName(), bars(mser(qA), si, P7[0]), 'столько клиентов обычно стоит в очереди на работы')}${tile('Среднее ожидание', dd(wA(A)), dTag(delta(wA(A), wA(B)), true), prevName(), bars(mser(wA), si, P7[5]), 'столько клиент ждёт от записи в очередь до начала работ')}${tile('Выполнено с замером', A.O.filter((o) => o.withMeas).length, dTag(delta(A.O.filter((o) => o.withMeas).length, B.O.filter((o) => o.withMeas).length)), prevName(), bars(mser((a) => a.O.filter((o) => o.withMeas).length), si, P7[3]), 'заказы, где мы сами делали замер')}${tile('Выполнено без замера', A.O.filter((o) => !o.withMeas).length, dTag(delta(A.O.filter((o) => !o.withMeas).length, B.O.filter((o) => !o.withMeas).length)), prevName(), bars(mser((a) => a.O.filter((o) => !o.withMeas).length), si, P7[2]), 'размеры дал клиент, без выезда на замер')}</div>`;
   const TMf = (a) => [['Выполнение заказа', a.workH * 60, P7[2]], ['Дорога', a.travel, P7[1]], ['Замер', a.measure, P7[3]]];
   const TM = TMf(A).map(([t, v, col], i) => ({ key: 'tm:' + t, t, v: Math.round(v / 60), pv: Math.round(TMf(B)[i][1] / 60), col })).filter((x) => x.v);
   const hrs = (a) => Math.round(a.workH + (a.travel + a.measure) / 60), H = hrs(A) || 1;
@@ -455,7 +455,7 @@ export function renderStatsMaster() {
     const LY = agg(lyP);
     const lyLbl = mode === 'year' ? (isCur() ? `1 янв – ${now.getDate()} ${MONS[now.getMonth()]} ${py - 1}` : `${py - 1} год`) : (isCur() ? `1–${now.getDate()} ${MONS[pm]} ${py - 1}` : `${cap(MONN[pm])} ${py - 1}`);
     const lyCol = (t, a, b2, col, inv) => { const mx = Math.max(a, b2, 1); return `<div class="sd-ly3__c"><span class="sd-ly3__b"><i class="is-old" style="height:${Math.max(10, (b2 / mx) * 100)}%"></i><i style="height:${Math.max(10, (a / mx) * 100)}%;background:${col}"></i></span><span><small>${t}</small>${dTag(delta(a, b2), inv) || '<em class="sd-d">—</em>'}</span></div>`; };
-    const tile = (t, v, d, sub, sp) => `<div class="sd-tile"><small>${t}</small><b>${v}</b>${sp}<em>${d}${sub ? ` <span>${sub}</span>` : ''}</em></div>`;
+    const tile = (t, v, d, sub, sp, hint) => `<div class="sd-tile"><small>${t}</small><b>${v}</b>${sp}${hint ? `<p class="sd-tile__h">${hint}</p>` : ''}<em>${d}${sub ? ` <span>${sub}</span>` : ''}</em></div>`;
   if (tab === 'all') {
     const avgChk = A.n ? A.inc / A.n : 0, avgChkB = B.n ? B.inc / B.n : 0;
     const rep = A.n ? Math.round((A.O.filter((o) => o.repeat).length / A.n) * 100) : 0;
