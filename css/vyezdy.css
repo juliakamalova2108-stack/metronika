@@ -2337,3 +2337,5 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-mrow__h span small { display: block; font: 500 11.5px Inter, sans-serif; color: rgba(237,242,232,.45); margin-top: 2px; }
 .sd-vs--r { align-items: flex-end; }
 .sd-vs--r small { font-size: 10.5px; white-space: nowrap; }
+.sd-dleg li { grid-template-columns: 10px auto auto !important; justify-content: start; column-gap: 10px; }
+.sd-dleg em { color: rgba(237,242,232,.7); font-size: 13.5px; }
