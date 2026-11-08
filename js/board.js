@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=408';
-import * as S from './store.js?v=408';
-import { renderOformit, oformitDraft } from './oformit.js?v=408';
-import { roomTotals, svcInfo } from './ocenka.js?v=408';
-import { smetaTotals } from './zakaz.js?v=408';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=408';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=408';
-import { esc, toast, status, seg } from './ui.js?v=408';
-import { topbar, ORDER_STATUS } from './shared.js?v=408';
+import { actions, rerender, go } from './core.js?v=410';
+import * as S from './store.js?v=410';
+import { renderOformit, oformitDraft } from './oformit.js?v=410';
+import { roomTotals, svcInfo } from './ocenka.js?v=410';
+import { smetaTotals } from './zakaz.js?v=410';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=410';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=410';
+import { esc, toast, status, seg } from './ui.js?v=410';
+import { topbar, ORDER_STATUS } from './shared.js?v=410';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -176,6 +176,7 @@ const FL_START = { '004': 'queue', '007': 'work', '011': 'queue', '014': 'queue'
 let flAsk = '';
 export const setFlAsk = (v) => { flAsk = v; };
 export { flowOf };
+export const sceneStart = (sc) => { const no = sc === 'work' ? '014' : '015'; seedOrder(no); const f = flowOf(no); Object.assign(f, { st: sc === 'work' ? 'work' : 'measure', day: 1, shift: {}, done: {}, rs: {}, rg: {}, chk: {}, visit: null }); S.save(); location.hash = '#bd-visit-' + no; };
 const flowOf = (no) => { const d = S.get().oformit['ord-' + no]; if (!d.flow) d.flow = { st: FL_START[no] || 'queue', chk: {}, shift: {}, done: {}, day: 1 }; return d.flow; };
 const tg = (on, title, sub, act) => `<button type="button" class="o-row${sub ? ' o-row--svc' : ''}" role="switch" aria-checked="${!!on}" ${act}>${sub ? `<span class="o-row__text"><span>${esc(title)}</span><small>${esc(sub)}</small></span>` : `<span class="o-row__name">${esc(title)}</span>`}<span class="o-tog${on ? ' is-on' : ''}" aria-hidden="true"><i></i></span></button>`;
 const fb = (label, act, cls = '') => `<button type="button" class="f-btn${cls}" ${act}>${esc(label)}</button>`;
