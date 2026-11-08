@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=275';
-import * as S from './store.js?v=275';
-import { esc, toast } from './ui.js?v=275';
-import { selectField, pickers } from './oformit.js?v=275';
+import { actions, rerender, val } from './core.js?v=276';
+import * as S from './store.js?v=276';
+import { esc, toast } from './ui.js?v=276';
+import { selectField, pickers } from './oformit.js?v=276';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -19,16 +19,18 @@ const k = (v) => (Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(Math.abs(v) >= 100
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
 
 // ── Примерные данные: заказы и расходы за 2 года ──
-const C = { inc: '#7ee2a3', exp: '#ff8a7a', blue: '#7aa7d6', gold: '#d6c15a', orange: '#e8913a', violet: '#c7a7f5', teal: '#5fd0c5', pink: '#f29bc0', gray: 'rgba(214,229,194,.45)' };
-const INC_CAT = [['Поклейка обоев', C.inc], ['Демонтаж старых обоев', C.orange], ['Грунтовка', C.blue], ['Выравнивание стен', C.gold], ['Покраска потолка', C.violet]];
-const EXP_CAT = [['Клей', C.exp], ['Грунт', C.blue], ['Расходники', C.gold], ['Транспорт', C.orange], ['Инструмент', C.violet]];
-const BRANDS = [['Victoria Stenova', 30, C.inc, ['Флизелин', 'Винил на флизелине']], ['Erismann', 18, C.blue, ['Винил на флизелине', 'Флизелин']], ['Палитра', 14, C.orange, ['Винил на бумаге', 'Бумажные']], ['A.S. Création', 10, C.violet, ['Флизелин', 'Текстильные']], ['Marburg', 9, C.gold, ['Флизелин', 'Текстильные']], ['Andrea Rossi', 8, C.pink, ['Винил на флизелине']], ['Oscar', 6, C.teal, ['Стеклообои']], ['Limonta', 5, C.gray, ['Винил на флизелине']]];
-const TYPES = [['Флизелин', C.inc], ['Винил на флизелине', C.blue], ['Винил на бумаге', C.orange], ['Бумажные', C.gold], ['Текстильные', C.violet], ['Стеклообои', C.teal]];
-const PUTTY = [['Knauf', 40, C.blue], ['Vetonit', 30, C.teal], ['Шитрок', 18, C.gold], ['Bergauf', 12, C.pink]];
-const PRIMER = [['Ceresit', 45, C.violet], ['Knauf', 30, C.blue], ['Optimist', 25, C.orange]];
-const GLUES = [['Quelyd', 38, C.inc], ['Metylan', 30, C.blue], ['Kleo', 22, C.orange], ['Pufas', 10, C.gold]];
-const ROOMS = [['Гостиная', C.blue], ['Спальня', C.violet], ['Кухня', C.orange], ['Детская', C.inc], ['Коридор', C.gold], ['Кабинет', C.teal]];
-const SRC = [['Авито', 36, C.inc], ['Сайт', 20, C.blue], ['Агенты', 17, C.orange], ['Рекомендации', 15, C.gold], ['Магазин обоев', 12, C.violet]];
+// Цвета: категориальная палитра (проверена на различимость, в т.ч. при дальтонизме) — по порядку сущности, не по рангу
+const P7 = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#9085e9', '#e66767'], OTHER = '#5f6f6a';
+const C = { inc: '#7ee2a3', exp: '#e66767', blue: P7[0], gold: P7[3], orange: P7[1], violet: P7[5], teal: P7[2], pink: P7[4], gray: OTHER };
+const slot = (arr) => arr.map((x, i) => { const r = [...x]; r[Array.isArray(x[1]) || typeof x[1] === 'string' ? 1 : 2] = P7[i] || OTHER; return r; });
+const INC_CAT = slot([['Поклейка обоев', ''], ['Демонтаж старых обоев', ''], ['Грунтовка', ''], ['Выравнивание стен', ''], ['Покраска потолка', '']]);
+const EXP_CAT = slot([['Клей', ''], ['Грунт', ''], ['Расходники', ''], ['Транспорт', ''], ['Инструмент', '']]);
+const BRANDS = [['Victoria Stenova', 30, P7[0], ['Флизелин', 'Винил на флизелине']], ['Erismann', 18, P7[1], ['Винил на флизелине', 'Флизелин']], ['Палитра', 14, P7[2], ['Винил на бумаге', 'Бумажные']], ['A.S. Création', 10, P7[3], ['Флизелин', 'Текстильные']], ['Marburg', 9, P7[4], ['Флизелин', 'Текстильные']], ['Andrea Rossi', 8, P7[5], ['Винил на флизелине']], ['Oscar', 6, P7[6], ['Стеклообои']], ['Limonta', 5, OTHER, ['Винил на флизелине']]];
+const PUTTY = [['Knauf', 40, P7[0]], ['Vetonit', 30, P7[1]], ['Шитрок', 18, P7[2]], ['Bergauf', 12, P7[3]]];
+const PRIMER = [['Ceresit', 45, P7[0]], ['Knauf', 30, P7[1]], ['Optimist', 25, P7[2]]];
+const GLUES = [['Quelyd', 38, P7[0]], ['Metylan', 30, P7[1]], ['Kleo', 22, P7[2]], ['Pufas', 10, P7[3]]];
+const ROOMS = [['Гостиная', P7[0]], ['Спальня', P7[1]], ['Кухня', P7[2]], ['Детская', P7[3]], ['Коридор', P7[4]], ['Кабинет', P7[5]]];
+const SRC = [['Авито', 36, P7[0]], ['Сайт', 20, P7[1]], ['Агенты', 17, P7[2]], ['Рекомендации', 15, P7[3]], ['Магазин обоев', 12, P7[4]]];
 const NAMES = ['Смирнова', 'Иванов', 'Кузнецова', 'Попов', 'Соколова', 'Лебедев', 'Козлова', 'Новиков', 'Морозова', 'Петров', 'Волкова', 'Соловьёв', 'Васильева', 'Зайцев', 'Павлова', 'Семёнов', 'Голубева', 'Виноградов', 'Богданова', 'Воробьёв'];
 
 let DATA = null;
@@ -158,7 +160,7 @@ function catList(rows, unit, sub, details) {
   const tot = rows.reduce((a, x) => a + x.v, 0) || 1, mx = Math.max(1, ...rows.map((x) => x.v));
   return `<div class="sd-cl">${rows.map((x) => { const on = open === x.key;
     return `<div class="sd-cl__it${on ? ' is-open' : ''}"><button type="button" class="sd-cl__r" data-action="sd2-open" data-k="${esc(x.key)}">
-      <span class="sd-cl__ic" style="--c:${x.col}">${esc(x.t.slice(0, 1))}</span>
+      <span class="sd-cl__sw" style="background:${x.col}"></span>
       <span class="sd-cl__t"><b>${esc(x.t)}</b><small>${sub(x)}</small><span class="sd-cl__bar"><i style="--w:${(x.v / mx) * 100}%;--c:${x.col}"></i></span></span>
       <span class="sd-cl__v"><b>${fmt(x.v)}${unit}</b><small>${Math.round((x.v / tot) * 100)}% ${x.d === undefined ? '' : dTag(x.d, x.inv)}</small></span></button>
       ${on ? `<div class="sd-cl__ops">${details(x)}</div>` : ''}</div>`; }).join('')}</div>`;
@@ -175,11 +177,20 @@ const fblock = (key, h, summary, full, cls = '') => { const on = fold.has(key);
   return on
     ? `<section class="h-block sd-b sd-f is-open ${cls}"><button type="button" class="sd-bh sd-f__hd" data-action="sd2-fold" data-k="${key}" aria-expanded="true">${hd}</button><div class="sd-f__full">${full}</div></section>`
     : `<button type="button" class="h-block sd-b sd-f sd-f__card ${cls}" data-action="sd2-fold" data-k="${key}" aria-expanded="false"><span class="sd-bh">${hd}</span>${summary}</button>`; };
-// свёрнутая карточка: маленькое кольцо + лидер одной строкой
-const miniDonut = (rows) => { const tot = rows.reduce((a, x) => a + x.v, 0) || 1, R = 16, CC = 2 * Math.PI * R; let ac = 0;
-  return `<svg class="sd-mini__d" viewBox="0 0 44 44" aria-hidden="true"><circle r="${R}" cx="22" cy="22" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="7"/>${rows.map((x) => { const len = (x.v / tot) * CC; const c2 = `<circle r="${R}" cx="22" cy="22" fill="none" stroke="${x.col}" stroke-width="7" stroke-dasharray="${Math.max(1, len - 1.5).toFixed(1)} ${CC}" stroke-dashoffset="${(-ac).toFixed(1)}" transform="rotate(-90 22 22)"/>`; ac += len; return c2; }).join('')}</svg>`; };
+// сегментная полоса «часть целого»: тонкая (8px) для свёрнутой карточки, высокая (28px) с долями внутри — для раскрытой
+const ink = (hex) => { const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255; return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55 ? '#10201c' : '#fff'; };
+const segBar = (rows, tall) => { const tot = rows.reduce((a, x) => a + x.v, 0) || 1;
+  return `<span class="sd-sb${tall ? ' sd-sb--tall' : ''}" role="img" aria-label="${esc(rows.map((x) => `${x.t} ${Math.round((x.v / tot) * 100)}%`).join(', '))}">${rows.filter((x) => x.v > 0).map((x) => { const pc = (x.v / tot) * 100;
+    return `<i style="flex:${x.v};background:${x.col};color:${ink(x.col)}">${tall && pc >= 13 ? `<b>${Math.round(pc)}%</b>` : ''}</i>`; }).join('')}</span>`; };
+const legend2 = (rows) => `<span class="sd-lg2">${rows.map((x) => `<span><i style="background:${x.col}"></i>${esc(x.t)}</span>`).join('')}</span>`;
 const miniSum = (rows, lead) => { if (!rows.length) return '<span class="sd-note">Нет данных за период</span>'; const tot = rows.reduce((a, x) => a + x.v, 0) || 1, t = rows[0];
-  return `<span class="sd-mini">${miniDonut(rows)}<span class="sd-mini__t"><small>${lead}</small><b>${esc(t.t)}</b></span><span class="sd-mini__p">${Math.round((t.v / tot) * 100)}%</span></span>`; };
+  return `<span class="sd-mini2">${segBar(rows)}<span class="sd-mini2__t"><i style="background:${t.col}"></i><small>${lead}</small><b>${esc(t.t)}</b><em>${Math.round((t.v / tot) * 100)}%</em></span></span>`; };
+// спарклайн для плитки: 2px линия в приглушённом цвете, выбранная точка — акцент
+const spark = (vals, si) => { const pts = vals.map((v, i) => [v, i]).filter(([v]) => v !== null); if (pts.length < 2) return '';
+  const mx = Math.max(...pts.map(([v]) => v)), mn = Math.min(...pts.map(([v]) => v)), W = 100, H = 26, X = (i) => (i / (vals.length - 1)) * (W - 6) + 3, Y = (v) => H - 3 - ((v - mn) / ((mx - mn) || 1)) * (H - 6);
+  const d = pts.map(([v, i], j) => `${j ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' '), sv = vals[si];
+  return `<svg class="sd-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="${d}" fill="none" stroke="rgba(237,242,232,.32)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>${sv !== null && sv !== undefined ? `<circle cx="${X(si)}" cy="${Y(sv)}" r="3.5" fill="#7ee2a3" stroke="#22342f" stroke-width="2" vector-effect="non-scaling-stroke"/>` : ''}</svg>`; };
+const nice = (v) => { if (v <= 0) return 1; const e = Math.pow(10, Math.floor(Math.log10(v))), f = v / e; return ([1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find((x) => x >= f) || 10) * e; };
 const seg2 = (items, cur, act) => `<div class="f-topnav sd-seg"><div class="f-topnav__track" role="tablist">${items.map(([key, t]) => `<button type="button" role="tab" aria-selected="${key === cur}" class="f-tab${key === cur ? ' is-active' : ''}" data-action="${act}" data-k="${key}">${t}</button>`).join('')}</div></div>`;
 
 // ── Цели: ставятся мастером (месяц или год), прогресс, прогноз, история выполнения ──
@@ -251,17 +262,21 @@ export function renderStatsMaster() {
   const bk = p.buckets.map((b) => agg({ from: b.from, to: b.to }));
   const labels = p.buckets.map((b) => b.l);
   const scope = mode === 'year' ? 'за год' : 'за месяц';
+  const MA = Array.from({ length: 12 }, (_, i) => (py === now.getFullYear() && i > now.getMonth() ? null : agg({ from: new Date(py, i, 1), to: new Date(py, i + 1, 1) })));
+  const si = mode === 'month' ? pm : MA.filter(Boolean).length - 1;
+  const mser = (f) => MA.map((a) => (a ? f(a) : null));
   let content = '';
 
   if (tab === 'all') {
     const avgChk = A.n ? A.inc / A.n : 0, avgChkB = B.n ? B.inc / B.n : 0;
     const rep = A.n ? Math.round((A.O.filter((o) => o.repeat).length / A.n) * 100) : 0;
     const hero = `<section class="h-block sd-hero"><small>Прибыль ${scope}</small><div class="sd-hero__v"><b>${fmt(A.profit)}<i> ₽</i></b>${dTag(delta(A.profit, B.profit))}</div>
+      <div class="sd-part">${segBar([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], true)}</div>
       <div class="sd-hero__row"><span><i style="background:${C.inc}"></i>Доходы<b>${fmt(A.inc)} ₽</b></span><span><i style="background:${C.exp}"></i>Расходы<b>${fmt(A.exp)} ₽</b></span></div>
       <p class="sd-hero__cmp">${B.inc ? `${isCur() ? 'За тот же срок' : 'За прошлый период'} (${prevName().replace('к ', '')}) прибыль была ${fmt(B.profit)} ₽` : ''}</p></section>`;
-    const tile = (t, v, d, sub) => `<div class="sd-tile"><small>${t}</small><b>${v}</b><em>${d}${sub ? ` <span>${sub}</span>` : ''}</em></div>`;
-    const tiles = `<div class="sd-tiles">${tile('Заказов', A.n, dTag(delta(A.n, B.n)), prevName())}${tile('Средний чек', `${k(avgChk)} ₽`, dTag(delta(avgChk, avgChkB)), prevName())}
-      ${tile('Рабочих дней', A.days, dTag(delta(A.days, B.days)), prevName())}${tile('Повторные клиенты', `${rep}%`, '', `${A.O.filter((o) => o.repeat).length} из ${A.n}`)}</div>`;
+    const tile = (t, v, d, sub, sp) => `<div class="sd-tile"><small>${t}</small><b>${v}</b>${sp}<em>${d}${sub ? ` <span>${sub}</span>` : ''}</em></div>`;
+    const tiles = `<div class="sd-tiles">${tile('Заказов', A.n, dTag(delta(A.n, B.n)), prevName(), spark(mser((a) => a.n), si))}${tile('Средний чек', `${k(avgChk)} ₽`, dTag(delta(avgChk, avgChkB)), prevName(), spark(mser((a) => (a.n ? a.inc / a.n : 0)), si))}
+      ${tile('Рабочих дней', A.days, dTag(delta(A.days, B.days)), prevName(), spark(mser((a) => a.days), si))}${tile('Повторные клиенты', `${rep}%`, '', `${A.O.filter((o) => o.repeat).length} из ${A.n}`, spark(mser((a) => (a.n ? a.O.filter((o) => o.repeat).length / a.n : 0)), si))}</div>`;
     // выводы
     const ins = [];
     const bi = bk.reduce((a, x, i) => (x.inc > bk[a].inc ? i : a), 0);
@@ -280,14 +295,16 @@ export function renderStatsMaster() {
     const tot = money === 'inc' ? A.inc : A.exp;
     const catB = `<div class="sd-mseg">${seg2([['inc', 'Доходы'], ['exp', 'Расходы']], money, 'sd2-money')}</div>` + fblock('money-' + money, [money === 'inc' ? 'Доходы' : 'Расходы', `${scope} · ${rows.length} ${plural(rows.length, 'категория', 'категории', 'категорий')}`, `<span class="sd-f__sum"><b>${fmt(tot)} ₽</b>${dTag(delta(tot, money === 'inc' ? B.inc : B.exp), money === 'exp')}</span>`],
       miniSum(rows, money === 'inc' ? 'больше всего приносит' : 'больше всего уходит на'),
-      `<div class="sd-dn sd-dn--solo">${donut(rows.map((x) => [x.t, x.v, x.col]), k(tot), money === 'inc' ? 'доход, ₽' : 'расход, ₽')}<p class="sd-note">${prevName().replace('к ', 'Сравнение с ')}</p></div>` + (
+      `<div class="sd-part">${segBar(rows, true)}${legend2(rows)}</div>` + (
 rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'операция' : x.cnt < 5 ? 'операции' : 'операций'}`,
         (x) => A.P.filter((o) => o.kind + ':' + o.cat === x.key).sort((a, b) => b.d - a.d).slice(0, 12).map((o) => opRow(o.d, o.o ? `№${o.o.no} · ${o.o.client}` : o.note || x.t, o.o ? `${o.o.m2} м²` : 'покупка', `${money === 'inc' ? '+' : '−'}${fmt(o.sum)} ₽`)).join('')) : '<p class="sd-note">Нет операций за период</p>'));
     content = catB;
   } else if (tab === 'goals') {
     content = goalsTab();
   } else {
-    const kpi = `<div class="sd-kpi"><span><b>${fmt(A.m2)}</b><small>м² поклеено ${dTag(delta(A.m2, B.m2))}</small></span><span><b>${A.days ? Math.round(A.m2 / A.days) : 0}</b><small>м² в день</small></span><span><b>${A.O.reduce((a, o) => a + o.rooms.length, 0)}</b><small>комнат</small></span><span><b>${fmt(A.rolls)}</b><small>рулонов</small></span></div>`;
+    const kt = (v, l, d, sp) => `<div class="sd-tile"><small>${l}</small><b>${v}</b>${sp}<em>${d || '&nbsp;'}</em></div>`;
+    const kpi = `<div class="sd-tiles">${kt(`${fmt(A.m2)} м²`, 'Поклеено', `${dTag(delta(A.m2, B.m2))} <span>${prevName()}</span>`, spark(mser((a) => a.m2), si))}${kt(A.days ? Math.round(A.m2 / A.days) : 0, 'м² в день', '', spark(mser((a) => (a.days ? a.m2 / a.days : 0)), si))}
+      ${kt(A.O.reduce((a, o) => a + o.rooms.length, 0), 'Комнат', '', spark(mser((a) => a.O.reduce((x, o) => x + o.rooms.length, 0)), si))}${kt(fmt(A.rolls), 'Рулонов', '', spark(mser((a) => a.rolls), si))}</div>`;
     const brRows = BRANDS.map(([t, , col]) => { const O = A.O.filter((o) => o.brand === t); return { key: 'br:' + t, t, col, v: O.reduce((a, o) => a + o.m2, 0), rolls: O.reduce((a, o) => a + o.rolls, 0), n: O.length, d: delta(O.reduce((a, o) => a + o.m2, 0), B.O.filter((o) => o.brand === t).reduce((a, o) => a + o.m2, 0)) }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const ordList = (f) => A.O.filter(f).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.rooms.map((r) => r[0]).join(', ')} · ${o.type}`, `${o.m2} м²`)).join('');
     // Материалы: кольцо по брендам + список брендов; раскрытие — подробно: из чего обои, рулоны, клей, заказы
@@ -316,27 +333,27 @@ rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'опера
         (x) => (x.wall ? brDetail({ key: 'br:' + x.t, v: x.O.reduce((a, o) => a + o.m2, 0), rolls: x.O.reduce((a, o) => a + o.rolls, 0), n: x.v }) : ordList((o) => get(o) === x.t))); }).join('');
     const brandsN = new Set(all.map((x) => x.t)).size, top = [...all].sort((a, b) => b.v - a.v);
     const brands = fblock('brands', ['Бренды', `${brandsN} ${plural(brandsN, 'бренд', 'бренда', 'брендов')} · обои, клей, шпаклёвка, грунт`],
-      top.length ? `<span class="sd-mini">${miniDonut(CATS.map(([cat], i) => ({ v: all.filter((x) => x.cat === cat).reduce((a, x) => a + x.v, 0), col: [C.inc, C.orange, C.teal, C.violet][i] })))}<span class="sd-mini__t"><small>чаще всего</small><b>${esc(top[0].t)} · ${top[0].cat.toLowerCase()}</b></span><span class="sd-mini__p">${top[0].v}</span></span>` : '',
-      secs);
+      top.length ? `<span class="sd-mini2">${segBar(CATS.map(([cat], i) => ({ t: cat, v: all.filter((x) => x.cat === cat).reduce((a, x) => a + x.v, 0), col: P7[i] })))}${legend2(CATS.map(([cat], i) => ({ t: cat, col: P7[i] })))}<span class="sd-mini2__t"><i style="background:${top[0].col}"></i><small>чаще всего</small><b>${esc(top[0].t)} · ${top[0].cat.toLowerCase()}</b><em>${top[0].v} ${plural(top[0].v, 'заказ', 'заказа', 'заказов')}</em></span></span>` : '',
+      `<div class="sd-part">${segBar(CATS.map(([cat], i) => ({ t: cat, v: all.filter((x) => x.cat === cat).reduce((a, x) => a + x.v, 0), col: P7[i] })), true)}${legend2(CATS.map(([cat], i) => ({ t: cat, col: P7[i] })))}</div>` + secs);
     const rRows = ROOMS.map(([t, col]) => { let v = 0, n = 0; A.O.forEach((o) => o.rooms.forEach((r) => { if (r[0] === t) { v += r[1]; n++; } })); return { key: 'rm:' + t, t, col, v, n }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const rooms = fblock('rooms', ['По комнатам', `поклеено ${scope}`], miniSum(rRows, 'больше всего м²'), catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key))));
     content = A.n ? kpi + brands + rooms : '<p class="sd-note">Нет заказов за период</p>';
   }
 
   // ── Выбор периода: год стрелками, 12 столбиков-месяцев ──
-  const MA = Array.from({ length: 12 }, (_, i) => (py === now.getFullYear() && i > now.getMonth() ? null : agg({ from: new Date(py, i, 1), to: new Date(py, i + 1, 1) })));
   const metric = tab === 'work' ? [['m2', C.blue, ' м²']] : tab === 'money' ? [['inc', C.inc, ' ₽'], ['exp', C.exp, ' ₽']] : tab === 'goals' ? [['inc', C.gold, ' ₽']] : [['profit', C.inc, ' ₽']];
-  const pmax = Math.max(1, ...MA.filter(Boolean).flatMap((a) => metric.map(([key]) => a[key])));
+  const vmax = nice(Math.max(1, ...MA.filter(Boolean).flatMap((a) => metric.map(([key]) => a[key]))));
+  const yl = (v) => (metric[0][2] === ' ₽' ? k(v) : fmt(v));
   const cols = MA.map((a, i) => { const on = mode === 'month' && pm === i;
-    if (!a) return `<span class="sd-mp__c is-off"><span class="sd-mp__bars"><i style="--h:4%"></i></span><small>${MONS[i]}</small></span>`;
-    return `<button type="button" class="sd-mp__c${on ? ' is-on' : ''}${mode === 'year' ? ' is-all' : ''}" data-action="sd2-month" data-m="${i}" aria-label="${MONN[i]}">
-      <em>${on ? k(a[metric[0][0]]) : ''}</em><span class="sd-mp__bars">${metric.map(([key, col]) => `<i style="--h:${Math.max(3, (Math.max(0, a[key]) / pmax) * 100)}%;--c:${col}"></i>`).join('')}</span><small>${MONS[i]}</small></button>`; }).join('');
+    if (!a) return `<span class="sd-pc__c is-off"><span class="sd-pc__bars"></span><small>${MONS[i]}</small></span>`;
+    return `<button type="button" class="sd-pc__c${on ? ' is-on' : ''}${mode === 'year' ? ' is-all' : ''}" data-action="sd2-month" data-m="${i}" aria-label="${MONN[i]}: ${metric.map(([key, , u]) => `${fmt(a[key])}${u}`).join(', ')}">
+      <span class="sd-pc__bars">${on ? `<em>${metric.map(([key]) => yl(a[key])).join(' · ')}</em>` : ''}${metric.map(([key, col]) => `<i style="height:${Math.max(1.5, (Math.max(0, a[key]) / vmax) * 100)}%;--c:${col}"></i>`).join('')}</span><small>${MONS[i]}</small></button>`; }).join('');
   const lbl = tab === 'work' ? 'поклеено, м²' : tab === 'money' ? `<span class="sd-lg"><i style="background:${C.inc}"></i>доходы <i style="background:${C.exp}"></i>расходы</span>` : tab === 'goals' ? 'доход по месяцам' : 'прибыль по месяцам';
   const per = `<section class="h-block sd-mp">
     <div class="sd-mp__hd"><div class="sd-per__nav"><button type="button" class="f-icon-btn" data-action="sd2-prev" aria-label="Прошлый год"${canPrev() ? '' : ' disabled'}>${ARR('l')}</button>
       <b>${py}</b><button type="button" class="f-icon-btn" data-action="sd2-next" aria-label="Следующий год"${py >= now.getFullYear() ? ' disabled' : ''}>${ARR('r')}</button></div>
       <button type="button" class="sd-mp__all${mode === 'year' ? ' is-on' : ''}" data-action="sd2-year">Весь год</button></div>
-    <div class="sd-mp__grid">${cols}</div>
+    <div class="sd-pc"><div class="sd-pc__y">${[1, 0.5, 0].map((f) => `<span style="bottom:${f * 100}%"><small>${f ? yl(vmax * f) : 0}</small></span>`).join('')}</div><div class="sd-pc__g">${cols}</div></div>
     <div class="sd-mp__ft"><small>${lbl}</small><b>${mode === 'year' ? `Сводка за ${py} год` : `Сводка за ${MONN[pm]}`}</b></div></section>`;
   const tabs = [['all', 'Обзор'], ['money', 'Деньги'], ['work', 'Работа'], ['goals', 'Цели']];
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
