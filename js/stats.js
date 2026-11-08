@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=301';
-import * as S from './store.js?v=301';
-import { esc, toast } from './ui.js?v=301';
-import { selectField, pickers } from './oformit.js?v=301';
+import { actions, rerender, val } from './core.js?v=302';
+import * as S from './store.js?v=302';
+import { esc, toast } from './ui.js?v=302';
+import { selectField, pickers } from './oformit.js?v=302';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -360,7 +360,7 @@ export function renderStatsMaster() {
     const lyCol = (t, a, b2, col, inv) => { const mx = Math.max(a, b2, 1); return `<div class="sd-ly3__c"><span class="sd-ly3__b"><i class="is-old" style="height:${Math.max(10, (b2 / mx) * 100)}%"></i><i style="height:${Math.max(10, (a / mx) * 100)}%;background:${col}"></i></span><span><small>${t}</small>${dTag(delta(a, b2), inv) || '<em class="sd-d">—</em>'}</span></div>`; };
     const lyBox = `<div class="sd-ly3"><div class="sd-ly3__h">К прошлому году<small>${lyLbl}</small></div>${LY.inc ? `<div class="sd-ly3__g">${lyCol('Доход', A.inc, LY.inc, C.inc)}${lyCol('Расход', A.exp, LY.exp, C.exp, true)}${lyCol('Прибыль', Math.max(0, A.profit), Math.max(0, LY.profit), C.inc)}</div>` : '<small class="sd-ly__no">Год назад заказов не было</small>'}</div>`;
     const pp = A.inc ? Math.round((Math.max(0, A.profit) / A.inc) * 100) : 0;
-    const heroLeg = `<ul class="sd-hleg2"><li><i style="background:${C.inc}"></i><span><b>Прибыль</b><small>${fmt(Math.max(0, A.profit))} ₽</small></span><em>${pp}%</em></li><li><i style="background:${C.exp}"></i><span><b>Расходы</b><small>${fmt(A.exp)} ₽</small></span><em>${100 - pp}%</em></li><li class="is-note">% — доля от дохода</li></ul>`;
+    const heroLeg = `<ul class="sd-hleg2"><li><i class="is-ring"></i><span><b>Доход</b><small>${fmt(A.inc)} ₽</small></span><em>100%</em></li><li><i style="background:${C.exp}"></i><span><b>Расход</b><small>${fmt(A.exp)} ₽</small></span><em>${100 - pp}%</em></li><li><i style="background:${C.inc}"></i><span><b>Прибыль</b><small>${fmt(Math.max(0, A.profit))} ₽</small></span><em>${pp}%</em></li><li class="is-note">% — доля от дохода</li></ul>`;
     const hero = `<section class="h-block sd-hero"><small>Прибыль ${scope}</small><div class="sd-hero__v"><b>${fmt(A.profit)}<i> ₽</i></b>${B.inc ? `<span class="sd-vs">${dTag(delta(A.profit, B.profit))}<small>${prevName()}</small></span>` : ''}</div>
       <div class="sd-dwrap sd-dwrap--h2">${donutBig([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], fmt(A.inc), 'ДОХОД', true)}${heroLeg}</div>${lyBox}
       <div class="sd-mrows">${moneyRow('inc')}${moneyRow('exp')}${moneyRow('pr')}</div>

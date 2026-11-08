@@ -2439,3 +2439,7 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-dbig__hl { fill: rgba(126,226,163,.10); stroke: rgba(126,226,163,.28); stroke-width: 1; }
 .sd-dbig__lb { font: 700 8.5px Inter, sans-serif; letter-spacing: .12em; fill: #7ee2a3; }
 .sd-dbig__n--hl { font-family: Manrope, sans-serif; font-weight: 800; fill: #f4f8f0; }
+
+.sd-hleg2 { gap: 9px; }
+.sd-hleg2 li > i.is-ring { box-sizing: border-box; border: 2px solid #edf2e8; background: none; }
+.sd-hleg2 li:first-child em { color: rgba(237,242,232,.45); font-size: 13px; }
