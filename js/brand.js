@@ -1,15 +1,20 @@
 // Бренд-зона (Новости · Витрина · Конкурсы), Доска почёта, Креаторы.
 // Экраны в стиле статистики: тёмные блоки h-block, переключатели sd-chip, нижняя навигация f-nav.
-import { actions, rerender } from './core.js?v=355';
-import * as S from './store.js?v=355';
-import { esc, toast } from './ui.js?v=355';
+import { actions, rerender } from './core.js?v=357';
+import * as S from './store.js?v=357';
+import { esc, toast } from './ui.js?v=357';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
 const ini = (n) => n.split(' ').map((w) => w[0] || '').slice(0, 2).join('');
 const AV = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#9085e9', '#e66767'];
 const avc = (s) => AV[[...s].reduce((a, c) => a + c.charCodeAt(0), 0) % AV.length];
-const avatar = (name, size = 44) => `<span class="bz-av" style="width:${size}px;height:${size}px;background:${avc(name)}">${esc(ini(name))}</span>`;
+const AV2 = [['#ff8a5b', '#e0436b'], ['#5b9dff', '#7c4dff'], ['#3ddc97', '#1b9e77'], ['#ffd166', '#f08a24'], ['#ff6fb5', '#a64dff'], ['#5ee7df', '#3a7bd5'], ['#c3a6ff', '#6a5acd']];
+const hsh = (s) => [...String(s)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+const avatar = (name, size = 44) => { const [a, b] = AV2[hsh(name) % AV2.length]; return `<span class="bz-av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.36)}px;background:linear-gradient(135deg, ${a}, ${b})">${esc(ini(name))}</span>`; };
+// «Обложки»: мягкие градиентные пятна, как арт на баннерах каналов
+const art = (seed, dark = 0.35) => { const h = hsh(seed), [a, b] = AV2[h % AV2.length], [c, d] = AV2[(h >>> 3) % AV2.length];
+  return `background:radial-gradient(120% 90% at ${10 + (h % 40)}% 0%, ${a} 0%, transparent 55%), radial-gradient(90% 80% at ${60 + (h % 35)}% 100%, ${d} 0%, transparent 60%), radial-gradient(70% 70% at 100% 20%, ${c}, transparent 60%), linear-gradient(135deg, ${b}, #0f1c17); --dk:${dark}`; };
 const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
 const page = (title, body, tabs, cur, act) => `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
   <div class="h-page sd bz"><header class="sd-hd"><h1>${title}</h1></header>${body}</div>
@@ -104,12 +109,13 @@ const CONTESTS = [
 const joined = new Set();
 function bzContests() {
   const list = CONTESTS;
-  if (!list.length) return '<p class="sd-note">У этого бренда сейчас нет конкурсов</p>';
-  return list.map((c) => { const on = joined.has(c.id);
-    return `<article class="h-block bz-ct"><div class="bz-ct__top" style="--c:${c.col}"><span class="bz-brand">${esc(c.mk)}</span><span class="bz-ct__left">ещё ${c.until} ${plural(c.until, 'день', 'дня', 'дней')}</span></div>
-      <h3>${esc(c.t)}</h3><p>${esc(c.x)}</p>
-      <div class="bz-ct__row"><div><small>Приз</small><b>${esc(c.prize)}</b></div><div><small>Участников</small><b>${c.n + (on ? 1 : 0)}</b></div></div>
-      <button type="button" class="bz-btn${on ? ' is-on' : ''}" data-action="bz-join" data-id="${c.id}">${on ? 'Вы участвуете ✓' : 'Участвовать'}</button></article>`; }).join('');
+  return list.map((c, i) => { const on = joined.has(c.id), k = [2, 0, 3][i % 3];
+    return `<article class="yt-card"><div class="yt-cover" style="background:${pat(k, PAL[(i * 3 + 1) % PAL.length])}"><span class="yt-cover__sh"></span>
+        <span class="yt-badge yt-badge--tl">${esc(c.mk)}</span><span class="yt-badge yt-badge--tr">⏳ ${c.until} ${plural(c.until, 'день', 'дня', 'дней')}</span>
+        <div class="yt-cover__t"><small>Фотоконкурс</small><h3>${esc(c.t)}</h3></div></div>
+      <div class="yt-body"><p class="yt-txt">${esc(c.x)}</p>
+        <div class="yt-prize"><span class="yt-prize__ic">🏆</span><span><small>Главный приз</small><b>${esc(c.prize)}</b></span><span class="yt-prize__n"><b>${c.n + (on ? 1 : 0)}</b><small>участников</small></span></div>
+        <button type="button" class="yt-cta${on ? ' is-on' : ''}" data-action="bz-join" data-id="${c.id}">${on ? '✓ Вы участвуете' : 'Участвовать'}</button></div></article>`; }).join('');
 }
 export function renderBrandZone() {
   const makers = S.get().makers;
@@ -156,17 +162,20 @@ const NOM = [
 ];
 const SPONS = ['Erismann', 'Палитра', 'Rasch', 'Quelyd', 'Knauf', 'Erismann', 'Metylan', 'Olfa', 'Палитра'];
 function honorContests() {
-  const me = S.me(), ppl = HONOR.map((h) => h[0]);
+  const ppl = HONOR.map((h) => h[0]);
   const v = (x) => (Number.isInteger(x) ? fmt(x) : String(x).replace('.', ','));
-  return `<section class="h-block bz-org"><b>Соревнования Метроники</b><p>Проводит Метроника при спонсорстве брендов — призы от спонсоров. Итоги ${hTab === 'month' ? 'месяца — 30 ноября' : 'года — 31 декабря'}, участвуют все мастера автоматически.</p></section>` + NOM.map(([ic, t, d, unit, top, my, prize, low], i) => {
+  const hero = `<section class="yt-hero" style="${art('Соревнования Метроники')}"><span class="yt-hero__glow"></span><small>Сезон ${hTab === 'month' ? 'ноября' : '2026 года'}</small><h2>Соревнования Метроники</h2>
+    <p>Проводит Метроника при спонсорстве брендов. Участвуют все мастера автоматически — призы от спонсоров.</p><div class="yt-hero__cd"><b>${hTab === 'month' ? 21 : 52}</b><span>${hTab === 'month' ? 'день' : 'дня'}<br>до итогов</span></div></section>`;
+  return hero + NOM.map(([ic, t, d, unit, top, my, prize, low], i) => {
     const k = hTab === 'year' ? (low ? 1 : 11) : 1, sc = (x) => (low ? x : Number.isInteger(x) ? Math.round(x * k) : +(x).toFixed(2));
-    const leaders = top.map((x, j) => [ppl[(i * 2 + j * 3) % ppl.length], sc(x)]);
-    const myPlace = my == null ? null : 4 + ((i * 5) % 9), lead = leaders[0][1];
+    const L = top.map((x, j) => [ppl[(i * 2 + j * 3) % ppl.length], sc(x)]);
+    const myPlace = my == null ? null : 4 + ((i * 5) % 9), lead = L[0][1];
     const pct = my == null ? 0 : Math.max(6, Math.min(100, low ? (lead / my) * 100 : (sc(my) / lead) * 100));
-    return `<article class="h-block bz-nom"><div class="bz-nom__hd"><span class="bz-nom__ic">${ic}</span><span><b>${t}</b><small>${d}</small></span></div>
-      <ol class="bz-nom__top">${leaders.map(([n, x], j) => `<li><span class="bz-nom__m">${['🥇', '🥈', '🥉'][j]}</span>${avatar(n, 28)}<span class="bz-nom__n">${esc(n)}</span><b>${v(x)} <i>${unit}</i></b></li>`).join('')}</ol>
-      ${my == null ? '<p class="bz-nom__me is-off">Вы с нами больше 3 месяцев — эта номинация для новичков</p>' : `<div class="bz-nom__me"><span>Вы — <b>${myPlace} место</b> · ${v(sc(my))} ${unit}</span><div class="bz-nom__bar"><i style="width:${pct}%"></i></div></div>`}
-      <div class="bz-nom__ft"><span class="bz-nom__pr">🎁 ${esc(prize)}</span><span class="bz-nom__sp">Спонсор <b>${esc(SPONS[i])}</b></span></div></article>`; }).join('');
+    const pod = [1, 0, 2].map((j) => `<div class="yt-pod__c yt-pod__c--${j}">${avatar(L[j][0], j ? 40 : 52)}<b>${esc(L[j][0].split(' ')[0])}</b><span class="yt-pod__st"><i>${j + 1}</i><em>${v(L[j][1])}</em></span></div>`).join('');
+    return `<article class="yt-card"><div class="yt-nom" style="${art(t, .5)}"><span class="yt-nom__ic">${ic}</span><div><h3>${t}</h3><small>${d}</small></div></div>
+      <div class="yt-body"><div class="yt-pod">${pod}</div><p class="yt-unit">${unit}</p>
+        ${my == null ? '<div class="yt-me is-off">Номинация для тех, кто с нами меньше 3 месяцев</div>' : `<div class="yt-me"><span>Ваше место <b>#${myPlace}</b></span><span>${v(sc(my))} ${unit}</span><div class="yt-me__bar"><i style="width:${pct}%"></i></div></div>`}
+        <div class="yt-foot"><span>🎁 ${esc(prize)}</span><span class="yt-sp">при поддержке <b>${esc(SPONS[i])}</b></span></div></div></article>`; }).join('');
 }
 // Доска почёта: люди, которые внесли вклад в отрасль
 const FAME = [
@@ -178,13 +187,14 @@ const FAME = [
 ];
 let hView = 'fame';
 function honorFame() {
-  return `<p class="bz-hint" style="margin-top:0">Люди, которые сделали нашу профессию лучше: учили мастеров, придумывали инструменты и методики, объединяли сообщество.</p>` + FAME.map(([n, role, city, yrs, txt, tags, st], i) => `<article class="h-block bz-fame">
-    <div class="bz-fame__hd"><span class="bz-fame__ring">${avatar(n, 72)}</span><div><b>${esc(n)}</b><small>${esc(role)}</small><em>${esc(city)} · ${yrs} ${plural(yrs, 'год', 'года', 'лет')} в профессии</em></div></div>
-    <p class="bz-fame__t">${esc(txt)}</p>
-    <div class="bz-fame__tags">${tags.map((t) => `<span>🏅 ${esc(t)}</span>`).join('')}</div>
-    <div class="bz-fame__st">${st.map(([v, l]) => `<div><b>${esc(v)}</b><small>${esc(l)}</small></div>`).join('')}</div>
-    <div class="bz-fame__ft">На доске почёта с ${2019 + (i % 6)} года</div></article>`).join('') +
-    `<section class="h-block bz-join"><b>Знаете такого человека?</b><p>Предложите мастера, технолога или наставника — сообщество проголосует.</p><button type="button" class="bz-btn" data-action="hn-nominate">Предложить кандидата</button></section>`;
+  const hero = `<section class="yt-hero yt-hero--gold"><span class="yt-hero__glow"></span><small>Зал славы</small><h2>Люди, которые сделали профессию лучше</h2><p>Учили мастеров, придумывали инструменты и методики, объединяли сообщество.</p></section>`;
+  return hero + FAME.map(([n, role, city, yrs, txt, tags, st], i) => `<article class="yt-card">
+    <div class="yt-ban" style="${art(n)}"><span class="yt-ban__yr">с ${2019 + (i % 6)}</span></div>
+    <div class="yt-prof"><span class="yt-prof__av">${avatar(n, 84)}</span><div class="yt-prof__t"><h3>${esc(n)} <i class="yt-ver">✓</i></h3><small>${esc(role)}</small><em>${esc(city)} · ${yrs} ${plural(yrs, 'год', 'года', 'лет')} в профессии</em></div></div>
+    <div class="yt-body"><blockquote class="yt-q">${esc(txt)}</blockquote>
+      <div class="yt-stats">${st.map(([v2, l]) => `<div><b>${esc(v2)}</b><small>${esc(l)}</small></div>`).join('')}</div>
+      <div class="yt-tags">${tags.map((t) => `<span>${esc(t)}</span>`).join('')}</div></div></article>`).join('') +
+    `<section class="yt-card yt-cta-card"><div class="yt-body"><h3>Знаете такого человека?</h3><p class="yt-txt">Предложите мастера, технолога или наставника — сообщество проголосует.</p><button type="button" class="yt-cta" data-action="hn-nominate">Предложить кандидата</button></div></section>`;
 }
 export function renderHonor() { return page('Доска почёта', honorFame()); }
 
@@ -198,12 +208,15 @@ const EVENTS = [
   ['Обучение', 'Курс «Обойщик с нуля»', 'Rasch', 40, '10:00', 'Онлайн, 4 недели', 'Для новичков и помощников: от замера до сдачи объекта. Сертификат бренда.', 96],
 ];
 const signed = new Set();
+const EV_IC = { 'Вебинар': '🎥', 'Мастер-класс': '🛠️', 'Выставка': '🏛️', 'Встреча': '☕', 'Обучение': '🎓' };
 function evMeets() {
-  return EVENTS.map(([kind, t, org, d, time, place, x, n], i) => { const dt = new Date(today.getTime() + d * DAY), on = signed.has(i);
-    return `<article class="h-block bz-ev"><div class="bz-ev__d"><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ru-RU', { month: 'short' }).replace('.', '')}</small></div>
-      <div class="bz-ev__b"><span class="bz-tag">${esc(kind)}</span><h3>${esc(t)}</h3><p>${esc(x)}</p>
-      <div class="bz-ev__m"><span>🕒 ${time}</span><span>📍 ${esc(place)}</span><span>Организатор <b>${esc(org)}</b></span></div>
-      <div class="bz-ev__f"><small>${n + (on ? 1 : 0)} ${plural(n + (on ? 1 : 0), 'идёт', 'идут', 'идут')}</small><button type="button" class="bz-btn bz-btn--sm${on ? ' is-on' : ''}" data-action="ev-sign" data-k="${i}">${on ? 'Вы записаны ✓' : 'Записаться'}</button></div></div></article>`; }).join('');
+  return EVENTS.map(([kind, t, org, d, time, place, x, n], i) => { const dt = new Date(today.getTime() + d * DAY), on = signed.has(i), cnt = n + (on ? 1 : 0);
+    return `<article class="yt-card"><div class="yt-cover yt-cover--ev" style="${art(t, .45)}"><span class="yt-cover__sh"></span><span class="yt-ev__ic">${EV_IC[kind] || '📌'}</span>
+        <span class="yt-date"><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ru-RU', { month: 'short' }).replace('.', '')}</small></span><span class="yt-badge yt-badge--tr">${esc(kind)}</span>
+        <div class="yt-cover__t"><small>${esc(org)}</small><h3>${esc(t)}</h3></div></div>
+      <div class="yt-body"><p class="yt-txt">${esc(x)}</p><div class="yt-meta"><span>🕒 ${time}</span><span>📍 ${esc(place)}</span></div>
+        <div class="yt-go"><span class="yt-faces">${[0, 1, 2].map((j) => avatar(HONOR[(i + j * 3) % HONOR.length][0], 26)).join('')}</span><small>${cnt} ${plural(cnt, 'идёт', 'идут', 'идут')}</small>
+        <button type="button" class="yt-pill${on ? ' is-on' : ''}" data-action="ev-sign" data-k="${i}">${on ? '✓ Записаны' : 'Записаться'}</button></div></div></article>`; }).join('');
 }
 export function renderEvents() {
   const per = evTab === 'comp' ? `<div class="sd-chips">${[['month', 'Этот месяц'], ['year', 'Этот год']].map(([k, t]) => `<button type="button" class="sd-chip${hTab === k ? ' is-on' : ''}" data-action="hn-tab" data-k="${k}">${t}</button>`).join('')}</div>` : '';
@@ -226,14 +239,24 @@ const CREATORS = [
   ['Ремонтник Олег', 'rt', 19000, 'Влог мастера: объекты, клиенты, деньги'], ['Обои PRO', 'vk', 95000, 'Сообщество мастеров-обойщиков'],
 ];
 const subs = new Set();
+const VIDS = [['Как клеить флизелин в углах без складок', 0, '14:32', '128 тыс.', '3 дня'], ['Раппорт 64 см: считаем рулоны правильно', 3, '9:05', '76 тыс.', 'неделю'], ['Тёмные обои: стык, который не видно', 1, '11:47', '214 тыс.', '2 недели'], ['Сколько зарабатывает обойщик в 2026', 6, '22:10', '301 тыс.', 'месяц'], ['Грунт или нет? Тест пяти составов', 5, '17:26', '58 тыс.', '5 дней']];
+const handle = (n) => '@' + n.toLowerCase().replace(/[^a-zа-яё0-9]+/gi, '').slice(0, 14);
 export function renderCreators() {
   const list = CREATORS.filter(([, p]) => crPl === 'all' || p === crPl).sort((a, b) => b[2] - a[2]);
   const chips = `<div class="sd-chips">${[['all', 'Все'], ...Object.entries(PL).map(([k, [t]]) => [k, t])].map(([k, t]) => `<button type="button" class="sd-chip${crPl === k ? ' is-on' : ''}" data-action="cr-pl" data-k="${k}">${t}</button>`).join('')}</div>`;
-  const cards = list.map(([n, p, f, about]) => { const on = subs.has(n);
-    return `<article class="h-block bz-cr">${avatar(n, 52)}<div class="bz-cr__t"><b>${esc(n)}</b><span class="bz-pl" style="--c:${PL[p][1]}">${PL[p][0]}</span><small>${esc(about)}</small><em>${f >= 1000 ? `${fmt(f / 1000)} тыс.` : fmt(f)} подписчиков</em></div>
-      <button type="button" class="bz-btn bz-btn--sm${on ? ' is-on' : ''}" data-action="cr-sub" data-k="${esc(n)}">${on ? 'Вы подписаны' : 'Подписаться'}</button></article>`; }).join('');
-  const join = `<section class="h-block bz-join"><b>Ведёте блог про ремонт?</b><p>Добавьтесь в креаторы — вас увидят мастера и бренды для коллабораций.</p><button type="button" class="bz-btn" data-action="cr-apply">Стать креатором</button></section>`;
-  return page('Креаторы', chips + cards + join);
+  const subsTxt = (f) => (f >= 1000 ? `${fmt(f / 1000)} тыс.` : fmt(f));
+  const sbtn = (n, cls = '') => { const on = subs.has(n); return `<button type="button" class="yt-pill${cls}${on ? ' is-on' : ''}" data-action="cr-sub" data-k="${esc(n)}">${on ? 'Вы подписаны' : 'Подписаться'}</button>`; };
+  const top = list[0];
+  const hero = top ? `<article class="yt-card"><div class="yt-ban yt-ban--tall" style="${art(top[0])}"><span class="yt-badge yt-badge--tl">⭐ Креатор недели</span></div>
+    <div class="yt-prof"><span class="yt-prof__av" style="--ring:${PL[top[1]][1]}">${avatar(top[0], 84)}</span><div class="yt-prof__t"><h3>${esc(top[0])} <i class="yt-ver">✓</i></h3><small>${handle(top[0])} · ${subsTxt(top[2])} подписчиков</small><em>${esc(top[3])}</em></div></div>
+    <div class="yt-body yt-body--row"><span class="bz-pl" style="--c:${PL[top[1]][1]}">${PL[top[1]][0]}</span>${sbtn(top[0], ' yt-pill--big')}</div></article>` : '';
+  const vids = top ? `<h2 class="yt-sec">Популярные видео</h2><div class="yt-rail">${VIDS.map(([t, k, dur, views, ago], i) => { const c = list[i % list.length];
+    return `<article class="yt-vid"><div class="yt-vid__th" style="background:${pat(k, PAL[(i * 2 + 3) % PAL.length])}"><span class="yt-cover__sh"></span><span class="yt-vid__play">▶</span><span class="yt-dur">${dur}</span></div>
+      <div class="yt-vid__b">${avatar(c[0], 32)}<div><b>${esc(t)}</b><small>${esc(c[0])} · ${views} просмотров · ${ago} назад</small></div></div></article>`; }).join('')}</div>` : '';
+  const rows = `<h2 class="yt-sec">Все креаторы</h2><section class="yt-card yt-list">${list.map(([n, p, f, about]) => `<div class="yt-ch"><span class="yt-ch__av" style="--ring:${PL[p][1]}">${avatar(n, 54)}</span>
+    <div class="yt-ch__t"><b>${esc(n)} <i class="yt-ver">✓</i></b><small>${subsTxt(f)} подписчиков</small><em><span class="bz-pl" style="--c:${PL[p][1]}">${PL[p][0]}</span> ${esc(about)}</em></div>${sbtn(n)}</div>`).join('')}</section>`;
+  const join = `<section class="yt-card yt-cta-card"><div class="yt-body"><h3>Ведёте блог про ремонт?</h3><p class="yt-txt">Добавьтесь в креаторы — вас увидят мастера и бренды для коллабораций.</p><button type="button" class="yt-cta" data-action="cr-apply">Стать креатором</button></div></section>`;
+  return page('Креаторы', chips + hero + vids + rows + join);
 }
 actions['cr-pl'] = (el) => { crPl = el.dataset.k; rerender(); };
 actions['cr-sub'] = (el) => { const k = el.dataset.k; if (subs.has(k)) subs.delete(k); else subs.add(k); rerender(); };

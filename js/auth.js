@@ -1,10 +1,10 @@
 // Вход по телефону → код из SMS → PIN; регистрация; повторный вход по PIN.
 // Функционал взят из секции «Вход» в Figma, оформление — из «Выездов».
 
-import { actions, rerender, val } from './core.js?v=355';
-import * as S from './store.js?v=355';
-import { DEMO_CODE } from './seed.js?v=355';
-import { esc, field, btnRow, seg, phoneRu, toast } from './ui.js?v=355';
+import { actions, rerender, val } from './core.js?v=357';
+import * as S from './store.js?v=357';
+import { DEMO_CODE } from './seed.js?v=357';
+import { esc, field, btnRow, seg, phoneRu, toast } from './ui.js?v=357';
 
 const flow = { step: 'phone', mode: 'login', phone: '', error: '', reg: { name: '', role: 'master', c1: false, c2: false }, pin1: '', userId: null };
 let unlocked = false;
