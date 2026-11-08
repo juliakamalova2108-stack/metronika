@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=370';
-import * as S from './store.js?v=370';
-import { renderOformit, oformitDraft } from './oformit.js?v=370';
-import { roomTotals, svcInfo } from './ocenka.js?v=370';
-import { smetaTotals } from './zakaz.js?v=370';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=370';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=370';
-import { esc, toast, status, seg } from './ui.js?v=370';
-import { topbar, ORDER_STATUS } from './shared.js?v=370';
+import { actions, rerender, go } from './core.js?v=371';
+import * as S from './store.js?v=371';
+import { renderOformit, oformitDraft } from './oformit.js?v=371';
+import { roomTotals, svcInfo } from './ocenka.js?v=371';
+import { smetaTotals } from './zakaz.js?v=371';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=371';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=371';
+import { esc, toast, status, seg } from './ui.js?v=371';
+import { topbar, ORDER_STATUS } from './shared.js?v=371';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -116,8 +116,8 @@ const DEMO = {
     rooms: [['Кухня', '#f59e0b', 1, [['prime', 16], ['paste-flizelin', 14]]]], days: [5] },
   '014': { src: 'Авито', ph: '9273210011', street: 'г Уфа, ул Кирова', house: '12', flat: '51', fl: '9', hour: '09',
     rooms: [['Гостиная', '#f59e0b', 3, [['strip', 10], ['prime', 40], ['paste-flizelin', 38]]]], days: [7] },
-  '015': { src: 'Авито', ph: '9177001122', street: 'г Уфа, ул Комсомольская', house: '21', flat: '40', fl: '4', hour: '17', min: '30', rooms: [], days: [0], meas: 0 },
-  '016': { src: 'Сайт', ph: '9603334455', street: 'г Уфа, пр Октября', house: '88', flat: '113', fl: '7', hour: '12', rooms: [], days: [2], meas: 2 },
+  '015': { src: 'Авито', ph: '9177001122', street: 'г Уфа, ул Комсомольская', house: '21', flat: '40', fl: '4', hour: '17', min: '30', rooms: [['Спальня', '#3b82f6', 4, [['prime', 18], ['paste-flizelin', 28]]], ['Коридор', '#10b981', 4, [['prime', 9], ['paste-flizelin', 12]]]], days: [3], meas: 0 },
+  '016': { src: 'Сайт', ph: '9603334455', street: 'г Уфа, пр Октября', house: '88', flat: '113', fl: '7', hour: '12', rooms: [['Гостиная', '#f59e0b', 7, [['prime', 30], ['paste-flizelin', 34]]]], days: [5], meas: 2 },
 };
 const CL = { '004': P, '007': A, '011': I, '014': H, '015': OP, '016': DA };
 // Участники заказа (кроме мастера): кто передал заказ, кто ещё работает по нему.
@@ -229,7 +229,7 @@ function flowBlock(no, d, tot, days) {
 }
 // ── Режим выезда: пошагово, на весь экран, «Назад» / «Дальше» внизу.
 // Начало общее: звонок клиенту → маршрут → «Вы на месте?». Дальше — замер или рабочий день.
-const VS_MEAS = ['Звонок клиенту', 'Маршрут', 'Вы на месте?', 'Замер', 'Смета', 'Решение клиента'];
+const VS_MEAS = ['Звонок клиенту', 'Маршрут', 'Вы на месте?', 'Замер', 'Решение клиента'];
 const VS_WORK = ['Звонок клиенту', 'Маршрут', 'Вы на месте?', 'Материал', 'Смета', 'Конец смены'];
 // Шаги, которые открывают наши готовые экраны заказа (а не страницу выезда)
 const VS_SCR = { measure: { 'Замер': 'smeta' }, work: { 'Материал': 'material', 'Смета': 'smeta' } };
@@ -279,6 +279,7 @@ export function renderVisit(no) {
     body = flAsk === no + ':call' ? block('Когда перезвонить?', no, '', `<p class="bd-line"><small>Задача «Позвонить клиенту» появится сама</small></p>${chips([['1', 'Завтра'], ['3', 'Через 3 дня'], ['7', 'Через неделю']], 'vs-call')}`)
       : flAsk === no + ':refuse' ? block('Причина отказа', no, '', chips([['Дорого', 'Дорого'], ['Сроки', 'Сроки'], ['Передумал', 'Передумал'], ['Неизвестно', 'Неизвестно']], 'vs-refuse'))
       : block('Что решил клиент?', no, '', `<p class="bd-line"><b>${fmt(fin)} ₽</b><small>${keep.length} ${keep.length === 1 ? 'комната' : 'комнаты'}${v.disc ? ` · скидка ${v.disc} %` : ''}</small></p>
+          <p class="bd-line"><small>Скидка (если торгуется)</small></p>${chips([['0', 'Без скидки'], ['3', '3 %'], ['5', '5 %'], ['7', '7 %']], 'vs-disc').replace(new RegExp(`class="sd-chip"([^>]*data-k="${v.disc}")`), 'class="sd-chip is-on"$1')}
           <div class="f-btn-row bd-flbtns">${fb('Согласен — даты', A('vs-yes'), ' f-btn--lit')}${fb('Подумает', A('fl-ask', 'call'))}${fb('Отказ', A('fl-ask', 'refuse'))}</div>`); }
   else if (name === 'Материал') { const mr = (d.mat && d.mat.rooms) || {};
     body = block(`Сегодня по плану · ${dayTxt}`, no, '', today.map((r) => `<p class="bd-line"><b>${esc(r.name)}</b><small>${mr[r.key] && mr[r.key].added ? `${r.floor} этаж · материал: ${esc(mr[r.key].added.brand)}` : `${r.floor} этаж · материал не добавлен`}</small></p>`).join(''))
