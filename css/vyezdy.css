@@ -2435,3 +2435,7 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-ly3 { flex-wrap: wrap; row-gap: 8px; }
 .sd-ly3__h { width: 100%; display: flex; justify-content: space-between; gap: 8px; }
 .sd-ly3__h small { display: inline; }
+
+.sd-dbig__hl { fill: rgba(126,226,163,.10); stroke: rgba(126,226,163,.28); stroke-width: 1; }
+.sd-dbig__lb { font: 700 8.5px Inter, sans-serif; letter-spacing: .12em; fill: #7ee2a3; }
+.sd-dbig__n--hl { font-family: Manrope, sans-serif; font-weight: 800; fill: #f4f8f0; }

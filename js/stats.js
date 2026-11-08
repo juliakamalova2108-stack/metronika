@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=300';
-import * as S from './store.js?v=300';
-import { esc, toast } from './ui.js?v=300';
-import { selectField, pickers } from './oformit.js?v=300';
+import { actions, rerender, val } from './core.js?v=301';
+import * as S from './store.js?v=301';
+import { esc, toast } from './ui.js?v=301';
+import { selectField, pickers } from './oformit.js?v=301';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -234,10 +234,10 @@ function bubbles(rows) {
 // сокращение под ширину: целиком → «Демонт.» → инициалы «VS»
 const abbr = (t, n) => { if (t.length <= n) return t; if (n >= 4) { let c = t.slice(0, n - 1).trimEnd(); while (c.length > 3 && /[аеёиоуыэюяйьъaeiouy\s]$/i.test(c)) c = c.slice(0, -1); return c + '.'; } const w = t.split(/[\s.-]+/).filter(Boolean); return (w.length > 1 ? w.map((x) => x[0]).join('') : t.slice(0, 2)).slice(0, Math.max(1, n)); };
 // большое кольцо: доли по кругу с зазорами, в центре — итог
-function donutBig(segs, top, sub) {
+function donutBig(segs, top, sub, hl) {
   const R = 58, CC = 2 * Math.PI * R, tot = segs.reduce((a, x) => a + x.v, 0) || 1; let acc = 0;
   const arcs = segs.filter((x) => x.v > 0).map((x) => { const len = (x.v / tot) * CC, gap = segs.length > 1 ? 3 : 0; const d = `<circle cx="75" cy="75" r="${R}" fill="none" stroke="${x.col}" stroke-width="16" stroke-dasharray="${Math.max(1, len - gap).toFixed(2)} ${CC.toFixed(2)}" stroke-dashoffset="${(-acc).toFixed(2)}" transform="rotate(-90 75 75)"/>`; acc += len; return d; }).join('');
-  return `<svg class="sd-dbig" viewBox="0 0 150 150" role="img" aria-label="${esc(segs.map((x) => `${x.t} ${Math.round((x.v / tot) * 100)}%`).join(', '))}"><circle cx="75" cy="75" r="${R}" fill="none" stroke="rgba(237,242,232,.06)" stroke-width="16"/>${arcs}<text x="75" y="76" text-anchor="middle" class="sd-dbig__n" style="font-size:${String(top).length > 7 ? 15 : String(top).length > 5 ? 18 : 22}px">${top}</text><text x="75" y="95" text-anchor="middle" class="sd-dbig__s">${sub}</text></svg>`;
+  return `<svg class="sd-dbig" viewBox="0 0 150 150" role="img" aria-label="${esc(segs.map((x) => `${x.t} ${Math.round((x.v / tot) * 100)}%`).join(', '))}"><circle cx="75" cy="75" r="${R}" fill="none" stroke="rgba(237,242,232,.06)" stroke-width="16"/>${arcs}${hl ? `<circle cx="75" cy="75" r="45" class="sd-dbig__hl"/><text x="75" y="66" text-anchor="middle" class="sd-dbig__lb">${sub}</text><text x="75" y="88" text-anchor="middle" class="sd-dbig__n sd-dbig__n--hl" style="font-size:${String(top).length > 9 ? 15 : String(top).length > 7 ? 17 : 20}px">${top}</text>` : `<text x="75" y="76" text-anchor="middle" class="sd-dbig__n" style="font-size:${String(top).length > 7 ? 15 : String(top).length > 5 ? 18 : 22}px">${top}</text><text x="75" y="95" text-anchor="middle" class="sd-dbig__s">${sub}</text>`}</svg>`;
 }
 const dLegend = (segs, unit) => { const tot = segs.reduce((a, x) => a + x.v, 0) || 1; return `<ul class="sd-dleg">${segs.map((x) => `<li><i style="background:${x.col}"></i><span><b>${esc(x.t)}</b><small>${unit ? `${fmt(x.v)}${unit}` : ''}</small></span><em>${Math.round((x.v / tot) * 100)}%</em></li>`).join('')}</ul>`; };
 function mosaic(rows, H = 150) {
@@ -362,7 +362,7 @@ export function renderStatsMaster() {
     const pp = A.inc ? Math.round((Math.max(0, A.profit) / A.inc) * 100) : 0;
     const heroLeg = `<ul class="sd-hleg2"><li><i style="background:${C.inc}"></i><span><b>Прибыль</b><small>${fmt(Math.max(0, A.profit))} ₽</small></span><em>${pp}%</em></li><li><i style="background:${C.exp}"></i><span><b>Расходы</b><small>${fmt(A.exp)} ₽</small></span><em>${100 - pp}%</em></li><li class="is-note">% — доля от дохода</li></ul>`;
     const hero = `<section class="h-block sd-hero"><small>Прибыль ${scope}</small><div class="sd-hero__v"><b>${fmt(A.profit)}<i> ₽</i></b>${B.inc ? `<span class="sd-vs">${dTag(delta(A.profit, B.profit))}<small>${prevName()}</small></span>` : ''}</div>
-      <div class="sd-dwrap sd-dwrap--h2">${donutBig([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], fmt(A.inc), `доход ${mode === 'year' ? py : MONS[pm]}`)}${heroLeg}</div>${lyBox}
+      <div class="sd-dwrap sd-dwrap--h2">${donutBig([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], fmt(A.inc), 'ДОХОД', true)}${heroLeg}</div>${lyBox}
       <div class="sd-mrows">${moneyRow('inc')}${moneyRow('exp')}${moneyRow('pr')}</div>
       </section>`;
     const tile = (t, v, d, sub, sp) => `<div class="sd-tile"><small>${t}</small><b>${v}</b>${sp}<em>${d}${sub ? ` <span>${sub}</span>` : ''}</em></div>`;
