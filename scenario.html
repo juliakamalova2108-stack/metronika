@@ -6,7 +6,7 @@
 <title>Метроника · путь заказа по шагам</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-  body { margin: 0; min-height: 100vh; background: radial-gradient(900px 500px at 15% -10%, #2a4a47 0, transparent 60%), #1d3133; color: #edf2e8; font-family: Inter, system-ui, sans-serif; display: flex; justify-content: center; align-items: flex-start; gap: 36px; padding: 28px 16px 40px; flex-wrap: wrap; }
+  body { margin: 0; min-height: 100vh; background: radial-gradient(900px 500px at 15% -10%, #2a4a47 0, transparent 60%), #1d3133; color: #edf2e8; font-family: Inter, system-ui, sans-serif; display: flex; justify-content: center; align-items: flex-start; gap: 28px; padding: 28px 16px 40px; flex-wrap: wrap; }
   .side { width: 340px; max-width: 100%; }
   h1 { font: 800 24px Manrope, sans-serif; margin: 6px 0 6px; }
   p { color: rgba(237,242,232,.65); font-size: 13.5px; line-height: 1.5; margin: 0 0 14px; }
@@ -17,6 +17,8 @@
   li.on { background: rgba(126,226,163,.14); border-color: rgba(126,226,163,.4); color: #edf2e8; }
   li.on b { background: #7ee2a3; color: #0f1c17; }
   .phone { width: 390px; height: 820px; border-radius: 46px; padding: 12px; background: #070c0a; box-shadow: 0 40px 80px -30px rgba(0,0,0,.8), inset 0 0 0 2px #2a3a36; flex: none; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .cap { margin: 0; font: 700 13px Inter, sans-serif; color: #7ee2a3; }
   iframe { width: 100%; height: 100%; border: 0; border-radius: 36px; background: #1d3133; }
 </style>
 </head>
@@ -26,7 +28,8 @@
   <p>Один заказ — Ильдар Хасанов, гостиная — от замера до «Заказ завершён». Справа — само приложение: можно нажимать кнопки в блоке «Сейчас» или перескакивать по шагам здесь.</p>
   <ol id="steps"></ol>
 </div>
-<div class="phone"><iframe id="app" title="Приложение"></iframe></div>
+<div class="col"><p class="cap">Сценарий — шаги слева</p><div class="phone"><iframe id="app" title="Сценарий"></iframe></div></div>
+<div class="col"><p class="cap">Приложение — тыкай сам</p><div class="phone"><iframe id="free" title="Приложение"></iframe></div></div>
 <script>
 const NO = '014';
 const STEPS = [
@@ -43,7 +46,7 @@ const STEPS = [
 ];
 const fr = document.getElementById('app');
 let V = '', cur = -1;
-fetch('version.txt?t=' + Date.now()).then((r) => r.text()).then((t) => { V = t.trim(); fr.src = 'index.html?demo=1&v=' + V + '#bd-order-' + NO; });
+fetch('version.txt?t=' + Date.now()).then((r) => r.text()).then((t) => { V = t.trim(); fr.src = 'index.html?demo=1&v=' + V + '#bd-order-' + NO; document.getElementById('free').src = 'index.html?demo=1&v=' + V + '#home'; });
 const draw = () => { document.getElementById('steps').innerHTML = STEPS.map(([t, s], i) => `<li class="${i === cur ? 'on' : ''}" data-i="${i}"><b>${i + 1}</b><span>${t}<small>${s}</small></span></li>`).join(''); };
 async function goStep(i) {
   cur = i; draw();
