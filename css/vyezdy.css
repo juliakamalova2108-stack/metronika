@@ -2263,3 +2263,12 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-gh__line { border-top: 1px solid rgba(237,242,232,.55); }
 .sd-gh__line::after { content: 'цель'; position: absolute; right: 0; top: -14px; font: 600 9.5px Inter, sans-serif; color: var(--ink2); }
 .sd-chip { border-radius: 6px; }
+
+.sd-bub { display: block; width: 100%; height: auto; }
+.sd-bub__n { font: 700 11px Manrope, sans-serif; }
+.sd-bub__p { font: 800 12.5px Manrope, sans-serif; }
+.sd-mos { position: relative; display: block; width: 100%; }
+.sd-mos > i { position: absolute; padding: 1px; box-sizing: border-box; }
+.sd-mos > i > span { display: flex; flex-direction: column; justify-content: flex-end; gap: 1px; width: 100%; height: 100%; box-sizing: border-box; padding: 6px 8px; border-radius: 6px; overflow: hidden; }
+.sd-mos b { font: 700 12px/1.15 Manrope, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-mos em { font: 800 12.5px Manrope, sans-serif; font-style: normal; }

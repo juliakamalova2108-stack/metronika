@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=276';
-import * as S from './store.js?v=276';
-import { esc, toast } from './ui.js?v=276';
-import { selectField, pickers } from './oformit.js?v=276';
+import { actions, rerender, val } from './core.js?v=278';
+import * as S from './store.js?v=278';
+import { esc, toast } from './ui.js?v=278';
+import { selectField, pickers } from './oformit.js?v=278';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -190,6 +190,53 @@ const spark = (vals, si) => { const pts = vals.map((v, i) => [v, i]).filter(([v]
   const mx = Math.max(...pts.map(([v]) => v)), mn = Math.min(...pts.map(([v]) => v)), W = 100, H = 26, X = (i) => (i / (vals.length - 1)) * (W - 6) + 3, Y = (v) => H - 3 - ((v - mn) / ((mx - mn) || 1)) * (H - 6);
   const d = pts.map(([v, i], j) => `${j ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' '), sv = vals[si];
   return `<svg class="sd-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="${d}" fill="none" stroke="rgba(237,242,232,.32)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>${sv !== null && sv !== undefined ? `<circle cx="${X(si)}" cy="${Y(sv)}" r="3.5" fill="#7ee2a3" stroke="#22342f" stroke-width="2" vector-effect="non-scaling-stroke"/>` : ''}</svg>`; };
+
+// ── Свёрнутые карточки: пузыри (размер = доля) и мозаика (площадь = доля) ──
+const shortName = (t, max) => (t.length > max ? t.slice(0, max - 1) + '…' : t);
+function bubbles(rows) {
+  if (!rows.length) return '<span class="sd-note">Нет данных за период</span>';
+  const W = 320, H = 128, tot = rows.reduce((a, x) => a + x.v, 0) || 1, list = rows.slice(0, 7);
+  let placed = [];
+  // площадь кругов ~ доле; масштаб подбираем, пока все круги не поместятся
+  for (let fill = 0.5; fill > 0.12; fill *= 0.9) {
+    const sum = list.reduce((a, x) => a + x.v, 0) || 1;
+    const cs = list.map((x) => ({ x, r: Math.max(10, Math.sqrt(((x.v / sum) * fill * W * H) / Math.PI)) }));
+    placed = [];
+    const fits = (cx, cy, r) => cx - r >= 1 && cx + r <= W - 1 && cy - r >= 1 && cy + r <= H - 1 && placed.every((q) => Math.hypot(q.cx - cx, q.cy - cy) >= q.r + r + 3);
+    cs.forEach((c, i) => {
+      if (!i) { placed.push({ ...c, cx: W / 2 - (cs.length > 1 ? c.r * 0.6 : 0), cy: H / 2 }); return; }
+      let best = null;
+      placed.forEach((q) => { for (let a = 0; a < 360; a += 8) { const rad = (a * Math.PI) / 180, cx = q.cx + Math.cos(rad) * (q.r + c.r + 3), cy = q.cy + Math.sin(rad) * (q.r + c.r + 3);
+        if (fits(cx, cy, c.r)) { const sc = Math.hypot(cx - W / 2, (cy - H / 2) * 1.8); if (!best || sc < best.sc) best = { cx, cy, sc }; } } });
+      if (best) placed.push({ ...c, cx: best.cx, cy: best.cy });
+    });
+    if (placed.length === cs.length) break;
+  }
+  // центрируем группу
+  const x0 = Math.min(...placed.map((q) => q.cx - q.r)), x1 = Math.max(...placed.map((q) => q.cx + q.r)), y0 = Math.min(...placed.map((q) => q.cy - q.r)), y1 = Math.max(...placed.map((q) => q.cy + q.r));
+  placed.forEach((q) => { q.cx += (W - x1 - x0) / 2; q.cy += (H - y1 - y0) / 2; });
+  return `<span class="sd-mini2"><svg class="sd-bub" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(rows.map((x) => `${x.t} ${Math.round((x.v / tot) * 100)}%`).join(', '))}">${placed.map((p) => { const pc = Math.round((p.x.v / tot) * 100), col = ink(p.x.col);
+    const lab = p.r >= 27 ? `<text x="${p.cx}" y="${p.cy - 2}" text-anchor="middle" class="sd-bub__n" fill="${col}">${esc(shortName(p.x.t, Math.floor(p.r / 3.6)))}</text><text x="${p.cx}" y="${p.cy + 14}" text-anchor="middle" class="sd-bub__p" fill="${col}">${pc}%</text>`
+      : p.r >= 15 ? `<text x="${p.cx}" y="${p.cy + 4}" text-anchor="middle" class="sd-bub__p" fill="${col}">${pc}%</text>` : '';
+    return `<circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${p.r.toFixed(1)}" fill="${p.x.col}"/>${lab}`; }).join('')}</svg>${legend2(list)}</span>`;
+}
+function mosaic(rows, H = 128) {
+  if (!rows.length) return '<span class="sd-note">Нет данных за период</span>';
+  const tot = rows.reduce((a, x) => a + x.v, 0) || 1, cells = [];
+  const split = (list, x, y, w, h) => {
+    if (!list.length) return;
+    if (list.length === 1) { cells.push({ r: list[0], x, y, w, h }); return; }
+    const sum = list.reduce((a, r) => a + r.v, 0); let acc = 0, i = 0;
+    while (i < list.length - 1 && acc + list[i].v <= sum / 2) acc += list[i++].v;
+    if (i === 0) acc = list[i++].v;
+    const f = acc / sum, A = list.slice(0, i), B = list.slice(i);
+    if (w * 3.2 >= h * 1) { split(A, x, y, w * f, h); split(B, x + w * f, y, w * (1 - f), h); }
+    else { split(A, x, y, w, h * f); split(B, x, y + h * f, w, h * (1 - f)); }
+  };
+  split([...rows].sort((a, b) => b.v - a.v), 0, 0, 100, 100);
+  return `<span class="sd-mos" style="height:${H}px" role="img" aria-label="${esc(rows.map((x) => `${x.t} ${Math.round((x.v / tot) * 100)}%`).join(', '))}">${cells.map((c) => { const pc = Math.round((c.r.v / tot) * 100), wpx = c.w * 3.1, hpx = (c.h / 100) * H;
+    return `<i style="left:${c.x}%;top:${c.y}%;width:${c.w}%;height:${c.h}%"><span style="background:${c.r.col};color:${ink(c.r.col)}">${wpx > 62 && hpx > 42 ? `<b>${esc(c.r.t)}</b><em>${pc}%</em>` : wpx > 30 && hpx > 18 ? `<em>${pc}%</em>` : ''}</span></i>`; }).join('')}</span>`;
+}
 const nice = (v) => { if (v <= 0) return 1; const e = Math.pow(10, Math.floor(Math.log10(v))), f = v / e; return ([1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find((x) => x >= f) || 10) * e; };
 const seg2 = (items, cur, act) => `<div class="f-topnav sd-seg"><div class="f-topnav__track" role="tablist">${items.map(([key, t]) => `<button type="button" role="tab" aria-selected="${key === cur}" class="f-tab${key === cur ? ' is-active' : ''}" data-action="${act}" data-k="${key}">${t}</button>`).join('')}</div></div>`;
 
@@ -286,7 +333,7 @@ export function renderStatsMaster() {
     if (srcM[0]) ins.push([C.blue, `Больше всего заказов — ${srcM[0][0]}`, `${srcM[0][1]} из ${A.n}`]);
     const insB = ins.length ? `<div class="sd-ins">${ins.map(([c, t, s]) => `<div class="sd-ins__c" style="--c:${c}"><b>${esc(t)}</b><small>${esc(s)}</small></div>`).join('')}</div>` : '';
     const srcRows = SRC.map(([t, , col]) => ({ key: 'src:' + t, t, col, v: A.O.filter((o) => o.src === t).length, d: delta(A.O.filter((o) => o.src === t).length, B.O.filter((o) => o.src === t).length) })).filter((x) => x.v).sort((a, b) => b.v - a.v);
-    content = hero + tiles + insB + (srcRows.length ? fblock('src', ['Откуда заказы', `${scope} · ${srcRows.length} ${plural(srcRows.length, 'источник', 'источника', 'источников')}`], miniSum(srcRows, 'больше всего заказов'), catList(srcRows, '', (x) => `${x.v} ${x.v === 1 ? 'заказ' : x.v < 5 ? 'заказа' : 'заказов'}`,
+    content = hero + tiles + insB + (srcRows.length ? fblock('src', ['Откуда заказы', `${scope} · ${srcRows.length} ${plural(srcRows.length, 'источник', 'источника', 'источников')}`], bubbles(srcRows), catList(srcRows, '', (x) => `${x.v} ${x.v === 1 ? 'заказ' : x.v < 5 ? 'заказа' : 'заказов'}`,
       (x) => A.O.filter((o) => 'src:' + o.src === x.key).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.m2} м² · ${o.brand}`, `${fmt(o.sum)} ₽`)).join(''))) : '');
   } else if (tab === 'money') {
     const cats = money === 'inc' ? INC_CAT : EXP_CAT;
@@ -294,7 +341,7 @@ export function renderStatsMaster() {
       return { key: money + ':' + t, t, col, v, d: delta(v, pv), inv: money === 'exp', cnt: A.P.filter((x) => x.kind === money && x.cat === t).length }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const tot = money === 'inc' ? A.inc : A.exp;
     const catB = `<div class="sd-mseg">${seg2([['inc', 'Доходы'], ['exp', 'Расходы']], money, 'sd2-money')}</div>` + fblock('money-' + money, [money === 'inc' ? 'Доходы' : 'Расходы', `${scope} · ${rows.length} ${plural(rows.length, 'категория', 'категории', 'категорий')}`, `<span class="sd-f__sum"><b>${fmt(tot)} ₽</b>${dTag(delta(tot, money === 'inc' ? B.inc : B.exp), money === 'exp')}</span>`],
-      miniSum(rows, money === 'inc' ? 'больше всего приносит' : 'больше всего уходит на'),
+      `<span class="sd-mini2">${mosaic(rows)}${legend2(rows)}</span>`,
       `<div class="sd-part">${segBar(rows, true)}${legend2(rows)}</div>` + (
 rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'операция' : x.cnt < 5 ? 'операции' : 'операций'}`,
         (x) => A.P.filter((o) => o.kind + ':' + o.cat === x.key).sort((a, b) => b.d - a.d).slice(0, 12).map((o) => opRow(o.d, o.o ? `№${o.o.no} · ${o.o.client}` : o.note || x.t, o.o ? `${o.o.m2} м²` : 'покупка', `${money === 'inc' ? '+' : '−'}${fmt(o.sum)} ₽`)).join('')) : '<p class="sd-note">Нет операций за период</p>'));
@@ -333,10 +380,10 @@ rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'опера
         (x) => (x.wall ? brDetail({ key: 'br:' + x.t, v: x.O.reduce((a, o) => a + o.m2, 0), rolls: x.O.reduce((a, o) => a + o.rolls, 0), n: x.v }) : ordList((o) => get(o) === x.t))); }).join('');
     const brandsN = new Set(all.map((x) => x.t)).size, top = [...all].sort((a, b) => b.v - a.v);
     const brands = fblock('brands', ['Бренды', `${brandsN} ${plural(brandsN, 'бренд', 'бренда', 'брендов')} · обои, клей, шпаклёвка, грунт`],
-      top.length ? `<span class="sd-mini2">${segBar(CATS.map(([cat], i) => ({ t: cat, v: all.filter((x) => x.cat === cat).reduce((a, x) => a + x.v, 0), col: P7[i] })))}${legend2(CATS.map(([cat], i) => ({ t: cat, col: P7[i] })))}<span class="sd-mini2__t"><i style="background:${top[0].col}"></i><small>чаще всего</small><b>${esc(top[0].t)} · ${top[0].cat.toLowerCase()}</b><em>${top[0].v} ${plural(top[0].v, 'заказ', 'заказа', 'заказов')}</em></span></span>` : '',
+      top.length ? `<span class="sd-mini2">${mosaic(all.map((x) => ({ t: x.t, v: x.v, col: P7[CATS.findIndex((c) => c[0] === x.cat)] })), 150)}${legend2(CATS.map(([cat], i) => ({ t: cat, col: P7[i] })))}</span>` : '',
       `<div class="sd-part">${segBar(CATS.map(([cat], i) => ({ t: cat, v: all.filter((x) => x.cat === cat).reduce((a, x) => a + x.v, 0), col: P7[i] })), true)}${legend2(CATS.map(([cat], i) => ({ t: cat, col: P7[i] })))}</div>` + secs);
     const rRows = ROOMS.map(([t, col]) => { let v = 0, n = 0; A.O.forEach((o) => o.rooms.forEach((r) => { if (r[0] === t) { v += r[1]; n++; } })); return { key: 'rm:' + t, t, col, v, n }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
-    const rooms = fblock('rooms', ['По комнатам', `поклеено ${scope}`], miniSum(rRows, 'больше всего м²'), catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key))));
+    const rooms = fblock('rooms', ['По комнатам', `поклеено ${scope}`], bubbles(rRows), catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key))));
     content = A.n ? kpi + brands + rooms : '<p class="sd-note">Нет заказов за период</p>';
   }
 
