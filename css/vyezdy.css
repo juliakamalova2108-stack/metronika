@@ -2817,3 +2817,10 @@ a.bz-btn { text-decoration: none; }
 .bd-flbtns .f-btn { width: 100%; min-width: 0; white-space: normal; }
 .bd-flbtns .f-btn:only-child, .bd-flbtns .f-btn:nth-child(3):last-child { grid-column: 1 / -1; }
 .f-btn-row.bd-flbtns { height: auto; gap: 5px; }
+.bd-vnav { display: flex; align-items: center; gap: 10px; }
+.bd-vnav .bd-back { width: 50px; height: 50px; flex: none; }
+.bd-vnav .bd-back:disabled { opacity: .35; }
+.bd-vnext { flex: 1; }
+.bd-vnext .f-btn { font-weight: 600; font-size: 16px; }
+.bd-vnext .f-btn:disabled { opacity: .5; cursor: not-allowed; }
+.sd-chip.is-on { background: #7ee2a3; border-color: #7ee2a3; color: #0f1c17; }

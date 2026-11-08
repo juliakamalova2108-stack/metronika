@@ -25,23 +25,27 @@
 <body>
 <div class="side">
   <h1>Путь заказа</h1>
-  <p>Один заказ — Ильдар Хасанов, гостиная — от замера до «Заказ завершён». Справа — само приложение: можно нажимать кнопки в блоке «Сейчас» или перескакивать по шагам здесь.</p>
+  <p>Один заказ — Ильдар Хасанов, гостиная. Выезд на замер — пошаговый режим: шаг за шагом, внизу «Назад» и «Дальше». Средний телефон переключается шагами слева, правый — тыкай сам.</p>
   <ol id="steps"></ol>
 </div>
 <div class="col"><p class="cap">Сценарий — шаги слева</p><div class="phone"><iframe id="app" title="Сценарий"></iframe></div></div>
 <div class="col"><p class="cap">Приложение — тыкай сам</p><div class="phone"><iframe id="free" title="Приложение"></iframe></div></div>
 <script>
 const NO = '014';
+const VS = (n, extra) => ({ st: 'measure', visit: Object.assign({ step: n, here: n > 0 ? 1 : 0, keep: {}, photos: {}, disc: 0 }, extra || {}) });
 const STEPS = [
-  ['Замер · до выезда', 'дата, «Еду на замер», «Перенести»', { st: 'measure', going: 0 }, 'bd-order'],
-  ['Замер · в пути', 'клиенту ушло «Мастер выехал»', { st: 'measure', going: 1 }, 'bd-order'],
-  ['Замер по стенам', 'наш экран замера', { st: 'measure', going: 1 }, 'bd-edit-014-smeta'],
-  ['Смета готова — итог', 'согласен / подумает / отказ', { st: 'measure', going: 1 }, 'bd-order', 'result'],
-  ['Согласование', 'перезвонить через 3 дня', { st: 'approval', call: 3 }, 'bd-order'],
-  ['Очередь', 'перед выездом: обои, клей, аванс', { st: 'queue', chk: {} }, 'bd-order'],
-  ['В работе', 'день 1 из 3: материал, выклейка, комнаты', { st: 'work', day: 1, shift: {}, done: {} }, 'bd-order'],
-  ['Выполнено', 'расчёт: наличные или перевод', { st: 'done' }, 'bd-order'],
-  ['Заказ завершён', 'уходит в статистику и соревнования', { st: 'closed' }, 'bd-order'],
+  ['Замер · карточка заказа', 'одна кнопка «Начать выезд на замер»', { st: 'measure', visit: null }, 'bd-order'],
+  ['Выезд · 1 Приехал', 'адрес, звонок, «Я на месте»', VS(0), 'bd-visit-014'],
+  ['Выезд · 2 Комнаты', 'какие комнаты меряем', VS(1), 'bd-visit-014'],
+  ['Выезд · 3 Замер по стенам', 'кнопка открывает наш замер', VS(2), 'bd-visit-014'],
+  ['Выезд · 4 Фото «до»', 'можно пропустить', VS(3), 'bd-visit-014'],
+  ['Выезд · 5 Смета', 'оценка → замер, скидка, итог', VS(4, { disc: 3 }), 'bd-visit-014'],
+  ['Выезд · 6 Решение клиента', 'согласен / подумает / отказ', VS(5, { disc: 3 }), 'bd-visit-014'],
+  ['Согласование', 'перезвонить через 3 дня', { st: 'approval', call: 3, visit: null }, 'bd-order'],
+  ['Очередь', 'перед выездом: обои, клей, аванс', { st: 'queue', chk: {}, visit: null }, 'bd-order'],
+  ['В работе', 'день 1 из 3 (режим смены — следующий)', { st: 'work', day: 1, shift: {}, done: {}, visit: null }, 'bd-order'],
+  ['Выполнено', 'расчёт: наличные или перевод', { st: 'done', visit: null }, 'bd-order'],
+  ['Заказ завершён', 'уходит в статистику и соревнования', { st: 'closed', visit: null }, 'bd-order'],
   ['Список «Заказы»', 'заказ сам переходит по вкладкам', null, 'orders'],
 ];
 const fr = document.getElementById('app');
@@ -53,7 +57,7 @@ async function goStep(i) {
   const [, , st, route, ask] = STEPS[i], w = fr.contentWindow;
   const S = await w.eval(`import('./js/store.js?v=${V}')`), B = await w.eval(`import('./js/board.js?v=${V}')`), C = await w.eval(`import('./js/core.js?v=${V}')`);
   if (st) { const f = B.flowOf(NO), d = S.get().oformit['ord-' + NO];
-    Object.assign(f, { chk: {}, shift: {}, done: {}, day: 1, going: 0 }, st);
+    Object.assign(f, { chk: {}, shift: {}, done: {}, day: 1, going: 0 }, JSON.parse(JSON.stringify(st)));
     if (st.st === 'done' || st.st === 'closed') ((d.est && d.est.rooms) || []).forEach((r) => { f.done[r.key] = 1; });
     if (st.st === 'closed') { d.fin = d.fin || { pays: [], exps: [] }; }
     if (!d.sched.measure) { const t = new Date(); d.sched.measure = t.toISOString().slice(0, 10); }

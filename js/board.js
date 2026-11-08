@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=363';
-import * as S from './store.js?v=363';
-import { renderOformit, oformitDraft } from './oformit.js?v=363';
-import { roomTotals, svcInfo } from './ocenka.js?v=363';
-import { smetaTotals } from './zakaz.js?v=363';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=363';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=363';
-import { esc, toast, status, seg } from './ui.js?v=363';
-import { topbar, ORDER_STATUS } from './shared.js?v=363';
+import { actions, rerender, go } from './core.js?v=364';
+import * as S from './store.js?v=364';
+import { renderOformit, oformitDraft } from './oformit.js?v=364';
+import { roomTotals, svcInfo } from './ocenka.js?v=364';
+import { smetaTotals } from './zakaz.js?v=364';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=364';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=364';
+import { esc, toast, status, seg } from './ui.js?v=364';
+import { topbar, ORDER_STATUS } from './shared.js?v=364';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -196,9 +196,8 @@ function flowBlock(no, d, tot, days) {
   else if (flAsk === no + ':menu') { body = ln('Действия с заказом'); btns = fb('Перенести', `data-action="bd-edit" data-no="${no}" data-tab="schedule"`) + fb('Изменить', A('fl-ask', '')) + fb('Отменить заказ', A('fl-ask', 'refuse')); }
   else if (f.st === 'measure') {
     body = ln(`Замер ${mtxt}`, f.going ? 'Вы в пути — клиенту ушло «Мастер выехал»' : 'Накануне придёт напоминание');
-    btns = !f.going ? fb('Еду на замер', A('fl-going'), ' f-btn--lit') + fb('Перенести', `data-action="bd-edit" data-no="${no}" data-tab="schedule"`)
-      : smt && smt.total ? fb('Смета готова — итог', A('fl-ask', 'result'), ' f-btn--lit') + fb('Замер по стенам', `data-action="bd-edit" data-no="${no}" data-tab="smeta"`)
-      : fb('Начать замер', `data-action="bd-edit" data-no="${no}" data-tab="smeta"`, ' f-btn--lit');
+    const vis = f.visit && f.visit.step ? `Продолжить выезд · шаг ${f.visit.step + 1}` : 'Начать выезд на замер';
+    btns = fb(vis, `data-action="go" data-to="bd-visit-${no}"`, ' f-btn--lit') + fb('Перенести', `data-action="bd-edit" data-no="${no}" data-tab="schedule"`);
     if (smt && smt.total) body += ln(`По оценке ${fmt(tot.sum)} ₽ → по замеру ${fmt(smt.total)} ₽`, 'Озвучьте клиенту сумму на месте');
   } else if (f.st === 'approval') {
     const c = f.call ? dayOf(f.call) : null;
@@ -228,6 +227,57 @@ function flowBlock(no, d, tot, days) {
   const menu = ['closed', 'refused'].includes(f.st) || flAsk.startsWith(no + ':') ? '' : `<button type="button" class="bd-edit" ${A('fl-ask', 'menu')}>Ещё</button>`;
   return `<section class="f-plate bd-block bd-flow"><div class="bd-block__hd"><span>Сейчас · ${FL_NAME[f.st]}</span>${menu}</div>${bar}${body}${btns ? `<div class="f-btn-row bd-flbtns">${btns}</div>` : ''}</section>`;
 }
+// ── Режим выезда на замер: пошагово, на весь экран, «Назад» / «Дальше» внизу ──
+const VSTEPS = ['Приехал', 'Комнаты', 'Замер по стенам', 'Фото «до»', 'Смета', 'Решение клиента'];
+export function renderVisit(no) {
+  if (!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) return null;
+  if (DEMO[no]) seedOrder(no);
+  S.setDraftKey('ord-' + no);
+  const d = oformitDraft(), f = flowOf(no), v = f.visit = f.visit || { step: 0, here: 0, keep: {}, photos: {}, disc: 0 }; v.open = 1;
+  const c = d.cl || {}, rooms = (d.est && d.est.rooms) || [];
+  const addr = [c.street, c.house && 'д. ' + c.house, c.flat && 'кв. ' + c.flat].filter(Boolean).join(', ');
+  const est = rooms.reduce((a, r) => a + roomTotals(r).total, 0);
+  const smt = d.sm ? smetaTotals(d) : null, measured = (r) => !!(smt && (smt.rooms.find((x) => x.room.key === r.key) || {}).total);
+  const keep = rooms.filter((r) => v.keep[r.key] !== false);
+  const total = smt && smt.total ? smt.total : 0, fin = Math.round(total * (1 - v.disc / 100));
+  const A = (a, k = '') => `data-action="${a}" data-no="${no}"${k !== '' ? ` data-k="${k}"` : ''}`;
+  let body = '', can = true;
+  switch (v.step) {
+    case 0: body = block('Адрес', no, '', `<p class="bd-line"><b>${esc(addr)}</b><small>подъезд ${esc(c.entrance || '1')} · этаж ${esc(c.floor || '')}</small></p>
+        <div class="bd-cl"><div><b>${esc(c.name || '')}</b><small>${esc(c.phone || '')}</small></div><span class="bd-cl__ic"><a class="f-icon-btn" href="tel:${esc((c.phone || '').replace(/[^+\d]/g, ''))}" aria-label="Позвонить">${PH}</a><a class="f-icon-btn" href="https://yandex.ru/maps/?text=${encodeURIComponent(addr)}" target="_blank" rel="noopener" aria-label="Маршрут">${RT}</a></span></div>`)
+        + block('Отметка', no, '', tg(v.here, 'Я на месте', 'клиент увидит, что мастер приехал', A('vs-here'))); can = !!v.here; break;
+    case 1: body = block('Какие комнаты меряем', no, '', rooms.map((r) => tg(v.keep[r.key] !== false, r.name, `${r.floor} этаж · по оценке ${fmt(roomTotals(r).total)} ₽`, A('vs-keep', r.key))).join('') || '<p class="bd-line"><small>В оценке нет комнат</small></p>')
+        + `<div class="f-btn-row bd-flbtns">${fb('Добавить комнату', `data-action="bd-edit" data-no="${no}" data-tab="estimate"`)}</div>`; can = keep.length > 0; break;
+    case 2: body = block('Замер по стенам', no, '', keep.map((r) => `<p class="bd-line"><b>${esc(r.name)}</b><small>${measured(r) ? `замерено · ${fmt((smt.rooms.find((x) => x.room.key === r.key) || {}).total)} ₽` : 'ещё не замерено'}</small></p>`).join('')
+        + `<div class="f-btn-row bd-flbtns">${fb(smt && smt.total ? 'Продолжить замер' : 'Начать замер', `data-action="bd-edit" data-no="${no}" data-tab="smeta"`, ' f-btn--lit')}</div>`); can = keep.some(measured); break;
+    case 3: body = block('Фото «до»', no, '', keep.map((r) => tg(v.photos[r.key], r.name, v.photos[r.key] ? 'фото сделано' : 'нажмите — снять фото', A('vs-photo', r.key))).join('') + '<p class="bd-line"><small>Можно пропустить</small></p>'); break;
+    case 4: body = block('Смета для клиента', no, '', `<div class="bd-total"><div><small>По оценке</small><b>${fmt(est)} ₽</b></div><div><small>По замеру</small><b>${fmt(total)} ₽</b></div></div>
+        <p class="bd-line"><small>Скидка (если торгуется)</small></p>${chips([['0', 'Без скидки'], ['3', '3 %'], ['5', '5 %'], ['7', '7 %']], 'vs-disc').replace(`data-k="${v.disc}"`, `data-k="${v.disc}" aria-pressed="true"`).replace(new RegExp(`class="sd-chip"([^>]*data-k="${v.disc}")`), 'class="sd-chip is-on"$1')}
+        <div class="bd-total"><div><small>Итого</small><b>${fmt(fin)} ₽</b></div><div><small>Скидка</small><b>${v.disc} %</b></div></div>`); break;
+    case 5: body = flAsk === no + ':call' ? block('Когда перезвонить?', no, '', `<p class="bd-line"><small>Задача «Позвонить клиенту» появится сама</small></p>${chips([['1', 'Завтра'], ['3', 'Через 3 дня'], ['7', 'Через неделю']], 'vs-call')}`)
+        : flAsk === no + ':refuse' ? block('Причина отказа', no, '', chips([['Дорого', 'Дорого'], ['Сроки', 'Сроки'], ['Передумал', 'Передумал'], ['Неизвестно', 'Неизвестно']], 'vs-refuse'))
+        : block('Что решил клиент?', no, '', `<p class="bd-line"><b>${fmt(fin)} ₽</b><small>${keep.length} ${keep.length === 1 ? 'комната' : 'комнаты'}${v.disc ? ` · скидка ${v.disc} %` : ''}</small></p>
+          <div class="f-btn-row bd-flbtns">${fb('Согласен — даты', A('vs-yes'), ' f-btn--lit')}${fb('Подумает', A('fl-ask', 'call'))}${fb('Отказ', A('fl-ask', 'refuse'))}</div>`); can = false; break;
+  }
+  const head = `<section class="f-plate bd-block bd-flow"><div class="bd-block__hd"><span>Выезд на замер · шаг ${v.step + 1} из ${VSTEPS.length}</span><button type="button" class="bd-edit" ${A('vs-exit')}>Выйти</button></div>
+    <div class="bd-flbar">${VSTEPS.map((_, j) => `<i class="${j < v.step ? 'past' : j === v.step ? 'on' : ''}"></i>`).join('')}</div><p class="bd-line"><b>${VSTEPS[v.step]}</b><small>${esc(c.name || '')} · №${no}</small></p></section>`;
+  S.save();
+  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${head}${body}
+    <nav class="f-nav f-nav--tabs bd-vnav" aria-label="Шаги выезда"><button type="button" class="f-icon-btn bd-back" ${A('vs-prev')} aria-label="Назад"${v.step ? '' : ' disabled'}>${BACK}</button>
+      ${v.step < VSTEPS.length - 1 ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn${can ? ' f-btn--lit' : ''}" ${A('vs-next')}${can ? '' : ' disabled'}>Дальше</button></div>` : '<span class="bd-navfree"></span>'}</nav>`;
+}
+const vs = (el, fn) => { const no = el.dataset.no, f = flowOf(no); fn(f.visit, f); S.save(); rerender(); };
+actions['vs-here'] = (el) => vs(el, (v) => { v.here = !v.here; if (v.here) toast('Клиенту ушло «Мастер на месте»'); });
+actions['vs-keep'] = (el) => vs(el, (v) => { v.keep[el.dataset.k] = v.keep[el.dataset.k] === false; });
+actions['vs-photo'] = (el) => vs(el, (v) => { v.photos[el.dataset.k] = !v.photos[el.dataset.k]; });
+actions['vs-disc'] = (el) => { const no = location.hash.slice(10); const v = flowOf(no).visit; v.disc = +el.dataset.k; S.save(); rerender(); };
+actions['vs-next'] = (el) => vs(el, (v) => { v.step = Math.min(VSTEPS.length - 1, v.step + 1); window.scrollTo(0, 0); });
+actions['vs-prev'] = (el) => vs(el, (v) => { v.step = Math.max(0, v.step - 1); flAsk = ''; window.scrollTo(0, 0); });
+actions['vs-exit'] = (el) => { const no = el.dataset.no; flowOf(no).visit.open = 0; S.save(); go('bd-order-' + no); };
+const vsEnd = (no, st, extra) => { const f = flowOf(no); f.visit.open = 0; f.st = st; Object.assign(f, extra || {}); flAsk = ''; S.save(); };
+actions['vs-yes'] = (el) => { const no = el.dataset.no; vsEnd(no, 'queue'); toast('Клиент согласен — выберите даты работ'); go('bd-edit-' + no + '-schedule'); };
+actions['vs-call'] = (el) => { const no = location.hash.slice(10); vsEnd(no, 'approval', { call: +el.dataset.k }); toast('Задача «Позвонить клиенту» создана'); go('bd-order-' + no); };
+actions['vs-refuse'] = (el) => { const no = location.hash.slice(10); vsEnd(no, 'refused', { reason: el.dataset.k }); toast('Заказ закрыт как отказ'); go('bd-order-' + no); };
 const flSet = (el, fn) => { const no = el.dataset.no; fn(flowOf(no), S.get().oformit['ord-' + no]); S.save(); rerender(); };
 actions['fl-ask'] = (el) => { flAsk = el.dataset.k ? el.dataset.no + ':' + el.dataset.k : ''; rerender(); };
 actions['fl-going'] = (el) => flSet(el, (f) => { f.going = 1; toast('Клиенту ушло «Мастер выехал»'); });
@@ -323,7 +373,7 @@ export function renderBoardEdit(no, t) {
   return html.replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
 }
 actions['bd-edit'] = (el) => { startEdit = el.dataset.tab; go(`bd-edit-${el.dataset.no}-${el.dataset.tab}`); };
-actions['bd-to-order'] = (el) => { showParts = false; go('bd-order-' + el.dataset.no); };
+actions['bd-to-order'] = (el) => { showParts = false; const f = flowOf(el.dataset.no); go((f.visit && f.visit.open ? 'bd-visit-' : 'bd-order-') + el.dataset.no); };
 actions['bd-room'] = (el) => { const k = el.dataset.key; if (openRooms.has(k)) openRooms.delete(k); else openRooms.add(k); rerender(); };
 actions['bd-back'] = () => go('orders');
 export function onLiveBoard(el) {
