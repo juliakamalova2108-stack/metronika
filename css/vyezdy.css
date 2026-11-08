@@ -2525,3 +2525,6 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-fun2__it small { overflow: hidden; text-overflow: ellipsis; }
 .sd-fun2 { grid-template-columns: minmax(0,1fr) 158px; column-gap: 6px; }
 .sd-fun2__svg { width: 158px; }
+
+.sd-fun2__p { fill: #0f2a1c; stroke: none; font-size: 12.5px; }
+.sd-fun2__it { padding-bottom: 4px; }
