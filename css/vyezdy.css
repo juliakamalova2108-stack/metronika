@@ -2285,3 +2285,6 @@ body.nobar #view { padding-bottom: 96px; }
 
 .sd-sub { display: grid !important; grid-template-columns: 40px minmax(0,1fr) auto; gap: 12px; }
 .sd-sub .sd-cl__ring { width: 40px; height: 40px; }
+
+.sd-cl__more { all: unset; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 12px 0 4px; border-top: 1px solid rgba(237,242,232,.08); font: 700 13px Manrope, sans-serif; color: rgba(237,242,232,.7); cursor: pointer; }
+.sd-cl__more .sd-cl__ch.up { transform: rotate(180deg); }
