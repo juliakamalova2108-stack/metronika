@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=278';
-import * as S from './store.js?v=278';
-import { esc, toast } from './ui.js?v=278';
-import { selectField, pickers } from './oformit.js?v=278';
+import { actions, rerender, val } from './core.js?v=280';
+import * as S from './store.js?v=280';
+import { esc, toast } from './ui.js?v=280';
+import { selectField, pickers } from './oformit.js?v=280';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -217,8 +217,9 @@ function bubbles(rows) {
   placed.forEach((q) => { q.cx += (W - x1 - x0) / 2; q.cy += (H - y1 - y0) / 2; });
   return `<span class="sd-mini2"><svg class="sd-bub" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(rows.map((x) => `${x.t} ${Math.round((x.v / tot) * 100)}%`).join(', '))}">${placed.map((p) => { const pc = Math.round((p.x.v / tot) * 100), col = ink(p.x.col);
     const lab = p.r >= 27 ? `<text x="${p.cx}" y="${p.cy - 2}" text-anchor="middle" class="sd-bub__n" fill="${col}">${esc(shortName(p.x.t, Math.floor(p.r / 3.6)))}</text><text x="${p.cx}" y="${p.cy + 14}" text-anchor="middle" class="sd-bub__p" fill="${col}">${pc}%</text>`
-      : p.r >= 15 ? `<text x="${p.cx}" y="${p.cy + 4}" text-anchor="middle" class="sd-bub__p" fill="${col}">${pc}%</text>` : '';
-    return `<circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${p.r.toFixed(1)}" fill="${p.x.col}"/>${lab}`; }).join('')}</svg>${legend2(list)}</span>`;
+      : p.r >= 20 ? `<text x="${p.cx}" y="${p.cy - 1}" text-anchor="middle" class="sd-bub__s" fill="${col}">${esc(shortName(p.x.t, Math.floor(p.r / 3.2)))}</text><text x="${p.cx}" y="${p.cy + 12}" text-anchor="middle" class="sd-bub__p" fill="${col}">${pc}%</text>`
+      : p.r >= 13 ? `<text x="${p.cx}" y="${p.cy + 4}" text-anchor="middle" class="sd-bub__p" fill="${col}">${pc}%</text>` : '';
+    return `<circle cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${p.r.toFixed(1)}" fill="${p.x.col}"/>${lab}`; }).join('')}</svg></span>`;
 }
 function mosaic(rows, H = 128) {
   if (!rows.length) return '<span class="sd-note">Нет данных за период</span>';
@@ -230,12 +231,12 @@ function mosaic(rows, H = 128) {
     while (i < list.length - 1 && acc + list[i].v <= sum / 2) acc += list[i++].v;
     if (i === 0) acc = list[i++].v;
     const f = acc / sum, A = list.slice(0, i), B = list.slice(i);
-    if (w * 3.2 >= h * 1) { split(A, x, y, w * f, h); split(B, x + w * f, y, w * (1 - f), h); }
+    if (w * 3.1 >= (h / 100) * H) { split(A, x, y, w * f, h); split(B, x + w * f, y, w * (1 - f), h); }
     else { split(A, x, y, w, h * f); split(B, x, y + h * f, w, h * (1 - f)); }
   };
-  split([...rows].sort((a, b) => b.v - a.v), 0, 0, 100, 100);
+  split([...rows].sort((a, b) => (a.rest ? 1 : 0) - (b.rest ? 1 : 0) || b.v - a.v), 0, 0, 100, 100);
   return `<span class="sd-mos" style="height:${H}px" role="img" aria-label="${esc(rows.map((x) => `${x.t} ${Math.round((x.v / tot) * 100)}%`).join(', '))}">${cells.map((c) => { const pc = Math.round((c.r.v / tot) * 100), wpx = c.w * 3.1, hpx = (c.h / 100) * H;
-    return `<i style="left:${c.x}%;top:${c.y}%;width:${c.w}%;height:${c.h}%"><span style="background:${c.r.col};color:${ink(c.r.col)}">${wpx > 62 && hpx > 42 ? `<b>${esc(c.r.t)}</b><em>${pc}%</em>` : wpx > 30 && hpx > 18 ? `<em>${pc}%</em>` : ''}</span></i>`; }).join('')}</span>`;
+    return `<i style="left:${c.x}%;top:${c.y}%;width:${c.w}%;height:${c.h}%"><span style="background:${c.r.col};color:${ink(c.r.col)}">${wpx > 50 && hpx > 40 ? `<b>${esc(shortName(c.r.t, Math.floor(wpx / 7.2)))}</b><em>${pc}%</em>` : wpx > 30 && hpx > 18 ? `<em>${pc}%</em>` : ''}</span></i>`; }).join('')}</span>`;
 }
 const nice = (v) => { if (v <= 0) return 1; const e = Math.pow(10, Math.floor(Math.log10(v))), f = v / e; return ([1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find((x) => x >= f) || 10) * e; };
 const seg2 = (items, cur, act) => `<div class="f-topnav sd-seg"><div class="f-topnav__track" role="tablist">${items.map(([key, t]) => `<button type="button" role="tab" aria-selected="${key === cur}" class="f-tab${key === cur ? ' is-active' : ''}" data-action="${act}" data-k="${key}">${t}</button>`).join('')}</div></div>`;
@@ -341,7 +342,7 @@ export function renderStatsMaster() {
       return { key: money + ':' + t, t, col, v, d: delta(v, pv), inv: money === 'exp', cnt: A.P.filter((x) => x.kind === money && x.cat === t).length }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const tot = money === 'inc' ? A.inc : A.exp;
     const catB = `<div class="sd-mseg">${seg2([['inc', 'Доходы'], ['exp', 'Расходы']], money, 'sd2-money')}</div>` + fblock('money-' + money, [money === 'inc' ? 'Доходы' : 'Расходы', `${scope} · ${rows.length} ${plural(rows.length, 'категория', 'категории', 'категорий')}`, `<span class="sd-f__sum"><b>${fmt(tot)} ₽</b>${dTag(delta(tot, money === 'inc' ? B.inc : B.exp), money === 'exp')}</span>`],
-      `<span class="sd-mini2">${mosaic(rows)}${legend2(rows)}</span>`,
+      mosaic(rows),
       `<div class="sd-part">${segBar(rows, true)}${legend2(rows)}</div>` + (
 rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'операция' : x.cnt < 5 ? 'операции' : 'операций'}`,
         (x) => A.P.filter((o) => o.kind + ':' + o.cat === x.key).sort((a, b) => b.d - a.d).slice(0, 12).map((o) => opRow(o.d, o.o ? `№${o.o.no} · ${o.o.client}` : o.note || x.t, o.o ? `${o.o.m2} м²` : 'покупка', `${money === 'inc' ? '+' : '−'}${fmt(o.sum)} ₽`)).join('')) : '<p class="sd-note">Нет операций за период</p>'));
@@ -379,8 +380,8 @@ rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'опера
       return !on ? head : head + catList(rows, '', (x) => `${x.v} ${plural(x.v, 'заказ', 'заказа', 'заказов')} · ${x.q}`,
         (x) => (x.wall ? brDetail({ key: 'br:' + x.t, v: x.O.reduce((a, o) => a + o.m2, 0), rolls: x.O.reduce((a, o) => a + o.rolls, 0), n: x.v }) : ordList((o) => get(o) === x.t))); }).join('');
     const brandsN = new Set(all.map((x) => x.t)).size, top = [...all].sort((a, b) => b.v - a.v);
-    const brands = fblock('brands', ['Бренды', `${brandsN} ${plural(brandsN, 'бренд', 'бренда', 'брендов')} · обои, клей, шпаклёвка, грунт`],
-      top.length ? `<span class="sd-mini2">${mosaic(all.map((x) => ({ t: x.t, v: x.v, col: P7[CATS.findIndex((c) => c[0] === x.cat)] })), 150)}${legend2(CATS.map(([cat], i) => ({ t: cat, col: P7[i] })))}</span>` : '',
+    const brands = fblock('brands', ['Бренды', `${brandsN} ${plural(brandsN, 'бренд', 'бренда', 'брендов')} · ${scope}`],
+      top.length ? mosaic((() => { const L = [...groupBy(all, (x) => x.t, (x) => x.v)].sort((p1, p2) => p2[1] - p1[1]); const head = L.slice(0, 7).map(([t, v], i) => ({ t, v, col: P7[i] })); const rest = L.slice(7); return rest.length ? [...head, { t: `Ещё ${rest.length}`, v: rest.reduce((a, x) => a + x[1], 0), col: OTHER, rest: true }] : head; })(), 160) : '',
       `<div class="sd-part">${segBar(CATS.map(([cat], i) => ({ t: cat, v: all.filter((x) => x.cat === cat).reduce((a, x) => a + x.v, 0), col: P7[i] })), true)}${legend2(CATS.map(([cat], i) => ({ t: cat, col: P7[i] })))}</div>` + secs);
     const rRows = ROOMS.map(([t, col]) => { let v = 0, n = 0; A.O.forEach((o) => o.rooms.forEach((r) => { if (r[0] === t) { v += r[1]; n++; } })); return { key: 'rm:' + t, t, col, v, n }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const rooms = fblock('rooms', ['По комнатам', `поклеено ${scope}`], bubbles(rRows), catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key))));
