@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=317';
-import * as S from './store.js?v=317';
-import { esc, toast } from './ui.js?v=317';
-import { selectField, pickers } from './oformit.js?v=317';
+import { actions, rerender, val } from './core.js?v=318';
+import * as S from './store.js?v=318';
+import { esc, toast } from './ui.js?v=318';
+import { selectField, pickers } from './oformit.js?v=318';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -509,7 +509,7 @@ export function renderStatsMaster() {
     const m2d = (a) => (a.days ? a.m2 / a.days : 0), m2o = (a) => (a.n ? a.m2 / a.n : 0), rpo = (a) => (a.n ? a.rolls / a.n : 0);
     const tiles = `<div class="sd-tiles">${tile('м² в день', Math.round(m2d(A)), dTag(delta(m2d(A), m2d(B))), prevName(), bars(mser(m2d), si, P7[3]))}${tile('Рулонов', fmt(A.rolls), dTag(delta(A.rolls, B.rolls)), prevName(), bars(mser((a) => a.rolls), si, P7[4]))}
       ${tile('м² на заказ', Math.round(m2o(A)), dTag(delta(m2o(A), m2o(B))), prevName(), bars(mser(m2o), si, P7[0]))}${tile('Рулонов на заказ', rpo(A).toFixed(1).replace('.', ','), dTag(delta(rpo(A), rpo(B))), prevName(), bars(mser(rpo), si, P7[2]))}</div>`;
-    content = A.n ? hero + tiles + roomsB + brands : '<p class="sd-note">Нет заказов за период</p>';
+    content = A.n ? hero + roomsB + brands : '<p class="sd-note">Нет заказов за период</p>';
   }
 
   // ── Выбор периода: год стрелками, 12 столбиков-месяцев ──
