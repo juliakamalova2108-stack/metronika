@@ -2502,3 +2502,7 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-chip small { font: 700 11.5px Inter, sans-serif; color: rgba(237,242,232,.5); }
 .sd-chip.is-on { background: #7ee2a3; border-color: #7ee2a3; color: #0f1c17; }
 .sd-chip.is-on small { color: rgba(15,28,23,.6); }
+
+.sd-fun2__it { border-bottom: 0; padding-bottom: 14px; box-sizing: border-box; }
+.sd-fun2__it:last-child { padding-bottom: 0; }
+.sd-fun2__p { font-size: 14px; }
