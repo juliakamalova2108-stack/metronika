@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=321';
-import * as S from './store.js?v=321';
-import { esc, toast } from './ui.js?v=321';
-import { selectField, pickers } from './oformit.js?v=321';
+import { actions, rerender, val } from './core.js?v=323';
+import * as S from './store.js?v=323';
+import { esc, toast } from './ui.js?v=323';
+import { selectField, pickers } from './oformit.js?v=323';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -83,6 +83,8 @@ function data() {
     const k = r2() < 0.3 ? 1 : r2() < 0.12 ? 2 : 0;
     for (let j = 0; j < k; j++) lost.push({ d: new Date(o.d.getTime() - Math.round(r2() * 9) * 864e5), reason: LOST[Math.floor(r2() * r2() * LOST.length)], client: NAMES[Math.floor(r2() * NAMES.length)], m2: Math.round(25 + r2() * 70) });
   });
+  orders.forEach((o) => { const h = (k) => { const x = Math.sin(+o.no * 12.9898 + k * 78.233) * 43758.5453; return x - Math.floor(x); };
+    o.queue = 3 + Math.round(h(1) * 5); o.waitD = Math.round(2 + h(2) * h(2) * 16); });
   DATA = { orders, ops, lost };
   return DATA;
 }
@@ -125,7 +127,7 @@ function agg(p) {
   const { orders, ops, lost } = data(), f = inP(p);
   const O = orders.filter(f), P = ops.filter(f), L = lost.filter(f);
   const inc = P.filter((x) => x.kind === 'inc').reduce((a, x) => a + x.sum, 0), exp = P.filter((x) => x.kind === 'exp').reduce((a, x) => a + x.sum, 0);
-  return { O, P, inc, exp, profit: inc - exp, n: O.length, m2: O.reduce((a, o) => a + o.m2, 0), days: O.reduce((a, o) => a + o.days, 0), rolls: O.reduce((a, o) => a + o.rolls, 0), wm2: O.reduce((a, o) => a + (o.works || []).reduce((x, w) => x + w[1], 0), 0), L, lostN: L.length, leads: O.length + L.length, travel: O.reduce((a, o) => a + o.travel, 0), wait: O.reduce((a, o) => a + o.wait, 0), measure: O.reduce((a, o) => a + o.measure, 0), workH: O.reduce((a, o) => a + o.workH, 0), resp: O.reduce((a, o) => a + o.resp, 0), hrs: Math.round(O.reduce((a, o) => a + o.workH + (o.travel + o.measure) / 60, 0)) };
+  return { O, P, inc, exp, profit: inc - exp, n: O.length, m2: O.reduce((a, o) => a + o.m2, 0), days: O.reduce((a, o) => a + o.days, 0), rolls: O.reduce((a, o) => a + o.rolls, 0), wm2: O.reduce((a, o) => a + (o.works || []).reduce((x, w) => x + w[1], 0), 0), L, lostN: L.length, leads: O.length + L.length, travel: O.reduce((a, o) => a + o.travel, 0), wait: O.reduce((a, o) => a + o.wait, 0), measure: O.reduce((a, o) => a + o.measure, 0), workH: O.reduce((a, o) => a + o.workH, 0), resp: O.reduce((a, o) => a + o.resp, 0), queue: O.reduce((a, o) => a + o.queue, 0), waitD: O.reduce((a, o) => a + o.waitD, 0), hrs: Math.round(O.reduce((a, o) => a + o.workH + (o.travel + o.measure) / 60, 0)) };
 }
 const delta = (v, pv) => (pv ? Math.round(((v - pv) / Math.abs(pv)) * 100) : null);
 const dTag = (d, inverse) => (d === null || !isFinite(d) ? '' : `<em class="sd-d ${(d >= 0) !== !!inverse ? 'up' : 'dn'}">${d >= 0 ? '↑' : '↓'} ${Math.abs(d)}%</em>`);
@@ -361,17 +363,23 @@ function effTab(A, B, LY, lyLbl, lyCol, tile, scope, mser, si, part) {
   const STG = [['Обращения', []], ['Замер назначен', ['Не дозвонились', 'Выбрали другого мастера']], ['Замер проведён', ['Перенесли ремонт']], ['Договорились', ['Отказ после замера', 'Не договорились по цене']], ['Выполнено', []]];
   const funnel = (a) => { let v = a.leads; return STG.map(([t, lose]) => { const drop = a.L.filter((x) => lose.includes(x.reason)); v -= drop.length; return { t, v: t === 'Выполнено' ? a.n : v, drop, lose }; }); };
   const FN = funnel(A), FB = B.leads ? funnel(B) : null, top = FN[0].v || 1;
-  const FC = ['#3987e5', '#4f9be0', '#5fb3c9', '#4cc59a', C.inc];
-  const fun = `<div class="sd-fun">${FN.map((x, i) => { const w = 100 - i * 13, wn = w - 13, cut = ((w - wn) / 2 / w) * 100;
-    const dropRow = i && x.drop.length ? `<div class="sd-fun__drop"><span>−${x.drop.length}</span><small>${[...new Set(x.drop.map((y) => y.reason.toLowerCase()))].join(', ')}</small></div>` : '';
-    const dB = FB ? dTag(delta(x.v, FB[i].v)) : '';
-    return `${dropRow}<div class="sd-fun__r"><em>${i ? Math.round((x.v / top) * 100) + '%' : ''}</em><div class="sd-fun__c"><div class="sd-fun__b" style="width:${w}%;background:${FC[i]};clip-path:polygon(0 0,100% 0,${100 - cut}% 100%,${cut}% 100%)"><b>${x.v}</b><small>${x.t}</small></div></div><span class="sd-fun__d">${dB}</span></div>`; }).join('')}</div>`;
+  const FC = [['#4f8dff', '#2f6be0'], ['#45a6f5', '#2a86d6'], ['#3cc4d8', '#1fa3b8'], ['#3fd6a6', '#1fb383'], ['#4be37f', '#22c05c']];
+  const RH = 58, W = 220, cx = W / 2, wd = (i) => W * (1 - i * 0.16);
+  const band = (i) => { const y0 = i * RH + 2, y1 = (i + 1) * RH - 2, t = wd(i) / 2, bt = (i < FN.length - 1 ? wd(i + 1) : wd(i) * 0.84) / 2, m = (y0 + y1) / 2;
+    return `<path d="M${cx - t} ${y0} H${cx + t} C${cx + t} ${m} ${cx + bt} ${m} ${cx + bt} ${y1} H${cx - bt} C${cx - bt} ${m} ${cx - t} ${m} ${cx - t} ${y0}Z" fill="url(#fg${i})"/>
+      <text x="${cx}" y="${m + 6}" text-anchor="middle" class="sd-fun2__p">${i ? Math.round((FN[i].v / top) * 100) + '%' : '100%'}</text>`; };
+  const svg = `<svg class="sd-fun2__svg" viewBox="0 0 ${W} ${FN.length * RH}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><defs>${FC.map(([c1, c2], i) => `<linearGradient id="fg${i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>`).join('')}<filter id="fgl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8"/></filter></defs>
+    <g opacity=".35" filter="url(#fgl)">${FN.map((_, i) => band(i).replace(/<text[\s\S]*?<\/text>/, '')).join('')}</g>${FN.map((_, i) => band(i)).join('')}</svg>`;
+  const labels = `<div class="sd-fun2__l">${FN.map((x, i) => `<div class="sd-fun2__it" style="height:${RH}px"><small>${x.t}</small><b>${x.v}${i && x.drop.length ? `<em>−${x.drop.length}</em>` : ''}</b></div>`).join('')}</div>`;
+  const fun = `<div class="sd-fun2">${labels}${svg}</div>${FN.some((x) => x.drop.length) ? `<p class="sd-fun2__n">Красным — сколько заявок отвалилось на этом шаге</p>` : ''}`;
   const hero = `<section class="h-block sd-hero"><small>Воронка продаж ${scope}</small><div class="sd-hero__v"><b>${conv}<i>%</i></b>${B.leads ? `<span class="sd-vs">${dTag(delta(conv, convB))}<small>${prevName()}</small></span>` : ''}</div><p class="sd-hero__s">обращений дошло до выполненного заказа</p>
-    ${fun}${strip}${rows}</section>`;
+    ${fun}${strip}</section>`;
   const avg = (a, k) => (a.n ? a[k] / a.n : 0), days = (a) => Math.max(1, a.days);
   const trav = (a) => a.travel / days(a), wt = (a) => a.wait / days(a), spd = (a) => (a.workH ? a.m2 / a.workH : 0), rsp = (a) => avg(a, 'resp');
   const tilesE = `<div class="sd-tiles">${tile('В дороге за день', hmS(trav(A)), dTag(delta(trav(A), trav(B)), true), prevName(), bars(mser(trav), si, P7[1]))}${tile('Замер в среднем', hmS(avg(A, 'measure')), dTag(delta(avg(A, 'measure'), avg(B, 'measure')), true), prevName(), bars(mser((a) => avg(a, 'measure')), si, P7[3]))}</div>`;
-  const tilesL = `<div class="sd-tiles">${tile('Ответ на заявку', hmS(rsp(A)), dTag(delta(rsp(A), rsp(B)), true), prevName(), bars(mser(rsp), si, P7[0]))}${tile('Ожидание клиента', hmS(wt(A)), dTag(delta(wt(A), wt(B)), true), prevName(), bars(mser(wt), si, P7[5]))}</div>`;
+  const qA = (a) => (a.n ? a.queue / a.n : 0), wA = (a) => (a.n ? a.waitD / a.n : 0);
+  const dd = (d) => { const n = Math.round(d); return n >= 14 ? `${Math.round(n / 7)}<i class="sd-tu"> ${plural(Math.round(n / 7), 'неделя', 'недели', 'недель')}</i>` : `${n}<i class="sd-tu"> ${plural(n, 'день', 'дня', 'дней')}</i>`; };
+  const tilesL = `<div class="sd-tiles">${tile('Очередь в среднем', `${Math.round(qA(A))}<i class="sd-tu"> ${plural(Math.round(qA(A)), 'клиент', 'клиента', 'клиентов')}</i>`, dTag(delta(qA(A), qA(B))), prevName(), bars(mser(qA), si, P7[0]))}${tile('Клиент ждёт нас', dd(wA(A)), dTag(delta(wA(A), wA(B)), true), prevName(), bars(mser(wA), si, P7[5]))}</div>`;
   const TMf = (a) => [['Выполнение заказа', a.workH * 60, P7[2]], ['Дорога', a.travel, P7[1]], ['Замер', a.measure, P7[3]]];
   const TM = TMf(A).map(([t, v, col], i) => ({ key: 'tm:' + t, t, v: Math.round(v / 60), pv: Math.round(TMf(B)[i][1] / 60), col })).filter((x) => x.v);
   const hrs = (a) => Math.round(a.workH + (a.travel + a.measure) / 60), H = hrs(A) || 1;
