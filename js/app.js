@@ -1,19 +1,20 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=267';
-import * as S from './store.js?v=267';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=267';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=267';
-import { renderSettlements } from './shared.js?v=267';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=267';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=267';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=267';
-import { renderOformit, onLiveOformit } from './oformit.js?v=267';
-import { onLiveZakaz } from './zakaz.js?v=267';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery, renderStatsDash } from './board.js?v=267';
-import './kbd.js?v=267';
-import { renderSettingsFig } from './settings.js?v=267';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=267';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=268';
+import * as S from './store.js?v=268';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=268';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=268';
+import { renderSettlements } from './shared.js?v=268';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=268';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=268';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=268';
+import { renderOformit, onLiveOformit } from './oformit.js?v=268';
+import { onLiveZakaz } from './zakaz.js?v=268';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=268';
+import { renderStatsMaster } from './stats.js?v=268';
+import './kbd.js?v=268';
+import { renderSettingsFig } from './settings.js?v=268';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=268';
 
 const VERSION = 'прототип 1.0';
 
@@ -40,7 +41,7 @@ SCREENS.dispatcher = { ...SCREENS.master, menu: [...SCREENS.master.menu.slice(0,
 
 function screenFor(name, role) {
   if (name === 'money') return renderSettlements();
-  if (role !== 'agent' && name === 'stats') return renderStatsDash();
+  if (role !== 'agent' && name === 'stats') return renderStatsMaster();
   if (role !== 'agent' && (name === 'settings' || name === 'profile')) { if (name === 'profile') history.replaceState(null, '', '#settings'); return renderSettingsFig(name === 'profile' ? 'profile' : ''); }
   if (name === 'profile') return renderProfileTab();
   if (name === 'settings') return renderSettings();

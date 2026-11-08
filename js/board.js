@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=267';
-import * as S from './store.js?v=267';
-import { renderOformit, oformitDraft } from './oformit.js?v=267';
-import { roomTotals, svcInfo } from './ocenka.js?v=267';
-import { smetaTotals } from './zakaz.js?v=267';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=267';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=267';
-import { esc, toast, status, seg } from './ui.js?v=267';
-import { topbar, ORDER_STATUS } from './shared.js?v=267';
+import { actions, rerender, go } from './core.js?v=268';
+import * as S from './store.js?v=268';
+import { renderOformit, oformitDraft } from './oformit.js?v=268';
+import { roomTotals, svcInfo } from './ocenka.js?v=268';
+import { smetaTotals } from './zakaz.js?v=268';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=268';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=268';
+import { esc, toast, status, seg } from './ui.js?v=268';
+import { topbar, ORDER_STATUS } from './shared.js?v=268';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -723,104 +723,13 @@ export function renderHome() {
         <span class="nt__ic">${x.icon}</span><span class="nt__t"><b>${esc(x.t)}</b><small>${esc(x.sub)}</small></span>${readSet.has(x.id) ? '' : '<i class="nt__dot"></i>'}</button>`).join('')}</div>`
         : '<p class="h-free">Уведомлений нет</p>'}</section>`;
 
-  if (statsMode) {
-    statsMode = false;
-    // ── Статистика: три вкладки, у каждой свои данные — ничего не повторяется ──
-    const k = (v) => (v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1).replace('.0', '')}к` : String(v));
-    const nOrders = Object.keys(DEMO).length;
-    const avgCheck = nOrders ? Math.round(total / nOrders) : 0;
-    const mLabels = months.map((x) => x.m);
-    // плавная линия через точки
-    const smooth = (pts) => pts.map(([x, y], i) => { if (!i) return `M${x},${y}`; const p0 = pts[i - 2] || pts[i - 1], p1 = pts[i - 1], p3 = pts[i + 1] || [x, y];
-      return `C${(p1[0] + (x - p0[0]) / 6).toFixed(1)},${(p1[1] + (y - p0[1]) / 6).toFixed(1)} ${(x - (p3[0] - p1[0]) / 6).toFixed(1)},${(y - (p3[1] - p1[1]) / 6).toFixed(1)} ${x},${y.toFixed(1)}`; }).join(' ');
-    // график: столбики или область; тап по месяцу — выбор, значение в «таблетке»
-    const chart = ({ c, kind, vals, col, unit, avgV }) => {
-      const W = 320, H = 168, top = 34, bot = 24, ph = H - top - bot, n = vals.length, sel = statsSel[c] ?? n - 1;
-      const max = Math.max(...vals, avgV || 0) * 1.12 || 1;
-      const cx = (i) => (i + 0.5) * (W / n), cy = (v) => top + ph - (v / max) * ph;
-      const grid = [0, 0.5, 1].map((f) => { const y = top + ph - f * ph; return `<line x1="0" x2="${W}" y1="${y}" y2="${y}" class="sd-grid"/>`; }).join('');
-      const lbl = mLabels.map((m, i) => `<text x="${cx(i)}" y="${H - 6}" text-anchor="middle" class="sd-ax${i === sel ? ' is-on' : ''}">${m}</text>`).join('');
-      const pv = `${k(vals[sel])}${unit}`, pw = pv.length * 7 + 18, px = Math.min(W - pw / 2, Math.max(pw / 2, cx(sel))), py = Math.max(4, cy(vals[sel]) - 34);
-      const pill = `<g class="sd-pill"><rect x="${px - pw / 2}" y="${py}" width="${pw}" height="22" rx="11"/><text x="${px}" y="${py + 15}" text-anchor="middle">${pv}</text></g>`;
-      const avgL = avgV ? `<line x1="0" x2="${W}" y1="${cy(avgV)}" y2="${cy(avgV)}" class="sd-avg"/>` : '';
-      let body;
-      if (kind === 'bar') {
-        body = vals.map((v, i) => { const h = Math.max(6, (v / max) * ph); return `<rect x="${cx(i) - 13}" y="${top + ph - h}" width="26" height="${h}" rx="9" fill="url(#g-${c})" class="sd-bar${i === sel ? ' is-on' : ''}"/>`; }).join('');
-      } else {
-        const pts = vals.map((v, i) => [cx(i), cy(v)]), line = smooth(pts);
-        body = `<path d="${line} L${pts[n - 1][0]},${top + ph} L${pts[0][0]},${top + ph} Z" fill="url(#g-${c})"/>
-          <path d="${line}" fill="none" stroke="${col}" stroke-width="3" stroke-linecap="round" class="sd-ln" style="--c:${col}"/>
-          <line x1="${pts[sel][0]}" x2="${pts[sel][0]}" y1="${pts[sel][1]}" y2="${top + ph}" class="sd-guide"/>
-          ${pts.map(([x, y], i) => i === sel ? `<circle cx="${x}" cy="${y}" r="11" fill="${col}" opacity=".2"/><circle cx="${x}" cy="${y}" r="5.5" fill="#fff" stroke="${col}" stroke-width="3"/>` : `<circle cx="${x}" cy="${y}" r="3" fill="${col}" opacity=".55"/>`).join('')}`;
-      }
-      const grad = kind === 'bar'
-        ? `<linearGradient id="g-${c}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${col}"/><stop offset="1" stop-color="${col}" stop-opacity=".25"/></linearGradient>`
-        : `<linearGradient id="g-${c}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".38"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient>`;
-      return `<div class="sd-ch"><svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs>${grad}</defs>${grid}${avgL}${body}${lbl}${pill}</svg>
-        <div class="sd-hit" style="--n:${n}">${vals.map((v, i) => `<button type="button" data-action="sd-pt" data-c="${c}" data-i="${i}" aria-label="${mLabels[i]}: ${v}${unit}"></button>`).join('')}</div></div>`;
-    };
-    // шапка блока графика: значение выбранного месяца и разница с предыдущим
-    const chHead = (title, c, vals, unit, note) => { const sel = statsSel[c] ?? vals.length - 1; const v = vals[sel], pr = vals[sel - 1];
-      const d = pr ? Math.round(((v - pr) / pr) * 100) : null;
-      return `<div class="sd-bh"><div><h2>${title}</h2><small>${note || ''}</small></div><div class="sd-bh__v"><b>${fmt(v)}<i>${unit}</i></b>${d === null ? '' : `<em class="${d >= 0 ? 'up' : 'dn'}">${d >= 0 ? '↑' : '↓'} ${Math.abs(d)}%</em>`}</div></div>`; };
-    const block = (inner, cls = '') => `<section class="h-block sd-b ${cls}">${inner}</section>`;
-    // горизонтальные полосы с долями
-    const hbars = (rows, unit) => { const sum = rows.reduce((a, x) => a + x[1], 0), mx = Math.max(...rows.map((x) => x[1]));
-      return `<div class="sd-hb">${rows.map(([t, n, c]) => `<div class="sd-hb__r"><div class="sd-hb__t"><span><i style="background:${c}"></i>${t}</span><b>${fmt(n)}${unit} <small>${Math.round((n / sum) * 100)}%</small></b></div><div class="sd-hb__bar"><i style="--w:${(n / mx) * 100}%;--c:${c}"></i></div></div>`).join('')}</div>`; };
-
-    let content;
-    if (statsTab === 'money') {
-      const left = total - paidAll, pp = total ? (paidAll / total) * 100 : 0;
-      const CHK = [8200, 9400, 8800, 10100, 9700, avgCheck];
-      content = block(`<div class="sd-bh"><div><h2>По заказам в работе</h2><small>всего ${fmt(total)} ₽</small></div></div>
-          <div class="sd-split"><i style="--w:${pp}%"></i><i></i></div>
-          <div class="sd-split__lg"><span><i class="g"></i>Получено<b>${fmt(paidAll)} ₽</b></span><span><i class="o"></i>Ожидается<b>${fmt(left)} ₽</b></span></div>`)
-        + block(chHead('Доход по месяцам', 'inc', months.map((x) => x.v), ' ₽', `пунктир — в среднем ${fmt(avg)} ₽`) + chart({ c: 'inc', kind: 'bar', vals: months.map((x) => x.v), col: '#7ee2a3', unit: '₽', avgV: avg }))
-        + block(chHead('Средний чек', 'chk', CHK, ' ₽', 'сумма заказа в среднем') + chart({ c: 'chk', kind: 'area', vals: CHK, col: '#d6c15a', unit: '₽' }));
-    } else if (statsTab === 'work') {
-      const M2 = [212, 340, 296, 418, 387, 254];
-      const ROOMS = [['Гостиная', 1240, '#7aa7d6'], ['Спальня', 980, '#c7a7f5'], ['Кухня', 640, '#e8913a'], ['Детская', 560, '#7ee2a3'], ['Коридор', 442, '#d6c15a']];
-      content = weekHtml
-        + block(chHead('Поклейка', 'm2', M2, ' м²', `всего ${fmt(area)} м²`) + chart({ c: 'm2', kind: 'area', vals: M2, col: '#7aa7d6', unit: 'м²' }))
-        + block(`<div class="sd-bh"><div><h2>По комнатам</h2><small>поклеено, м²</small></div></div>${hbars(ROOMS, ' м²')}`);
-    } else {
-      const m2Now = 254, m2Avg = 331;
-      const tile = (t, v, sub, f, col) => `<div class="sd-tile" style="--c:${col}"><small>${t}</small><b>${v}</b><div class="sd-tile__bar"><i style="--w:${Math.min(100, Math.max(3, f * 100))}%"></i></div><em>${sub}</em></div>`;
-      const tiles = `<div class="sd-tiles">
-        ${tile(`Доход · ${MONN[now.getMonth()]}`, `${k(got)} ₽`, `в среднем ${k(avg)} ₽`, got / avg, '#7ee2a3')}
-        ${tile('Заказы в работе', active, `из ${stTot} за полгода`, active / stTot, '#e8913a')}
-        ${tile(`Поклеено · ${MONN[now.getMonth()]}`, `${m2Now} м²`, `в среднем ${m2Avg} м²`, m2Now / m2Avg, '#7aa7d6')}
-        ${tile(`Новые заказы · ${MONN[now.getMonth()]}`, 3, 'в среднем 4 в месяц', 3 / 4, '#c7a7f5')}</div>`;
-      // кольцо этапов — с зазорами
-      const R1 = 52, C1 = 2 * Math.PI * R1; let ac = 0;
-      const segs = STG.map(([, n, col]) => { const len = (n / stTot) * C1; const sg = `<circle r="${R1}" cx="70" cy="70" fill="none" stroke="${col}" stroke-width="16" stroke-dasharray="${Math.max(1.5, len - 3)} ${C1}" stroke-dashoffset="${-ac}" transform="rotate(-90 70 70)"/>`; ac += len; return sg; }).join('');
-      const donut = block(`<div class="sd-bh"><div><h2>Заказы по этапам</h2><small>${stTot} заказов за полгода</small></div></div>
-        <div class="sd-dn"><svg viewBox="0 0 140 140" aria-hidden="true">${segs}<text x="70" y="70" text-anchor="middle" class="sd-dn__n">${active}</text><text x="70" y="88" text-anchor="middle" class="sd-dn__s">в работе</text></svg>
-        <ul>${STG.map(([t, n, col]) => `<li><i style="background:${col}"></i><span>${t}</span><b>${n}</b></li>`).join('')}</ul></div>`);
-      const SRC = [['Авито', 9, '#7ee2a3'], ['Сайт', 5, '#7aa7d6'], ['Агенты', 4, '#e8913a'], ['Рекомендации', 3, '#d6c15a'], ['Магазин обоев', 2, '#c7a7f5']];
-      content = tiles + donut + block(`<div class="sd-bh"><div><h2>Откуда заказы</h2><small>за полгода</small></div></div>${hbars(SRC, '')}`);
-    }
-    const tabs = [['all', 'Обзор'], ['money', 'Деньги'], ['work', 'Работа']];
-    return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
-      <div class="h-page sd"><header class="sd-hd"><h1>Статистика</h1><span>${MONN[now.getMonth()]} ${now.getFullYear()}</span></header>${content}</div>
-      <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">
-        <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>
-        <button type="button" class="f-icon-btn st2-back" data-action="st-back" aria-label="Назад">${BACK}</button>
-        <div class="f-topnav f-botnav"><div class="f-topnav__track" role="tablist">${tabs.map(([key, t]) => `<button type="button" role="tab" aria-selected="${key === statsTab}" class="f-tab${key === statsTab ? ' is-active' : ''}" data-action="sd-tab" data-k="${key}">${t}</button>`).join('')}</div></div>
-      </nav>`;
-  }
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     ${homeRanks ? ranksSheet() : ''}${homeNotif ? notifSheet() : ''}
     <div class="h-page">${head.replace('%%BELL%%', bellHtml)}${heroHtml}${measTodayHtml}${calHtml}</div>
     <button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
 }
 let homeRanks = false;
-let statsMode = false;
-let statsTab = 'all';
-const statsSel = {};
-actions['sd-pt'] = (el) => { statsSel[el.dataset.c] = +el.dataset.i; rerender(); };
-export function renderStatsDash() { statsMode = true; return renderHome(); }
-actions['sd-tab'] = (el) => { statsTab = el.dataset.k; rerender(); window.scrollTo(0, 0); };
+
 let homeNotif = false;
 const notifRead = (id) => { const st = S.get(); st.notifRead = st.notifRead || []; if (id && !st.notifRead.includes(id)) st.notifRead.push(id); S.save(); };
 actions['home-card-fold'] = () => { const st = S.get(); st.homeCardMin = !st.homeCardMin; S.save(); rerender(); };
