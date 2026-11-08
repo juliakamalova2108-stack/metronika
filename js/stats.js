@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=330';
-import * as S from './store.js?v=330';
-import { esc, toast } from './ui.js?v=330';
-import { selectField, pickers } from './oformit.js?v=330';
+import { actions, rerender, val } from './core.js?v=331';
+import * as S from './store.js?v=331';
+import { esc, toast } from './ui.js?v=331';
+import { selectField, pickers } from './oformit.js?v=331';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -384,13 +384,14 @@ function effInner(A, B, LY, lyLbl, lyCol, tile, scope, mser, si, part) {
   const funnel = (a) => { let v = a.leads; return STG.map(([t, lose]) => { const drop = a.L.filter((x) => lose.includes(x.reason)); v -= drop.length; return { t, v: t === 'Выполнено' ? a.n : v, drop, lose }; }); };
   const FN = funnel(A), FB = B.leads ? funnel(B) : null, top = FN[0].v || 1;
   // объёмная воронка («таблетки» с эллипсами), фирменные зелёные
-  const FC = [['#c4f5d8', '#7ee2a3'], ['#9eecbf', '#5fd394'], ['#7ee2a3', '#3fbf7a'], ['#5fd394', '#2a9f62'], ['#45c27f', '#1e7f4d']];
-  const RH = 40, W = 158, cx = W / 2, E = 6, rw = (i) => W / 2 - 2 - i * 13;
-  const band = (i) => { const y = E + i * RH, r1 = rw(i), r2 = rw(i + 1), yb = y + RH - 5;
-    return `<path d="M${cx - r1} ${y} L${cx - r2} ${yb} A${r2} ${E * (r2 / r1)} 0 0 0 ${cx + r2} ${yb} L${cx + r1} ${y} Z" fill="url(#fg${i})"/>
-      <ellipse cx="${cx}" cy="${y}" rx="${r1}" ry="${E}" fill="${FC[i][0]}"/><ellipse cx="${cx}" cy="${y}" rx="${r1 - 6}" ry="${E - 2.5}" fill="#fff" opacity=".22"/>
-      <text x="${cx}" y="${y + RH / 2 + 4}" text-anchor="middle" class="sd-fun2__p">${i ? Math.round((FN[i].v / top) * 100) + '%' : '100%'}</text>`; };
-  const svg = `<svg class="sd-fun2__svg" viewBox="0 0 ${W} ${FN.length * RH + E}" aria-hidden="true"><defs>${FC.map(([c1, c2], i) => `<linearGradient id="fg${i}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${c2}"/><stop offset=".5" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>`).join('')}</defs>${FN.map((_, i) => band(i)).join('')}</svg>`;
+  const FC = [['#7ee2a3', '#2f8f5d'], ['#70d898', '#2a8455'], ['#62cd8d', '#25794e'], ['#54c182', '#206e47'], ['#46b477', '#1b6340']];
+  const RH = 40, W = 158, cx = W / 2, E = 7, rw = (i) => W / 2 - 2 - i * 13;
+  const band = (i) => { const y = E + i * RH, r1 = rw(i), r2 = rw(i + 1), yb = y + RH - 6, e2 = E * (r2 / r1);
+    return `<path d="M${cx - r1} ${y} L${cx - r2} ${yb} A${r2} ${e2} 0 0 0 ${cx + r2} ${yb} L${cx + r1} ${y} Z" fill="url(#fg${i})"/>
+      <ellipse cx="${cx}" cy="${y}" rx="${r1}" ry="${E}" fill="url(#fin${i})" stroke="${FC[i][0]}" stroke-width="1.2"/>
+      <path d="M${cx - r1 + 3} ${y + 1} A${r1 - 3} ${E - 1.5} 0 0 0 ${cx + r1 - 3} ${y + 1}" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="1.5"/>
+      <text x="${cx}" y="${y + RH / 2 + 5}" text-anchor="middle" class="sd-fun2__p">${i ? Math.round((FN[i].v / top) * 100) + '%' : '100%'}</text>`; };
+  const svg = `<svg class="sd-fun2__svg" viewBox="0 0 ${W} ${FN.length * RH + E}" aria-hidden="true"><defs>${FC.map(([c1, c2], i) => `<linearGradient id="fg${i}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${c2}"/><stop offset=".45" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient><linearGradient id="fin${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c2}"/><stop offset="1" stop-color="#0b2418"/></linearGradient>`).join('')}</defs>${FN.map((_, i) => band(i)).join('')}</svg>`;
   const labels = `<div class="sd-fun2__l" style="padding-top:${E}px">${FN.map((x, i) => `<div class="sd-fun2__it" style="height:${RH}px"><small>${x.t}</small><b class="sd-fun2__v">${x.v}</b>${i && x.drop.length ? `<em>−${x.drop.length}</em>` : '<span></span>'}</div>`).join('')}</div>`;
   const fun = `<div class="sd-fun2">${labels}${svg}</div>`;
   const hero = `<section class="h-block sd-hero"><small>Воронка ${fsrc === 'all' ? 'по всем источникам' : `«${esc(fsrc)}»`} ${scope}</small><div class="sd-hero__v"><b>${conv}<i>%</i></b>${B.leads ? `<span class="sd-vs">${dTag(delta(conv, convB))}<small>${prevName()}</small></span>` : ''}</div><p class="sd-hero__s">обращений дошло до выполненного заказа</p>
