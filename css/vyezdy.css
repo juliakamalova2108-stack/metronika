@@ -2125,3 +2125,13 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-note b { color: #edf2e8; }
 .sd-ged { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.06); }
 .f-nav .st2-back + .f-botnav .f-tab { font-size: 15px; }
+
+.sd-bd { display: flex; flex-direction: column; gap: 8px; padding: 10px 0 2px; }
+.sd-bd__kv { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.sd-bd__kv span { display: flex; flex-direction: column; padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,.05); }
+.sd-bd__kv b { font: 800 15px Manrope, sans-serif; color: #edf2e8; white-space: nowrap; }
+.sd-bd__kv small { font: 500 11px Inter, sans-serif; color: rgba(237,242,232,.5); }
+.sd-bd__t { margin: 4px 0 0; font: 700 11px Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: rgba(237,242,232,.45); }
+.sd-bd__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sd-bd__chips span { padding: 6px 10px; border-radius: 99px; background: rgba(255,255,255,.06); font: 500 12px Inter, sans-serif; color: rgba(237,242,232,.75); }
+.sd-bd__chips b { color: #edf2e8; font-weight: 700; margin-left: 2px; }

@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=271';
-import * as S from './store.js?v=271';
-import { esc, toast } from './ui.js?v=271';
-import { selectField, pickers } from './oformit.js?v=271';
+import { actions, rerender, val } from './core.js?v=272';
+import * as S from './store.js?v=272';
+import { esc, toast } from './ui.js?v=272';
+import { selectField, pickers } from './oformit.js?v=272';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -270,15 +270,21 @@ export function renderStatsMaster() {
     const kpi = `<div class="sd-kpi"><span><b>${fmt(A.m2)}</b><small>м² поклеено ${dTag(delta(A.m2, B.m2))}</small></span><span><b>${A.days ? Math.round(A.m2 / A.days) : 0}</b><small>м² в день</small></span><span><b>${A.O.reduce((a, o) => a + o.rooms.length, 0)}</b><small>комнат</small></span><span><b>${fmt(A.rolls)}</b><small>рулонов</small></span></div>`;
     const brRows = BRANDS.map(([t, , col]) => { const O = A.O.filter((o) => o.brand === t); return { key: 'br:' + t, t, col, v: O.reduce((a, o) => a + o.m2, 0), rolls: O.reduce((a, o) => a + o.rolls, 0), n: O.length, d: delta(O.reduce((a, o) => a + o.m2, 0), B.O.filter((o) => o.brand === t).reduce((a, o) => a + o.m2, 0)) }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const ordList = (f) => A.O.filter(f).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.rooms.map((r) => r[0]).join(', ')} · ${o.type}`, `${o.m2} м²`)).join('');
-    const brands = block(['Обои по брендам', `поклеено ${scope}`], catList(brRows, ' м²', (x) => `${x.rolls} рулонов · ${x.n} ${x.n === 1 ? 'заказ' : x.n < 5 ? 'заказа' : 'заказов'}`, (x) => ordList((o) => 'br:' + o.brand === x.key)));
-    const tRows = TYPES.map(([t, col]) => [t, A.O.filter((o) => o.type === t).reduce((a, o) => a + o.m2, 0), col]).filter((x) => x[1]).sort((a, b) => b[1] - a[1]);
-    const tTot = tRows.reduce((a, x) => a + x[1], 0) || 1;
-    const types = block(['Материалы', 'доля по площади'], `<div class="sd-dn">${donut(tRows, tRows.length, 'типов')}<ul class="sd-leg">${tRows.map(([t, v, col]) => `<li><i style="background:${col}"></i><span>${t}</span><b>${Math.round((v / tTot) * 100)}%</b></li>`).join('')}</ul></div>`);
+    // Материалы: кольцо по брендам + список брендов; раскрытие — подробно: из чего обои, рулоны, клей, заказы
+    const brDetail = (x) => { const O = A.O.filter((o) => 'br:' + o.brand === x.key);
+      const tp = [...groupBy(O, (o) => o.type, (o) => o.m2)].sort((a, b) => b[1] - a[1]);
+      const gl = [...groupBy(O, (o) => o.glue, () => 1)].sort((a, b) => b[1] - a[1]);
+      return `<div class="sd-bd"><div class="sd-bd__kv"><span><b>${fmt(x.v)} м²</b><small>поклеено</small></span><span><b>${x.rolls}</b><small>рулонов</small></span><span><b>${x.n}</b><small>${plural(x.n, 'заказ', 'заказа', 'заказов')}</small></span></div>
+        <p class="sd-bd__t">Обои</p><div class="sd-bd__chips">${tp.map(([t, v]) => `<span>${esc(t)} <b>${fmt(v)} м²</b></span>`).join('')}</div>
+        <p class="sd-bd__t">Клей</p><div class="sd-bd__chips">${gl.map(([t, n]) => `<span>${esc(t)} <b>${n} ${plural(n, 'заказ', 'заказа', 'заказов')}</b></span>`).join('')}</div>
+        <p class="sd-bd__t">Заказы</p></div>${ordList((o) => 'br:' + o.brand === x.key)}`; };
+    const brands = block(['Материалы', `бренды обоев · поклеено ${scope}`], `<div class="sd-dn">${donut(brRows.map((x) => [x.t, x.v, x.col]), brRows.length, plural(brRows.length, 'бренд', 'бренда', 'брендов'))}<ul class="sd-leg">${brRows.slice(0, 6).map((x) => `<li><i style="background:${x.col}"></i><span>${esc(x.t)}</span><b>${Math.round((x.v / (A.m2 || 1)) * 100)}%</b></li>`).join('')}</ul></div>`
+      + catList(brRows, ' м²', (x) => `${x.rolls} рулонов · ${x.n} ${plural(x.n, 'заказ', 'заказа', 'заказов')}`, brDetail));
     const gRows = GLUES.map(([t, , col]) => { const O = A.O.filter((o) => o.glue === t); return { key: 'gl:' + t, t, col, v: O.length, pk: O.reduce((a, o) => a + Math.ceil(o.rolls / 8), 0) }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const glue = block(['Клей', 'в скольких заказах'], catList(gRows, '', (x) => `${x.pk} пачек`, (x) => ordList((o) => 'gl:' + o.glue === x.key)));
     const rRows = ROOMS.map(([t, col]) => { let v = 0, n = 0; A.O.forEach((o) => o.rooms.forEach((r) => { if (r[0] === t) { v += r[1]; n++; } })); return { key: 'rm:' + t, t, col, v, n }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const rooms = block(['По комнатам', `поклеено ${scope}`], catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key))));
-    content = A.n ? kpi + brands + types + glue + rooms : '<p class="sd-note">Нет заказов за период</p>';
+    content = A.n ? kpi + brands + glue + rooms : '<p class="sd-note">Нет заказов за период</p>';
   }
 
   // ── Выбор периода: год стрелками, 12 столбиков-месяцев ──
