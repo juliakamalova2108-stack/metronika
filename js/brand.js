@@ -1,8 +1,8 @@
 // Бренд-зона (Новости · Витрина · Конкурсы), Доска почёта, Креаторы.
 // Экраны в стиле статистики: тёмные блоки h-block, переключатели sd-chip, нижняя навигация f-nav.
-import { actions, rerender } from './core.js?v=352';
-import * as S from './store.js?v=352';
-import { esc, toast } from './ui.js?v=352';
+import { actions, rerender } from './core.js?v=353';
+import * as S from './store.js?v=353';
+import { esc, toast } from './ui.js?v=353';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
@@ -167,11 +167,29 @@ function honorContests() {
       ${my == null ? '<p class="bz-nom__me is-off">Вы с нами больше 3 месяцев — эта номинация для новичков</p>' : `<div class="bz-nom__me"><span>Вы — <b>${myPlace} место</b> · ${v(sc(my))} ${unit}</span><div class="bz-nom__bar"><i style="width:${pct}%"></i></div></div>`}
       <div class="bz-nom__ft"><span class="bz-nom__pr">🎁 ${esc(prize)}</span><span class="bz-nom__sp">Спонсор <b>${esc(SPONS[i])}</b></span></div></article>`; }).join('');
 }
-let hView = 'rating';
-export function renderHonor() {
-  const per = `<div class="sd-chips">${[['month', 'Этот месяц'], ['year', 'Этот год']].map(([k, t]) => `<button type="button" class="sd-chip${hTab === k ? ' is-on' : ''}" data-action="hn-tab" data-k="${k}">${t}</button>`).join('')}</div>`;
-  return page('Доска почёта', per + (hView === 'contests' ? honorContests() : honorRating()), [['rating', 'Рейтинг'], ['contests', 'Соревнования']], hView, 'hn-view');
+// Доска почёта: люди, которые внесли вклад в отрасль
+const FAME = [
+  ['Николай Гришин', 'Мастер-обойщик, наставник', 'Москва', 31, 'Обучил больше 300 мастеров. Автор методики раскроя с подбором раппорта без потерь, которой сегодня пользуются тысячи обойщиков.', ['Наставник', 'Автор методики', '300+ учеников'], [['ок. 210 тыс.', 'м² за карьеру'], ['312', 'учеников'], ['4 800', 'объектов']]],
+  ['Елена Сафина', 'Технолог отделочных материалов', 'Казань', 24, 'Разработала стандарт подготовки стен под флизелин, который приняли производители. Ведёт бесплатные разборы ошибок поклейки.', ['Стандарт отрасли', 'Эксперт брендов'], [['18', 'стандартов и инструкций'], ['1 200+', 'разборов'], ['9', 'брендов-партнёров']]],
+  ['Ринат Ахметов', 'Основатель гильдии обойщиков', 'Уфа', 19, 'Собрал первое профессиональное сообщество обойщиков в регионе, добился честных расценок и страхования работ для мастеров.', ['Основатель гильдии', 'Защита мастеров'], [['2 400', 'мастеров в гильдии'], ['14', 'городов'], ['ок. 95 тыс.', 'м² лично']]],
+  ['Анна Ковалёва', 'Дизайнер, исследователь цвета', 'Санкт-Петербург', 16, 'Создала открытую палитру сочетаний обоев и красок для маленьких квартир. Её подборками пользуются мастера при работе с клиентами.', ['Открытая палитра', 'Лектор'], [['540', 'подборок'], ['80+', 'лекций'], ['3', 'книги']]],
+  ['Сергей Лаптев', 'Изобретатель инструмента', 'Екатеринбург', 27, 'Придумал прижимной валик для стыков на тяжёлых обоях — сейчас он есть почти в каждом наборе обойщика.', ['Изобретатель', 'Патент'], [['4', 'патента'], ['ок. 120 тыс.', 'м² за карьеру'], ['60', 'учеников']]],
+];
+let hView = 'fame';
+function honorFame() {
+  return `<p class="bz-hint" style="margin-top:0">Люди, которые сделали нашу профессию лучше: учили мастеров, придумывали инструменты и методики, объединяли сообщество.</p>` + FAME.map(([n, role, city, yrs, txt, tags, st], i) => `<article class="h-block bz-fame">
+    <div class="bz-fame__hd"><span class="bz-fame__ring">${avatar(n, 72)}</span><div><b>${esc(n)}</b><small>${esc(role)}</small><em>${esc(city)} · ${yrs} ${plural(yrs, 'год', 'года', 'лет')} в профессии</em></div></div>
+    <p class="bz-fame__t">${esc(txt)}</p>
+    <div class="bz-fame__tags">${tags.map((t) => `<span>🏅 ${esc(t)}</span>`).join('')}</div>
+    <div class="bz-fame__st">${st.map(([v, l]) => `<div><b>${esc(v)}</b><small>${esc(l)}</small></div>`).join('')}</div>
+    <div class="bz-fame__ft">На доске почёта с ${2019 + (i % 6)} года</div></article>`).join('') +
+    `<section class="h-block bz-join"><b>Знаете такого человека?</b><p>Предложите мастера, технолога или наставника — сообщество проголосует.</p><button type="button" class="bz-btn" data-action="hn-nominate">Предложить кандидата</button></section>`;
 }
+export function renderHonor() {
+  const per = hView === 'contests' ? `<div class="sd-chips">${[['month', 'Этот месяц'], ['year', 'Этот год']].map(([k, t]) => `<button type="button" class="sd-chip${hTab === k ? ' is-on' : ''}" data-action="hn-tab" data-k="${k}">${t}</button>`).join('')}</div>` : '';
+  return page('Доска почёта', per + (hView === 'contests' ? honorContests() : honorFame()), [['fame', 'Доска почёта'], ['contests', 'Соревнования']], hView, 'hn-view');
+}
+actions['hn-nominate'] = () => toast('Спасибо! Кандидатура уйдёт на голосование');
 actions['hn-view'] = (el) => { hView = el.dataset.k; rerender(); window.scrollTo(0, 0); };
 actions['hn-tab'] = (el) => { hTab = el.dataset.k; rerender(); };
 
