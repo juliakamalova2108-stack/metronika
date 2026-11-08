@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=281';
-import * as S from './store.js?v=281';
-import { esc, toast } from './ui.js?v=281';
-import { selectField, pickers } from './oformit.js?v=281';
+import { actions, rerender, val } from './core.js?v=282';
+import * as S from './store.js?v=282';
+import { esc, toast } from './ui.js?v=282';
+import { selectField, pickers } from './oformit.js?v=282';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -156,6 +156,7 @@ function donut(rows, centerN, centerS) {
   return `<svg class="sd-dnsvg" viewBox="0 0 140 140" aria-hidden="true"><circle r="${R}" cx="70" cy="70" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="16"/>${segs}<text x="70" y="72" text-anchor="middle" class="sd-dn__n">${centerN}</text><text x="70" y="90" text-anchor="middle" class="sd-dn__s">${centerS}</text></svg>`;
 }
 // список категорий: доля, сумма, разница с прошлым периодом, раскрытие — операции
+const ringSvg = (pc, col) => { const R = 15, CC = 2 * Math.PI * R; return `<svg class="sd-cl__ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="${R}" fill="none" stroke="rgba(237,242,232,.08)" stroke-width="4.5"/><circle cx="20" cy="20" r="${R}" fill="none" stroke="${col}" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="${Math.max(0.5, (pc / 100) * CC).toFixed(1)} ${CC}" transform="rotate(-90 20 20)"/><text x="20" y="24" text-anchor="middle">${Math.round(pc)}%</text></svg>`; };
 function catList(rows, unit, sub, details) {
   const tot = rows.reduce((a, x) => a + x.v, 0) || 1, R = 15, CC = 2 * Math.PI * R;
   return `<div class="sd-cl">${rows.map((x) => { const on = open === x.key, pc = (x.v / tot) * 100;
@@ -370,13 +371,14 @@ rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'опера
       ['Шпаклёвка', PUTTY.map(([t, , col]) => [t, col]), (o) => o.putty, (O) => `${O.reduce((a, o) => a + (o.puttyB || 0), 0)} мешков`],
       ['Грунт', PRIMER.map(([t, , col]) => [t, col]), (o) => o.primer, (O) => `${O.reduce((a, o) => a + o.primerL, 0)} л`]];
     const all = [];
-    const secs = CATS.map(([cat, list, get, qty, wall]) => {
+    const grand = CATS.reduce((a, [, , get]) => a + A.O.filter((o) => get(o)).length, 0) || 1;
+    const secs = CATS.map(([cat, list, get, qty, wall], ci) => {
       const rows = list.map(([t, col]) => { const O = A.O.filter((o) => get(o) === t), PO = B.O.filter((o) => get(o) === t);
         return { key: `${cat}:${t}`, t, col, cat, v: O.length, q: qty(O), d: delta(O.length, PO.length), wall, O }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
       all.push(...rows);
       if (!rows.length) return '';
       const fk = 'bc-' + cat, on = fold.has(fk);
-      const head = `<button type="button" class="sd-sub${on ? ' is-open' : ''}" data-action="sd2-fold" data-k="${fk}"><span class="sd-sub__t"><b>${cat}</b><small>${rows.length} ${plural(rows.length, 'бренд', 'бренда', 'брендов')} · чаще всего ${esc(rows[0].t)}</small></span><i class="sd-f__ch">${CHEV}</i></button>`;
+      const head = `<button type="button" class="sd-sub${on ? ' is-open' : ''}" data-action="sd2-fold" data-k="${fk}">${ringSvg((A.O.filter((o) => get(o)).length / grand) * 100, P7[ci])}<span class="sd-sub__t"><b>${cat}</b><small>${rows.length} ${plural(rows.length, 'бренд', 'бренда', 'брендов')} · топ ${esc(rows[0].t)}</small></span><i class="sd-f__ch">${CHEV}</i></button>`;
       return !on ? head : head + catList(rows, '', (x) => `${x.v} ${plural(x.v, 'заказ', 'заказа', 'заказов')} · ${x.q}`,
         (x) => (x.wall ? brDetail({ key: 'br:' + x.t, v: x.O.reduce((a, o) => a + o.m2, 0), rolls: x.O.reduce((a, o) => a + o.rolls, 0), n: x.v }) : ordList((o) => get(o) === x.t))); }).join('');
     const brandsN = new Set(all.map((x) => x.t)).size, top = [...all].sort((a, b) => b.v - a.v);

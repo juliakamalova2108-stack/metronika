@@ -2282,3 +2282,6 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-cl__ch svg { width: 16px; height: 16px; }
 .sd-cl__it.is-open .sd-cl__ch { transform: rotate(180deg); }
 .sd-cl__ops { margin-left: 52px !important; }
+
+.sd-sub { display: grid !important; grid-template-columns: 40px minmax(0,1fr) auto; gap: 12px; }
+.sd-sub .sd-cl__ring { width: 40px; height: 40px; }
