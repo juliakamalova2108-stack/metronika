@@ -2135,3 +2135,22 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-bd__chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .sd-bd__chips span { padding: 6px 10px; border-radius: 99px; background: rgba(255,255,255,.06); font: 500 12px Inter, sans-serif; color: rgba(237,242,232,.75); }
 .sd-bd__chips b { color: #edf2e8; font-weight: 700; margin-left: 2px; }
+
+/* сворачиваемые блоки статистики */
+.sd-f__hd { all: unset; cursor: pointer; box-sizing: border-box; width: 100%; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; -webkit-tap-highlight-color: transparent; }
+.sd-f__r { display: flex; align-items: center; gap: 8px; flex: none; }
+.sd-f__ch { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; background: rgba(255,255,255,.07); color: rgba(237,242,232,.8); transition: transform .25s; }
+.sd-f__ch svg { width: 18px; height: 18px; }
+.sd-f.is-open .sd-f__ch { transform: rotate(180deg); }
+.sd-f__more { all: unset; cursor: pointer; align-self: center; padding: 4px 12px; font: 600 12.5px Manrope, sans-serif; color: rgba(237,242,232,.55); }
+.sd-f__full { display: flex; flex-direction: column; gap: 12px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,.06); animation: sdIn .25s ease; }
+@keyframes sdIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.sd-stk { display: flex; gap: 3px; height: 12px; }
+.sd-stk i { border-radius: 4px; min-width: 4px; }
+.sd-stk__lg { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.sd-stk__lg li { display: grid; grid-template-columns: 10px 1fr auto; gap: 8px; align-items: center; font: 600 13px Manrope, sans-serif; color: rgba(237,242,232,.78); }
+.sd-stk__lg li i { width: 10px; height: 10px; border-radius: 3px; }
+.sd-stk__lg li b { color: #edf2e8; } .sd-stk__lg li b small { font: 600 11.5px Inter, sans-serif; color: rgba(237,242,232,.45); margin-left: 4px; }
+.sd-stk__lg li.sd-stk__more, .sd-leg li.sd-stk__more { display: block; font: 500 12px Inter, sans-serif; color: rgba(237,242,232,.45); }
+.sd-dn .sd-dn__sum { margin-bottom: 10px; }
+.sd-mseg { margin-bottom: -2px; }
