@@ -2824,3 +2824,6 @@ a.bz-btn { text-decoration: none; }
 .bd-vnext .f-btn { font-weight: 600; font-size: 16px; }
 .bd-vnext .f-btn:disabled { opacity: .5; cursor: not-allowed; }
 .sd-chip.is-on { background: #7ee2a3; border-color: #7ee2a3; color: #0f1c17; }
+a.f-btn { display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.bd-vbig { height: 46px; font-size: 16px; }
+.h-hero__act .h-go { flex: 1; justify-content: center; }
