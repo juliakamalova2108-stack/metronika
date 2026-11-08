@@ -1,8 +1,8 @@
 // Бренд-зона (Новости · Витрина · Конкурсы), Доска почёта, Креаторы.
 // Экраны в стиле статистики: тёмные блоки h-block, переключатели sd-chip, нижняя навигация f-nav.
-import { actions, rerender } from './core.js?v=358';
-import * as S from './store.js?v=358';
-import { esc, toast } from './ui.js?v=358';
+import { actions, rerender } from './core.js?v=359';
+import * as S from './store.js?v=359';
+import { esc, toast } from './ui.js?v=359';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
@@ -133,7 +133,8 @@ actions['bz-maker'] = (el) => { bzMaker = el.dataset.k; rerender(); };
 actions['bz-join'] = (el) => { const id = el.dataset.id; if (joined.has(id)) joined.delete(id); else { joined.add(id); toast('Вы в конкурсе — загрузите фото в галерее заказа'); } rerender(); };
 
 // ───────── Доска почёта ─────────
-let hTab = 'month';
+let hTab = 'month', sea = 'autumn';
+const SEAS = { autumn: ['Осенний сезон', 'сен – ноя 2026', 1, true], summer: ['Летний сезон', 'июн – авг 2026', 1.12, false], spring: ['Весенний сезон', 'мар – май 2026', 0.91, false] };
 const HONOR = [['Алексей Морозов', 'Уфа', 412, 1880], ['Ирина Белова', 'Казань', 388, 1710], ['Дмитрий Орлов', 'Самара', 351, 1695], ['Павел Соколов', 'Уфа', 302, 1420], ['Наталья Егорова', 'Пермь', 287, 1390],
   ['Руслан Хайруллин', 'Стерлитамак', 260, 1255], ['Олег Кузнецов', 'Челябинск', 244, 1180], ['Марина Лебедева', 'Уфа', 231, 1102], ['Тимур Галиев', 'Оренбург', 207, 990], ['Виктор Попов', 'Казань', 193, 941]];
 function honorRating() {
@@ -163,10 +164,11 @@ const SPONS = ['Quelyd', 'Knauf', 'Metylan', 'Olfa', 'Bosch', 'Erismann', 'Па�
 function honorContests() {
   const ppl = HONOR.map((h) => h[0]);
   const v = (x) => (Number.isInteger(x) ? fmt(x) : String(x).replace('.', ','));
-  const hero = `<section class="yt-hero" style="${art('Соревнования Метроники')}"><span class="yt-hero__glow"></span><small>Сезон ${hTab === 'month' ? 'ноября' : '2026 года'}</small><h2>Соревнования Метроники</h2>
-    <p>Проводит Метроника при спонсорстве брендов. Участвуют все мастера автоматически — призы от спонсоров.</p><div class="yt-hero__cd"><b>${hTab === 'month' ? 21 : 52}</b><span>${hTab === 'month' ? 'день' : 'дня'}<br>до итогов</span></div></section>`;
+  const [sn, sp, sk, live] = SEAS[sea];
+  const hero = `<section class="yt-hero" style="${art(sn + 'Метроника')}"><span class="yt-hero__glow"></span><small>${sn} · ${sp}</small><h2>Соревнования Метроники</h2>
+    <p>Проводит Метроника при спонсорстве брендов. Участвуют все мастера автоматически — призы от спонсоров.</p>${live ? '<div class="yt-hero__cd"><b>21</b><span>день<br>до итогов</span></div>' : '<div class="yt-hero__cd"><b>🏁</b><span>сезон завершён<br>победители ниже</span></div>'}</section>`;
   return hero + NOM.map(([ic, t, d, unit, top, my, prize, low], i) => {
-    const k = hTab === 'year' ? (low ? 1 : 11) : 1, sc = (x) => (low ? x : Number.isInteger(x) ? Math.round(x * k) : +(x).toFixed(2));
+    const k = sk, sc = (x) => (Number.isInteger(x) ? Math.round(x * k) : +(x * k).toFixed(1));
     const L = top.map((x, j) => [ppl[(i * 2 + j * 3) % ppl.length], sc(x)]);
     const myPlace = my == null ? null : 4 + ((i * 5) % 9), lead = L[0][1];
     const pct = my == null ? 0 : Math.max(6, Math.min(100, low ? (lead / my) * 100 : (sc(my) / lead) * 100));
@@ -218,7 +220,7 @@ function evMeets() {
         <button type="button" class="yt-pill${on ? ' is-on' : ''}" data-action="ev-sign" data-k="${i}">${on ? '✓ Записаны' : 'Записаться'}</button></div></div></article>`; }).join('');
 }
 export function renderEvents() {
-  const per = evTab === 'comp' ? `<div class="sd-chips">${[['month', 'Этот месяц'], ['year', 'Этот год']].map(([k, t]) => `<button type="button" class="sd-chip${hTab === k ? ' is-on' : ''}" data-action="hn-tab" data-k="${k}">${t}</button>`).join('')}</div>` : '';
+  const per = evTab === 'comp' ? `<div class="sd-chips">${Object.entries(SEAS).map(([k, [t, , , live]]) => `<button type="button" class="sd-chip${sea === k ? ' is-on' : ''}" data-action="ev-sea" data-k="${k}">${t}${live ? ' · идёт' : ''}</button>`).join('')}</div>` : '';
   const body = evTab === 'comp' ? honorContests() : evTab === 'contests' ? `<p class="bz-hint" style="margin-top:0">Конкурсы от брендов: присылайте фото своих работ и выигрывайте призы.</p>${bzContests()}` : evMeets();
   return page('События', per + body, [['comp', 'Соревнования'], ['contests', 'Конкурсы'], ['meet', 'Мероприятия']], evTab, 'ev-tab');
 }
@@ -226,6 +228,7 @@ actions['ev-tab'] = (el) => { evTab = el.dataset.k; rerender(); window.scrollTo(
 actions['ev-sign'] = (el) => { const i = +el.dataset.k; if (signed.has(i)) signed.delete(i); else { signed.add(i); toast('Вы записаны — напомним за день'); } rerender(); };
 actions['hn-nominate'] = () => toast('Спасибо! Кандидатура уйдёт на голосование');
 actions['hn-view'] = (el) => { hView = el.dataset.k; rerender(); window.scrollTo(0, 0); };
+actions['ev-sea'] = (el) => { sea = el.dataset.k; rerender(); };
 actions['hn-tab'] = (el) => { hTab = el.dataset.k; rerender(); };
 
 // ───────── Креаторы ─────────
