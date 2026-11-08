@@ -10,9 +10,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@800&family=Onest:wght@500;600;700&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/app.css?v=360" />
-  <link rel="stylesheet" href="css/vyezdy.css?v=360" />
-<link rel="stylesheet" href="css/measurement.css?v=360" />
+  <link rel="stylesheet" href="css/app.css?v=362" />
+  <link rel="stylesheet" href="css/vyezdy.css?v=362" />
+<link rel="stylesheet" href="css/measurement.css?v=362" />
 </head>
 <body>
   <div class="app">
@@ -23,7 +23,7 @@
   <div id="sheet" class="sheet"></div>
   <div id="toast" class="toast" role="status"></div>
   <noscript>Для работы прототипа нужен включённый JavaScript.</noscript>
-  <script type="module" src="js/app.js?v=360"></script>
+  <script type="module" src="js/app.js?v=362"></script>
   <script>
     // Телефон может держать старую страницу в памяти до 10 минут. Спрашиваем номер свежей версии
     // мимо памяти и, если он новее, один раз открываем страницу заново по чуть другому адресу.
@@ -32,7 +32,7 @@
       fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
         t = (t || '').trim();
         if (!t || t === V || new URLSearchParams(location.search).get('v') === t) return;
-        location.replace(location.pathname + '?v=' + t + location.hash);
+        var q = new URLSearchParams(location.search); q.set('v', t); location.replace(location.pathname + '?' + q.toString() + location.hash);
       }).catch(function () {});
     })();
   </script>

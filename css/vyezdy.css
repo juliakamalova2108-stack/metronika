@@ -2813,3 +2813,7 @@ a.bz-btn { text-decoration: none; }
 .bd-flbtns .f-btn { flex: 1 1 45%; }
 .bd-flchips { margin: 6px 0 0; padding: 0; overflow: visible; flex-wrap: wrap; }
 .bd-flsub { margin-top: 6px; }
+.f-btn-row.bd-flbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bd-flbtns .f-btn { width: 100%; min-width: 0; white-space: normal; }
+.bd-flbtns .f-btn:only-child, .bd-flbtns .f-btn:nth-child(3):last-child { grid-column: 1 / -1; }
+.f-btn-row.bd-flbtns { height: auto; gap: 5px; }

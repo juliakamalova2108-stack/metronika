@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Метроника · путь заказа по шагам</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; min-height: 100vh; background: radial-gradient(900px 500px at 15% -10%, #2a4a47 0, transparent 60%), #1d3133; color: #edf2e8; font-family: Inter, system-ui, sans-serif; display: flex; justify-content: center; align-items: flex-start; gap: 36px; padding: 28px 16px 40px; flex-wrap: wrap; }
+  .side { width: 340px; max-width: 100%; }
+  h1 { font: 800 24px Manrope, sans-serif; margin: 6px 0 6px; }
+  p { color: rgba(237,242,232,.65); font-size: 13.5px; line-height: 1.5; margin: 0 0 14px; }
+  ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.05); font-size: 13.5px; color: rgba(237,242,232,.75); cursor: pointer; border: 1px solid rgba(255,255,255,.06); }
+  li b { width: 24px; height: 24px; flex: none; display: grid; place-items: center; border-radius: 8px; background: rgba(255,255,255,.08); font-size: 12px; color: #edf2e8; }
+  li small { display: block; color: rgba(237,242,232,.45); font-size: 11.5px; margin-top: 2px; }
+  li.on { background: rgba(126,226,163,.14); border-color: rgba(126,226,163,.4); color: #edf2e8; }
+  li.on b { background: #7ee2a3; color: #0f1c17; }
+  .phone { width: 390px; height: 820px; border-radius: 46px; padding: 12px; background: #070c0a; box-shadow: 0 40px 80px -30px rgba(0,0,0,.8), inset 0 0 0 2px #2a3a36; flex: none; }
+  iframe { width: 100%; height: 100%; border: 0; border-radius: 36px; background: #1d3133; }
+</style>
+</head>
+<body>
+<div class="side">
+  <h1>Путь заказа</h1>
+  <p>Один заказ — Ильдар Хасанов, гостиная — от замера до «Заказ завершён». Справа — само приложение: можно нажимать кнопки в блоке «Сейчас» или перескакивать по шагам здесь.</p>
+  <ol id="steps"></ol>
+</div>
+<div class="phone"><iframe id="app" title="Приложение"></iframe></div>
+<script>
+const NO = '014';
+const STEPS = [
+  ['Замер · до выезда', 'дата, «Еду на замер», «Перенести»', { st: 'measure', going: 0 }, 'bd-order'],
+  ['Замер · в пути', 'клиенту ушло «Мастер выехал»', { st: 'measure', going: 1 }, 'bd-order'],
+  ['Замер по стенам', 'наш экран замера', { st: 'measure', going: 1 }, 'bd-edit-014-smeta'],
+  ['Смета готова — итог', 'согласен / подумает / отказ', { st: 'measure', going: 1 }, 'bd-order', 'result'],
+  ['Согласование', 'перезвонить через 3 дня', { st: 'approval', call: 3 }, 'bd-order'],
+  ['Очередь', 'перед выездом: обои, клей, аванс', { st: 'queue', chk: {} }, 'bd-order'],
+  ['В работе', 'день 1 из 3: материал, выклейка, комнаты', { st: 'work', day: 1, shift: {}, done: {} }, 'bd-order'],
+  ['Выполнено', 'расчёт: наличные или перевод', { st: 'done' }, 'bd-order'],
+  ['Заказ завершён', 'уходит в статистику и соревнования', { st: 'closed' }, 'bd-order'],
+  ['Список «Заказы»', 'заказ сам переходит по вкладкам', null, 'orders'],
+];
+const fr = document.getElementById('app');
+let V = '', cur = -1;
+fetch('version.txt?t=' + Date.now()).then((r) => r.text()).then((t) => { V = t.trim(); fr.src = 'index.html?demo=1&v=' + V + '#bd-order-' + NO; });
+const draw = () => { document.getElementById('steps').innerHTML = STEPS.map(([t, s], i) => `<li class="${i === cur ? 'on' : ''}" data-i="${i}"><b>${i + 1}</b><span>${t}<small>${s}</small></span></li>`).join(''); };
+async function goStep(i) {
+  cur = i; draw();
+  const [, , st, route, ask] = STEPS[i], w = fr.contentWindow;
+  const S = await w.eval(`import('./js/store.js?v=${V}')`), B = await w.eval(`import('./js/board.js?v=${V}')`), C = await w.eval(`import('./js/core.js?v=${V}')`);
+  if (st) { const f = B.flowOf(NO), d = S.get().oformit['ord-' + NO];
+    Object.assign(f, { chk: {}, shift: {}, done: {}, day: 1, going: 0 }, st);
+    if (st.st === 'done' || st.st === 'closed') ((d.est && d.est.rooms) || []).forEach((r) => { f.done[r.key] = 1; });
+    if (st.st === 'closed') { d.fin = d.fin || { pays: [], exps: [] }; }
+    if (!d.sched.measure) { const t = new Date(); d.sched.measure = t.toISOString().slice(0, 10); }
+    S.save(); }
+  B.setFlAsk(ask ? NO + ':' + ask : '');
+  const h = route === 'bd-order' ? 'bd-order-' + NO : route;
+  if (w.location.hash.slice(1) === h) C.rerender(); else w.location.hash = h;
+  w.scrollTo(0, 0);
+}
+document.getElementById('steps').addEventListener('click', (e) => { const li = e.target.closest('li'); if (li) goStep(+li.dataset.i); });
+draw();
+</script>
+</body>
+</html>
