@@ -2448,3 +2448,6 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-dbig__lb { fill: #2fd46f; }
 .sd-pl li.is-t span, .sd-pl li.is-t b { color: #ffc21a; }
 .sd-hleg2 li:first-child em { color: #edf2e8; font-size: 16px; }
+
+.sd-hleg2--w { gap: 8px; }
+.sd-hleg2--w b { font-size: 13px; line-height: 1.2; }
