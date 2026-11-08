@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=283';
-import * as S from './store.js?v=283';
-import { esc, toast } from './ui.js?v=283';
-import { selectField, pickers } from './oformit.js?v=283';
+import { actions, rerender, val } from './core.js?v=284';
+import * as S from './store.js?v=284';
+import { esc, toast } from './ui.js?v=284';
+import { selectField, pickers } from './oformit.js?v=284';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -172,6 +172,9 @@ function catList(rows, unit, sub, details) {
   const shown = rows.length > TOPN && !all ? rows.slice(0, TOPN) : rows, rest = rows.length - TOPN;
   return `<div class="sd-cl">${shown.map(item).join('')}${rows.length > TOPN ? `<button type="button" class="sd-cl__more" data-action="sd2-fold" data-k="${esc(mk)}">${all ? 'Свернуть' : `Ещё ${rest} · ${Math.round((rows.slice(TOPN).reduce((a, x) => a + x.v, 0) / (segs.reduce((a, x) => a + x.v, 0) || 1)) * 100)}%`}<i class="sd-cl__ch${all ? ' up' : ''}">${CHEV}</i></button>` : ''}</div>`;
 }
+// список операций/заказов внутри строки: сначала 5, остальное — «Ещё N»
+const opsMore = (key, arr) => { const mk = 'ops:' + key, all = fold.has(mk); if (arr.length <= 5) return arr.join('');
+  return (all ? arr : arr.slice(0, 5)).join('') + `<button type="button" class="sd-cl__more sd-cl__more--ops" data-action="sd2-fold" data-k="${esc(mk)}">${all ? 'Свернуть' : `Ещё ${arr.length - 5}`}<i class="sd-cl__ch${all ? ' up' : ''}">${CHEV}</i></button>`; };
 const opRow = (d, t, s, v) => `<div class="sd-op"><span class="sd-op__d">${d.getDate()} ${MONS[d.getMonth()]}</span><span class="sd-op__t"><b>${esc(t)}</b><small>${esc(s)}</small></span><span class="sd-op__v">${v}</span></div>`;
 const groupBy = (arr, key, val) => { const m = new Map(); arr.forEach((x) => m.set(key(x), (m.get(key(x)) || 0) + val(x))); return m; };
 const block = (h, inner, cls = '') => `<section class="h-block sd-b ${cls}">${h ? `<div class="sd-bh"><div><h2>${h[0]}</h2>${h[1] ? `<small>${h[1]}</small>` : ''}</div>${h[2] || ''}</div>` : ''}${inner}</section>`;
@@ -341,18 +344,18 @@ export function renderStatsMaster() {
     if (srcM[0]) ins.push([C.blue, `Больше всего заказов — ${srcM[0][0]}`, `${srcM[0][1]} из ${A.n}`]);
     const insB = ins.length ? `<div class="sd-ins">${ins.map(([c, t, s]) => `<div class="sd-ins__c" style="--c:${c}"><b>${esc(t)}</b><small>${esc(s)}</small></div>`).join('')}</div>` : '';
     const srcRows = SRC.map(([t, , col]) => ({ key: 'src:' + t, t, col, v: A.O.filter((o) => o.src === t).length, d: delta(A.O.filter((o) => o.src === t).length, B.O.filter((o) => o.src === t).length) })).filter((x) => x.v).sort((a, b) => b.v - a.v);
-    content = hero + tiles + insB + (srcRows.length ? fblock('src', ['Откуда заказы', `${scope} · ${srcRows.length} ${plural(srcRows.length, 'источник', 'источника', 'источников')}`], bubbles(srcRows), catList(srcRows, '', (x) => `${x.v} ${x.v === 1 ? 'заказ' : x.v < 5 ? 'заказа' : 'заказов'}`,
-      (x) => A.O.filter((o) => 'src:' + o.src === x.key).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.m2} м² · ${o.brand}`, `${fmt(o.sum)} ₽`)).join(''))) : '');
+    content = hero + tiles + insB + (srcRows.length ? fblock('src', ['Откуда заказы', scope], mosaic(srcRows), catList(srcRows, '', (x) => `${x.v} ${x.v === 1 ? 'заказ' : x.v < 5 ? 'заказа' : 'заказов'}`,
+      (x) => opsMore(x.key, A.O.filter((o) => 'src:' + o.src === x.key).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.m2} м² · ${o.brand}`, `${fmt(o.sum)} ₽`))))) : '');
   } else if (tab === 'money') {
     const cats = money === 'inc' ? INC_CAT : EXP_CAT;
     const rows = cats.map(([t, col]) => { const v = A.P.filter((x) => x.kind === money && x.cat === t).reduce((a, x) => a + x.sum, 0), pv = B.P.filter((x) => x.kind === money && x.cat === t).reduce((a, x) => a + x.sum, 0);
       return { key: money + ':' + t, t, col, v, d: delta(v, pv), inv: money === 'exp', cnt: A.P.filter((x) => x.kind === money && x.cat === t).length }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const tot = money === 'inc' ? A.inc : A.exp;
-    const catB = `<div class="sd-mseg">${seg2([['inc', 'Доходы'], ['exp', 'Расходы']], money, 'sd2-money')}</div>` + fblock('money-' + money, [money === 'inc' ? 'Доходы' : 'Расходы', `${scope} · ${rows.length} ${plural(rows.length, 'категория', 'категории', 'категорий')}`, `<span class="sd-f__sum"><b>${fmt(tot)} ₽</b>${dTag(delta(tot, money === 'inc' ? B.inc : B.exp), money === 'exp')}</span>`],
+    const catB = `<div class="sd-mseg">${seg2([['inc', 'Доходы'], ['exp', 'Расходы']], money, 'sd2-money')}</div>` + fblock('money-' + money, [money === 'inc' ? 'Доходы' : 'Расходы', scope, `<span class="sd-f__sum"><b>${fmt(tot)} ₽</b>${dTag(delta(tot, money === 'inc' ? B.inc : B.exp), money === 'exp')}</span>`],
       mosaic(rows),
       (
 rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'операция' : x.cnt < 5 ? 'операции' : 'операций'}`,
-        (x) => A.P.filter((o) => o.kind + ':' + o.cat === x.key).sort((a, b) => b.d - a.d).slice(0, 12).map((o) => opRow(o.d, o.o ? `№${o.o.no} · ${o.o.client}` : o.note || x.t, o.o ? `${o.o.m2} м²` : 'покупка', `${money === 'inc' ? '+' : '−'}${fmt(o.sum)} ₽`)).join('')) : '<p class="sd-note">Нет операций за период</p>'));
+        (x) => opsMore(x.key, A.P.filter((o) => o.kind + ':' + o.cat === x.key).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, o.o ? `№${o.o.no} · ${o.o.client}` : o.note || x.t, o.o ? `${o.o.m2} м²` : 'покупка', `${money === 'inc' ? '+' : '−'}${fmt(o.sum)} ₽`)))) : '<p class="sd-note">Нет операций за период</p>'));
     content = catB;
   } else if (tab === 'goals') {
     content = goalsTab();
@@ -361,7 +364,8 @@ rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'опера
     const kpi = `<div class="sd-tiles">${kt(`${fmt(A.m2)} м²`, 'Поклеено', `${dTag(delta(A.m2, B.m2))} <span>${prevName()}</span>`, spark(mser((a) => a.m2), si))}${kt(A.days ? Math.round(A.m2 / A.days) : 0, 'м² в день', '', spark(mser((a) => (a.days ? a.m2 / a.days : 0)), si))}
       ${kt(A.O.reduce((a, o) => a + o.rooms.length, 0), 'Комнат', '', spark(mser((a) => a.O.reduce((x, o) => x + o.rooms.length, 0)), si))}${kt(fmt(A.rolls), 'Рулонов', '', spark(mser((a) => a.rolls), si))}</div>`;
     const brRows = BRANDS.map(([t, , col]) => { const O = A.O.filter((o) => o.brand === t); return { key: 'br:' + t, t, col, v: O.reduce((a, o) => a + o.m2, 0), rolls: O.reduce((a, o) => a + o.rolls, 0), n: O.length, d: delta(O.reduce((a, o) => a + o.m2, 0), B.O.filter((o) => o.brand === t).reduce((a, o) => a + o.m2, 0)) }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
-    const ordList = (f) => A.O.filter(f).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.rooms.map((r) => r[0]).join(', ')} · ${o.type}`, `${o.m2} м²`)).join('');
+    let olN = 0;
+    const ordList = (f, key) => opsMore(key || 'ol' + (olN++), A.O.filter(f).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.rooms.map((r) => r[0]).join(', ')} · ${o.type}`, `${o.m2} м²`)));
     // Материалы: кольцо по брендам + список брендов; раскрытие — подробно: из чего обои, рулоны, клей, заказы
     const brDetail = (x) => { const O = A.O.filter((o) => 'br:' + o.brand === x.key);
       const tp = [...groupBy(O, (o) => o.type, (o) => o.m2)].sort((a, b) => b[1] - a[1]);
@@ -369,7 +373,7 @@ rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'опера
       return `<div class="sd-bd"><div class="sd-bd__kv"><span><b>${fmt(x.v)} м²</b><small>поклеено</small></span><span><b>${x.rolls}</b><small>рулонов</small></span><span><b>${x.n}</b><small>${plural(x.n, 'заказ', 'заказа', 'заказов')}</small></span></div>
         <p class="sd-bd__t">Обои</p><div class="sd-bd__chips">${tp.map(([t, v]) => `<span>${esc(t)} <b>${fmt(v)} м²</b></span>`).join('')}</div>
         <p class="sd-bd__t">Клей</p><div class="sd-bd__chips">${gl.map(([t, n]) => `<span>${esc(t)} <b>${n} ${plural(n, 'заказ', 'заказа', 'заказов')}</b></span>`).join('')}</div>
-        <p class="sd-bd__t">Заказы</p></div>${ordList((o) => 'br:' + o.brand === x.key)}`; };
+        <p class="sd-bd__t">Заказы</p></div>${ordList((o) => 'br:' + o.brand === x.key, 'brd:' + x.key)}`; };
     // Бренды: все материалы одним списком (обои, клей, шпаклёвка, грунт); при развороте — по видам
     const CATS = [
       ['Обои', BRANDS.map(([t, , col]) => [t, col]), (o) => o.brand, (O) => `${O.reduce((a, o) => a + o.rolls, 0)} рулонов · ${fmt(O.reduce((a, o) => a + o.m2, 0))} м²`, true],
@@ -386,13 +390,13 @@ rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'опера
       const fk = 'bc-' + cat, on = fold.has(fk);
       const head = `<button type="button" class="sd-sub${on ? ' is-open' : ''}" data-action="sd2-fold" data-k="${fk}">${ringSvg(CATS.map(([, , g2], j) => ({ v: A.O.filter((o) => g2(o)).length, col: P7[j] })), ci)}<span class="sd-sub__t"><b>${cat}</b><small>${rows.length} ${plural(rows.length, 'бренд', 'бренда', 'брендов')} · топ ${esc(rows[0].t)}</small></span><i class="sd-f__ch">${CHEV}</i></button>`;
       return !on ? head : head + catList(rows, '', (x) => `${x.v} ${plural(x.v, 'заказ', 'заказа', 'заказов')} · ${x.q}`,
-        (x) => (x.wall ? brDetail({ key: 'br:' + x.t, v: x.O.reduce((a, o) => a + o.m2, 0), rolls: x.O.reduce((a, o) => a + o.rolls, 0), n: x.v }) : ordList((o) => get(o) === x.t))); }).join('');
+        (x) => (x.wall ? brDetail({ key: 'br:' + x.t, v: x.O.reduce((a, o) => a + o.m2, 0), rolls: x.O.reduce((a, o) => a + o.rolls, 0), n: x.v }) : ordList((o) => get(o) === x.t, 'bro:' + x.key))); }).join('');
     const brandsN = new Set(all.map((x) => x.t)).size, top = [...all].sort((a, b) => b.v - a.v);
-    const brands = fblock('brands', ['Бренды', `${brandsN} ${plural(brandsN, 'бренд', 'бренда', 'брендов')} · ${scope}`],
+    const brands = fblock('brands', ['Бренды', scope],
       top.length ? mosaic((() => { const L = [...groupBy(all, (x) => x.t, (x) => x.v)].sort((p1, p2) => p2[1] - p1[1]); const head = L.slice(0, 7).map(([t, v], i) => ({ t, v, col: P7[i] })); const rest = L.slice(7); return rest.length ? [...head, { t: `Ещё ${rest.length}`, v: rest.reduce((a, x) => a + x[1], 0), col: OTHER, rest: true }] : head; })(), 160) : '',
       secs);
     const rRows = ROOMS.map(([t, col]) => { let v = 0, n = 0; A.O.forEach((o) => o.rooms.forEach((r) => { if (r[0] === t) { v += r[1]; n++; } })); return { key: 'rm:' + t, t, col, v, n }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
-    const rooms = fblock('rooms', ['По комнатам', `поклеено ${scope}`], bubbles(rRows), catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key))));
+    const rooms = fblock('rooms', ['По комнатам', scope], mosaic(rRows), catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key), 'rmo:' + x.key)));
     content = A.n ? kpi + brands + rooms : '<p class="sd-note">Нет заказов за период</p>';
   }
 

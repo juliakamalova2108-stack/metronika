@@ -2280,7 +2280,7 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-cl__ring text { font: 800 10px Manrope, sans-serif; fill: #edf2e8; }
 .sd-cl__ch { display: grid; place-items: center; color: rgba(237,242,232,.5); transition: transform .2s; }
 .sd-cl__ch svg { width: 16px; height: 16px; }
-.sd-cl__it.is-open .sd-cl__ch { transform: rotate(180deg); }
+.sd-cl__it.is-open > .sd-cl__r .sd-cl__ch { transform: rotate(180deg); }
 .sd-cl__ops { margin-left: 52px !important; }
 
 .sd-sub { display: grid !important; grid-template-columns: 40px minmax(0,1fr) auto; gap: 12px; }
@@ -2288,3 +2288,5 @@ body.nobar #view { padding-bottom: 96px; }
 
 .sd-cl__more { all: unset; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 12px 0 4px; border-top: 1px solid rgba(237,242,232,.08); font: 700 13px Manrope, sans-serif; color: rgba(237,242,232,.7); cursor: pointer; }
 .sd-cl__more .sd-cl__ch.up { transform: rotate(180deg); }
+
+.sd-cl__more--ops { border-top: 0; padding: 8px 0 4px; font-size: 12px; }
