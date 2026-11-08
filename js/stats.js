@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=296';
-import * as S from './store.js?v=296';
-import { esc, toast } from './ui.js?v=296';
-import { selectField, pickers } from './oformit.js?v=296';
+import { actions, rerender, val } from './core.js?v=297';
+import * as S from './store.js?v=297';
+import { esc, toast } from './ui.js?v=297';
+import { selectField, pickers } from './oformit.js?v=297';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -117,7 +117,7 @@ function agg(p) {
 }
 const delta = (v, pv) => (pv ? Math.round(((v - pv) / Math.abs(pv)) * 100) : null);
 const dTag = (d, inverse) => (d === null || !isFinite(d) ? '' : `<em class="sd-d ${(d >= 0) !== !!inverse ? 'up' : 'dn'}">${d >= 0 ? '↑' : '↓'} ${Math.abs(d)}%</em>`);
-const prevName = () => { const d = now.getDate(), pmn = MONS[(pm + 11) % 12]; if (isCur()) return mode === 'year' ? `к 1 янв – ${d} ${MONS[now.getMonth()]} ${py - 1}` : `к 1–${d} ${pmn}.`; return mode === 'year' ? `к ${py - 1}` : `к ${pmn}.`; };
+const prevName = () => { const d = now.getDate(), pmn = MONS[(pm + 11) % 12]; if (isCur()) return mode === 'year' ? `к ${py - 1}` : `к 1–${d} ${pmn}.`; return mode === 'year' ? `к ${py - 1}` : `к ${pmn}.`; };
 
 // ── Графики ──
 const smooth = (pts) => pts.map(([x, y], i) => { if (!i) return `M${x},${y.toFixed(1)}`; const p0 = pts[i - 2] || pts[i - 1], p1 = pts[i - 1], p3 = pts[i + 1] || [x, y];
@@ -350,8 +350,15 @@ export function renderStatsMaster() {
   if (tab === 'all') {
     const avgChk = A.n ? A.inc / A.n : 0, avgChkB = B.n ? B.inc / B.n : 0;
     const rep = A.n ? Math.round((A.O.filter((o) => o.repeat).length / A.n) * 100) : 0;
+    // тот же период год назад (если текущий ещё идёт — по то же число)
+    const lyP = mode === 'year' ? { from: new Date(py - 1, 0, 1), to: new Date(py, 0, 1) } : { from: new Date(py - 1, pm, 1), to: new Date(py - 1, pm + 1, 1) };
+    if (isCur()) lyP.to = mode === 'year' ? new Date(py - 1, now.getMonth(), now.getDate() + 1) : new Date(py - 1, pm, now.getDate() + 1);
+    const LY = agg(lyP);
+    const lyLbl = mode === 'year' ? (isCur() ? `1 янв – ${now.getDate()} ${MONS[now.getMonth()]} ${py - 1}` : `${py - 1} год`) : (isCur() ? `1–${now.getDate()} ${MONS[pm]} ${py - 1}` : `${cap(MONN[pm])} ${py - 1}`);
+    const lyRow = (t, a, b2, col) => { const mx = Math.max(a, b2, 1); return `<div class="sd-ly__r"><div class="sd-ly__t"><small>${t}</small><b>${k(a)}</b><em>${k(b2)}</em></div><div class="sd-ly__bars"><i style="width:${Math.max(3, (a / mx) * 100)}%;background:${col}"></i><i class="is-old" style="width:${Math.max(3, (b2 / mx) * 100)}%"></i></div></div>`; };
+    const lyBox = `<div class="sd-ly"><div class="sd-ly__h"><span>Год назад</span><small>${lyLbl}</small></div>${LY.inc ? lyRow('Доход', A.inc, LY.inc, C.inc) + lyRow('Прибыль', Math.max(0, A.profit), Math.max(0, LY.profit), C.inc) : '<small class="sd-ly__no">Заказов не было</small>'}</div>`;
     const hero = `<section class="h-block sd-hero"><small>Прибыль ${scope}</small><div class="sd-hero__v"><b>${fmt(A.profit)}<i> ₽</i></b>${B.inc ? `<span class="sd-vs">${dTag(delta(A.profit, B.profit))}<small>${prevName()}</small></span>` : ''}</div>
-      <div class="sd-dwrap">${donutBig([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], fmt(A.inc), 'доход, ₽')}${dLegend([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], '')}</div>
+      <div class="sd-dwrap">${donutBig([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], fmt(A.inc), 'доход, ₽')}<div class="sd-dside">${dLegend([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], '')}${lyBox}</div></div>
       <div class="sd-mrows">${moneyRow('inc')}${moneyRow('exp')}</div>
       </section>`;
     const tile = (t, v, d, sub, sp) => `<div class="sd-tile"><small>${t}</small><b>${v}</b>${sp}<em>${d}${sub ? ` <span>${sub}</span>` : ''}</em></div>`;

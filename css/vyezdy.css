@@ -2339,3 +2339,28 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-vs--r small { font-size: 10.5px; white-space: nowrap; }
 .sd-dleg li { grid-template-columns: 10px auto auto !important; justify-content: start; column-gap: 10px; }
 .sd-dleg em { color: rgba(237,242,232,.7); font-size: 13.5px; }
+
+.sd-dside { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.sd-ly { border-radius: 14px; background: rgba(237,242,232,.05); padding: 10px 10px 8px; display: flex; flex-direction: column; gap: 7px; }
+.sd-ly__h { display: flex; flex-direction: column; }
+.sd-ly__h span { font: 700 12.5px Manrope, sans-serif; color: #edf2e8; }
+.sd-ly__h small { font: 500 10.5px Inter, sans-serif; color: rgba(237,242,232,.45); }
+.sd-ly__r { display: flex; flex-direction: column; gap: 3px; }
+.sd-ly__r > small { font: 500 10.5px Inter, sans-serif; color: rgba(237,242,232,.55); }
+.sd-ly__b { display: flex; align-items: center; gap: 6px; }
+.sd-ly__b i { height: 6px; border-radius: 3px; flex: none; max-width: calc(100% - 38px); }
+.sd-ly__b.is-old i { background: rgba(237,242,232,.28); }
+.sd-ly__b b { font: 700 10.5px Manrope, sans-serif; color: #edf2e8; white-space: nowrap; }
+.sd-ly__b.is-old b { color: rgba(237,242,232,.55); }
+.sd-ly__k { display: flex; gap: 10px; font: 500 10px Inter, sans-serif; color: rgba(237,242,232,.5); }
+.sd-ly__k i { display: inline-block; width: 7px; height: 7px; border-radius: 2px; margin-right: 4px; background: rgba(237,242,232,.28); }
+
+.sd-ly { gap: 6px; padding: 9px 10px; }
+.sd-ly__t { display: flex; align-items: baseline; gap: 6px; }
+.sd-ly__t small { font: 500 10.5px Inter, sans-serif; color: rgba(237,242,232,.55); margin-right: auto; }
+.sd-ly__t b { font: 800 12px Manrope, sans-serif; color: #edf2e8; }
+.sd-ly__t em { font: 600 11px Manrope, sans-serif; font-style: normal; color: rgba(237,242,232,.45); }
+.sd-ly__bars { display: flex; flex-direction: column; gap: 2px; margin-top: 3px; }
+.sd-ly__bars i { display: block; height: 4px; border-radius: 2px; }
+.sd-ly__bars i.is-old { background: rgba(237,242,232,.25); }
+.sd-ly__no { font: 500 11px Inter, sans-serif; color: rgba(237,242,232,.45); }
