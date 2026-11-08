@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=343';
-import * as S from './store.js?v=343';
-import { CHANNELS } from './seed.js?v=343';
-import { esc } from './ui.js?v=343';
-import { logEvent } from './zlog.js?v=343';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=343';
+import { actions, rerender, go } from './core.js?v=344';
+import * as S from './store.js?v=344';
+import { CHANNELS } from './seed.js?v=344';
+import { esc } from './ui.js?v=344';
+import { logEvent } from './zlog.js?v=344';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=344';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=343';
-import { renderSchedule, scheduleState } from './grafik.js?v=343';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=344';
+import { renderSchedule, scheduleState } from './grafik.js?v=344';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -52,15 +52,15 @@ export function selectField(key, label, value, options, locked, st = {}) {
     const thumb = n > 4 ? `<span class="f-scroll"><i style="height:${(188 * 4) / n}px;top:0" data-thumb="${key}"></i></span>` : '';
     return `<div class="f-field"><span class="f-field__label">${esc(label)}</span>
       <div class="f-select${fcls(st.changed, st.err)}">
-        <button type="button" class="f-select__head" data-action="f-toggle" data-key="${key}" aria-expanded="true"><span>${esc(value)}</span><span class="f-icon-btn is-up">${CHEVRON}</span></button>
+        <button type="button" class="f-select__head" data-action="f-toggle" data-key="${key}" aria-expanded="true"><span>${st.vhtml || esc(value)}</span><span class="f-icon-btn is-up">${CHEVRON}</span></button>
         <div class="f-select__list"><div class="f-select__win" data-scroll="${key}" role="listbox" aria-label="${esc(label)}">
-          ${options.map((o) => `<button type="button" class="f-option${o.label === value ? ' is-on' : ''}" role="option" aria-selected="${o.label === value}" data-action="f-pick" data-key="${key}" data-value="${esc(o.value)}">${esc(o.label)}</button>`).join('')}
+          ${options.map((o) => `<button type="button" class="f-option${o.label === value ? ' is-on' : ''}" role="option" aria-selected="${o.label === value}" data-action="f-pick" data-key="${key}" data-value="${esc(o.value)}">${o.html || esc(o.label)}</button>`).join('')}
         </div>${thumb}</div>
       </div></div>`;
   }
   return `<div class="f-field"><span class="f-field__label">${esc(label)}</span>
     <div class="f-input f-input--list${fcls(st.changed, st.err)}" data-action="${locked ? '' : 'f-toggle'}" data-key="${key}" role="button" aria-haspopup="listbox" aria-expanded="false" tabindex="0">
-      <span class="f-input__value">${esc(value)}</span><span class="f-icon-btn">${CHEVRON}</span>
+      <span class="f-input__value">${st.vhtml || esc(value)}</span><span class="f-icon-btn">${CHEVRON}</span>
     </div>${ferr(st.err)}</div>`;
 }
 

@@ -1,12 +1,12 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=343';
-import * as S from './store.js?v=343';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=343';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=343';
-import { topbar, typeName, renderSettlements } from './shared.js?v=343';
-import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=343';
-import { COUNTRIES, SOON, withFlag } from './phonecodes.js?v=343';
+import { actions, changes, rerender, go, val } from './core.js?v=344';
+import * as S from './store.js?v=344';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=344';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=344';
+import { topbar, typeName, renderSettlements } from './shared.js?v=344';
+import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=344';
+import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=344';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -56,7 +56,7 @@ export function renderProfile() {
     </section>
     <section class="plate">
       <h2 class="plate__title">Где работаю</h2>
-      ${select({ id: 'set-country', label: 'Страна', value: st.country || 'RU', options: [...Object.entries(COUNTRIES).map(([k, c]) => ({ value: k, label: withFlag(c.name) })), ...SOON.map((n) => ({ value: 'soon:' + n, label: withFlag(n) }))], attrs: 'data-change="set-country"' })}
+      ${select({ id: 'set-country', label: 'Страна', value: st.country || 'RU', options: [...Object.entries(COUNTRIES).map(([k, c]) => ({ value: k, label: withFlag(c.name), html: countryHtml(c.name) })), ...SOON.map((n) => ({ value: 'soon:' + n, label: withFlag(n), html: countryHtml(n) }))], attrs: 'data-change="set-country"' })}
       ${field({ id: 'pf-city', label: 'Ближайший город', value: st.city || '', placeholder: 'Например, Уфа', attrs: 'list="pf-cities" data-change="pf-loc" data-k="city" autocomplete="off"' })}
       <datalist id="pf-cities">${PF_CITIES.map((c) => `<option value="${c}">`).join('')}</datalist>
       ${field({ id: 'pf-place', label: 'Населённый пункт', value: st.place || '', placeholder: 'Город, посёлок или село', attrs: 'data-change="pf-loc" data-k="place" autocomplete="off"' })}

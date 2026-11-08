@@ -83,7 +83,21 @@ export const COUNTRIES = {
   ] },
 };
 // Страны СНГ, для которых коды ещё не собраны: в настройках показываются как «скоро».
-export const FLAGS = { 'Россия': '🇷🇺', 'Беларусь': '🇧🇾', 'Казахстан': '🇰🇿', 'Узбекистан': '🇺🇿', 'Кыргызстан': '🇰🇬', 'Таджикистан': '🇹🇯', 'Армения': '🇦🇲', 'Азербайджан': '🇦🇿', 'Грузия': '🇬🇪', 'Молдова': '🇲🇩' };
-export const withFlag = (n) => (FLAGS[n] ? `${FLAGS[n]} ${n}` : n);
+// Флаги рисуем сами (SVG): на части телефонов эмодзи-флаги показываются буквами
+const ST = (cols, dir = 'h') => cols.map((c, i) => (dir === 'h' ? `<rect y="${(i * 14) / cols.length}" width="21" height="${14 / cols.length + 0.05}" fill="${c}"/>` : `<rect x="${(i * 21) / cols.length}" width="${21 / cols.length + 0.05}" height="14" fill="${c}"/>`)).join('');
+const FL = {
+  'Россия': ['RU', ST(['#fff', '#0039a6', '#d52b1e'])],
+  'Беларусь': ['BY', `<rect width="21" height="9.3" fill="#c8313e"/><rect y="9.3" width="21" height="4.7" fill="#4aa657"/><rect width="3.2" height="14" fill="#fff"/><path d="M1.6 1v12" stroke="#c8313e" stroke-width="1.2" stroke-dasharray="1.2 .8"/>`],
+  'Казахстан': ['KZ', `<rect width="21" height="14" fill="#00afca"/><circle cx="10.5" cy="6.3" r="2.6" fill="#fec50c"/><path d="M7 10.6q3.5 1.6 7 0" stroke="#fec50c" stroke-width=".9" fill="none"/><rect x="1.2" y="1" width=".9" height="12" fill="#fec50c" opacity=".8"/>`],
+  'Узбекистан': ['UZ', `${ST(['#0099b5', '#fff', '#1eb53a'])}<rect y="4.5" width="21" height=".5" fill="#ce1126"/><rect y="9" width="21" height=".5" fill="#ce1126"/><circle cx="3.6" cy="2.3" r="1.5" fill="#fff"/><circle cx="4.2" cy="2.1" r="1.3" fill="#0099b5"/>`],
+  'Кыргызстан': ['KG', `<rect width="21" height="14" fill="#e8112d"/><circle cx="10.5" cy="7" r="3.6" fill="#ffef00"/><circle cx="10.5" cy="7" r="2" fill="#e8112d"/><circle cx="10.5" cy="7" r="1.3" fill="#ffef00"/>`],
+  'Таджикистан': ['TJ', `<rect width="21" height="4" fill="#cc0000"/><rect y="4" width="21" height="6" fill="#fff"/><rect y="10" width="21" height="4" fill="#006600"/><path d="M8.6 7.8h3.8l-.4-1.2-.8.6-.8-1-.8 1-.8-.6z" fill="#f8c300"/>`],
+  'Армения': ['AM', ST(['#d90012', '#0033a0', '#f2a800'])],
+  'Азербайджан': ['AZ', `${ST(['#00b5e2', '#ef3340', '#509e2f'])}<circle cx="10" cy="7" r="2.1" fill="#fff"/><circle cx="10.6" cy="7" r="1.7" fill="#ef3340"/><circle cx="12.4" cy="7" r=".7" fill="#fff"/>`],
+};
+export const flagSvg = (n) => (FL[n] ? `<svg class="flag" viewBox="0 0 21 14" aria-hidden="true">${FL[n][1]}</svg>` : '');
+// порядок: флаг · название · код страны в конце строки
+export const countryHtml = (n) => `<span class="ctry">${flagSvg(n)}<span class="ctry__n">${n}</span>${FL[n] ? `<small class="ctry__c">${FL[n][0]}</small>` : ''}</span>`;
+export const withFlag = (n) => n;
 export const SOON = ['Беларусь', 'Казахстан', 'Узбекистан', 'Кыргызстан', 'Таджикистан', 'Армения', 'Азербайджан'];
 export const country = (id) => COUNTRIES[id] || COUNTRIES.RU;
