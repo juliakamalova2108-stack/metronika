@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=319';
-import * as S from './store.js?v=319';
-import { esc, toast } from './ui.js?v=319';
-import { selectField, pickers } from './oformit.js?v=319';
+import { actions, rerender, val } from './core.js?v=321';
+import * as S from './store.js?v=321';
+import { esc, toast } from './ui.js?v=321';
+import { selectField, pickers } from './oformit.js?v=321';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -352,13 +352,22 @@ function effTab(A, B, LY, lyLbl, lyCol, tile, scope, mser, si, part) {
   const conv = Math.round((A.n / A.leads) * 100), convB = B.leads ? Math.round((B.n / B.leads) * 100) : 0;
   const LS = { 'Отказ после замера': 'Отказ', 'Не договорились по цене': 'Цена', 'Не дозвонились': 'Нет связи', 'Выбрали другого мастера': 'Другой мастер', 'Перенесли ремонт': 'Перенос' };
   const leg = `<ul class="sd-hleg2 sd-hleg2--w">${segs.map((x) => `<li><i style="background:${x.col}"></i><span><b>${esc(LS[x.t] || x.t)}</b><small>${x.v} ${plural(x.v, 'заявка', 'заявки', 'заявок')}</small></span><em>${Math.round((x.v / A.leads) * 100)}%</em></li>`).join('')}</ul>`;
-  const strip = `<div class="sd-ly3"><div class="sd-ly3__h">К прошлому году<small>${lyLbl}</small></div>${LY.leads ? `<div class="sd-ly3__g">${lyCol('Заявок', A.leads, LY.leads, P7[0])}${lyCol('Выполнено', A.n, LY.n, C.inc)}${lyCol('Слетело', A.lostN, LY.lostN, C.exp, true)}</div>` : '<small class="sd-ly__no">Год назад заявок не было</small>'}</div>`;
+  const strip = `<div class="sd-ly3"><div class="sd-ly3__h">К прошлому году<small>${lyLbl}</small></div>${LY.leads ? `<div class="sd-ly3__g">${lyCol('Обращений', A.leads, LY.leads, P7[0])}${lyCol('Выполнено', A.n, LY.n, C.inc)}${lyCol('Слетело', A.lostN, LY.lostN, C.exp, true)}</div>` : '<small class="sd-ly__no">Год назад заявок не было</small>'}</div>`;
   const row = (key, col, name, val, cur, prev, inv, body) => { const on = fold.has(key);
     return `<div class="sd-mrow${on ? ' is-open' : ''}"><button type="button" class="sd-mrow__h" data-action="sd2-fold" data-k="${key}" aria-expanded="${on}"><i style="background:${col}"></i><span>${name}</span><b>${val}</b>${B.leads ? `<span class="sd-vs sd-vs--r">${dTag(delta(cur, prev), inv)}<small>${prevName()}</small></span>` : '<span></span>'}<i class="sd-f__ch">${CHEV}</i></button>${on ? `<div class="sd-f__full">${body()}</div>` : ''}</div>`; };
   const lostOps = (f, k) => opsMore(k, A.L.filter(f).sort((a, b) => b.d - a.d).map((x) => opRow(x.d, x.client, x.reason, `~${x.m2} м²`)));
   const rows = `<div class="sd-mrows">${row('e-done', C.inc, 'Выполнено', A.n, A.n, B.n, false, () => opsMore('e-dl', A.O.slice().sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `ответ ${hm(o.resp)} · в дороге ${hm(o.travel)}`, `${o.m2} м²`))))}${row('e-lost', C.exp, 'Слетело', A.lostN, A.lostN, B.lostN, true, () => (reasons.length ? catList(reasons, '', (x) => `${Math.round((x.v / Math.max(1, A.lostN)) * 100)}% от слетевших`, (x) => lostOps((y) => 'lr:' + y.reason === x.key, 'lro:' + x.key)) : '<p class="sd-note">Ни одна заявка не слетела</p>'))}</div>`;
-  const hero = `<section class="h-block sd-hero"><small>Заявки ${scope}</small><div class="sd-hero__v"><b>${conv}<i>%</i></b>${B.leads ? `<span class="sd-vs">${dTag(delta(conv, convB))}<small>${prevName()}</small></span>` : ''}</div><p class="sd-hero__s">заявок доведено до заказа</p>
-    <div class="sd-dwrap sd-dwrap--h2">${donutBig(segs, A.leads, 'ЗАЯВКИ', true)}${leg}</div>${strip}${rows}</section>`;
+  // воронка продаж: на каком шаге слетают заявки
+  const STG = [['Обращения', []], ['Замер назначен', ['Не дозвонились', 'Выбрали другого мастера']], ['Замер проведён', ['Перенесли ремонт']], ['Договорились', ['Отказ после замера', 'Не договорились по цене']], ['Выполнено', []]];
+  const funnel = (a) => { let v = a.leads; return STG.map(([t, lose]) => { const drop = a.L.filter((x) => lose.includes(x.reason)); v -= drop.length; return { t, v: t === 'Выполнено' ? a.n : v, drop, lose }; }); };
+  const FN = funnel(A), FB = B.leads ? funnel(B) : null, top = FN[0].v || 1;
+  const FC = ['#3987e5', '#4f9be0', '#5fb3c9', '#4cc59a', C.inc];
+  const fun = `<div class="sd-fun">${FN.map((x, i) => { const w = 100 - i * 13, wn = w - 13, cut = ((w - wn) / 2 / w) * 100;
+    const dropRow = i && x.drop.length ? `<div class="sd-fun__drop"><span>−${x.drop.length}</span><small>${[...new Set(x.drop.map((y) => y.reason.toLowerCase()))].join(', ')}</small></div>` : '';
+    const dB = FB ? dTag(delta(x.v, FB[i].v)) : '';
+    return `${dropRow}<div class="sd-fun__r"><em>${i ? Math.round((x.v / top) * 100) + '%' : ''}</em><div class="sd-fun__c"><div class="sd-fun__b" style="width:${w}%;background:${FC[i]};clip-path:polygon(0 0,100% 0,${100 - cut}% 100%,${cut}% 100%)"><b>${x.v}</b><small>${x.t}</small></div></div><span class="sd-fun__d">${dB}</span></div>`; }).join('')}</div>`;
+  const hero = `<section class="h-block sd-hero"><small>Воронка продаж ${scope}</small><div class="sd-hero__v"><b>${conv}<i>%</i></b>${B.leads ? `<span class="sd-vs">${dTag(delta(conv, convB))}<small>${prevName()}</small></span>` : ''}</div><p class="sd-hero__s">обращений дошло до выполненного заказа</p>
+    ${fun}${strip}${rows}</section>`;
   const avg = (a, k) => (a.n ? a[k] / a.n : 0), days = (a) => Math.max(1, a.days);
   const trav = (a) => a.travel / days(a), wt = (a) => a.wait / days(a), spd = (a) => (a.workH ? a.m2 / a.workH : 0), rsp = (a) => avg(a, 'resp');
   const tilesE = `<div class="sd-tiles">${tile('В дороге за день', hmS(trav(A)), dTag(delta(trav(A), trav(B)), true), prevName(), bars(mser(trav), si, P7[1]))}${tile('Замер в среднем', hmS(avg(A, 'measure')), dTag(delta(avg(A, 'measure'), avg(B, 'measure')), true), prevName(), bars(mser((a) => avg(a, 'measure')), si, P7[3]))}</div>`;
@@ -531,7 +540,7 @@ export function renderStatsMaster() {
       <button type="button" class="sd-mp__all${mode === 'year' ? ' is-on' : ''}" data-action="sd2-year">Весь год</button></div>
     <div class="sd-pc"><div class="sd-pc__y">${ticks.map((v) => `<span class="${RUB && v === BRK ? 'is-brk' : ''}" style="bottom:${ymap(v)}%"><small>${v ? (RUB ? (v >= 1000000 ? '1 млн' : k(v)) : yl(v)) : 0}</small></span>`).join('')}</div><div class="sd-pc__g">${cols}</div></div>
     <div class="sd-mp__ft"><small>${lbl}</small><b>${mode === 'year' ? `Сводка за ${py} год` : `Сводка за ${MONN[pm]}`}</b></div></section>`;
-  const tabs = [['all', 'Обзор'], ['work', 'Работа'], ['eff', 'Эффективность'], ['leads', 'Заявки'], ['goals', 'Цели']];
+  const tabs = [['all', 'Обзор'], ['work', 'Работа'], ['eff', 'Эффективность'], ['leads', 'Воронка'], ['goals', 'Цели']];
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     <div class="h-page sd"><header class="sd-hd"><h1>Статистика</h1></header>${per}${content}<p class="sd-demo">Прошлые периоды — примерные данные для показа</p></div>
     <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">

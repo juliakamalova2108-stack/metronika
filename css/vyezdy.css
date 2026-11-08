@@ -2464,3 +2464,22 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-nav4 .f-topnav__track { gap: 0; justify-content: space-between; left: 12px; right: 12px; overflow: visible; -webkit-mask-image: none; mask-image: none; }
 .sd-nav4 .f-tab { font-size: 14px; }
 .sd-dleg b { white-space: normal; line-height: 1.2; }
+
+.sd-fun { display: flex; flex-direction: column; gap: 3px; margin: 6px 0 14px; }
+.sd-fun__r { position: relative; display: flex; justify-content: center; align-items: center; }
+.sd-fun__b { height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #0f1c17; min-width: 0; }
+.sd-fun__b b { font: 800 18px Manrope, sans-serif; line-height: 1; }
+.sd-fun__b small { font: 700 11px Inter, sans-serif; opacity: .8; margin-top: 2px; white-space: nowrap; }
+.sd-fun__r em { position: absolute; left: 0; font: 800 13px Manrope, sans-serif; font-style: normal; color: rgba(237,242,232,.75); }
+.sd-fun__d { position: absolute; right: 0; }
+.sd-fun__d .sd-d { font-size: 10.5px; padding: 1px 5px; }
+.sd-fun__drop { display: flex; align-items: baseline; justify-content: center; gap: 6px; padding: 1px 0; }
+.sd-fun__drop span { font: 800 12px Manrope, sans-serif; color: #ff4d4f; }
+.sd-fun__drop small { font: 500 10.5px Inter, sans-serif; color: rgba(237,242,232,.5); }
+
+.sd-fun__r { display: grid; grid-template-columns: 34px minmax(0,1fr) 50px; gap: 4px; }
+.sd-fun__r em { position: static; text-align: left; font-size: 12px; }
+.sd-fun__c { display: flex; justify-content: center; }
+.sd-fun__d { position: static; display: flex; justify-content: flex-end; }
+.sd-fun__drop { padding: 2px 0 2px 38px; justify-content: flex-start; padding-right: 54px; }
+.sd-fun__drop small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
