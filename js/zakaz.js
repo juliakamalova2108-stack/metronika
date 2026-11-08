@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=368';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=370';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=368';
-import * as S from './store.js?v=368';
-import { WALLPAPER_TYPES } from './seed.js?v=368';
-import { esc, toast } from './ui.js?v=368';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=368';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=368';
-import { country } from './phonecodes.js?v=368';
-import { suggestAddress } from './address.js?v=368';
-import { suggesters } from './kbd.js?v=368';
-import { estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip } from './ocenka.js?v=368';
+import { actions, changes, rerender } from './core.js?v=370';
+import * as S from './store.js?v=370';
+import { WALLPAPER_TYPES } from './seed.js?v=370';
+import { esc, toast } from './ui.js?v=370';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=370';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=370';
+import { country } from './phonecodes.js?v=370';
+import { suggestAddress } from './address.js?v=370';
+import { suggesters } from './kbd.js?v=370';
+import { estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip } from './ocenka.js?v=370';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -281,7 +281,7 @@ function renderMaterial(d) {
       ${row(btn('Отмена', 'z-share-close'), btn('Опубликовать', 'z-mat-share', { cls: 'f-btn--lit', data: `data-i="${r.shareI}"` }))}</div>`;
   } else if (r.panel === 'result') {
     dlg = `<div class="o-overlay" data-action="z-scan-close"></div><div class="f-plate o-dialog z-mres" role="dialog"><p class="o-dialog__t">Материал</p>${scanResult(r)}</div>`;
-  } else if (r.added) {
+  } else if (r.added && r.addedShow) {
     dlg = dialog('Материал добавлен', `${esc(r.added.type)}<br>Бренд: ${esc(r.added.brand)}<br>добавлен в комнату «${esc(room.name)}».`, row(btn('OK', 'z-mat-ok')));
   } else if (m.howto) {
     dlg = dialog('Как ввести штрихкод', 'Штрихкод — 8 или 13 цифр под полосками на этикетке рулона (EAN-13, EAN-8, UPC-A, ITF-14). Если камера не считала код, введите цифры вручную.', row(btn('Понятно', 'z-howto-close')));
@@ -317,12 +317,12 @@ actions['z-mat-add'] = () => {
   const same = r.items.findIndex((z) => z.code === x.code);
   if (same >= 0) { r.active = same; r.total = false; r.panel = ''; r.res = null; toast('Этот материал уже есть в комнате — открыта его закладка'); save(); return; }
   r.items.push({ code: x.code, brand: x.brand, type: x.type, note: '', rv: 0, known: S.reviewsOf(x.code).some((v) => v.authorId === S.me().id) }); r.active = r.items.length - 1; r.total = false;
-  r.added = { brand: x.brand, type: x.type }; r.panel = ''; r.res = null;
+  r.added = { brand: x.brand, type: x.type }; r.addedShow = 1; r.panel = ''; r.res = null;
   const room = estimateRooms(d).find((z) => z.key === m.view);
   logEvent(d, 'Добавлен материал', `${room ? room.name : ''}: ${x.type}, ${x.brand}`);
   save();
 };
-actions['z-mat-ok'] = () => { const m = mat(D()); matRoom(m, m.view).added = null; save(); };
+actions['z-mat-ok'] = () => { const m = mat(D()); matRoom(m, m.view).addedShow = 0; save(); };
 actions['z-mat-del'] = (el) => { const m = mat(D()); const r = matRoom(m, m.view); r.items.splice(Number(el.dataset.i), 1); r.active = Math.max(0, Math.min(r.active || 0, r.items.length - 1)); save(); };
 actions['z-rv'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.rv = (it.rv || 0) + Number(el.dataset.d) + 100; save(); };
 // «Поделиться опытом»: окно с фото и комментарием → отзыв встаёт первым в «Опыт мастеров» с подписью «Вы».
