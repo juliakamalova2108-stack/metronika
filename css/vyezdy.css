@@ -2609,3 +2609,42 @@ a.bz-btn { text-decoration: none; }
 .bz-col__p i { font: 500 11px Inter, sans-serif; font-style: normal; color: rgba(237,242,232,.5); }
 .bz-col__l { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .bz-col__l a { display: flex; align-items: center; justify-content: center; height: 38px; border-radius: 12px; background: rgba(237,242,232,.07); color: #edf2e8; font: 700 12.5px Inter, sans-serif; text-decoration: none; box-shadow: inset 0 0 0 1px rgba(237,242,232,.1); }
+.bz-cl, .bz-pc { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; background: rgba(20,34,31,.6); border: 1px solid rgba(191,214,204,.1); }
+.bz-cl__ph { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; height: 120px; }
+.bz-cl__ph i { display: block; }
+.bz-cl__t, .bz-pc__b { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 3px; }
+.bz-cl__t b { font: 800 14.5px Manrope, sans-serif; color: #edf2e8; }
+.bz-cl__t small, .bz-pc__b small { font: 500 11.5px Inter, sans-serif; color: rgba(237,242,232,.55); }
+.bz-cl__t em { font: 800 13px Manrope, sans-serif; font-style: normal; color: #7ee2a3; }
+.bz-ch { margin: 0 2px 12px; display: flex; flex-direction: column; gap: 2px; }
+.bz-ch b { font: 800 22px Manrope, sans-serif; color: #edf2e8; }
+.bz-ch small { font: 500 12.5px Inter, sans-serif; color: rgba(237,242,232,.55); }
+.bz-ph { position: relative; aspect-ratio: 3 / 4; width: 100%; overflow: hidden; }
+.bz-pc .bz-ph { aspect-ratio: 4 / 5; }
+.bz-ph__room { position: absolute; left: 0; right: 0; bottom: 0; height: 26%; background: linear-gradient(180deg, #6b5a48, #4a3d30); box-shadow: 0 -6px 14px rgba(0,0,0,.25); }
+.bz-ph__room::before { content: ''; position: absolute; left: 14%; bottom: 60%; width: 42%; height: 70%; border-radius: 10px 10px 4px 4px; background: #e7e1d6; box-shadow: 0 6px 12px rgba(0,0,0,.25); }
+.bz-ph__roll { position: absolute; inset: 22% 18%; border-radius: 10px; background: inherit; box-shadow: 0 18px 30px rgba(0,0,0,.45), inset -18px 0 24px rgba(0,0,0,.25); }
+.bz-ph::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, rgba(255,255,255,.12), transparent 45%, rgba(0,0,0,.12)); pointer-events: none; }
+.bz-pc__p { font: 800 17px Manrope, sans-serif; color: #edf2e8; }
+.bz-pc__n { font: 600 12.5px/1.3 Inter, sans-serif; color: rgba(237,242,232,.85); }
+.bz-gal { margin-bottom: 12px; }
+.bz-ph--big { aspect-ratio: 1 / 1; border-radius: 22px; }
+.bz-gal__dots { display: flex; justify-content: center; gap: 6px; margin: 10px 0; }
+.bz-gal__dots button { all: unset; cursor: pointer; width: 7px; height: 7px; border-radius: 4px; background: rgba(237,242,232,.25); }
+.bz-gal__dots button.is-on { width: 18px; background: #7ee2a3; }
+.bz-gal__th { display: grid; grid-template-columns: repeat(3, 72px); gap: 8px; justify-content: center; }
+.bz-gal__th button { all: unset; cursor: pointer; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 0 2px transparent; }
+.bz-gal__th button .bz-ph { aspect-ratio: 1 / 1; }
+.bz-gal__th button.is-on { outline: 2px solid #7ee2a3; outline-offset: 1px; }
+.bz-pd__pr { display: flex; align-items: baseline; gap: 6px; }
+.bz-pd__pr b { font: 800 28px Manrope, sans-serif; color: #edf2e8; }
+.bz-pd__pr small { font: 500 13px Inter, sans-serif; color: rgba(237,242,232,.55); }
+.bz-pd h2 { margin: 4px 0 6px; font: 700 16px/1.3 Manrope, sans-serif; color: #edf2e8; }
+.bz-pd__rt { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.bz-pd__rt span { font: 800 13px Manrope, sans-serif; color: #ffc21a; }
+.bz-pd__rt small { font: 500 12px Inter, sans-serif; color: rgba(237,242,232,.55); }
+.bz-pd__bt { display: grid; gap: 8px; }
+.bz-sp__h { margin: 0 0 6px; font: 800 15px Manrope, sans-serif; color: #edf2e8; }
+.bz-sp__r { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(237,242,232,.06); font: 500 13px Inter, sans-serif; color: rgba(237,242,232,.6); }
+.bz-sp__r:last-child { border-bottom: 0; }
+.bz-sp__r b { font: 700 13px Inter, sans-serif; color: #edf2e8; text-align: right; }

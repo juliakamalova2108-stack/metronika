@@ -1,8 +1,8 @@
 // Бренд-зона (Новости · Витрина · Конкурсы), Доска почёта, Креаторы.
 // Экраны в стиле статистики: тёмные блоки h-block, переключатели sd-chip, нижняя навигация f-nav.
-import { actions, rerender } from './core.js?v=348';
-import * as S from './store.js?v=348';
-import { esc, toast } from './ui.js?v=348';
+import { actions, rerender } from './core.js?v=349';
+import * as S from './store.js?v=349';
+import { esc, toast } from './ui.js?v=349';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
@@ -45,7 +45,25 @@ const COLL = {
 };
 const search = (q) => `https://yandex.ru/search/?text=${encodeURIComponent(q)}`;
 const LINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
-let shMaker = '';
+let shMaker = '', shColl = '', shItem = -1, shPh = 0;
+// «Фото» обоев рисуем узорами (в прототипе нет настоящих снимков)
+const PAL = [['#efe6d6', '#c9b38f'], ['#dfe8e2', '#7fa392'], ['#e9dccf', '#b07d5a'], ['#dfe3ec', '#6d7fa6'], ['#f1ece4', '#9c948a'], ['#e5ead8', '#8a9a5b'], ['#ecdfe6', '#9b6f8a'], ['#2e3a3f', '#c9a96b'], ['#e8e3da', '#3f4a52']];
+const PAT = ['Полоса', 'Дамаск', 'Геометрия', 'Горох', 'Ёлочка', 'Штукатурка', 'Листья', 'Клетка'];
+const pat = (k, [bg, fg]) => [
+  `repeating-linear-gradient(90deg, ${bg} 0 18px, ${fg} 18px 22px, ${bg} 22px 34px, ${fg}55 34px 36px)`,
+  `radial-gradient(circle at 50% 50%, ${fg} 0 6px, transparent 7px) 0 0/34px 44px, radial-gradient(ellipse at 50% 0, ${fg}88 0 9px, transparent 10px) 17px 22px/34px 44px, ${bg}`,
+  `linear-gradient(135deg, ${fg} 25%, transparent 25%) -14px 0/28px 28px, linear-gradient(225deg, ${fg} 25%, transparent 25%) -14px 0/28px 28px, linear-gradient(315deg, ${fg}99 25%, transparent 25%) 0 0/28px 28px, ${bg}`,
+  `radial-gradient(${fg} 3.5px, transparent 4px) 0 0/22px 22px, radial-gradient(${fg}77 3px, transparent 3.5px) 11px 11px/22px 22px, ${bg}`,
+  `linear-gradient(45deg, ${fg}aa 25%, transparent 25%, transparent 75%, ${fg}aa 75%) 0 0/16px 32px, linear-gradient(-45deg, ${fg}66 25%, transparent 25%, transparent 75%, ${fg}66 75%) 0 16px/16px 32px, ${bg}`,
+  `radial-gradient(circle at 20% 30%, ${fg}44, transparent 40%), radial-gradient(circle at 75% 70%, ${fg}55, transparent 45%), radial-gradient(circle at 60% 20%, ${bg}, transparent 50%), ${bg}`,
+  `radial-gradient(ellipse 9px 16px at 30% 40%, ${fg} 98%, transparent) 0 0/40px 46px, radial-gradient(ellipse 9px 16px at 70% 80%, ${fg}99 98%, transparent) 0 0/40px 46px, ${bg}`,
+  `linear-gradient(${fg}66 2px, transparent 2px) 0 0/26px 26px, linear-gradient(90deg, ${fg}66 2px, transparent 2px) 0 0/26px 26px, ${bg}`,
+][k % 8];
+const itemsOf = (mkName, ci) => { const [cn, price, art, type, sh] = COLL[mkName][ci];
+  return Array.from({ length: 6 }, (_, j) => { const k = (ci * 3 + j * 5 + sh) % 8, pl = PAL[(ci * 2 + j + sh) % PAL.length];
+    return { name: `${cn} · ${PAT[k]}`, art: `${art}-${String(j + 1).padStart(2, '0')}`, price: Math.round((price * (0.82 + ((j * 37 + ci * 13) % 40) / 100)) / 10) * 10, k, pl, type,
+      rate: (4.3 + ((j * 7 + ci) % 7) / 10).toFixed(1).replace('.', ','), rv: 3 + ((j * 11 + ci * 5) % 40), w: mkName === 'Rasch' ? '0,53' : '1,06', l: '10,05', rap: [0, 0.32, 0.53, 0.64][(j + ci) % 4], g: 140 + ((j * 23) % 120) }; }); };
+const ph = (it, n, cls = '') => `<div class="bz-ph ${cls}" style="background:${pat(it.k, it.pl)}">${n === 1 ? '<i class="bz-ph__room"></i>' : ''}${n === 2 ? '<i class="bz-ph__roll"></i>' : ''}</div>`;
 function bzShow(makers) {
   const mk = makers.find((m) => m.name === shMaker);
   if (!mk) {
@@ -53,13 +71,30 @@ function bzShow(makers) {
       return `<button type="button" class="bz-bt" data-action="bz-open" data-k="${esc(m.name)}" style="--a:${SW[i % SW.length]};--b:${SW[(i + 3) % SW.length]}"><span class="bz-bt__logo">${esc(m.name)}</span>
         <span class="bz-bt__f"><b>${c.length} ${plural(c.length, 'коллекция', 'коллекции', 'коллекций')}</b><small>${avg ? `в среднем ${fmt(avg)} ₽ за рулон` : 'скоро'}</small></span></button>`; }).join('')}</div>`;
   }
-  const c = COLL[mk.name] || [], i0 = makers.indexOf(mk);
-  return `<button type="button" class="bz-back" data-action="bz-open" data-k="">‹ Все бренды</button>
+  const c = COLL[mk.name] || [], i0 = makers.indexOf(mk), ci = c.findIndex((x) => x[0] === shColl);
+  if (ci < 0) {
+    return `<button type="button" class="bz-back" data-action="bz-open" data-k="">‹ Все бренды</button>
     <section class="h-block bz-mk"><div class="bz-mk__logo" style="--a:${SW[i0 % SW.length]};--b:${SW[(i0 + 3) % SW.length]}">${esc(mk.name)}</div><p>${esc(mk.about || '')}</p>
       <a class="bz-btn" href="${search(mk.name + ' обои официальный сайт')}" target="_blank" rel="noopener">Сайт бренда ${LINK}</a></section>
-    ${c.map(([n, price, art, type, k], j) => `<article class="h-block bz-col"><div class="bz-col__sw" style="background:linear-gradient(135deg, ${SW[(j + k) % SW.length]}, ${SW[(j + k + 3) % SW.length]})"></div>
-      <div class="bz-col__t"><b>${esc(n)}</b><small>${esc(type)}</small><span class="bz-col__p">≈ ${fmt(price)} ₽ <i>за рулон</i></span></div>
-      <div class="bz-col__l"><a href="${search(mk.name + ' ' + n + ' обои')}" target="_blank" rel="noopener">Коллекция ${LINK}</a><a href="${search(mk.name + ' ' + art)}" target="_blank" rel="noopener">Арт. ${esc(art)} ${LINK}</a></div></article>`).join('') || '<p class="sd-note">Коллекции бренда скоро появятся</p>'}`;
+    <div class="bz-grid">${c.map(([n, price, , type], j) => { const its = itemsOf(mk.name, j);
+      return `<button type="button" class="bz-cl" data-action="bz-coll" data-k="${esc(n)}"><span class="bz-cl__ph">${its.slice(0, 4).map((it) => `<i style="background:${pat(it.k, it.pl)}"></i>`).join('')}</span>
+        <span class="bz-cl__t"><b>${esc(n)}</b><small>${esc(type)} · ${its.length} обоев</small><em>≈ ${fmt(price)} ₽ за рулон</em></span></button>`; }).join('')}</div>`;
+  }
+  const its = itemsOf(mk.name, ci), it = its[shItem];
+  if (!it) {
+    return `<button type="button" class="bz-back" data-action="bz-coll" data-k="">‹ ${esc(mk.name)}</button>
+    <header class="bz-ch"><b>${esc(shColl)}</b><small>${esc(c[ci][3])} · средняя цена ≈ ${fmt(c[ci][1])} ₽ за рулон</small></header>
+    <div class="bz-grid">${its.map((x, j) => `<button type="button" class="bz-pc" data-action="bz-item" data-k="${j}">${ph(x, 0)}
+      <span class="bz-pc__b"><b class="bz-pc__p">${fmt(x.price)} ₽</b><span class="bz-pc__n">${esc(x.name)}</span><small>★ ${x.rate} · ${x.rv} ${plural(x.rv, 'отзыв', 'отзыва', 'отзывов')}</small><small>Арт. ${esc(x.art)}</small></span></button>`).join('')}</div>`;
+  }
+  const spec = [['Артикул', it.art], ['Бренд', mk.name], ['Коллекция', shColl], ['Материал', it.type], ['Размер рулона', `${it.w} × ${it.l} м`], ['Раппорт', it.rap ? `${String(it.rap).replace('.', ',')} м` : 'без подбора'], ['Плотность', `${it.g} г/м²`]];
+  return `<button type="button" class="bz-back" data-action="bz-item" data-k="-1">‹ ${esc(shColl)}</button>
+    <section class="bz-gal">${ph(it, shPh, 'bz-ph--big')}<div class="bz-gal__dots">${[0, 1, 2].map((n) => `<button type="button" class="${n === shPh ? 'is-on' : ''}" data-action="bz-ph" data-k="${n}" aria-label="Фото ${n + 1}"></button>`).join('')}</div>
+      <div class="bz-gal__th">${[0, 1, 2].map((n) => `<button type="button" class="${n === shPh ? 'is-on' : ''}" data-action="bz-ph" data-k="${n}">${ph(it, n)}</button>`).join('')}</div></section>
+    <section class="h-block bz-pd"><div class="bz-pd__pr"><b>${fmt(it.price)} ₽</b><small>за рулон</small></div><h2>${esc(it.name)}</h2>
+      <div class="bz-pd__rt"><span>★ ${it.rate}</span><small>${it.rv} ${plural(it.rv, 'отзыв', 'отзыва', 'отзывов')} мастеров</small></div>
+      <div class="bz-pd__bt"><a class="bz-btn" href="${search(mk.name + ' ' + it.art)}" target="_blank" rel="noopener">Купить на сайте ${LINK}</a><a class="bz-btn is-on" href="${search(it.art + ' обои')}" target="_blank" rel="noopener">Найти по артикулу ${LINK}</a></div></section>
+    <section class="h-block bz-sp"><p class="bz-sp__h">Характеристики</p>${spec.map(([k, v]) => `<div class="bz-sp__r"><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</section>`;
 }
 const CONTESTS = [
   { id: 'c1', mk: 'Erismann', t: 'Лучшая спальня ноября', x: 'Пришлите фото «до/после» спальни с обоями Erismann. Жюри — дизайнеры бренда.', prize: 'Профессиональный набор инструмента', until: 22, n: 38, col: '#3987e5' },
@@ -83,7 +118,10 @@ export function renderBrandZone() {
   return page('Бренд-зона', chips + body, [['news', 'Новости'], ['show', 'Витрина'], ['contests', 'Конкурсы']], bzTab, 'bz-tab');
 }
 actions['bz-tab'] = (el) => { bzTab = el.dataset.k; rerender(); window.scrollTo(0, 0); };
-actions['bz-open'] = (el) => { shMaker = el.dataset.k; rerender(); window.scrollTo(0, 0); };
+actions['bz-open'] = (el) => { shMaker = el.dataset.k; shColl = ''; shItem = -1; rerender(); window.scrollTo(0, 0); };
+actions['bz-coll'] = (el) => { shColl = el.dataset.k; shItem = -1; rerender(); window.scrollTo(0, 0); };
+actions['bz-item'] = (el) => { shItem = +el.dataset.k; shPh = 0; rerender(); window.scrollTo(0, 0); };
+actions['bz-ph'] = (el) => { shPh = +el.dataset.k; rerender(); };
 actions['bz-maker'] = (el) => { bzMaker = el.dataset.k; rerender(); };
 actions['bz-join'] = (el) => { const id = el.dataset.id; if (joined.has(id)) joined.delete(id); else { joined.add(id); toast('Вы в конкурсе — загрузите фото в галерее заказа'); } rerender(); };
 
