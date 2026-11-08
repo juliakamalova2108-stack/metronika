@@ -2841,3 +2841,9 @@ a.f-btn { display: flex; align-items: center; justify-content: center; text-deco
 .bd-vtop-row .f-btn-row { flex: 1; min-width: 0; }
 .bd-vtop__chat { flex: none; width: 48px; height: 48px; position: relative; }
 .bd-vtop__chat svg { width: 26px; height: 26px; }
+/* Количество рулонов — наша светлая форма ввода (f-field / f-input) */
+.mw .z-mrolls-f { width: 92px; align-items: stretch; gap: 4px; }
+.mw .z-mrolls-f .f-field__label { text-align: left; }
+.mw .z-mrolls-f .f-input input { text-align: center; font: 700 18px/1 var(--font-num); }
+.mw .z-mrolls-f .f-input { width: 100%; min-width: 0; box-sizing: border-box; padding: 0 8px; height: 44px; }
+.mw .z-mrolls-f .f-input input { width: 100%; min-width: 0; }

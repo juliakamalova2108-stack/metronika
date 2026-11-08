@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=393';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=395';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=393';
-import * as S from './store.js?v=393';
-import { WALLPAPER_TYPES } from './seed.js?v=393';
-import { esc, toast } from './ui.js?v=393';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=393';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=393';
-import { country } from './phonecodes.js?v=393';
-import { suggestAddress } from './address.js?v=393';
-import { suggesters } from './kbd.js?v=393';
-import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=393';
+import { actions, changes, rerender } from './core.js?v=395';
+import * as S from './store.js?v=395';
+import { WALLPAPER_TYPES } from './seed.js?v=395';
+import { esc, toast } from './ui.js?v=395';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=395';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=395';
+import { country } from './phonecodes.js?v=395';
+import { suggestAddress } from './address.js?v=395';
+import { suggesters } from './kbd.js?v=395';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=395';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -261,7 +261,7 @@ function renderMaterial(d) {
     const exp = `<div class="z-rvbox"><p class="z-rvbox__t">Опыт мастеров${reviews.length > 1 ? `<span class="z-rvnav"><button type="button" class="z-rvnav__b" data-rv-go="-1" aria-label="Предыдущий">‹</button><small class="z-rvnav__n"><b>1</b> / ${reviews.length}</small><button type="button" class="z-rvnav__b" data-rv-go="1" aria-label="Следующий">›</button></span>` : ''}</p>
       ${reviews.length ? `<div class="z-rvs">${reviews.map(card).join('')}</div>${reviews.length > 1 ? `<div class="z-rvdots">${reviews.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>` : ''}` : '<p class="z-rv__none">Мастера пока не делились опытом с этим материалом.</p>'}</div>`;
     body = `<section class="z-mplate"><div class="z-mhead">${MAT_SAMPLE}<span class="z-mline__t"><i class="z-mcode">${esc(it.code)}</i><b>${esc(matTitle(it))}</b><small>${esc(it.type)}${x ? '' : ' · новый'}</small></span>
-        <span class="z-mrolls z-mrolls--in"><span class="z-step"><button type="button" class="z-step__b" data-action="z-rolls-step" data-i="${idx}" data-d="-1" aria-label="Меньше">−</button><label class="z-step__f"><input aria-label="Сколько рулонов" inputmode="numeric" value="${n || ''}" placeholder="0" data-change="z-rolls" data-i="${idx}"></label><button type="button" class="z-step__b" data-action="z-rolls-step" data-i="${idx}" data-d="1" aria-label="Больше">+</button></span><small>рулонов</small></span></div>
+        <label class="f-field z-mrolls z-mrolls--in z-mrolls-f"><span class="f-field__label">Рулонов</span><span class="f-input"><input aria-label="Сколько рулонов" inputmode="numeric" value="${n || ''}" placeholder="0" data-change="z-rolls" data-i="${idx}"></span></label></div>
       ${exp}</section>
       <div class="z-mfoot"><button type="button" class="wall-delete" data-action="z-mat-del" data-i="${idx}" aria-label="Убрать материал из комнаты">${TRASH_SVG}</button></div>`;
   }
