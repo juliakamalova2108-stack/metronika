@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=288';
-import * as S from './store.js?v=288';
-import { esc, toast } from './ui.js?v=288';
-import { selectField, pickers } from './oformit.js?v=288';
+import { actions, rerender, val } from './core.js?v=289';
+import * as S from './store.js?v=289';
+import { esc, toast } from './ui.js?v=289';
+import { selectField, pickers } from './oformit.js?v=289';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -406,17 +406,21 @@ export function renderStatsMaster() {
   // ── Выбор периода: год стрелками, 12 столбиков-месяцев ──
   const metric = tab === 'work' ? [['m2', C.blue, ' м²']] : tab === 'money' ? [['inc', C.inc, ' ₽'], ['exp', C.exp, ' ₽']] : tab === 'goals' ? [['inc', C.gold, ' ₽']] : [['profit', C.inc, ' ₽']];
   const vmax = nice(Math.max(1, ...MA.filter(Boolean).flatMap((a) => metric.map(([key]) => a[key]))));
+  // для рублей шкала с изломом: 0–250 000 подробно (нижние 75%), 250 000 – 1 000 000 сжато (верхние 25%)
+  const RUB = metric[0][2] === ' ₽', BRK = 250000, TOPV = 1000000, LOW = 75;
+  const ymap = (v) => (!RUB ? (v / vmax) * 100 : v <= BRK ? (v / BRK) * LOW : Math.min(100, LOW + ((v - BRK) / (TOPV - BRK)) * (100 - LOW)));
+  const ticks = RUB ? [0, 50000, 100000, 150000, 200000, 250000, 1000000] : [0, vmax / 2, vmax];
   const yl = (v) => (metric[0][2] === ' ₽' ? k(v) : fmt(v));
   const cols = MA.map((a, i) => { const on = mode === 'month' && pm === i;
     if (!a) return `<span class="sd-pc__c is-off"><span class="sd-pc__bars"></span><small>${MONS[i]}</small></span>`;
     return `<button type="button" class="sd-pc__c${on ? ' is-on' : ''}${mode === 'year' ? ' is-all' : ''}" data-action="sd2-month" data-m="${i}" aria-label="${MONN[i]}: ${metric.map(([key, , u]) => `${fmt(a[key])}${u}`).join(', ')}">
-      <span class="sd-pc__bars">${on ? `<em>${metric.map(([key]) => yl(a[key])).join(' · ')}</em>` : ''}${metric.map(([key, col]) => `<i style="height:${Math.max(1.5, (Math.max(0, a[key]) / vmax) * 100)}%;--c:${col}"></i>`).join('')}</span><small>${MONS[i]}</small></button>`; }).join('');
+      <span class="sd-pc__bars">${on ? `<em>${metric.map(([key]) => yl(a[key])).join(' · ')}</em>` : ''}${metric.map(([key, col]) => `<i style="height:${Math.max(1.5, ymap(Math.max(0, a[key])))}%;--c:${col}"></i>`).join('')}</span><small>${MONS[i]}</small></button>`; }).join('');
   const lbl = tab === 'work' ? 'поклеено, м²' : tab === 'money' ? `<span class="sd-lg"><i style="background:${C.inc}"></i>доходы <i style="background:${C.exp}"></i>расходы</span>` : tab === 'goals' ? 'доход по месяцам' : 'прибыль по месяцам';
   const per = `<section class="h-block sd-mp">
     <div class="sd-mp__hd"><div class="sd-per__nav"><button type="button" class="f-icon-btn" data-action="sd2-prev" aria-label="Прошлый год"${canPrev() ? '' : ' disabled'}>${ARR('l')}</button>
       <b>${py}</b><button type="button" class="f-icon-btn" data-action="sd2-next" aria-label="Следующий год"${py >= now.getFullYear() ? ' disabled' : ''}>${ARR('r')}</button></div>
       <button type="button" class="sd-mp__all${mode === 'year' ? ' is-on' : ''}" data-action="sd2-year">Весь год</button></div>
-    <div class="sd-pc"><div class="sd-pc__y">${[1, 0.5, 0].map((f) => `<span style="bottom:${f * 100}%"><small>${f ? yl(vmax * f) : 0}</small></span>`).join('')}</div><div class="sd-pc__g">${cols}</div></div>
+    <div class="sd-pc"><div class="sd-pc__y">${ticks.map((v) => `<span class="${RUB && v === BRK ? 'is-brk' : ''}" style="bottom:${ymap(v)}%"><small>${v ? (RUB ? (v >= 1000000 ? '1 млн' : k(v)) : yl(v)) : 0}</small></span>`).join('')}</div><div class="sd-pc__g">${cols}</div></div>
     <div class="sd-mp__ft"><small>${lbl}</small><b>${mode === 'year' ? `Сводка за ${py} год` : `Сводка за ${MONN[pm]}`}</b></div></section>`;
   const tabs = [['all', 'Обзор'], ['money', 'Деньги'], ['work', 'Работа'], ['goals', 'Цели']];
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>

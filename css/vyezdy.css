@@ -2298,3 +2298,6 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-mos b.one em { font-size: 11px; opacity: .85; }
 
 .sd-mos b { text-overflow: clip !important; }
+
+.sd-pc__y span.is-brk { border-top: 1px dashed rgba(237,242,232,.22); }
+.sd-pc { height: 200px; }
