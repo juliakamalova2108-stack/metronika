@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=379';
-import * as S from './store.js?v=379';
-import { renderOformit, oformitDraft } from './oformit.js?v=379';
-import { roomTotals, svcInfo } from './ocenka.js?v=379';
-import { smetaTotals } from './zakaz.js?v=379';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=379';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=379';
-import { esc, toast, status, seg } from './ui.js?v=379';
-import { topbar, ORDER_STATUS } from './shared.js?v=379';
+import { actions, rerender, go } from './core.js?v=381';
+import * as S from './store.js?v=381';
+import { renderOformit, oformitDraft } from './oformit.js?v=381';
+import { roomTotals, svcInfo } from './ocenka.js?v=381';
+import { smetaTotals } from './zakaz.js?v=381';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=381';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=381';
+import { esc, toast, status, seg } from './ui.js?v=381';
+import { topbar, ORDER_STATUS } from './shared.js?v=381';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -242,6 +242,8 @@ export function vsNextBtn(no, t) { const f = flowOf(no), v = f.visit; if (!v || 
   const ok = vsExpOk(no, t); return `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn${ok ? ' f-btn--lit' : ' is-off'}" data-action="vs-next" data-no="${no}">Дальше</button></div>`; }
 const firstRoom = (no) => { const d = S.get().oformit['ord-' + no], rs = (d && d.est && d.est.rooms) || [], f = flowOf(no); const wd = d ? workDays(d) : [], di = Math.min(Math.max(0, (f.day || 1) - 1), Math.max(0, wd.length - 1)); return (wd.length && wd[di].parts[0] ? wd[di].parts[0].r.key : (rs[0] || {}).key) || ''; };
 function vsPickRoom(no, key) { const d = S.get().oformit['ord-' + no], v = flowOf(no).visit; if (!key) return; v.room = key; d.mat = d.mat || { view: '', scans: 0, rooms: {} }; d.mat.view = key; d.sm = d.sm || { view: '', rooms: {} }; d.sm.view = key; }
+const PLUS_NAV = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="#edf0e7" stroke-width="2" stroke-linecap="round"/></svg>';
+const plusBtn = (no) => `<button type="button" class="f-icon-btn bd-back" data-action="vs-plus" data-no="${no}" aria-label="Добавить комнату">${PLUS_NAV}</button>`;
 const RS_T = { done: 'готово', refuse: 'отказ' };
 // Комнаты — в нижней панели: листаются вбок вместе с остальными кнопками. Значок — статус комнаты.
 const roomTabs = (no, d, f) => { const v = f.visit || {}; return ((d.est && d.est.rooms) || []).map((r) => { const st = (f.rs || {})[r.key]; return `<button type="button" class="f-tab bd-rtab${v.room === r.key ? ' is-active' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="vs-room" data-no="${no}" data-k="${r.key}">${st ? (st.st === 'done' ? '✓ ' : '× ') : ''}${esc(r.name)}</button>`; }).join(''); };
@@ -312,7 +314,7 @@ export function renderVisit(no) {
     <div class="bd-flbar">${STEPS.map((_, j) => `<i class="${j < v.step ? 'past' : j === v.step ? 'on' : ''}"></i>`).join('')}</div><p class="bd-line"><b>${name}</b><small>${esc(c.name || '')} · №${no}</small></p></section>`;
   S.save();
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${head}${body}
-    <nav class="f-nav f-nav--tabs bd-vnav bd-vscroll" aria-label="Шаги выезда"><button type="button" class="f-icon-btn bd-back" ${A('vs-prev')} aria-label="Назад"${v.step ? '' : ' disabled'}>${BACK}</button>
+    <nav class="f-nav f-nav--tabs bd-vnav bd-vscroll" aria-label="Шаги выезда">${kind === 'work' && v.step >= 3 ? plusBtn(no) : `<button type="button" class="f-icon-btn bd-back" ${A('vs-prev')} aria-label="Назад"${v.step ? '' : ' disabled'}>${BACK}</button>`}
       ${v.step < STEPS.length - 1 && can !== false ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn${can ? ' f-btn--lit' : ''}" ${A('vs-next')}${can ? '' : ' disabled'}>Дальше</button></div>` : v.step < STEPS.length - 1 ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn" disabled>Дальше</button></div>` : '<span class="bd-navfree"></span>'}${v.kind === 'work' && v.step >= 3 ? roomTabs(no, d, f) : ''}${infoBtn(no)}${chatBtn(no, d)}</nav>`;
 }
 const vs = (el, fn) => { const no = el.dataset.no, f = flowOf(no); fn(f.visit, f); S.save(); rerender(); };
@@ -328,7 +330,11 @@ actions['vs-disc'] = (el) => { const v = flowOf(noOfHash()).visit; v.disc = +el.
 actions['vs-next'] = (el) => { const no = el.dataset.no; const f0 = flowOf(no).visit, scr0 = vsScr(f0); const msg = vsExpMsg(no, scr0); if (msg) return toast(msg);
   if (f0.kind === 'work' && f0.step === 3) { const i = VS_TABS.findIndex((x) => x[0] === (f0.tab || 'material')); if (i < VS_TABS.length - 1) { f0.tab = VS_TABS[i + 1][0]; return vsGo(no, 3); } }
   vsGo(no, f0.step + 1); };
-actions['vs-tab'] = (el) => { const no = el.dataset.no, v = flowOf(no).visit; v.tab = el.dataset.k; v.step = 3; vsGo(no, 3); };
+actions['vs-plus'] = (el) => { const no = el.dataset.no, f = flowOf(no), v = f.visit; S.setDraftKey('ord-' + no);
+  if (v.step === 3 && v.tab === 'smeta') return actions['mw-pick']();
+  const dm = S.get().oformit['ord-' + no]; if (v.step === 3 && v.tab === 'material' && dm && dm.mat && dm.mat.view === 'pick') return actions['z-mat-pick']();
+  v.tab = 'material'; v.step = 3; vsGo(no, 3); S.setDraftKey('ord-' + no); actions['z-mat-pick'](); };
+actions['vs-tab'] = (el) => { const no = el.dataset.no, v = flowOf(no).visit, d0 = S.get().oformit['ord-' + no], cur = d0 && (v.tab === 'smeta' ? d0.sm && d0.sm.view : d0.mat && d0.mat.view); if (cur && ((d0.est && d0.est.rooms) || []).some((r) => r.key === cur)) v.room = cur; v.tab = el.dataset.k; v.step = 3; vsGo(no, 3); };
 actions['vs-room'] = (el) => { const no = el.dataset.no, v = flowOf(no).visit; if (!v) return; v.room = el.dataset.k; v.tab = 'material'; flAsk = ''; vsGo(no, 3); };
 actions['vs-rdone'] = (el) => { const no = el.dataset.no, f = flowOf(no), v = f.visit, k = v.room || firstRoom(no); const mr = ((S.get().oformit['ord-' + no] || {}).mat || {}).rooms || {}; const items = (mr[k] && mr[k].items) || [];
   if (!items.length || !items.every((i) => S.reviewsOf(i.code).some((x) => x.authorId === S.me().id))) { v.tab = 'material'; S.save(); toast(!items.length ? 'Добавьте материал комнаты — отсканируйте штрихкод' : 'Поделитесь опытом работы с материалом — кнопка «Мой опыт»'); return vsGo(no, 3); }
@@ -437,14 +443,14 @@ export function renderBoardEdit(no, t) {
   S.setDraftKey('ord-' + no);
   if (startEdit === t) { startEdit = ''; beginEdit(oformitDraft(), t); }
   const c = CL[no];
-  const mid = `<div class="bd-navslot"><button type="button" class="f-icon-btn bd-back" data-action="bd-to-order" data-no="${no}" aria-label="К заказу">${BACK}</button>${vsNextBtn(no, t) || '<span class="bd-navfree"></span>'}</div>`;
+  const vv = flowOf(no).visit || {}, inRoom = !!(vv.open && vv.kind === 'work' && vv.step === 3 && t !== 'chat');
+  const mid = `<div class="bd-navslot">${inRoom ? plusBtn(no) : `<button type="button" class="f-icon-btn bd-back" data-action="bd-to-order" data-no="${no}" aria-label="К заказу">${BACK}</button>`}${vsNextBtn(no, t) || '<span class="bd-navfree"></span>'}</div>`;
   const navHtml = ''; // шапка (назад, раздел, клиент) — в нижней навигации между «Меню» и «Чатом»
   const dd = oformitDraft();
   if (t === 'chat') { (dd.chat || []).forEach((m) => { m.read = true; }); S.save(); }
-  const vv = flowOf(no).visit || {}, inRoom = !!(vv.open && vv.kind === 'work' && vv.step === 3 && t !== 'chat');
   const html = renderOformit('order', { only: t, navHtml, navRight: mid + (inRoom ? roomTabs(no, dd, flowOf(no)) : '') + ((flowOf(no).visit || {}).open && t !== 'chat' ? infoBtn(no) : '') + (t === 'chat' ? '<span class="f-nav__chat"></span>' : chatBtn(no, dd)) });
   // Вместо «Редактировать / Редактирование» — «Отмена»: правка уже включена.
-  return (inRoom ? roomSeg(no, vv) : '') + html.replace('f-nav f-nav--tabs', inRoom ? 'f-nav f-nav--tabs bd-vscroll' : 'f-nav f-nav--tabs').replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
+  return (inRoom ? roomSeg(no, vv) : '') + (inRoom ? html.replace(/<div class="o-pvbar">[\s\S]*?<\/div><\/div>/, '') : html).replace('f-nav f-nav--tabs', inRoom ? 'f-nav f-nav--tabs bd-vscroll' : 'f-nav f-nav--tabs').replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
 }
 actions['bd-edit'] = (el) => { startEdit = el.dataset.tab; go(`bd-edit-${el.dataset.no}-${el.dataset.tab}`); };
 actions['bd-to-order'] = (el) => { showParts = false; const no = el.dataset.no, f = flowOf(no), v = f.visit;
