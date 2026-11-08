@@ -2827,3 +2827,4 @@ a.bz-btn { text-decoration: none; }
 a.f-btn { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .bd-vbig { height: 46px; font-size: 16px; }
 .h-hero__act .h-go { flex: 1; justify-content: center; }
+.bd-vnext .f-btn.is-off { opacity: .5; }

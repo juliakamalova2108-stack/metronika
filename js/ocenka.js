@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=371';
-import * as S from './store.js?v=371';
-import { SYSTEM_PRICE } from './seed.js?v=371';
-import { shiftsText, hoursFor } from './calc.js?v=371';
-import { esc, toast } from './ui.js?v=371';
-import { logEvent } from './zlog.js?v=371';
+import { actions, changes, rerender } from './core.js?v=372';
+import * as S from './store.js?v=372';
+import { SYSTEM_PRICE } from './seed.js?v=372';
+import { shiftsText, hoursFor } from './calc.js?v=372';
+import { esc, toast } from './ui.js?v=372';
+import { logEvent } from './zlog.js?v=372';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -579,7 +579,7 @@ export function materialStrip(d, view, stat, right, inner = '') {
   const e = est(d);
   const html = carousel({ ...e, view }, view === 'total' ? '' : right, inner)
     .replace(/data-action="o-view"/g, 'data-action="z-mat-view"')
-    .replace(/<button type="button" class="o-pv-add[\s\S]*?<\/button>/, '')
+    .replace(/data-action="o-add"/, 'data-action="vs-addroom"')
     .replace(/<i class="o-pv__ok"[^>]*>✓<\/i>/g, '');
   // На плитке — строки «последние 4 цифры штрихкода — сколько рулонов»: «7890 — 4». Больше двух — «+N ещё».
   const cnt = (x) => { if (!x || !x.list || !x.list.length) return '—';

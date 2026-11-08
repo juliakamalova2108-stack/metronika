@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=371';
-import * as S from './store.js?v=371';
-import { renderOformit, oformitDraft } from './oformit.js?v=371';
-import { roomTotals, svcInfo } from './ocenka.js?v=371';
-import { smetaTotals } from './zakaz.js?v=371';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=371';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=371';
-import { esc, toast, status, seg } from './ui.js?v=371';
-import { topbar, ORDER_STATUS } from './shared.js?v=371';
+import { actions, rerender, go } from './core.js?v=372';
+import * as S from './store.js?v=372';
+import { renderOformit, oformitDraft } from './oformit.js?v=372';
+import { roomTotals, svcInfo } from './ocenka.js?v=372';
+import { smetaTotals } from './zakaz.js?v=372';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=372';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=372';
+import { esc, toast, status, seg } from './ui.js?v=372';
+import { topbar, ORDER_STATUS } from './shared.js?v=372';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -237,7 +237,12 @@ const vsSteps = (k) => (k === 'measure' ? VS_MEAS : VS_WORK);
 function vsGo(no, step) { const f = flowOf(no), v = f.visit; v.step = step; S.save(); const scr = VS_SCR[v.kind][vsSteps(v.kind)[step]]; window.scrollTo(0, 0); go(scr ? `bd-edit-${no}-${scr}` : `bd-visit-${no}`); }
 // «Дальше» в нижней панели готового экрана, когда идёт выезд
 export function vsNextBtn(no, t) { const f = flowOf(no), v = f.visit; if (!v || !v.open) return ''; const scr = VS_SCR[v.kind][vsSteps(v.kind)[v.step]]; if (scr !== t) return '';
-  return `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn f-btn--lit" data-action="vs-next" data-no="${no}">Дальше</button></div>`; }
+  const ok = vsExpOk(no, t); return `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn${ok ? ' f-btn--lit' : ' is-off'}" data-action="vs-next" data-no="${no}">Дальше</button></div>`; }
+// «Материал» нельзя пропустить: нужен хотя бы один материал и опыт мастера по каждому
+function vsExpMsg(no, t) { if (t !== 'material') return ''; const d = S.get().oformit['ord-' + no]; const codes = [...new Set(Object.values((d && d.mat && d.mat.rooms) || {}).flatMap((r) => (r.items || []).map((i) => i.code)))];
+  if (!codes.length) return 'Добавьте материал комнаты — отсканируйте штрихкод';
+  return codes.every((c) => S.reviewsOf(c).some((v) => v.authorId === S.me().id)) ? '' : 'Поделитесь опытом работы с материалом — кнопка «Мой опыт»'; }
+const vsExpOk = (no, t) => !vsExpMsg(no, t);
 export function renderVisit(no) {
   if (!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) return null;
   if (DEMO[no]) seedOrder(no);
@@ -290,7 +295,7 @@ export function renderVisit(no) {
     can = (f.day || 1) > 1 || !!f.shift.ctl; }
   else if (name === 'Конец смены') { can = false; const last = !wd.length || di >= wd.length - 1;
     body = block(`Конец смены · ${dayTxt}`, no, '', `<p class="bd-line"><b>${last ? 'Последний день по плану' : 'Завтра — следующий день плана'}</b><small>${esc(today.map((r) => r.name).join(', '))}</small></p>`)
-      + `<div class="f-btn-row bd-flbtns">${fb('Работы выполнены', A('vs-alldone'), last ? ' f-btn--lit' : '')}${fb('Закрыть смену', A('vs-endshift'), last ? '' : ' f-btn--lit')}</div>`; }
+      + (v.dl ? `<div class="f-btn-row bd-flbtns">${last ? '' : fb('Закрыть смену', A('vs-endshift'))}${fb('Завершить заказ', A('vs-alldone'), ' f-btn--lit')}</div>` : big('Скачать смету', A('vs-dl'))); }
   const head = `<section class="f-plate bd-block bd-flow"><div class="bd-block__hd"><span>${kind === 'measure' ? 'Выезд на замер' : 'Рабочий день'} · шаг ${v.step + 1} из ${STEPS.length}</span><button type="button" class="bd-edit" ${A('vs-exit')}>Выйти</button></div>
     <div class="bd-flbar">${STEPS.map((_, j) => `<i class="${j < v.step ? 'past' : j === v.step ? 'on' : ''}"></i>`).join('')}</div><p class="bd-line"><b>${name}</b><small>${esc(c.name || '')} · №${no}</small></p></section>`;
   S.save();
@@ -308,7 +313,7 @@ actions['vs-keep'] = (el) => vs(el, (v) => { v.keep[el.dataset.k] = v.keep[el.da
 actions['vs-today'] = (el) => vs(el, (v) => { v.today[el.dataset.k] = v.today[el.dataset.k] === false; });
 actions['vs-photo'] = (el) => vs(el, (v) => { v.photos[el.dataset.k] = !v.photos[el.dataset.k]; });
 actions['vs-disc'] = (el) => { const v = flowOf(noOfHash()).visit; v.disc = +el.dataset.k; S.save(); rerender(); };
-actions['vs-next'] = (el) => { const no = el.dataset.no; vsGo(no, flowOf(no).visit.step + 1); };
+actions['vs-next'] = (el) => { const no = el.dataset.no; const f0 = flowOf(no).visit, scr0 = VS_SCR[f0.kind][vsSteps(f0.kind)[f0.step]]; const msg = vsExpMsg(no, scr0); if (msg) return toast(msg); vsGo(no, flowOf(no).visit.step + 1); };
 actions['vs-prev'] = (el) => { const no = el.dataset.no; flAsk = ''; vsGo(no, Math.max(0, flowOf(no).visit.step - 1)); };
 actions['vs-exit'] = (el) => { const no = el.dataset.no; flowOf(no).visit.open = 0; S.save(); go('bd-order-' + no); };
 const vsEnd = (no, st, extra) => { const f = flowOf(no); f.visit = null; f.st = st; Object.assign(f, extra || {}); flAsk = ''; S.save(); };
@@ -316,6 +321,10 @@ actions['vs-yes'] = (el) => { const no = el.dataset.no; vsEnd(no, 'queue'); toas
 actions['vs-call'] = () => { const no = noOfHash(); vsEnd(no, 'approval', { call: 3 }); toast('Задача «Позвонить клиенту» создана'); go('bd-order-' + no); };
 actions['vs-refuse'] = (el) => { const no = noOfHash(); vsEnd(no, 'refused', { reason: el.dataset.k }); toast('Заказ закрыт как отказ'); go('bd-order-' + no); };
 actions['vs-endshift'] = (el) => { const no = el.dataset.no, f = flowOf(no); f.day = (f.day || 1) + 1; f.shift = {}; f.visit = null; f.st = 'work'; S.save(); toast('Смена закрыта — до завтра'); go('home'); };
+actions['vs-dl'] = (el) => { const no = el.dataset.no, f = flowOf(no), d = S.get().oformit['ord-' + no]; const t = d && d.sm ? smetaTotals(d) : null;
+  const txt = `Смета · заказ №${no}\n` + (t ? t.rooms.map((x) => `${x.room.name}: ${fmt(x.total)} ₽`).join('\n') + `\nИтого: ${fmt(t.total)} ₽\n` : '');
+  try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' })); a.download = `Смета-${no}.txt`; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { /* не страшно */ }
+  f.visit.dl = 1; S.save(); toast('Смета скачана — отправьте клиенту'); rerender(); };
 actions['vs-alldone'] = (el) => { const no = el.dataset.no; vsEnd(no, 'done'); toast('Работы выполнены — итог и оплата'); go('bd-order-' + no); };
 const flSet = (el, fn) => { const no = el.dataset.no; fn(flowOf(no), S.get().oformit['ord-' + no]); S.save(); rerender(); };
 actions['fl-startwork'] = (el) => { const f = flowOf(el.dataset.no); f.st = 'work'; f.day = 1; f.shift = {}; f.visit = null; S.save(); go('bd-visit-' + el.dataset.no); };
@@ -412,9 +421,10 @@ export function renderBoardEdit(no, t) {
   // Вместо «Редактировать / Редактирование» — «Отмена»: правка уже включена.
   return html.replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
 }
+actions['vs-addroom'] = (el) => { const no = location.hash.replace(/^#bd-edit-(\d+)-.*/, '$1'); startEdit = 'estimate'; go(`bd-edit-${no}-estimate`); };
 actions['bd-edit'] = (el) => { startEdit = el.dataset.tab; go(`bd-edit-${el.dataset.no}-${el.dataset.tab}`); };
 actions['bd-to-order'] = (el) => { showParts = false; const no = el.dataset.no, f = flowOf(no), v = f.visit;
-  if (v && v.open) { const scr = VS_SCR[v.kind][vsSteps(v.kind)[v.step]]; if (scr && location.hash.includes('-' + scr)) return vsGo(no, Math.max(0, v.step - 1)); return go('bd-visit-' + no); }
+  if (v && v.open) { const scr = VS_SCR[v.kind][vsSteps(v.kind)[v.step]]; if (scr && location.hash.includes('-' + scr)) return vsGo(no, Math.max(0, v.step - 1)); return vsGo(no, v.step); }
   go('bd-order-' + no); };
 actions['bd-room'] = (el) => { const k = el.dataset.key; if (openRooms.has(k)) openRooms.delete(k); else openRooms.add(k); rerender(); };
 actions['bd-back'] = () => go('orders');
