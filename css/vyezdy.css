@@ -2314,3 +2314,11 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-dleg small { font: 500 12px Inter, sans-serif; color: rgba(237,242,232,.55); }
 .sd-dleg small:empty { display: none; }
 .sd-dleg em { font: 800 14px Manrope, sans-serif; font-style: normal; color: #edf2e8; }
+
+.sd-tile { display: grid !important; grid-template-columns: auto 1fr; grid-template-areas: "l l" "n c" "d d"; align-items: end; column-gap: 8px; }
+.sd-tile > small { grid-area: l; } .sd-tile > b { grid-area: n; } .sd-tile > .sd-mb { grid-area: c; } .sd-tile > em { grid-area: d; }
+.sd-mb { display: flex; align-items: flex-end; gap: 2px; height: 30px; margin-bottom: 4px; }
+.sd-mb i { width: 5px; border-radius: 2px 2px 1px 1px; }
+
+.sd-tile > b { white-space: nowrap; } .sd-tile > .sd-mb { justify-self: end; }
+.sd-mb i { width: 6px; }
