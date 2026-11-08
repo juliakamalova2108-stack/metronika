@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=280';
-import * as S from './store.js?v=280';
-import { esc, toast } from './ui.js?v=280';
-import { selectField, pickers } from './oformit.js?v=280';
+import { actions, rerender, val } from './core.js?v=281';
+import * as S from './store.js?v=281';
+import { esc, toast } from './ui.js?v=281';
+import { selectField, pickers } from './oformit.js?v=281';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -157,12 +157,12 @@ function donut(rows, centerN, centerS) {
 }
 // список категорий: доля, сумма, разница с прошлым периодом, раскрытие — операции
 function catList(rows, unit, sub, details) {
-  const tot = rows.reduce((a, x) => a + x.v, 0) || 1, mx = Math.max(1, ...rows.map((x) => x.v));
-  return `<div class="sd-cl">${rows.map((x) => { const on = open === x.key;
-    return `<div class="sd-cl__it${on ? ' is-open' : ''}"><button type="button" class="sd-cl__r" data-action="sd2-open" data-k="${esc(x.key)}">
-      <span class="sd-cl__sw" style="background:${x.col}"></span>
-      <span class="sd-cl__t"><b>${esc(x.t)}</b><small>${sub(x)}</small><span class="sd-cl__bar"><i style="--w:${(x.v / mx) * 100}%;--c:${x.col}"></i></span></span>
-      <span class="sd-cl__v"><b>${fmt(x.v)}${unit}</b><small>${Math.round((x.v / tot) * 100)}% ${x.d === undefined ? '' : dTag(x.d, x.inv)}</small></span></button>
+  const tot = rows.reduce((a, x) => a + x.v, 0) || 1, R = 15, CC = 2 * Math.PI * R;
+  return `<div class="sd-cl">${rows.map((x) => { const on = open === x.key, pc = (x.v / tot) * 100;
+    const ring = `<svg class="sd-cl__ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="${R}" fill="none" stroke="rgba(237,242,232,.08)" stroke-width="4.5"/><circle cx="20" cy="20" r="${R}" fill="none" stroke="${x.col}" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="${Math.max(0.5, (pc / 100) * CC - (pc < 100 ? 0 : 0)).toFixed(1)} ${CC}" transform="rotate(-90 20 20)"/><text x="20" y="24" text-anchor="middle">${Math.round(pc)}%</text></svg>`;
+    return `<div class="sd-cl__it${on ? ' is-open' : ''}"><button type="button" class="sd-cl__r" data-action="sd2-open" data-k="${esc(x.key)}" aria-expanded="${on}">
+      ${ring}<span class="sd-cl__t"><b>${esc(x.t)}</b><small>${sub(x)}</small></span>
+      <span class="sd-cl__v"><b>${fmt(x.v)}${unit}</b>${x.d === undefined ? '' : `<small>${dTag(x.d, x.inv)}</small>`}</span><i class="sd-cl__ch">${CHEV}</i></button>
       ${on ? `<div class="sd-cl__ops">${details(x)}</div>` : ''}</div>`; }).join('')}</div>`;
 }
 const opRow = (d, t, s, v) => `<div class="sd-op"><span class="sd-op__d">${d.getDate()} ${MONS[d.getMonth()]}</span><span class="sd-op__t"><b>${esc(t)}</b><small>${esc(s)}</small></span><span class="sd-op__v">${v}</span></div>`;
@@ -343,7 +343,7 @@ export function renderStatsMaster() {
     const tot = money === 'inc' ? A.inc : A.exp;
     const catB = `<div class="sd-mseg">${seg2([['inc', 'Доходы'], ['exp', 'Расходы']], money, 'sd2-money')}</div>` + fblock('money-' + money, [money === 'inc' ? 'Доходы' : 'Расходы', `${scope} · ${rows.length} ${plural(rows.length, 'категория', 'категории', 'категорий')}`, `<span class="sd-f__sum"><b>${fmt(tot)} ₽</b>${dTag(delta(tot, money === 'inc' ? B.inc : B.exp), money === 'exp')}</span>`],
       mosaic(rows),
-      `<div class="sd-part">${segBar(rows, true)}${legend2(rows)}</div>` + (
+      (
 rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'операция' : x.cnt < 5 ? 'операции' : 'операций'}`,
         (x) => A.P.filter((o) => o.kind + ':' + o.cat === x.key).sort((a, b) => b.d - a.d).slice(0, 12).map((o) => opRow(o.d, o.o ? `№${o.o.no} · ${o.o.client}` : o.note || x.t, o.o ? `${o.o.m2} м²` : 'покупка', `${money === 'inc' ? '+' : '−'}${fmt(o.sum)} ₽`)).join('')) : '<p class="sd-note">Нет операций за период</p>'));
     content = catB;
@@ -382,7 +382,7 @@ rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'опера
     const brandsN = new Set(all.map((x) => x.t)).size, top = [...all].sort((a, b) => b.v - a.v);
     const brands = fblock('brands', ['Бренды', `${brandsN} ${plural(brandsN, 'бренд', 'бренда', 'брендов')} · ${scope}`],
       top.length ? mosaic((() => { const L = [...groupBy(all, (x) => x.t, (x) => x.v)].sort((p1, p2) => p2[1] - p1[1]); const head = L.slice(0, 7).map(([t, v], i) => ({ t, v, col: P7[i] })); const rest = L.slice(7); return rest.length ? [...head, { t: `Ещё ${rest.length}`, v: rest.reduce((a, x) => a + x[1], 0), col: OTHER, rest: true }] : head; })(), 160) : '',
-      `<div class="sd-part">${segBar(CATS.map(([cat], i) => ({ t: cat, v: all.filter((x) => x.cat === cat).reduce((a, x) => a + x.v, 0), col: P7[i] })), true)}${legend2(CATS.map(([cat], i) => ({ t: cat, col: P7[i] })))}</div>` + secs);
+      secs);
     const rRows = ROOMS.map(([t, col]) => { let v = 0, n = 0; A.O.forEach((o) => o.rooms.forEach((r) => { if (r[0] === t) { v += r[1]; n++; } })); return { key: 'rm:' + t, t, col, v, n }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const rooms = fblock('rooms', ['По комнатам', `поклеено ${scope}`], bubbles(rRows), catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key))));
     content = A.n ? kpi + brands + rooms : '<p class="sd-note">Нет заказов за период</p>';

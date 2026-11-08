@@ -2274,3 +2274,11 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-mos em { font: 800 12.5px Manrope, sans-serif; font-style: normal; }
 
 .sd-bub__s { font: 700 9.5px Manrope, sans-serif; }
+
+.sd-cl__r { grid-template-columns: 40px minmax(0,1fr) auto 22px !important; gap: 12px !important; align-items: center; }
+.sd-cl__ring { width: 40px; height: 40px; }
+.sd-cl__ring text { font: 800 10px Manrope, sans-serif; fill: #edf2e8; }
+.sd-cl__ch { display: grid; place-items: center; color: rgba(237,242,232,.5); transition: transform .2s; }
+.sd-cl__ch svg { width: 16px; height: 16px; }
+.sd-cl__it.is-open .sd-cl__ch { transform: rotate(180deg); }
+.sd-cl__ops { margin-left: 52px !important; }
