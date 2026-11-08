@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=396';
-import * as S from './store.js?v=396';
-import { renderOformit, oformitDraft } from './oformit.js?v=396';
-import { roomTotals, svcInfo } from './ocenka.js?v=396';
-import { smetaTotals } from './zakaz.js?v=396';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=396';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=396';
-import { esc, toast, status, seg } from './ui.js?v=396';
-import { topbar, ORDER_STATUS } from './shared.js?v=396';
+import { actions, rerender, go } from './core.js?v=397';
+import * as S from './store.js?v=397';
+import { renderOformit, oformitDraft } from './oformit.js?v=397';
+import { roomTotals, svcInfo } from './ocenka.js?v=397';
+import { smetaTotals } from './zakaz.js?v=397';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=397';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=397';
+import { esc, toast, status, seg } from './ui.js?v=397';
+import { topbar, ORDER_STATUS } from './shared.js?v=397';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -262,6 +262,7 @@ function roomPlate(no, v, html) { const f = flowOf(no), k = v.room || firstRoom(
   const row = rr ? chips([['Обои не подошли', 'Обои не подошли'], ['Клиент передумал', 'Клиент передумал'], ['Не сошлись по цене', 'Не сошлись по цене'], ['Другое', 'Другое']], 'vs-rrefuse')
     : ask ? `<div class="z-seg bd-vseg">${[['work', 'В работе'], ['done', 'Готово'], ['refuse', 'Отказ']].map(([a, t]) => `<button type="button" class="f-btn${st === a ? ' f-btn--lit' : ''}" data-action="vs-rst" data-no="${no}" data-k="${a}">${t}</button>`).join('')}</div>`
     : st === 'start' ? `<div class="f-btn-row bd-vseg"><button type="button" class="f-btn f-btn--lit" data-action="vs-rgo" data-no="${no}">Начать</button></div>` : roomSeg(no, v);
+  if (st === 'start') html = html.replace('class="f-plate o-rplate', 'class="f-plate o-rplate bd-rstart');
   return html.replace(/(<div class="o-rhead">[\s\S]*?<\/small><\/span>(?:<span class="o-rhead__b"><span><\/span><\/span>)?)<\/div>/, `$1<span class="bd-rst">${chip}</span></div><div class="bd-rrow">${row}</div>`); }
 // «Материал» нельзя пропустить: нужен хотя бы один материал и опыт мастера по каждому
 function vsExpMsg(no, t) { if (t !== 'material') return ''; const d = S.get().oformit['ord-' + no]; const rk = (flowOf(no).visit || {}).room; const mr = (d && d.mat && d.mat.rooms) || {}; const codes = [...new Set((rk ? [mr[rk]] : Object.values(mr)).filter(Boolean).flatMap((r) => (r.items || []).map((i) => i.code)))];
@@ -350,7 +351,7 @@ actions['vs-plus'] = (el) => { const no = el.dataset.no, f = flowOf(no), v = f.v
   v.tab = 'material'; v.step = 3; vsGo(no, 3); S.setDraftKey('ord-' + no); actions['z-mat-pick'](); };
 actions['vs-tab'] = (el) => { const no = el.dataset.no, v = flowOf(no).visit, d0 = S.get().oformit['ord-' + no], cur = d0 && (v.tab === 'smeta' ? d0.sm && d0.sm.view : d0.mat && d0.mat.view); if (cur && ((d0.est && d0.est.rooms) || []).some((r) => r.key === cur)) v.room = cur; v.tab = el.dataset.k; v.step = 3; vsGo(no, 3); };
 actions['vs-room'] = (el) => { const no = el.dataset.no, v = flowOf(no).visit; if (!v) return; v.room = el.dataset.k; v.tab = 'material'; flAsk = ''; vsGo(no, 3); };
-actions['vs-rgo'] = (el) => { const f = flowOf(el.dataset.no); f.rg = f.rg || {}; f.rg[f.visit.room || firstRoom(el.dataset.no)] = 1; S.save(); rerender(); };
+actions['vs-rgo'] = (el) => { const f = flowOf(el.dataset.no); f.rg = f.rg || {}; f.rg[f.visit.room || firstRoom(el.dataset.no)] = 1; f.visit.tab = 'material'; S.save(); vsGo(el.dataset.no, 3); };
 actions['vs-rst'] = (el) => { const no = el.dataset.no, f = flowOf(no), k = f.visit.room || firstRoom(no), a = el.dataset.k; f.rs = f.rs || {};
   if (a === 'refuse') { flAsk = no + ':rrefuse'; return rerender(); }
   if (a === 'work') { delete f.rs[k]; delete f.done[k]; flAsk = ''; S.save(); return rerender(); }
