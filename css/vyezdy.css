@@ -2457,3 +2457,9 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-wtg small { font: 700 12px Inter, sans-serif; color: rgba(237,242,232,.6); background: rgba(237,242,232,.08); border-radius: 10px; padding: 2px 8px; }
 .sd-wtg .sd-f__ch { display: inline-flex; transition: transform .2s; }
 .sd-wtg.is-open .sd-f__ch { transform: rotate(180deg); }
+
+.sd-hero__s { margin: -4px 0 10px; font: 500 12px Inter, sans-serif; color: rgba(237,242,232,.55); }
+.f-botnav .f-tab { white-space: nowrap; }
+
+.sd-nav4 .f-topnav__track { gap: 0; justify-content: space-between; left: 12px; right: 12px; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+.sd-nav4 .f-tab { font-size: 14px; }

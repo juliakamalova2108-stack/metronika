@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=309';
-import * as S from './store.js?v=309';
-import { esc, toast } from './ui.js?v=309';
-import { selectField, pickers } from './oformit.js?v=309';
+import { actions, rerender, val } from './core.js?v=311';
+import * as S from './store.js?v=311';
+import { esc, toast } from './ui.js?v=311';
+import { selectField, pickers } from './oformit.js?v=311';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -72,7 +72,18 @@ function data() {
     }
     if (rnd() < 0.3) ops.push({ kind: 'exp', cat: 'Инструмент', sum: ri(3, 15) * 1000, d: new Date(y, m, ri(1, lastDay)), o: null, note: ['Лазерный уровень', 'Шпатели и валики', 'Стремянка', 'Нож и лезвия', 'Миксер'][Math.floor(rnd() * 5)] });
   }
-  DATA = { orders, ops };
+  // эффективность: отдельный генератор, чтобы не менять остальные данные
+  let s2 = 777;
+  const r2 = () => { s2 = (s2 * 16807) % 2147483647; return (s2 - 1) / 2147483646; };
+  const LOST = ['Отказ после замера', 'Не договорились по цене', 'Не дозвонились', 'Выбрали другого мастера', 'Перенесли ремонт'];
+  const lost = [];
+  orders.forEach((o) => {
+    o.travel = o.days * Math.round(40 + r2() * 70); o.wait = o.days * Math.round(r2() * 22); o.measure = Math.round(30 + r2() * 40);
+    o.workH = Math.round((o.m2 / (4 + r2() * 3)) * 10) / 10; o.resp = Math.round(5 + r2() * r2() * 110);
+    const k = r2() < 0.3 ? 1 : r2() < 0.12 ? 2 : 0;
+    for (let j = 0; j < k; j++) lost.push({ d: new Date(o.d.getTime() - Math.round(r2() * 9) * 864e5), reason: LOST[Math.floor(r2() * r2() * LOST.length)], client: NAMES[Math.floor(r2() * NAMES.length)], m2: Math.round(25 + r2() * 70) });
+  });
+  DATA = { orders, ops, lost };
   return DATA;
 }
 
@@ -111,10 +122,10 @@ const prevPeriod = () => { const q = mode === 'year' ? period(py - 1, pm) : peri
   return q; };
 const inP = (p) => (x) => x.d >= p.from && x.d < p.to;
 function agg(p) {
-  const { orders, ops } = data(), f = inP(p);
-  const O = orders.filter(f), P = ops.filter(f);
+  const { orders, ops, lost } = data(), f = inP(p);
+  const O = orders.filter(f), P = ops.filter(f), L = lost.filter(f);
   const inc = P.filter((x) => x.kind === 'inc').reduce((a, x) => a + x.sum, 0), exp = P.filter((x) => x.kind === 'exp').reduce((a, x) => a + x.sum, 0);
-  return { O, P, inc, exp, profit: inc - exp, n: O.length, m2: O.reduce((a, o) => a + o.m2, 0), days: O.reduce((a, o) => a + o.days, 0), rolls: O.reduce((a, o) => a + o.rolls, 0), wm2: O.reduce((a, o) => a + (o.works || []).reduce((x, w) => x + w[1], 0), 0) };
+  return { O, P, inc, exp, profit: inc - exp, n: O.length, m2: O.reduce((a, o) => a + o.m2, 0), days: O.reduce((a, o) => a + o.days, 0), rolls: O.reduce((a, o) => a + o.rolls, 0), wm2: O.reduce((a, o) => a + (o.works || []).reduce((x, w) => x + w[1], 0), 0), L, lostN: L.length, leads: O.length + L.length, travel: O.reduce((a, o) => a + o.travel, 0), wait: O.reduce((a, o) => a + o.wait, 0), measure: O.reduce((a, o) => a + o.measure, 0), workH: O.reduce((a, o) => a + o.workH, 0), resp: O.reduce((a, o) => a + o.resp, 0) };
 }
 const delta = (v, pv) => (pv ? Math.round(((v - pv) / Math.abs(pv)) * 100) : null);
 const dTag = (d, inverse) => (d === null || !isFinite(d) ? '' : `<em class="sd-d ${(d >= 0) !== !!inverse ? 'up' : 'dn'}">${d >= 0 ? '↑' : '↓'} ${Math.abs(d)}%</em>`);
@@ -330,6 +341,34 @@ function goalsTab() {
   return sum + cards + `<div class="f-btn-row"><button type="button" class="f-btn" data-action="gl-add">+ Добавить цель</button></div>`;
 }
 
+const hmS = (min) => (min >= 60 ? `${(min / 60).toFixed(1).replace('.', ',')} ч` : `${Math.round(min)} мин`);
+const hm = (min) => (min >= 60 ? `${Math.floor(min / 60)} ч${min % 60 ? ` ${Math.round(min % 60)} мин` : ''}` : `${Math.round(min)} мин`);
+function effTab(A, B, LY, lyLbl, lyCol, tile, scope, mser, si) {
+  if (!A.leads) return '<p class="sd-note">Нет заявок за период</p>';
+  const LC = { 'Отказ после замера': P7[1], 'Не договорились по цене': P7[3], 'Не дозвонились': P7[5], 'Выбрали другого мастера': P7[4], 'Перенесли ремонт': P7[0] };
+  const reasons = Object.keys(LC).map((t) => ({ key: 'lr:' + t, t, col: LC[t], v: A.L.filter((x) => x.reason === t).length, d: delta(A.L.filter((x) => x.reason === t).length, B.L.filter((x) => x.reason === t).length), inv: true })).filter((x) => x.v).sort((a, b) => b.v - a.v);
+  const segs0 = [{ t: 'Выполнено', v: A.n, col: C.inc }, ...reasons];
+  const segs = segs0.length > 5 ? [...segs0.slice(0, 4), { t: `Ещё ${segs0.length - 4}`, v: segs0.slice(4).reduce((a, x) => a + x.v, 0), col: OTHER }] : segs0;
+  const conv = Math.round((A.n / A.leads) * 100), convB = B.leads ? Math.round((B.n / B.leads) * 100) : 0;
+  const LS = { 'Отказ после замера': 'Отказ', 'Не договорились по цене': 'Цена', 'Не дозвонились': 'Нет связи', 'Выбрали другого мастера': 'Другой мастер', 'Перенесли ремонт': 'Перенос' };
+  const leg = `<ul class="sd-hleg2 sd-hleg2--w">${segs.map((x) => `<li><i style="background:${x.col}"></i><span><b>${esc(LS[x.t] || x.t)}</b><small>${x.v} ${plural(x.v, 'заявка', 'заявки', 'заявок')}</small></span><em>${Math.round((x.v / A.leads) * 100)}%</em></li>`).join('')}</ul>`;
+  const strip = `<div class="sd-ly3"><div class="sd-ly3__h">К прошлому году<small>${lyLbl}</small></div>${LY.leads ? `<div class="sd-ly3__g">${lyCol('Заявок', A.leads, LY.leads, P7[0])}${lyCol('Выполнено', A.n, LY.n, C.inc)}${lyCol('Слетело', A.lostN, LY.lostN, C.exp, true)}</div>` : '<small class="sd-ly__no">Год назад заявок не было</small>'}</div>`;
+  const row = (key, col, name, val, cur, prev, inv, body) => { const on = fold.has(key);
+    return `<div class="sd-mrow${on ? ' is-open' : ''}"><button type="button" class="sd-mrow__h" data-action="sd2-fold" data-k="${key}" aria-expanded="${on}"><i style="background:${col}"></i><span>${name}</span><b>${val}</b>${B.leads ? `<span class="sd-vs sd-vs--r">${dTag(delta(cur, prev), inv)}<small>${prevName()}</small></span>` : '<span></span>'}<i class="sd-f__ch">${CHEV}</i></button>${on ? `<div class="sd-f__full">${body()}</div>` : ''}</div>`; };
+  const lostOps = (f, k) => opsMore(k, A.L.filter(f).sort((a, b) => b.d - a.d).map((x) => opRow(x.d, x.client, x.reason, `~${x.m2} м²`)));
+  const rows = `<div class="sd-mrows">${row('e-done', C.inc, 'Выполнено', A.n, A.n, B.n, false, () => opsMore('e-dl', A.O.slice().sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `ответ ${hm(o.resp)} · в дороге ${hm(o.travel)}`, `${o.m2} м²`))))}${row('e-lost', C.exp, 'Слетело', A.lostN, A.lostN, B.lostN, true, () => (reasons.length ? catList(reasons, '', (x) => `${Math.round((x.v / Math.max(1, A.lostN)) * 100)}% от слетевших`, (x) => lostOps((y) => 'lr:' + y.reason === x.key, 'lro:' + x.key)) : '<p class="sd-note">Ни одна заявка не слетела</p>'))}</div>`;
+  const hero = `<section class="h-block sd-hero"><small>Заявки ${scope}</small><div class="sd-hero__v"><b>${conv}<i>%</i></b>${B.leads ? `<span class="sd-vs">${dTag(delta(conv, convB))}<small>${prevName()}</small></span>` : ''}</div><p class="sd-hero__s">заявок доведено до заказа</p>
+    <div class="sd-dwrap sd-dwrap--h2">${donutBig(segs, A.leads, 'ЗАЯВКИ', true)}${leg}</div>${strip}${rows}</section>`;
+  const avg = (a, k) => (a.n ? a[k] / a.n : 0), days = (a) => Math.max(1, a.days);
+  const trav = (a) => a.travel / days(a), wt = (a) => a.wait / days(a), spd = (a) => (a.workH ? a.m2 / a.workH : 0), rsp = (a) => avg(a, 'resp');
+  const tiles = `<div class="sd-tiles">${tile('В дороге за день', hmS(trav(A)), dTag(delta(trav(A), trav(B)), true), prevName(), bars(mser(trav), si, P7[1]))}${tile('Ожидание клиента', hmS(wt(A)), dTag(delta(wt(A), wt(B)), true), prevName(), bars(mser(wt), si, P7[5]))}
+    ${tile('Скорость, м²/ч', spd(A).toFixed(1).replace('.', ','), dTag(delta(spd(A), spd(B))), prevName(), bars(mser(spd), si, P7[2]))}${tile('Ответ на заявку', hmS(rsp(A)), dTag(delta(rsp(A), rsp(B)), true), prevName(), bars(mser(rsp), si, P7[0]))}</div>`;
+  const TM = [['Работа', A.workH * 60, P7[2]], ['Дорога', A.travel, P7[1]], ['Замер', A.measure, P7[3]], ['Ожидание', A.wait, P7[5]]].map(([t, v, col]) => ({ key: 'tm:' + t, t, v: Math.round(v / 60), col })).filter((x) => x.v);
+  const tm = fblock('time', ['Куда уходит время', scope], `<span class="sd-dwrap">${donutBig(TM, TM.reduce((a, x) => a + x.v, 0), 'часов')}${dLegend(TM, '')}</span>`,
+    catList(TM, ' ч', (x) => `≈ ${(x.v / A.n).toFixed(1).replace('.', ',')} ч на заказ`, (x) => opsMore('tmo:' + x.key, A.O.slice().sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.m2} м²`, x.t === 'Работа' ? `${String(o.workH).replace('.', ',')} ч` : hm(x.t === 'Дорога' ? o.travel : x.t === 'Замер' ? o.measure : o.wait))))));
+  return hero + tiles + tm;
+}
+
 export function renderStatsMaster() {
   const p = period(), pp = prevPeriod(), A = agg(p), B = agg(pp);
   const bk = p.buckets.map((b) => agg({ from: b.from, to: b.to }));
@@ -384,6 +423,8 @@ export function renderStatsMaster() {
 
   } else if (tab === 'goals') {
     content = goalsTab();
+  } else if (tab === 'eff') {
+    content = effTab(A, B, LY, lyLbl, lyCol, tile, scope, mser, si);
   } else {
     const brRows = BRANDS.map(([t, , col]) => { const O = A.O.filter((o) => o.brand === t); return { key: 'br:' + t, t, col, v: O.reduce((a, o) => a + o.m2, 0), rolls: O.reduce((a, o) => a + o.rolls, 0), n: O.length, d: delta(O.reduce((a, o) => a + o.m2, 0), B.O.filter((o) => o.brand === t).reduce((a, o) => a + o.m2, 0)) }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     let olN = 0;
@@ -448,7 +489,7 @@ export function renderStatsMaster() {
   }
 
   // ── Выбор периода: год стрелками, 12 столбиков-месяцев ──
-  const metric = tab === 'work' ? [['wm2', C.blue, ' м²']] : tab === 'all' ? [['inc', C.inc, ' ₽'], ['exp', C.exp, ' ₽']] : tab === 'goals' ? [['inc', C.gold, ' ₽']] : [['profit', C.inc, ' ₽']];
+  const metric = tab === 'eff' ? [['n', C.inc, ''], ['lostN', C.exp, '']] : tab === 'work' ? [['wm2', C.blue, ' м²']] : tab === 'all' ? [['inc', C.inc, ' ₽'], ['exp', C.exp, ' ₽']] : tab === 'goals' ? [['inc', C.gold, ' ₽']] : [['profit', C.inc, ' ₽']];
   const vmax = nice(Math.max(1, ...MA.filter(Boolean).flatMap((a) => metric.map(([key]) => a[key]))));
   // для рублей шкала с изломом: 0–250 000 подробно (нижние 75%), 250 000 – 1 000 000 сжато (верхние 25%)
   const RUB = metric[0][2] === ' ₽', BRK = 250000, TOPV = 1000000, LOW = 75;
@@ -459,18 +500,18 @@ export function renderStatsMaster() {
     if (!a) return `<span class="sd-pc__c is-off"><span class="sd-pc__bars"></span><small>${MONS[i]}</small></span>`;
     return `<button type="button" class="sd-pc__c${on ? ' is-on' : ''}${mode === 'year' ? ' is-all' : ''}" data-action="sd2-month" data-m="${i}" aria-label="${MONN[i]}: ${metric.map(([key, , u]) => `${fmt(a[key])}${u}`).join(', ')}">
       <span class="sd-pc__bars">${on ? `<em>${metric.map(([key]) => yl(a[key])).join(' · ')}</em>` : ''}${metric.map(([key, col]) => `<i style="height:${Math.max(1.5, ymap(Math.max(0, a[key])))}%;--c:${col}"></i>`).join('')}</span><small>${MONS[i]}</small></button>`; }).join('');
-  const lbl = tab === 'work' ? 'выполнено работ, м²' : tab === 'all' ? `<span class="sd-lg"><i style="background:${C.inc}"></i>доходы <i style="background:${C.exp}"></i>расходы</span>` : tab === 'goals' ? 'доход по месяцам' : 'прибыль по месяцам';
+  const lbl = tab === 'eff' ? `<span class="sd-lg"><i style="background:${C.inc}"></i>выполнено <i style="background:${C.exp}"></i>слетело</span>` : tab === 'work' ? 'выполнено работ, м²' : tab === 'all' ? `<span class="sd-lg"><i style="background:${C.inc}"></i>доходы <i style="background:${C.exp}"></i>расходы</span>` : tab === 'goals' ? 'доход по месяцам' : 'прибыль по месяцам';
   const per = `<section class="h-block sd-mp">
     <div class="sd-mp__hd"><div class="sd-per__nav"><button type="button" class="f-icon-btn" data-action="sd2-prev" aria-label="Прошлый год"${canPrev() ? '' : ' disabled'}>${ARR('l')}</button>
       <b>${py}</b><button type="button" class="f-icon-btn" data-action="sd2-next" aria-label="Следующий год"${py >= now.getFullYear() ? ' disabled' : ''}>${ARR('r')}</button></div>
       <button type="button" class="sd-mp__all${mode === 'year' ? ' is-on' : ''}" data-action="sd2-year">Весь год</button></div>
     <div class="sd-pc"><div class="sd-pc__y">${ticks.map((v) => `<span class="${RUB && v === BRK ? 'is-brk' : ''}" style="bottom:${ymap(v)}%"><small>${v ? (RUB ? (v >= 1000000 ? '1 млн' : k(v)) : yl(v)) : 0}</small></span>`).join('')}</div><div class="sd-pc__g">${cols}</div></div>
     <div class="sd-mp__ft"><small>${lbl}</small><b>${mode === 'year' ? `Сводка за ${py} год` : `Сводка за ${MONN[pm]}`}</b></div></section>`;
-  const tabs = [['all', 'Обзор'], ['work', 'Работа'], ['goals', 'Цели']];
+  const tabs = [['all', 'Обзор'], ['work', 'Работа'], ['eff', 'Эффективность'], ['goals', 'Цели']];
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     <div class="h-page sd"><header class="sd-hd"><h1>Статистика</h1></header>${per}${content}<p class="sd-demo">Прошлые периоды — примерные данные для показа</p></div>
     <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">
       <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>
-      <div class="f-topnav f-botnav"><div class="f-topnav__track" role="tablist">${tabs.map(([key, t]) => `<button type="button" role="tab" aria-selected="${key === tab}" class="f-tab${key === tab ? ' is-active' : ''}" data-action="sd2-tab" data-k="${key}">${t}</button>`).join('')}</div></div>
+      <div class="f-topnav f-botnav sd-nav4"><div class="f-topnav__track" role="tablist">${tabs.map(([key, t]) => `<button type="button" role="tab" aria-selected="${key === tab}" class="f-tab${key === tab ? ' is-active' : ''}" data-action="sd2-tab" data-k="${key}">${t}</button>`).join('')}</div></div>
     </nav>`;
 }
