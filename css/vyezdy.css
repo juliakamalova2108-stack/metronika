@@ -2070,3 +2070,28 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-kpi b { font: 800 20px Manrope, sans-serif; color: #edf2e8; }
 .sd-kpi small { font: 500 11.5px Inter, sans-serif; color: rgba(237,242,232,.5); }
 .sd-demo { margin: 4px 0 0; text-align: center; font: 500 11px Inter, sans-serif; color: rgba(237,242,232,.3); }
+
+.sd-mp { display: flex; flex-direction: column; gap: 12px; }
+.sd-mp__hd { display: flex; align-items: center; justify-content: space-between; }
+.sd-mp__hd .sd-per__nav { gap: 14px; }
+.sd-mp__hd .sd-per__nav b { font: 800 22px Manrope, sans-serif; min-width: 56px; text-align: center; }
+.sd-mp__all { all: unset; cursor: pointer; padding: 8px 14px; border-radius: 99px; font: 700 13px Manrope, sans-serif; color: rgba(237,242,232,.7); border: 1px solid rgba(191,214,204,.2); }
+.sd-mp__all.is-on { color: #12201d; background: #edf2e8; border-color: #edf2e8; }
+.sd-mp__grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; height: 150px; }
+.sd-mp__c { all: unset; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; -webkit-tap-highlight-color: transparent; }
+.sd-mp__c em { height: 14px; font: 800 10.5px Manrope, sans-serif; font-style: normal; color: #edf2e8; white-space: nowrap; }
+.sd-mp__bars { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 2px; border-radius: 9px; padding: 0 2px; }
+.sd-mp__bars i { flex: 1; max-width: 18px; height: var(--h); border-radius: 6px; background: linear-gradient(180deg, var(--c), color-mix(in srgb, var(--c) 25%, transparent)); opacity: .32; transition: opacity .2s; }
+.sd-mp__c.is-all .sd-mp__bars i { opacity: .8; }
+.sd-mp__c.is-on .sd-mp__bars { background: rgba(255,255,255,.07); }
+.sd-mp__c.is-on .sd-mp__bars i { opacity: 1; box-shadow: 0 0 10px var(--c); }
+.sd-mp__c small { font: 600 10px Inter, sans-serif; color: rgba(237,242,232,.45); }
+.sd-mp__c.is-on small { color: #edf2e8; font-weight: 800; }
+.sd-mp__c.is-off { cursor: default; }
+.sd-mp__c.is-off .sd-mp__bars i { background: rgba(255,255,255,.08); opacity: 1; }
+.sd-mp__c.is-off small { opacity: .5; }
+.sd-mp__ft { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.06); }
+.sd-mp__ft small { font: 500 12px Inter, sans-serif; color: rgba(237,242,232,.5); }
+.sd-mp__ft b { font: 700 13px Manrope, sans-serif; color: #7ee2a3; }
+.sd-kpi { grid-template-columns: repeat(2, 1fr) !important; }
+.sd-kpi small .sd-d { margin-left: 4px; }

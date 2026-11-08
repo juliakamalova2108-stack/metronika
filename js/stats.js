@@ -2,8 +2,8 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender } from './core.js?v=268';
-import { esc } from './ui.js?v=268';
+import { actions, rerender } from './core.js?v=269';
+import { esc } from './ui.js?v=269';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -73,12 +73,14 @@ const now = new Date();
 let tab = 'all', mode = 'month', py = now.getFullYear(), pm = now.getMonth(), sel = {}, money = 'inc', open = '';
 const isCur = () => (mode === 'year' ? py === now.getFullYear() : py === now.getFullYear() && pm === now.getMonth());
 const minD = new Date(now.getFullYear() - 2, 0, 1);
-const canPrev = () => (mode === 'year' ? py > minD.getFullYear() : new Date(py, pm - 1, 1) >= minD);
+const canPrev = () => py > minD.getFullYear();
 const reset = () => { sel = {}; open = ''; };
 actions['sd2-tab'] = (el) => { tab = el.dataset.k; reset(); rerender(); window.scrollTo(0, 0); };
-actions['sd2-mode'] = (el) => { mode = el.dataset.k; if (mode === 'month' && py === now.getFullYear()) pm = Math.min(pm, now.getMonth()); reset(); rerender(); };
-actions['sd2-prev'] = () => { if (!canPrev()) return; if (mode === 'year') py--; else { pm--; if (pm < 0) { pm = 11; py--; } } reset(); rerender(); };
-actions['sd2-next'] = () => { if (isCur()) return; if (mode === 'year') { py++; if (py === now.getFullYear()) pm = Math.min(pm, now.getMonth()); } else { pm++; if (pm > 11) { pm = 0; py++; } } reset(); rerender(); };
+// столбик месяца — сводка за месяц; повторный тап или «Весь год» — сводка за год; стрелки — год
+actions['sd2-month'] = (el) => { const m = +el.dataset.m; if (mode === 'month' && pm === m) mode = 'year'; else { mode = 'month'; pm = m; } reset(); rerender(); };
+actions['sd2-year'] = () => { mode = 'year'; reset(); rerender(); };
+actions['sd2-prev'] = () => { if (!canPrev()) return; py--; mode = 'year'; reset(); rerender(); };
+actions['sd2-next'] = () => { if (py >= now.getFullYear()) return; py++; mode = 'year'; reset(); rerender(); };
 actions['sd2-pt'] = (el) => { sel[el.dataset.c] = +el.dataset.i; rerender(); };
 actions['sd2-money'] = (el) => { money = el.dataset.k; open = ''; rerender(); };
 actions['sd2-open'] = (el) => { open = open === el.dataset.k ? '' : el.dataset.k; rerender(); };
@@ -192,10 +194,6 @@ export function renderStatsMaster() {
     content = hero + tiles + goalB + insB + (srcRows.length ? block(['Откуда заказы', scope], catList(srcRows, '', (x) => `${x.v} ${x.v === 1 ? 'заказ' : x.v < 5 ? 'заказа' : 'заказов'}`,
       (x) => A.O.filter((o) => 'src:' + o.src === x.key).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.m2} м² · ${o.brand}`, `${fmt(o.sum)} ₽`)).join(''))) : '');
   } else if (tab === 'money') {
-    const s = sel.mon ?? bk.length - 1;
-    const head = `<div class="sd-bh__v"><b>${fmt(bk[s].inc - bk[s].exp)}<i> ₽</i></b><small>прибыль · ${esc(p.buckets[s].name)}</small></div>`;
-    const ch = block(['Доходы и расходы', `<span class="sd-lg"><i style="background:${C.inc}"></i>доходы <i style="background:${C.exp}"></i>расходы</span>`, head],
-      chart({ c: 'mon', kind: 'bar', labels, unit: ' ₽', series: [{ col: C.inc, vals: bk.map((x) => x.inc) }, { col: C.exp, vals: bk.map((x) => x.exp) }] }));
     const cats = money === 'inc' ? INC_CAT : EXP_CAT;
     const rows = cats.map(([t, col]) => { const v = A.P.filter((x) => x.kind === money && x.cat === t).reduce((a, x) => a + x.sum, 0), pv = B.P.filter((x) => x.kind === money && x.cat === t).reduce((a, x) => a + x.sum, 0);
       return { key: money + ':' + t, t, col, v, d: delta(v, pv), inv: money === 'exp', cnt: A.P.filter((x) => x.kind === money && x.cat === t).length }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
@@ -204,12 +202,9 @@ export function renderStatsMaster() {
       + `<div class="sd-dn">${donut(rows.map((x) => [x.t, x.v, x.col]), k(tot), money === 'inc' ? 'доход, ₽' : 'расход, ₽')}<div class="sd-dn__sum"><b>${fmt(tot)} ₽</b><small>${scope} ${dTag(delta(tot, money === 'inc' ? B.inc : B.exp), money === 'exp')} <span>${prevName()}</span></small></div></div>`
       + (rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'операция' : x.cnt < 5 ? 'операции' : 'операций'}`,
         (x) => A.P.filter((o) => o.kind + ':' + o.cat === x.key).sort((a, b) => b.d - a.d).slice(0, 12).map((o) => opRow(o.d, o.o ? `№${o.o.no} · ${o.o.client}` : o.note || x.t, o.o ? `${o.o.m2} м²` : 'покупка', `${money === 'inc' ? '+' : '−'}${fmt(o.sum)} ₽`)).join('')) : '<p class="sd-note">Нет операций за период</p>'));
-    content = ch + catB;
+    content = catB;
   } else {
-    const s = sel.m2 ?? bk.length - 1;
-    const head = `<div class="sd-bh__v"><b>${fmt(bk[s].m2)}<i> м²</i></b><small>${esc(p.buckets[s].name)}</small></div>`;
-    const ch = block(['Поклеено', `${fmt(A.m2)} м² ${scope} ${dTag(delta(A.m2, B.m2))}`, head], chart({ c: 'm2', kind: 'area', labels, unit: 'м²', series: [{ col: C.blue, vals: bk.map((x) => x.m2) }] }));
-    const kpi = `<div class="sd-kpi"><span><b>${A.days ? Math.round(A.m2 / A.days) : 0}</b><small>м² в день</small></span><span><b>${A.O.reduce((a, o) => a + o.rooms.length, 0)}</b><small>комнат</small></span><span><b>${fmt(A.rolls)}</b><small>рулонов</small></span></div>`;
+    const kpi = `<div class="sd-kpi"><span><b>${fmt(A.m2)}</b><small>м² поклеено ${dTag(delta(A.m2, B.m2))}</small></span><span><b>${A.days ? Math.round(A.m2 / A.days) : 0}</b><small>м² в день</small></span><span><b>${A.O.reduce((a, o) => a + o.rooms.length, 0)}</b><small>комнат</small></span><span><b>${fmt(A.rolls)}</b><small>рулонов</small></span></div>`;
     const brRows = BRANDS.map(([t, , col]) => { const O = A.O.filter((o) => o.brand === t); return { key: 'br:' + t, t, col, v: O.reduce((a, o) => a + o.m2, 0), rolls: O.reduce((a, o) => a + o.rolls, 0), n: O.length, d: delta(O.reduce((a, o) => a + o.m2, 0), B.O.filter((o) => o.brand === t).reduce((a, o) => a + o.m2, 0)) }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const ordList = (f) => A.O.filter(f).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.rooms.map((r) => r[0]).join(', ')} · ${o.type}`, `${o.m2} м²`)).join('');
     const brands = block(['Обои по брендам', `поклеено ${scope}`], catList(brRows, ' м²', (x) => `${x.rolls} рулонов · ${x.n} ${x.n === 1 ? 'заказ' : x.n < 5 ? 'заказа' : 'заказов'}`, (x) => ordList((o) => 'br:' + o.brand === x.key)));
@@ -220,12 +215,24 @@ export function renderStatsMaster() {
     const glue = block(['Клей', 'в скольких заказах'], catList(gRows, '', (x) => `${x.pk} пачек`, (x) => ordList((o) => 'gl:' + o.glue === x.key)));
     const rRows = ROOMS.map(([t, col]) => { let v = 0, n = 0; A.O.forEach((o) => o.rooms.forEach((r) => { if (r[0] === t) { v += r[1]; n++; } })); return { key: 'rm:' + t, t, col, v, n }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const rooms = block(['По комнатам', `поклеено ${scope}`], catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key))));
-    content = A.n ? ch + kpi + brands + types + glue + rooms : ch + '<p class="sd-note">Нет заказов за период</p>';
+    content = A.n ? kpi + brands + types + glue + rooms : '<p class="sd-note">Нет заказов за период</p>';
   }
 
-  const per = `<div class="sd-per">${seg2([['month', 'Месяц'], ['year', 'Год']], mode, 'sd2-mode')}
-    <div class="sd-per__nav"><button type="button" class="f-icon-btn" data-action="sd2-prev" aria-label="Назад"${canPrev() ? '' : ' disabled'}>${ARR('l')}</button>
-      <b>${p.title}</b><button type="button" class="f-icon-btn" data-action="sd2-next" aria-label="Вперёд"${isCur() ? ' disabled' : ''}>${ARR('r')}</button></div></div>`;
+  // ── Выбор периода: год стрелками, 12 столбиков-месяцев ──
+  const MA = Array.from({ length: 12 }, (_, i) => (py === now.getFullYear() && i > now.getMonth() ? null : agg({ from: new Date(py, i, 1), to: new Date(py, i + 1, 1) })));
+  const metric = tab === 'work' ? [['m2', C.blue, ' м²']] : tab === 'money' ? [['inc', C.inc, ' ₽'], ['exp', C.exp, ' ₽']] : [['profit', C.inc, ' ₽']];
+  const pmax = Math.max(1, ...MA.filter(Boolean).flatMap((a) => metric.map(([key]) => a[key])));
+  const cols = MA.map((a, i) => { const on = mode === 'month' && pm === i;
+    if (!a) return `<span class="sd-mp__c is-off"><span class="sd-mp__bars"><i style="--h:4%"></i></span><small>${MONS[i]}</small></span>`;
+    return `<button type="button" class="sd-mp__c${on ? ' is-on' : ''}${mode === 'year' ? ' is-all' : ''}" data-action="sd2-month" data-m="${i}" aria-label="${MONN[i]}">
+      <em>${on ? k(a[metric[0][0]]) : ''}</em><span class="sd-mp__bars">${metric.map(([key, col]) => `<i style="--h:${Math.max(3, (Math.max(0, a[key]) / pmax) * 100)}%;--c:${col}"></i>`).join('')}</span><small>${MONS[i]}</small></button>`; }).join('');
+  const lbl = tab === 'work' ? 'поклеено, м²' : tab === 'money' ? `<span class="sd-lg"><i style="background:${C.inc}"></i>доходы <i style="background:${C.exp}"></i>расходы</span>` : 'прибыль по месяцам';
+  const per = `<section class="h-block sd-mp">
+    <div class="sd-mp__hd"><div class="sd-per__nav"><button type="button" class="f-icon-btn" data-action="sd2-prev" aria-label="Прошлый год"${canPrev() ? '' : ' disabled'}>${ARR('l')}</button>
+      <b>${py}</b><button type="button" class="f-icon-btn" data-action="sd2-next" aria-label="Следующий год"${py >= now.getFullYear() ? ' disabled' : ''}>${ARR('r')}</button></div>
+      <button type="button" class="sd-mp__all${mode === 'year' ? ' is-on' : ''}" data-action="sd2-year">Весь год</button></div>
+    <div class="sd-mp__grid">${cols}</div>
+    <div class="sd-mp__ft"><small>${lbl}</small><b>${mode === 'year' ? `Сводка за ${py} год` : `Сводка за ${MONN[pm]}`}</b></div></section>`;
   const tabs = [['all', 'Обзор'], ['money', 'Деньги'], ['work', 'Работа']];
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     <div class="h-page sd"><header class="sd-hd"><h1>Статистика</h1></header>${per}${content}<p class="sd-demo">Прошлые периоды — примерные данные для показа</p></div>
