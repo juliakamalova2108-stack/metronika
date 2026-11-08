@@ -1954,3 +1954,21 @@ body.nobar #view { padding-bottom: 96px; }
 .z-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .st2 .pf-ph { width: 78px; height: 78px; }
 .f-nav .st2-back + .f-botnav .f-topnav__track { gap: 0; justify-content: space-around; left: 6px; right: 6px; }
+
+/* Главная: карточка ранга сворачивается */
+.h-cardwrap--glass { position: relative; }
+.gc-fold { position: absolute; z-index: 3; width: 34px; height: 34px; border-radius: 50%; border: 0; cursor: pointer; display: grid; place-items: center; padding: 0;
+  color: #edf2e8; background: rgba(20, 34, 35, .55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); }
+.gc-fold svg { width: 18px; height: 18px; }
+.gc-fold--on { left: 50%; bottom: -10px; transform: translateX(-50%); }
+.gc-fold:focus-visible { outline: 2px solid #d6e5c2; outline-offset: 2px; }
+.gc-mini { position: relative; overflow: hidden; display: flex; align-items: center; gap: 10px; padding: 10px 10px 10px 14px; border-radius: 20px; isolation: isolate;
+  background: rgba(255,255,255,.08); -webkit-backdrop-filter: blur(14px) saturate(150%); backdrop-filter: blur(14px) saturate(150%); border: 1px solid rgba(255,255,255,.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 14px 30px -18px rgba(0,0,0,.7); }
+.gc-mini::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(60% 120% at 0% 50%, color-mix(in srgb, var(--g1) 35%, transparent), transparent 70%), radial-gradient(50% 120% at 100% 50%, color-mix(in srgb, var(--g2) 30%, transparent), transparent 70%); }
+.gc-mini__main { all: unset; cursor: pointer; flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; }
+.gc-mini__no { flex: none; font: 800 30px/1 Unbounded, Manrope, sans-serif; letter-spacing: -.07em; background: linear-gradient(170deg, var(--g1) 30%, color-mix(in srgb, var(--g1) 50%, var(--g2))); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.gc-mini__t { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.gc-mini__t b { font: 800 17px/1.1 Manrope, sans-serif; color: #fff; }
+.gc-mini__t small { font: 600 12px Manrope, sans-serif; color: rgba(237,242,232,.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gc-mini .gc-fold { position: static; flex: none; }

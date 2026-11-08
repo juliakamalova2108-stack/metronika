@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=264';
-import * as S from './store.js?v=264';
-import { renderOformit, oformitDraft } from './oformit.js?v=264';
-import { roomTotals, svcInfo } from './ocenka.js?v=264';
-import { smetaTotals } from './zakaz.js?v=264';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=264';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=264';
-import { esc, toast, status, seg } from './ui.js?v=264';
-import { topbar, ORDER_STATUS } from './shared.js?v=264';
+import { actions, rerender, go } from './core.js?v=265';
+import * as S from './store.js?v=265';
+import { renderOformit, oformitDraft } from './oformit.js?v=265';
+import { roomTotals, svcInfo } from './ocenka.js?v=265';
+import { smetaTotals } from './zakaz.js?v=265';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=265';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=265';
+import { esc, toast, status, seg } from './ui.js?v=265';
+import { topbar, ORDER_STATUS } from './shared.js?v=265';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -552,7 +552,10 @@ export function renderHome() {
   // ── Главная: металлическая карта текущего ранга — сверху; под ней опыт, квадратура и путь до следующего ранга ──
   const meHtml = `<section class="h-hero2">
     <p class="h-hi">${hello}, ${esc(fullName.split(' ')[0])}<small>${WDF[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</small></p>
-    <div class="h-cardwrap h-cardwrap--glass">${card(ri, 'l', true)}</div>
+    ${S.get().homeCardMin ? `<div class="gc-mini gc--t${RANKS[ri][2]}" style="${gcVars(ri)}">
+        <button type="button" class="gc-mini__main" data-action="home-ranks" aria-label="Открыть ранги"><span class="gc-mini__no">${no(ri)}</span><span class="gc-mini__t"><b>${esc(RANKS[ri][0])}</b><small>${TIERS[RANKS[ri][2] - 1]} · ${fmt(area)} м² · опыт ${expN}</small></span></button>
+        <button type="button" class="gc-fold" data-action="home-card-fold" aria-label="Развернуть карточку" aria-expanded="false">${ic('<path d="M6 9l6 6 6-6"/>')}</button></div>`
+      : `<div class="h-cardwrap h-cardwrap--glass">${card(ri, 'l', true)}<button type="button" class="gc-fold gc-fold--on" data-action="home-card-fold" aria-label="Свернуть карточку" aria-expanded="true">${ic('<path d="M6 15l6-6 6 6"/>')}</button></div>`}
     <div class="h-stats2" hidden>
       <span><b>${expN}</b><small>${plural(expN, 'запись', 'записи', 'записей')} опыта</small></span>
       <span><b>${fmt(area)}<i> м²</i></b><small>поклеено</small></span>
@@ -728,6 +731,7 @@ export function renderHome() {
 let homeRanks = false;
 let homeNotif = false;
 const notifRead = (id) => { const st = S.get(); st.notifRead = st.notifRead || []; if (id && !st.notifRead.includes(id)) st.notifRead.push(id); S.save(); };
+actions['home-card-fold'] = () => { const st = S.get(); st.homeCardMin = !st.homeCardMin; S.save(); rerender(); };
 actions['home-notif'] = () => { homeNotif = true; rerender(); };
 actions['home-notif-close'] = () => { homeNotif = false; rerender(); };
 actions['home-notif-read'] = (el) => { notifRead(el.dataset.id); rerender(); };
