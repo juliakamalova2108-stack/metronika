@@ -2844,8 +2844,10 @@ a.f-btn { display: flex; align-items: center; justify-content: center; text-deco
 .bd-vtop__h { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 0; background: none; cursor: pointer; padding: 8px 0; text-align: left; color: inherit; }
 .bd-vtop__h b { font: 600 14px/18px var(--font-body); color: #edf2e8; }
 .bd-vtop__chev { display: inline-flex; width: 20px; flex: none; transition: transform .2s; } .bd-vtop__chev.is-open { transform: rotate(180deg); }
-.bd-vtop__chat { width: 40px; height: 36px; border: 0; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex: none; }
-.bd-vtop__chat svg { width: 22px; height: 22px; }
+.bd-vtop-row { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; }
+.bd-vtop-row .bd-vtop { flex: 1; min-width: 0; margin: 0; }
+.bd-vtop__chat { flex: none; width: 48px; height: 48px; position: relative; }
+.bd-vtop__chat svg { width: 26px; height: 26px; }
 .bd-vtop .bd-cl b { white-space: nowrap; font-size: 18px; }
 .bd-vtop .bd-cl__ic { gap: 6px; }
 .bd-vtop .bd-cl__ic .f-icon-btn { width: 40px; height: 40px; }

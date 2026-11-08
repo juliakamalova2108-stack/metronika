@@ -1,8 +1,8 @@
 // Бренд-зона (Новости · Витрина · Конкурсы), Доска почёта, Креаторы.
 // Экраны в стиле статистики: тёмные блоки h-block, переключатели sd-chip, нижняя навигация f-nav.
-import { actions, rerender } from './core.js?v=390';
-import * as S from './store.js?v=390';
-import { esc, toast } from './ui.js?v=390';
+import { actions, rerender } from './core.js?v=391';
+import * as S from './store.js?v=391';
+import { esc, toast } from './ui.js?v=391';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
