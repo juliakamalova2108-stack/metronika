@@ -2495,3 +2495,10 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-fun2__it em { font: 700 11px Inter, sans-serif; font-style: normal; color: #ff4d4f; background: rgba(255,77,79,.12); border-radius: 6px; padding: 1px 5px; }
 .sd-fun2__n { margin: 4px 0 12px; font: 500 10.5px Inter, sans-serif; color: rgba(237,242,232,.4); }
 .sd-tile b .sd-tu { font-size: 13px; font-style: normal; font-weight: 600; color: rgba(237,242,232,.6); }
+
+.sd-chips { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px 12px; padding: 2px 16px 4px; scrollbar-width: none; }
+.sd-chips::-webkit-scrollbar { display: none; }
+.sd-chip { all: unset; box-sizing: border-box; cursor: pointer; flex: none; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(237,242,232,.07); border: 1px solid rgba(237,242,232,.1); font: 600 13.5px Inter, sans-serif; color: rgba(237,242,232,.8); white-space: nowrap; }
+.sd-chip small { font: 700 11.5px Inter, sans-serif; color: rgba(237,242,232,.5); }
+.sd-chip.is-on { background: #7ee2a3; border-color: #7ee2a3; color: #0f1c17; }
+.sd-chip.is-on small { color: rgba(15,28,23,.6); }

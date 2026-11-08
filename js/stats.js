@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=323';
-import * as S from './store.js?v=323';
-import { esc, toast } from './ui.js?v=323';
-import { selectField, pickers } from './oformit.js?v=323';
+import { actions, rerender, val } from './core.js?v=326';
+import * as S from './store.js?v=326';
+import { esc, toast } from './ui.js?v=326';
+import { selectField, pickers } from './oformit.js?v=326';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -83,6 +83,7 @@ function data() {
     const k = r2() < 0.3 ? 1 : r2() < 0.12 ? 2 : 0;
     for (let j = 0; j < k; j++) lost.push({ d: new Date(o.d.getTime() - Math.round(r2() * 9) * 864e5), reason: LOST[Math.floor(r2() * r2() * LOST.length)], client: NAMES[Math.floor(r2() * NAMES.length)], m2: Math.round(25 + r2() * 70) });
   });
+  lost.forEach((x, i) => { const r = Math.sin((i + 1) * 91.17) * 43758.5453, f = (r - Math.floor(r)) * 100; let acc = 0; x.src = (SRC.find(([, w]) => (acc += w) >= f) || SRC[0])[0]; });
   orders.forEach((o) => { const h = (k) => { const x = Math.sin(+o.no * 12.9898 + k * 78.233) * 43758.5453; return x - Math.floor(x); };
     o.queue = 3 + Math.round(h(1) * 5); o.waitD = Math.round(2 + h(2) * h(2) * 16); });
   DATA = { orders, ops, lost };
@@ -91,11 +92,13 @@ function data() {
 
 // ── Состояние ──
 const now = new Date();
+let fsrc = 'all';
 let tab = 'all', mode = 'month', py = now.getFullYear(), pm = now.getMonth(), sel = {}, money = 'inc', open = '';
 const isCur = () => (mode === 'year' ? py === now.getFullYear() : py === now.getFullYear() && pm === now.getMonth());
 const minD = new Date(now.getFullYear() - 2, 0, 1);
 const canPrev = () => py > minD.getFullYear();
 const reset = () => { sel = {}; open = ''; };
+actions['sd2-fsrc'] = (el) => { fsrc = el.dataset.k; rerender(); };
 actions['sd2-tab'] = (el) => { tab = el.dataset.k; reset(); rerender(); window.scrollTo(0, 0); };
 // столбик месяца — сводка за месяц; повторный тап или «Весь год» — сводка за год; стрелки — год
 actions['sd2-month'] = (el) => { const m = +el.dataset.m; if (mode === 'month' && pm === m) mode = 'year'; else { mode = 'month'; pm = m; } reset(); rerender(); };
@@ -345,7 +348,24 @@ function goalsTab() {
 
 const hmS = (min) => (min >= 60 ? `${(min / 60).toFixed(1).replace('.', ',')} ч` : `${Math.round(min)} мин`);
 const hm = (min) => (min >= 60 ? `${Math.floor(min / 60)} ч${min % 60 ? ` ${Math.round(min % 60)} мин` : ''}` : `${Math.round(min)} мин`);
+// воронка по источнику: оставляем только заявки и заказы из этого источника
+const bySrc = (a, src) => { if (!a || src === 'all') return a; const O = a.O.filter((o) => o.src === src), L = a.L.filter((x) => x.src === src);
+  return { ...a, O, L, n: O.length, lostN: L.length, leads: O.length + L.length, queue: O.reduce((x, o) => x + o.queue, 0), waitD: O.reduce((x, o) => x + o.waitD, 0), resp: O.reduce((x, o) => x + o.resp, 0) }; };
 function effTab(A, B, LY, lyLbl, lyCol, tile, scope, mser, si, part) {
+  let chips = '';
+  if (part === 'leads') {
+    const cnt = {}; [...A.O.map((o) => o.src), ...A.L.map((x) => x.src)].forEach((t) => { cnt[t] = (cnt[t] || 0) + 1; });
+    const list = Object.entries(cnt).sort((p1, p2) => p2[1] - p1[1]);
+    const known = new Set([...data().orders.map((o) => o.src), ...data().lost.map((x) => x.src)]);
+    known.forEach((t) => { if (!cnt[t]) list.push([t, 0]); });
+    chips = `<div class="sd-chips" role="tablist">${[['all', A.leads, 'Все источники'], ...list.map(([t, n]) => [t, n, t])].map(([k, n, t]) => `<button type="button" class="sd-chip${fsrc === k ? ' is-on' : ''}" data-action="sd2-fsrc" data-k="${esc(k)}">${esc(t)}<small>${n}</small></button>`).join('')}</div>`;
+    A = bySrc(A, fsrc); B = bySrc(B, fsrc); LY = bySrc(LY, fsrc);
+    mser = ((m) => (f) => m((a) => f(bySrc(a, fsrc))))(mser);
+  }
+  const inner = effInner(A, B, LY, lyLbl, lyCol, tile, scope, mser, si, part);
+  return chips + '<!--/chips-->' + inner;
+}
+function effInner(A, B, LY, lyLbl, lyCol, tile, scope, mser, si, part) {
   if (part === 'leads' ? !A.leads : !A.n) return `<p class="sd-note">Нет ${part === 'leads' ? 'заявок' : 'заказов'} за период</p>`;
   const LC = { 'Отказ после замера': P7[1], 'Не договорились по цене': P7[3], 'Не дозвонились': P7[5], 'Выбрали другого мастера': P7[4], 'Перенесли ремонт': P7[0] };
   const reasons = Object.keys(LC).map((t) => ({ key: 'lr:' + t, t, col: LC[t], v: A.L.filter((x) => x.reason === t).length, d: delta(A.L.filter((x) => x.reason === t).length, B.L.filter((x) => x.reason === t).length), inv: true })).filter((x) => x.v).sort((a, b) => b.v - a.v);
@@ -372,7 +392,7 @@ function effTab(A, B, LY, lyLbl, lyCol, tile, scope, mser, si, part) {
     <g opacity=".35" filter="url(#fgl)">${FN.map((_, i) => band(i).replace(/<text[\s\S]*?<\/text>/, '')).join('')}</g>${FN.map((_, i) => band(i)).join('')}</svg>`;
   const labels = `<div class="sd-fun2__l">${FN.map((x, i) => `<div class="sd-fun2__it" style="height:${RH}px"><small>${x.t}</small><b>${x.v}${i && x.drop.length ? `<em>−${x.drop.length}</em>` : ''}</b></div>`).join('')}</div>`;
   const fun = `<div class="sd-fun2">${labels}${svg}</div>${FN.some((x) => x.drop.length) ? `<p class="sd-fun2__n">Красным — сколько заявок отвалилось на этом шаге</p>` : ''}`;
-  const hero = `<section class="h-block sd-hero"><small>Воронка продаж ${scope}</small><div class="sd-hero__v"><b>${conv}<i>%</i></b>${B.leads ? `<span class="sd-vs">${dTag(delta(conv, convB))}<small>${prevName()}</small></span>` : ''}</div><p class="sd-hero__s">обращений дошло до выполненного заказа</p>
+  const hero = `<section class="h-block sd-hero"><small>Воронка ${fsrc === 'all' ? 'по всем источникам' : `«${esc(fsrc)}»`} ${scope}</small><div class="sd-hero__v"><b>${conv}<i>%</i></b>${B.leads ? `<span class="sd-vs">${dTag(delta(conv, convB))}<small>${prevName()}</small></span>` : ''}</div><p class="sd-hero__s">обращений дошло до выполненного заказа</p>
     ${fun}${strip}</section>`;
   const avg = (a, k) => (a.n ? a[k] / a.n : 0), days = (a) => Math.max(1, a.days);
   const trav = (a) => a.travel / days(a), wt = (a) => a.wait / days(a), spd = (a) => (a.workH ? a.m2 / a.workH : 0), rsp = (a) => avg(a, 'resp');
@@ -413,7 +433,7 @@ export function renderStatsMaster() {
   const bk = p.buckets.map((b) => agg({ from: b.from, to: b.to }));
   const labels = p.buckets.map((b) => b.l);
   const scope = mode === 'year' ? `за ${py} год` : `за ${MONN[pm]} ${py}`;
-  const MA = Array.from({ length: 12 }, (_, i) => (py === now.getFullYear() && i > now.getMonth() ? null : agg({ from: new Date(py, i, 1), to: new Date(py, i + 1, 1) })));
+  const MA = Array.from({ length: 12 }, (_, i) => (py === now.getFullYear() && i > now.getMonth() ? null : agg({ from: new Date(py, i, 1), to: new Date(py, i + 1, 1) }))).map((a) => (tab === 'leads' ? bySrc(a, fsrc) : a));
   const si = mode === 'month' ? pm : MA.filter(Boolean).length - 1;
   const mser = (f) => MA.map((a) => (a ? f(a) : null));
   let content = '';
@@ -550,7 +570,7 @@ export function renderStatsMaster() {
     <div class="sd-mp__ft"><small>${lbl}</small><b>${mode === 'year' ? `Сводка за ${py} год` : `Сводка за ${MONN[pm]}`}</b></div></section>`;
   const tabs = [['all', 'Обзор'], ['work', 'Работа'], ['eff', 'Эффективность'], ['leads', 'Воронка'], ['goals', 'Цели']];
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
-    <div class="h-page sd"><header class="sd-hd"><h1>Статистика</h1></header>${per}${content}<p class="sd-demo">Прошлые периоды — примерные данные для показа</p></div>
+    <div class="h-page sd"><header class="sd-hd"><h1>Статистика</h1></header>${content.includes('<!--/chips-->') ? content.split('<!--/chips-->')[0] + per + content.split('<!--/chips-->')[1] : per + content}<p class="sd-demo">Прошлые периоды — примерные данные для показа</p></div>
     <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">
       <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>
       <div class="f-topnav f-botnav f-botnav--many"><div class="f-topnav__track" role="tablist">${tabs.map(([key, t]) => `<button type="button" role="tab" aria-selected="${key === tab}" class="f-tab${key === tab ? ' is-active' : ''}" data-action="sd2-tab" data-k="${key}">${t}</button>`).join('')}</div></div>
