@@ -2837,4 +2837,7 @@ a.f-btn { display: flex; align-items: center; justify-content: center; text-deco
 .bd-rtab::before { content: ''; position: absolute; left: 12px; right: 12px; bottom: 4px; height: 3px; border-radius: 2px; background: var(--rc); opacity: .55; }
 .bd-rtab.is-active::before { opacity: 1; }
 .bd-vseg { margin: 14px 16px 6px; width: auto; }
-.bd-vtop { margin: 6px 16px 10px; padding: 12px; display: grid; gap: 8px; }
+.bd-vtop { margin: 6px 16px 10px; padding: 12px 14px; display: grid; gap: 8px; }
+.bd-vtop .bd-cl b { white-space: nowrap; font-size: 18px; }
+.bd-vtop .bd-cl__ic { gap: 6px; }
+.bd-vtop .bd-cl__ic .f-icon-btn { width: 40px; height: 40px; }
