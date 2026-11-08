@@ -1,8 +1,8 @@
 // Бренд-зона (Новости · Витрина · Конкурсы), Доска почёта, Креаторы.
 // Экраны в стиле статистики: тёмные блоки h-block, переключатели sd-chip, нижняя навигация f-nav.
-import { actions, rerender } from './core.js?v=353';
-import * as S from './store.js?v=353';
-import { esc, toast } from './ui.js?v=353';
+import { actions, rerender } from './core.js?v=355';
+import * as S from './store.js?v=355';
+import { esc, toast } from './ui.js?v=355';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
@@ -15,7 +15,7 @@ const page = (title, body, tabs, cur, act) => `<div class="fig-blobs" aria-hidde
   <div class="h-page sd bz"><header class="sd-hd"><h1>${title}</h1></header>${body}</div>
   <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">
     <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>
-    ${tabs ? `<div class="f-topnav f-botnav"><div class="f-topnav__track" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === cur}" class="f-tab${k === cur ? ' is-active' : ''}" data-action="${act}" data-k="${k}">${t}</button>`).join('')}</div></div>` : '<span class="f-nav__space"></span>'}
+    ${tabs ? `<div class="f-topnav f-botnav${tabs.reduce((a, t) => a + t[1].length, 0) > 26 ? ' f-botnav--many' : ''}"><div class="f-topnav__track" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === cur}" class="f-tab${k === cur ? ' is-active' : ''}" data-action="${act}" data-k="${k}">${t}</button>`).join('')}</div></div>` : '<span class="f-nav__space"></span>'}
   </nav>`;
 
 // ───────── Бренд-зона ─────────
@@ -103,7 +103,7 @@ const CONTESTS = [
 ];
 const joined = new Set();
 function bzContests() {
-  const list = CONTESTS.filter((c) => bzMaker === 'all' || c.mk === bzMaker);
+  const list = CONTESTS;
   if (!list.length) return '<p class="sd-note">У этого бренда сейчас нет конкурсов</p>';
   return list.map((c) => { const on = joined.has(c.id);
     return `<article class="h-block bz-ct"><div class="bz-ct__top" style="--c:${c.col}"><span class="bz-brand">${esc(c.mk)}</span><span class="bz-ct__left">ещё ${c.until} ${plural(c.until, 'день', 'дня', 'дней')}</span></div>
@@ -114,8 +114,9 @@ function bzContests() {
 export function renderBrandZone() {
   const makers = S.get().makers;
   const chips = bzTab === 'show' ? '' : `<div class="sd-chips">${[['all', 'Все бренды'], ...makers.map((m) => [m.name, m.name])].map(([k, t]) => `<button type="button" class="sd-chip${bzMaker === k ? ' is-on' : ''}" data-action="bz-maker" data-k="${esc(k)}">${esc(t)}</button>`).join('')}</div>`;
-  const body = bzTab === 'show' ? bzShow(makers) : bzTab === 'contests' ? bzContests() : bzNews(makers);
-  return page('Бренд-зона', chips + body, [['news', 'Новости'], ['show', 'Витрина'], ['contests', 'Конкурсы']], bzTab, 'bz-tab');
+  if (bzTab === 'contests') bzTab = 'news';
+  const body = bzTab === 'show' ? bzShow(makers) : bzNews(makers);
+  return page('Бренд-зона', chips + body, [['news', 'Новости'], ['show', 'Витрина']], bzTab, 'bz-tab');
 }
 actions['bz-tab'] = (el) => { bzTab = el.dataset.k; rerender(); window.scrollTo(0, 0); };
 actions['bz-open'] = (el) => { shMaker = el.dataset.k; shColl = ''; shItem = -1; rerender(); window.scrollTo(0, 0); };
@@ -185,10 +186,32 @@ function honorFame() {
     <div class="bz-fame__ft">На доске почёта с ${2019 + (i % 6)} года</div></article>`).join('') +
     `<section class="h-block bz-join"><b>Знаете такого человека?</b><p>Предложите мастера, технолога или наставника — сообщество проголосует.</p><button type="button" class="bz-btn" data-action="hn-nominate">Предложить кандидата</button></section>`;
 }
-export function renderHonor() {
-  const per = hView === 'contests' ? `<div class="sd-chips">${[['month', 'Этот месяц'], ['year', 'Этот год']].map(([k, t]) => `<button type="button" class="sd-chip${hTab === k ? ' is-on' : ''}" data-action="hn-tab" data-k="${k}">${t}</button>`).join('')}</div>` : '';
-  return page('Доска почёта', per + (hView === 'contests' ? honorContests() : honorFame()), [['fame', 'Доска почёта'], ['contests', 'Соревнования']], hView, 'hn-view');
+export function renderHonor() { return page('Доска почёта', honorFame()); }
+
+// ───────── События: Соревнования · Конкурсы · Мероприятия ─────────
+let evTab = 'comp';
+const EVENTS = [
+  ['Вебинар', 'Флизелин без пузырей', 'Erismann', 14, '19:00', 'Онлайн', 'Технолог бренда разберёт подготовку стен и типичные ошибки на флизелине.', 412],
+  ['Мастер-класс', 'Стыки на тёмных обоях', 'Палитра', 21, '11:00', 'Уфа, ТЦ «Мега», шоурум', 'Практика на стенде: подрезка, прикатка, работа с раппортом. Мест — 20.', 17],
+  ['Выставка', 'Ремонт и отделка 2026', 'Метроника', 28, '10:00', 'Казань, Expo', 'Стенд Метроники, встречи с брендами, розыгрыш инструмента среди мастеров.', 260],
+  ['Встреча', 'Клуб обойщиков Уфы', 'Метроника', 33, '18:30', 'Уфа, коворкинг «Точка»', 'Разговор про цены, клиентов и сложные объекты. Чай и полезные знакомства.', 34],
+  ['Обучение', 'Курс «Обойщик с нуля»', 'Rasch', 40, '10:00', 'Онлайн, 4 недели', 'Для новичков и помощников: от замера до сдачи объекта. Сертификат бренда.', 96],
+];
+const signed = new Set();
+function evMeets() {
+  return EVENTS.map(([kind, t, org, d, time, place, x, n], i) => { const dt = new Date(today.getTime() + d * DAY), on = signed.has(i);
+    return `<article class="h-block bz-ev"><div class="bz-ev__d"><b>${dt.getDate()}</b><small>${dt.toLocaleDateString('ru-RU', { month: 'short' }).replace('.', '')}</small></div>
+      <div class="bz-ev__b"><span class="bz-tag">${esc(kind)}</span><h3>${esc(t)}</h3><p>${esc(x)}</p>
+      <div class="bz-ev__m"><span>🕒 ${time}</span><span>📍 ${esc(place)}</span><span>Организатор <b>${esc(org)}</b></span></div>
+      <div class="bz-ev__f"><small>${n + (on ? 1 : 0)} ${plural(n + (on ? 1 : 0), 'идёт', 'идут', 'идут')}</small><button type="button" class="bz-btn bz-btn--sm${on ? ' is-on' : ''}" data-action="ev-sign" data-k="${i}">${on ? 'Вы записаны ✓' : 'Записаться'}</button></div></div></article>`; }).join('');
 }
+export function renderEvents() {
+  const per = evTab === 'comp' ? `<div class="sd-chips">${[['month', 'Этот месяц'], ['year', 'Этот год']].map(([k, t]) => `<button type="button" class="sd-chip${hTab === k ? ' is-on' : ''}" data-action="hn-tab" data-k="${k}">${t}</button>`).join('')}</div>` : '';
+  const body = evTab === 'comp' ? honorContests() : evTab === 'contests' ? `<p class="bz-hint" style="margin-top:0">Конкурсы от брендов: присылайте фото своих работ и выигрывайте призы.</p>${bzContests()}` : evMeets();
+  return page('События', per + body, [['comp', 'Соревнования'], ['contests', 'Конкурсы'], ['meet', 'Мероприятия']], evTab, 'ev-tab');
+}
+actions['ev-tab'] = (el) => { evTab = el.dataset.k; rerender(); window.scrollTo(0, 0); };
+actions['ev-sign'] = (el) => { const i = +el.dataset.k; if (signed.has(i)) signed.delete(i); else { signed.add(i); toast('Вы записаны — напомним за день'); } rerender(); };
 actions['hn-nominate'] = () => toast('Спасибо! Кандидатура уйдёт на голосование');
 actions['hn-view'] = (el) => { hView = el.dataset.k; rerender(); window.scrollTo(0, 0); };
 actions['hn-tab'] = (el) => { hTab = el.dataset.k; rerender(); };
