@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=289';
-import * as S from './store.js?v=289';
-import { esc, toast } from './ui.js?v=289';
-import { selectField, pickers } from './oformit.js?v=289';
+import { actions, rerender, val } from './core.js?v=291';
+import * as S from './store.js?v=291';
+import { esc, toast } from './ui.js?v=291';
+import { selectField, pickers } from './oformit.js?v=291';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -233,6 +233,13 @@ function bubbles(rows) {
 }
 // сокращение под ширину: целиком → «Демонт.» → инициалы «VS»
 const abbr = (t, n) => { if (t.length <= n) return t; if (n >= 4) { let c = t.slice(0, n - 1).trimEnd(); while (c.length > 3 && /[аеёиоуыэюяйьъaeiouy\s]$/i.test(c)) c = c.slice(0, -1); return c + '.'; } const w = t.split(/[\s.-]+/).filter(Boolean); return (w.length > 1 ? w.map((x) => x[0]).join('') : t.slice(0, 2)).slice(0, Math.max(1, n)); };
+// большое кольцо: доли по кругу с зазорами, в центре — итог
+function donutBig(segs, top, sub) {
+  const R = 58, CC = 2 * Math.PI * R, tot = segs.reduce((a, x) => a + x.v, 0) || 1; let acc = 0;
+  const arcs = segs.filter((x) => x.v > 0).map((x) => { const len = (x.v / tot) * CC, gap = segs.length > 1 ? 3 : 0; const d = `<circle cx="75" cy="75" r="${R}" fill="none" stroke="${x.col}" stroke-width="16" stroke-dasharray="${Math.max(1, len - gap).toFixed(2)} ${CC.toFixed(2)}" stroke-dashoffset="${(-acc).toFixed(2)}" transform="rotate(-90 75 75)"/>`; acc += len; return d; }).join('');
+  return `<svg class="sd-dbig" viewBox="0 0 150 150" role="img" aria-label="${esc(segs.map((x) => `${x.t} ${Math.round((x.v / tot) * 100)}%`).join(', '))}"><circle cx="75" cy="75" r="${R}" fill="none" stroke="rgba(237,242,232,.06)" stroke-width="16"/>${arcs}<text x="75" y="76" text-anchor="middle" class="sd-dbig__n" style="font-size:${String(top).length > 7 ? 15 : String(top).length > 5 ? 18 : 22}px">${top}</text><text x="75" y="95" text-anchor="middle" class="sd-dbig__s">${sub}</text></svg>`;
+}
+const dLegend = (segs, unit) => { const tot = segs.reduce((a, x) => a + x.v, 0) || 1; return `<ul class="sd-dleg">${segs.map((x) => `<li><i style="background:${x.col}"></i><span><b>${esc(x.t)}</b><small>${unit ? `${fmt(x.v)}${unit}` : ''}</small></span><em>${Math.round((x.v / tot) * 100)}%</em></li>`).join('')}</ul>`; };
 function mosaic(rows, H = 150) {
   if (!rows.length) return '<span class="sd-note">Нет данных за период</span>';
   const tot = rows.reduce((a, x) => a + x.v, 0) || 1, W = 320, cells = [];
@@ -332,8 +339,7 @@ export function renderStatsMaster() {
     const avgChk = A.n ? A.inc / A.n : 0, avgChkB = B.n ? B.inc / B.n : 0;
     const rep = A.n ? Math.round((A.O.filter((o) => o.repeat).length / A.n) * 100) : 0;
     const hero = `<section class="h-block sd-hero"><small>Прибыль ${scope}</small><div class="sd-hero__v"><b>${fmt(A.profit)}<i> ₽</i></b>${dTag(delta(A.profit, B.profit))}</div>
-      <div class="sd-part">${segBar([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], true)}</div>
-      <div class="sd-hero__row"><span><i style="background:${C.inc}"></i>Доходы<b>${fmt(A.inc)} ₽</b></span><span><i style="background:${C.exp}"></i>Расходы<b>${fmt(A.exp)} ₽</b></span></div>
+      <div class="sd-dwrap">${donutBig([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], fmt(A.inc), 'доход, ₽')}${dLegend([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], ' ₽')}</div>
       <p class="sd-hero__cmp">${B.inc ? `${isCur() ? 'За тот же срок' : 'За прошлый период'} (${prevName().replace('к ', '')}) прибыль была ${fmt(B.profit)} ₽` : ''}</p></section>`;
     const tile = (t, v, d, sub, sp) => `<div class="sd-tile"><small>${t}</small><b>${v}</b>${sp}<em>${d}${sub ? ` <span>${sub}</span>` : ''}</em></div>`;
     const tiles = `<div class="sd-tiles">${tile('Заказов', A.n, dTag(delta(A.n, B.n)), prevName(), spark(mser((a) => a.n), si))}${tile('Средний чек', `${k(avgChk)} ₽`, dTag(delta(avgChk, avgChkB)), prevName(), spark(mser((a) => (a.n ? a.inc / a.n : 0)), si))}
@@ -347,7 +353,7 @@ export function renderStatsMaster() {
     if (srcM[0]) ins.push([C.blue, `Больше всего заказов — ${srcM[0][0]}`, `${srcM[0][1]} из ${A.n}`]);
     const insB = ins.length ? `<div class="sd-ins">${ins.map(([c, t, s]) => `<div class="sd-ins__c" style="--c:${c}"><b>${esc(t)}</b><small>${esc(s)}</small></div>`).join('')}</div>` : '';
     const srcRows = SRC.map(([t, , col]) => ({ key: 'src:' + t, t, col, v: A.O.filter((o) => o.src === t).length, d: delta(A.O.filter((o) => o.src === t).length, B.O.filter((o) => o.src === t).length) })).filter((x) => x.v).sort((a, b) => b.v - a.v);
-    content = hero + tiles + insB + (srcRows.length ? fblock('src', ['Откуда заказы', scope], mosaic(srcRows), catList(srcRows, '', (x) => `${x.v} ${x.v === 1 ? 'заказ' : x.v < 5 ? 'заказа' : 'заказов'}`,
+    content = hero + tiles + insB + (srcRows.length ? fblock('src', ['Откуда заказы', scope], `<span class="sd-dwrap">${donutBig(srcRows, A.n, plural(A.n, 'заказ', 'заказа', 'заказов'))}${dLegend(srcRows.slice(0, 5), '')}</span>`, catList(srcRows, '', (x) => `${x.v} ${x.v === 1 ? 'заказ' : x.v < 5 ? 'заказа' : 'заказов'}`,
       (x) => opsMore(x.key, A.O.filter((o) => 'src:' + o.src === x.key).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.m2} м² · ${o.brand}`, `${fmt(o.sum)} ₽`))))) : '');
   } else if (tab === 'money') {
     // две пластины друг под другом: Доходы и Расходы

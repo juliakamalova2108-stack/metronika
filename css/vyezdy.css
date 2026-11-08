@@ -2301,3 +2301,16 @@ body.nobar #view { padding-bottom: 96px; }
 
 .sd-pc__y span.is-brk { border-top: 1px dashed rgba(237,242,232,.22); }
 .sd-pc { height: 200px; }
+
+.sd-dwrap { display: grid; grid-template-columns: 140px minmax(0,1fr); gap: 16px; align-items: center; width: 100%; }
+.sd-dbig { width: 140px; height: 140px; }
+.sd-dbig__n { font: 800 22px Manrope, sans-serif; fill: #edf2e8; }
+.sd-dbig__s { font: 500 11px Inter, sans-serif; fill: rgba(237,242,232,.5); }
+.sd-dleg { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.sd-dleg li { display: grid; grid-template-columns: 10px minmax(0,1fr) auto; gap: 8px; align-items: center; }
+.sd-dleg i { width: 10px; height: 10px; border-radius: 3px; }
+.sd-dleg span { display: flex; flex-direction: column; min-width: 0; }
+.sd-dleg b { font: 700 13.5px Manrope, sans-serif; color: #edf2e8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-dleg small { font: 500 12px Inter, sans-serif; color: rgba(237,242,232,.55); }
+.sd-dleg small:empty { display: none; }
+.sd-dleg em { font: 800 14px Manrope, sans-serif; font-style: normal; color: #edf2e8; }
