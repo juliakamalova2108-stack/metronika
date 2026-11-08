@@ -1,8 +1,8 @@
 // Бренд-зона (Новости · Витрина · Конкурсы), Доска почёта, Креаторы.
 // Экраны в стиле статистики: тёмные блоки h-block, переключатели sd-chip, нижняя навигация f-nav.
-import { actions, rerender } from './core.js?v=347';
-import * as S from './store.js?v=347';
-import { esc, toast } from './ui.js?v=347';
+import { actions, rerender } from './core.js?v=348';
+import * as S from './store.js?v=348';
+import { esc, toast } from './ui.js?v=348';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
@@ -37,14 +37,29 @@ function bzNews(makers) {
     <h3>${esc(n.t)}</h3><p>${esc(n.x)}</p></article>`).join('');
 }
 const SW = ['#d9cbb4', '#9fb8ad', '#c9a68a', '#8a9bb8', '#e6dccb', '#b7c4a1', '#a88fa8', '#cfd6db'];
+// Коллекции брендов (пример): название, средняя цена рулона, артикул, тип, оттенки
+const COLL = {
+  'Erismann': [['Elle Decor', 2450, '10195-08', 'флизелин', 2], ['Скандинавия', 1980, '12048-14', 'флизелин', 4], ['Fashion for Walls', 3150, '12031-05', 'винил на флизелине', 1], ['Casual Chic', 1760, '60001-02', 'флизелин', 6]],
+  'Палитра': [['Мираж', 1290, 'PL71250-44', 'винил на флизелине', 3], ['Home Color', 990, 'HC71830-12', 'флизелин', 5], ['Белая коллекция', 870, 'PL72105-00', 'под покраску', 7]],
+  'Rasch': [['Tiles & More', 2890, '833740', 'бумага', 0], ['Barbara Home', 3640, '527711', 'флизелин', 2], ['Kalide', 2210, '416227', 'флизелин', 5]],
+};
+const search = (q) => `https://yandex.ru/search/?text=${encodeURIComponent(q)}`;
+const LINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
+let shMaker = '';
 function bzShow(makers) {
-  const mats = S.get().materials.filter((m) => bzMaker === 'all' || (makers.find((x) => x.id === m.makerId) || {}).name === bzMaker);
-  if (!mats.length) return '<p class="sd-note">Витрина бренда пока пустая</p>';
-  const num = (v) => String(v).replace('.', ',');
-  return `<div class="bz-grid">${mats.map((m, i) => { const mk = makers.find((x) => x.id === m.makerId) || {}; const rv = S.reviewsOf(m.barcode).length;
-    return `<article class="bz-card"><div class="bz-card__sw" style="background:linear-gradient(135deg, ${SW[i % SW.length]}, ${SW[(i + 3) % SW.length]})"><span>${esc(mk.name || '')}</span></div>
-      <div class="bz-card__b"><b>«${esc(m.name)}»</b><small>${num(m.width)} × ${num(m.length)} м · ${m.rapport ? `раппорт ${num(m.rapport)} м` : 'без подбора'}</small>
-      <em>${rv ? `${rv} ${plural(rv, 'отзыв', 'отзыва', 'отзывов')} мастеров` : 'Отзывов пока нет'}</em></div></article>`; }).join('')}</div>`;
+  const mk = makers.find((m) => m.name === shMaker);
+  if (!mk) {
+    return `<div class="bz-grid">${makers.map((m, i) => { const c = COLL[m.name] || [], avg = c.length ? c.reduce((a, x) => a + x[1], 0) / c.length : 0;
+      return `<button type="button" class="bz-bt" data-action="bz-open" data-k="${esc(m.name)}" style="--a:${SW[i % SW.length]};--b:${SW[(i + 3) % SW.length]}"><span class="bz-bt__logo">${esc(m.name)}</span>
+        <span class="bz-bt__f"><b>${c.length} ${plural(c.length, 'коллекция', 'коллекции', 'коллекций')}</b><small>${avg ? `в среднем ${fmt(avg)} ₽ за рулон` : 'скоро'}</small></span></button>`; }).join('')}</div>`;
+  }
+  const c = COLL[mk.name] || [], i0 = makers.indexOf(mk);
+  return `<button type="button" class="bz-back" data-action="bz-open" data-k="">‹ Все бренды</button>
+    <section class="h-block bz-mk"><div class="bz-mk__logo" style="--a:${SW[i0 % SW.length]};--b:${SW[(i0 + 3) % SW.length]}">${esc(mk.name)}</div><p>${esc(mk.about || '')}</p>
+      <a class="bz-btn" href="${search(mk.name + ' обои официальный сайт')}" target="_blank" rel="noopener">Сайт бренда ${LINK}</a></section>
+    ${c.map(([n, price, art, type, k], j) => `<article class="h-block bz-col"><div class="bz-col__sw" style="background:linear-gradient(135deg, ${SW[(j + k) % SW.length]}, ${SW[(j + k + 3) % SW.length]})"></div>
+      <div class="bz-col__t"><b>${esc(n)}</b><small>${esc(type)}</small><span class="bz-col__p">≈ ${fmt(price)} ₽ <i>за рулон</i></span></div>
+      <div class="bz-col__l"><a href="${search(mk.name + ' ' + n + ' обои')}" target="_blank" rel="noopener">Коллекция ${LINK}</a><a href="${search(mk.name + ' ' + art)}" target="_blank" rel="noopener">Арт. ${esc(art)} ${LINK}</a></div></article>`).join('') || '<p class="sd-note">Коллекции бренда скоро появятся</p>'}`;
 }
 const CONTESTS = [
   { id: 'c1', mk: 'Erismann', t: 'Лучшая спальня ноября', x: 'Пришлите фото «до/после» спальни с обоями Erismann. Жюри — дизайнеры бренда.', prize: 'Профессиональный набор инструмента', until: 22, n: 38, col: '#3987e5' },
@@ -63,11 +78,12 @@ function bzContests() {
 }
 export function renderBrandZone() {
   const makers = S.get().makers;
-  const chips = `<div class="sd-chips">${[['all', 'Все бренды'], ...makers.map((m) => [m.name, m.name])].map(([k, t]) => `<button type="button" class="sd-chip${bzMaker === k ? ' is-on' : ''}" data-action="bz-maker" data-k="${esc(k)}">${esc(t)}</button>`).join('')}</div>`;
+  const chips = bzTab === 'show' ? '' : `<div class="sd-chips">${[['all', 'Все бренды'], ...makers.map((m) => [m.name, m.name])].map(([k, t]) => `<button type="button" class="sd-chip${bzMaker === k ? ' is-on' : ''}" data-action="bz-maker" data-k="${esc(k)}">${esc(t)}</button>`).join('')}</div>`;
   const body = bzTab === 'show' ? bzShow(makers) : bzTab === 'contests' ? bzContests() : bzNews(makers);
   return page('Бренд-зона', chips + body, [['news', 'Новости'], ['show', 'Витрина'], ['contests', 'Конкурсы']], bzTab, 'bz-tab');
 }
 actions['bz-tab'] = (el) => { bzTab = el.dataset.k; rerender(); window.scrollTo(0, 0); };
+actions['bz-open'] = (el) => { shMaker = el.dataset.k; rerender(); window.scrollTo(0, 0); };
 actions['bz-maker'] = (el) => { bzMaker = el.dataset.k; rerender(); };
 actions['bz-join'] = (el) => { const id = el.dataset.id; if (joined.has(id)) joined.delete(id); else { joined.add(id); toast('Вы в конкурсе — загрузите фото в галерее заказа'); } rerender(); };
 

@@ -1,5 +1,5 @@
 // Журнал «История заказа»: кто, время, действие, подробности.
-import * as S from './store.js?v=347';
+import * as S from './store.js?v=348';
 export function logEvent(d, action, detail = '') {
   d.log = d.log || [];
   d.log.push({ at: new Date().toISOString(), who: S.me().id, action, detail });
