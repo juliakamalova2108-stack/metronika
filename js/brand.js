@@ -1,8 +1,8 @@
 // Бренд-зона (Новости · Витрина · Конкурсы), Доска почёта, Креаторы.
 // Экраны в стиле статистики: тёмные блоки h-block, переключатели sd-chip, нижняя навигация f-nav.
-import { actions, rerender } from './core.js?v=350';
-import * as S from './store.js?v=350';
-import { esc, toast } from './ui.js?v=350';
+import { actions, rerender } from './core.js?v=352';
+import * as S from './store.js?v=352';
+import { esc, toast } from './ui.js?v=352';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
@@ -129,7 +129,7 @@ actions['bz-join'] = (el) => { const id = el.dataset.id; if (joined.has(id)) joi
 let hTab = 'month';
 const HONOR = [['Алексей Морозов', 'Уфа', 412, 1880], ['Ирина Белова', 'Казань', 388, 1710], ['Дмитрий Орлов', 'Самара', 351, 1695], ['Павел Соколов', 'Уфа', 302, 1420], ['Наталья Егорова', 'Пермь', 287, 1390],
   ['Руслан Хайруллин', 'Стерлитамак', 260, 1255], ['Олег Кузнецов', 'Челябинск', 244, 1180], ['Марина Лебедева', 'Уфа', 231, 1102], ['Тимур Галиев', 'Оренбург', 207, 990], ['Виктор Попов', 'Казань', 193, 941]];
-export function renderHonor() {
+function honorRating() {
   const me = S.me(), myM = Math.round(S.ratingOf(me.id) / (hTab === 'month' ? 12 : 1)) || (hTab === 'month' ? 176 : 1050);
   const rows = [...HONOR.map(([n, c, m, y]) => ({ n, c, v: hTab === 'month' ? m : y })), { n: me.name, c: me.settings.city || 'Уфа', v: myM, me: true }].sort((a, b) => b.v - a.v);
   const pod = rows.slice(0, 3), rest = rows.slice(3, 10), myPos = rows.findIndex((r) => r.me) + 1;
@@ -139,8 +139,40 @@ export function renderHonor() {
   const list = `<section class="h-block bz-rank">${rest.map((r, i) => `<div class="bz-rank__r${r.me ? ' is-me' : ''}"><span class="bz-rank__n">${i + 4}</span>${avatar(r.n, 36)}<span class="bz-rank__t"><b>${esc(r.n)}${r.me ? ' · вы' : ''}</b><small>${esc(r.c)}</small></span><em>${fmt(r.v)} м²</em></div>`).join('')}</section>`;
   const mine = myPos > 10 ? `<section class="h-block bz-rank"><div class="bz-rank__r is-me"><span class="bz-rank__n">${myPos}</span>${avatar(me.name, 36)}<span class="bz-rank__t"><b>${esc(me.name)} · вы</b><small>до 10-го места ${fmt(rows[9].v - myM)} м²</small></span><em>${fmt(myM)} м²</em></div></section>` : '';
   const hint = `<p class="bz-hint">Место считается по поклеенным квадратным метрам ${hTab === 'month' ? 'за этот месяц' : 'за год'}. Тройка лидеров попадает на главную страницу всех мастеров.</p>`;
-  return page('Доска почёта', podium + list + mine + hint, [['month', 'Месяц'], ['year', 'Год']], hTab, 'hn-tab');
+  return podium + list + mine + hint;
 }
+// Соревнования: номинации, лидеры, ваше место
+const NOM = [
+  ['🧾', 'Больше всего заказов', 'Кто закрыл больше заказов', 'заказов', [31, 28, 26], 14, 'Сертификат 10 000 ₽ на инструмент'],
+  ['📐', 'Король квадратных метров', 'Больше всего поклеенных м²', 'м²', [412, 388, 351], 176, 'Лазерный уровень'],
+  ['🧻', 'Рулонный рекорд', 'Больше всего рулонов за период', 'рулонов', [236, 214, 198], 97, 'Набор шпателей Pro'],
+  ['🎨', 'Мастер раппорта', 'Больше рулонов с подбором рисунка', 'рулонов', [94, 81, 77], 38, 'Обучение у бренда'],
+  ['⚡', 'Самый быстрый', 'Лучшая скорость поклейки', 'м²/ч', [11.8, 11.2, 10.9], 9.6, 'Беспроводной миксер'],
+  ['⭐', 'Любимец клиентов', 'Самая высокая оценка клиентов', 'из 5', [5, 4.98, 4.97], 4.9, 'Значок на профиле на месяц'],
+  ['✨', 'Без единой переделки', 'Заказов подряд без жалоб', 'заказов', [42, 37, 33], 19, 'Бонус 5 000 ₽'],
+  ['✂️', 'Экономный', 'Меньше всего обрезков и отходов', '% отхода', [4.1, 4.6, 5.0], 6.8, 'Нож и лезвия Olfa', true],
+  ['🌱', 'Новичок месяца', 'Лучший результат среди тех, кто с нами меньше 3 месяцев', 'м²', [214, 190, 171], null, 'Продвижение в поиске мастеров'],
+];
+const SPONS = ['Erismann', 'Палитра', 'Rasch', 'Quelyd', 'Knauf', 'Erismann', 'Metylan', 'Olfa', 'Палитра'];
+function honorContests() {
+  const me = S.me(), ppl = HONOR.map((h) => h[0]);
+  const v = (x) => (Number.isInteger(x) ? fmt(x) : String(x).replace('.', ','));
+  return `<section class="h-block bz-org"><b>Соревнования Метроники</b><p>Проводит Метроника при спонсорстве брендов — призы от спонсоров. Итоги ${hTab === 'month' ? 'месяца — 30 ноября' : 'года — 31 декабря'}, участвуют все мастера автоматически.</p></section>` + NOM.map(([ic, t, d, unit, top, my, prize, low], i) => {
+    const k = hTab === 'year' ? (low ? 1 : 11) : 1, sc = (x) => (low ? x : Number.isInteger(x) ? Math.round(x * k) : +(x).toFixed(2));
+    const leaders = top.map((x, j) => [ppl[(i * 2 + j * 3) % ppl.length], sc(x)]);
+    const myPlace = my == null ? null : 4 + ((i * 5) % 9), lead = leaders[0][1];
+    const pct = my == null ? 0 : Math.max(6, Math.min(100, low ? (lead / my) * 100 : (sc(my) / lead) * 100));
+    return `<article class="h-block bz-nom"><div class="bz-nom__hd"><span class="bz-nom__ic">${ic}</span><span><b>${t}</b><small>${d}</small></span></div>
+      <ol class="bz-nom__top">${leaders.map(([n, x], j) => `<li><span class="bz-nom__m">${['🥇', '🥈', '🥉'][j]}</span>${avatar(n, 28)}<span class="bz-nom__n">${esc(n)}</span><b>${v(x)} <i>${unit}</i></b></li>`).join('')}</ol>
+      ${my == null ? '<p class="bz-nom__me is-off">Вы с нами больше 3 месяцев — эта номинация для новичков</p>' : `<div class="bz-nom__me"><span>Вы — <b>${myPlace} место</b> · ${v(sc(my))} ${unit}</span><div class="bz-nom__bar"><i style="width:${pct}%"></i></div></div>`}
+      <div class="bz-nom__ft"><span class="bz-nom__pr">🎁 ${esc(prize)}</span><span class="bz-nom__sp">Спонсор <b>${esc(SPONS[i])}</b></span></div></article>`; }).join('');
+}
+let hView = 'rating';
+export function renderHonor() {
+  const per = `<div class="sd-chips">${[['month', 'Этот месяц'], ['year', 'Этот год']].map(([k, t]) => `<button type="button" class="sd-chip${hTab === k ? ' is-on' : ''}" data-action="hn-tab" data-k="${k}">${t}</button>`).join('')}</div>`;
+  return page('Доска почёта', per + (hView === 'contests' ? honorContests() : honorRating()), [['rating', 'Рейтинг'], ['contests', 'Соревнования']], hView, 'hn-view');
+}
+actions['hn-view'] = (el) => { hView = el.dataset.k; rerender(); window.scrollTo(0, 0); };
 actions['hn-tab'] = (el) => { hTab = el.dataset.k; rerender(); };
 
 // ───────── Креаторы ─────────
