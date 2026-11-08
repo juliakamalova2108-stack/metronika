@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=303';
-import * as S from './store.js?v=303';
-import { esc, toast } from './ui.js?v=303';
-import { selectField, pickers } from './oformit.js?v=303';
+import { actions, rerender, val } from './core.js?v=304';
+import * as S from './store.js?v=304';
+import { esc, toast } from './ui.js?v=304';
+import { selectField, pickers } from './oformit.js?v=304';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -377,7 +377,8 @@ export function renderStatsMaster() {
     if (srcM[0]) ins.push([C.blue, `Больше всего заказов — ${srcM[0][0]}`, `${srcM[0][1]} из ${A.n}`]);
     const insB = ins.length ? `<div class="sd-ins">${ins.map(([c, t, s]) => `<div class="sd-ins__c" style="--c:${c}"><b>${esc(t)}</b><small>${esc(s)}</small></div>`).join('')}</div>` : '';
     const srcRows = SRC.map(([t, , col]) => ({ key: 'src:' + t, t, col, v: A.O.filter((o) => o.src === t).length, d: delta(A.O.filter((o) => o.src === t).length, B.O.filter((o) => o.src === t).length) })).filter((x) => x.v).sort((a, b) => b.v - a.v);
-    content = hero + tiles + insB + (srcRows.length ? fblock('src', ['Источники заказов', scope], `<span class="sd-dwrap">${donutBig(srcRows, A.n, plural(A.n, 'заказ', 'заказа', 'заказов'))}${dLegend(srcRows.slice(0, 5), '')}</span>`, catList(srcRows, '', (x) => `${x.v} ${x.v === 1 ? 'заказ' : x.v < 5 ? 'заказа' : 'заказов'}`,
+    const srcTop = srcRows.length > 4 ? [...srcRows.slice(0, 4), { t: `Ещё ${srcRows.length - 4}`, col: OTHER, v: srcRows.slice(4).reduce((a, x) => a + x.v, 0) }] : srcRows;
+    content = hero + tiles + insB + (srcRows.length ? fblock('src', ['Источники заказов', scope], `<span class="sd-dwrap">${donutBig(srcTop, A.n, plural(A.n, 'заказ', 'заказа', 'заказов'))}${dLegend(srcTop, '')}</span>`, catList(srcRows, '', (x) => `${x.v} ${x.v === 1 ? 'заказ' : x.v < 5 ? 'заказа' : 'заказов'}`,
       (x) => opsMore(x.key, A.O.filter((o) => 'src:' + o.src === x.key).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.m2} м² · ${o.brand}`, `${fmt(o.sum)} ₽`))))) : '');
 
   } else if (tab === 'goals') {
