@@ -2851,3 +2851,9 @@ a.f-btn { display: flex; align-items: center; justify-content: center; text-deco
 .o-rplate .bd-rrow { margin: 10px 2px 0; } .o-rplate .bd-rrow .bd-vseg { margin: 0; }
 .o-rplate.bd-rstart ~ * { display: none; } .o-rplate.bd-rstart > :not(.o-rhead):not(.bd-rrow) { display: none; }
 a.h-go { text-decoration: none; display: flex; align-items: center; justify-content: center; }
+.bd-vtop-row { gap: 10px; }
+.bd-vtop__info, .bd-vtop__chat { height: 52px; border-radius: 20px; color: #edf0e7; cursor: pointer;
+  background: linear-gradient(160deg, #3a4f50 0%, #22383a 55%, #1b2c2e 100%); border: 1px solid rgba(214, 229, 194, 0.18);
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+.bd-vtop__info { flex: 1; min-width: 0; padding: 0 18px; font: 600 15px/1 var(--font-body); }
+.bd-vtop__chat { width: 52px; display: grid; place-items: center; padding: 0; }

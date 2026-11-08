@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=403';
-import * as S from './store.js?v=403';
-import { renderOformit, oformitDraft } from './oformit.js?v=403';
-import { roomTotals, svcInfo } from './ocenka.js?v=403';
-import { smetaTotals } from './zakaz.js?v=403';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=403';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=403';
-import { esc, toast, status, seg } from './ui.js?v=403';
-import { topbar, ORDER_STATUS } from './shared.js?v=403';
+import { actions, rerender, go } from './core.js?v=404';
+import * as S from './store.js?v=404';
+import { renderOformit, oformitDraft } from './oformit.js?v=404';
+import { roomTotals, svcInfo } from './ocenka.js?v=404';
+import { smetaTotals } from './zakaz.js?v=404';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=404';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=404';
+import { esc, toast, status, seg } from './ui.js?v=404';
+import { topbar, ORDER_STATUS } from './shared.js?v=404';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -254,7 +254,7 @@ const visitHero = (no, kind, c, addr, rooms, label, attrs) => { const r0 = rooms
     <div class="h-hero__who"><b>${esc(c.name || '')}</b><small>${esc(addr)}</small></div>${job}
     <div class="h-hero__act"><${attrs.startsWith('href') ? 'a' : 'button type="button"'} class="h-go${kind === 'measure' ? ' h-go--meas' : ''}" ${attrs}>${esc(label)}</${attrs.startsWith('href') ? 'a' : 'button'}></div></article>`; };
 function orderTop(no) { const n = unread(S.get().oformit['ord-' + no] || {});
-  return `<div class="bd-vtop-row"><div class="f-btn-row"><button type="button" class="f-btn" data-action="go" data-to="bd-info-${no}">Информация по заказу</button></div><button type="button" class="f-icon-btn bd-vtop__chat" data-action="bd-edit" data-no="${no}" data-tab="chat" aria-label="Чат заказа">${CHAT}${n ? `<b class="f-nav__badge">${n}</b>` : ''}</button></div>`; }
+  return `<div class="bd-vtop-row"><button type="button" class="bd-vtop__info" data-action="go" data-to="bd-info-${no}">Информация по заказу</button><button type="button" class="bd-vtop__chat" data-action="bd-edit" data-no="${no}" data-tab="chat" aria-label="Чат заказа">${CHAT}${n ? `<b class="f-nav__badge">${n}</b>` : ''}</button></div>`; }
 // После «Сохранить» / «Отмена» в форме — назад в визит, на тот же шаг
 const backTo = (no) => { const v = flowOf(no).visit; if (v && v.open) vsGo(no, v.step); else go('bd-order-' + no); };
 const RS_T = { done: 'готово', refuse: 'отказ' };
