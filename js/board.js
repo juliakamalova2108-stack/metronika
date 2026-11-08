@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=388';
-import * as S from './store.js?v=388';
-import { renderOformit, oformitDraft } from './oformit.js?v=388';
-import { roomTotals, svcInfo } from './ocenka.js?v=388';
-import { smetaTotals } from './zakaz.js?v=388';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=388';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=388';
-import { esc, toast, status, seg } from './ui.js?v=388';
-import { topbar, ORDER_STATUS } from './shared.js?v=388';
+import { actions, rerender, go } from './core.js?v=389';
+import * as S from './store.js?v=389';
+import { renderOformit, oformitDraft } from './oformit.js?v=389';
+import { roomTotals, svcInfo } from './ocenka.js?v=389';
+import { smetaTotals } from './zakaz.js?v=389';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=389';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=389';
+import { esc, toast, status, seg } from './ui.js?v=389';
+import { topbar, ORDER_STATUS } from './shared.js?v=389';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
