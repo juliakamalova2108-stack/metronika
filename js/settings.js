@@ -3,13 +3,13 @@
 // кнопки f-btn, верхние вкладки и нижняя панель f-nav / f-topnav / f-tab.
 // Три раздела внизу: Профиль · Работа · Система.
 
-import { actions, changes, rerender, go, val } from './core.js?v=376';
-import * as S from './store.js?v=376';
-import { esc, toast } from './ui.js?v=376';
-import { selectField, pickers } from './oformit.js?v=376';
-import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=376';
-import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=376';
-import { NOTIFY_KINDS } from './more.js?v=376';
+import { actions, changes, rerender, go, val } from './core.js?v=379';
+import * as S from './store.js?v=379';
+import { esc, toast } from './ui.js?v=379';
+import { selectField, pickers } from './oformit.js?v=379';
+import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=379';
+import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=379';
+import { NOTIFY_KINDS } from './more.js?v=379';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';

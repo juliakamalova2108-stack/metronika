@@ -2828,3 +2828,12 @@ a.f-btn { display: flex; align-items: center; justify-content: center; text-deco
 .bd-vbig { height: 46px; font-size: 16px; }
 .h-hero__act .h-go { flex: 1; justify-content: center; }
 .bd-vnext .f-btn.is-off { opacity: .5; }
+/* Визит: комнаты в нижней панели листаются вбок вместе с кнопками; вкладки комнаты сверху */
+.bd-vscroll { overflow-x: auto; overflow-y: hidden; scrollbar-width: none; justify-content: flex-start; }
+.bd-vscroll::-webkit-scrollbar { display: none; }
+.bd-vscroll > * { flex: none; }
+.bd-rtab { height: 50px; padding: 0 12px 4px; border: 0; background: none; cursor: pointer; font: 500 13px/16px var(--font-body); color: #a8bab2; white-space: nowrap; position: relative; }
+.bd-rtab.is-active { color: #edf0e7; }
+.bd-rtab::before { content: ''; position: absolute; left: 12px; right: 12px; bottom: 4px; height: 3px; border-radius: 2px; background: var(--rc); opacity: .55; }
+.bd-rtab.is-active::before { opacity: 1; }
+.bd-vseg { margin: 14px 16px 6px; width: auto; }
