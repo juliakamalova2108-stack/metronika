@@ -2451,3 +2451,9 @@ body.nobar #view { padding-bottom: 96px; }
 
 .sd-hleg2--w { gap: 8px; }
 .sd-hleg2--w b { font-size: 13px; line-height: 1.2; }
+
+.sd-wtg { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 8px; width: 100%; padding: 13px 14px; border-radius: 16px; background: rgba(237,242,232,.06); font: 700 14px Manrope, sans-serif; color: #edf2e8; }
+.sd-wtg span { flex: 1; }
+.sd-wtg small { font: 700 12px Inter, sans-serif; color: rgba(237,242,232,.6); background: rgba(237,242,232,.08); border-radius: 10px; padding: 2px 8px; }
+.sd-wtg .sd-f__ch { display: inline-flex; transition: transform .2s; }
+.sd-wtg.is-open .sd-f__ch { transform: rotate(180deg); }

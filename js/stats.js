@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=308';
-import * as S from './store.js?v=308';
-import { esc, toast } from './ui.js?v=308';
-import { selectField, pickers } from './oformit.js?v=308';
+import { actions, rerender, val } from './core.js?v=309';
+import * as S from './store.js?v=309';
+import { esc, toast } from './ui.js?v=309';
+import { selectField, pickers } from './oformit.js?v=309';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -433,7 +433,8 @@ export function renderStatsMaster() {
     const wBody = (x) => { const O = A.O.filter((o) => (o.works || []).some((w) => w[0] === x.f)).sort((p1, p2) => p2.d - p1.d);
       const wm = (o) => (o.works.find((w) => w[0] === x.f) || [0, 0])[1];
       return `<ul class="sd-pl"><li><span>Заказов с этой работой</span><b>${O.length}</b></li><li><span>В среднем на заказ</span><b>${O.length ? Math.round(x.v / O.length) : 0} м²</b></li><li><span>Доля от всех работ</span><b>${Math.round((x.v / wTot) * 100)}%</b></li></ul>${opsMore('wto:' + x.f, O.map((o) => opRow(o.d, `№${o.no} · ${o.client}`, o.rooms.map((r) => r[0]).join(', '), `${fmt(wm(o))} м²`)))}`; };
-    const rows = `<div class="sd-mrows">${wRows.map((x) => wRow('wt-' + x.f, x.col, x.f, `${fmt(x.v)} м²`, x.v, x.pv, () => wBody(x))).join('')}</div>`;
+    const wOpen = fold.has('w-types');
+    const rows = `<div class="sd-mrows"><button type="button" class="sd-wtg${wOpen ? ' is-open' : ''}" data-action="sd2-fold" data-k="w-types" aria-expanded="${wOpen}"><span>Виды работ подробно</span><small>${wRows.length}</small><i class="sd-f__ch">${CHEV}</i></button>${wOpen ? wRows.map((x) => wRow('wt-' + x.f, x.col, x.f, `${fmt(x.v)} м²`, x.v, x.pv, () => wBody(x))).join('') : ''}</div>`;
     const rmTotal = rRows.reduce((a2, x) => a2 + x.v, 0);
     const roomsB = rRows.length ? fblock('rooms', ['Комнаты', scope], `<span class="sd-dwrap">${donutBig(rTop, rmN(A), plural(rmN(A), 'комната', 'комнаты', 'комнат'))}${dLegend(rTop, '')}</span>`,
       catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key), 'rmo:' + x.key))) : '';
