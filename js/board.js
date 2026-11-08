@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=366';
-import * as S from './store.js?v=366';
-import { renderOformit, oformitDraft } from './oformit.js?v=366';
-import { roomTotals, svcInfo } from './ocenka.js?v=366';
-import { smetaTotals } from './zakaz.js?v=366';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=366';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=366';
-import { esc, toast, status, seg } from './ui.js?v=366';
-import { topbar, ORDER_STATUS } from './shared.js?v=366';
+import { actions, rerender, go } from './core.js?v=368';
+import * as S from './store.js?v=368';
+import { renderOformit, oformitDraft } from './oformit.js?v=368';
+import { roomTotals, svcInfo } from './ocenka.js?v=368';
+import { smetaTotals } from './zakaz.js?v=368';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=368';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=368';
+import { esc, toast, status, seg } from './ui.js?v=368';
+import { topbar, ORDER_STATUS } from './shared.js?v=368';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -230,7 +230,7 @@ function flowBlock(no, d, tot, days) {
 // ── Режим выезда: пошагово, на весь экран, «Назад» / «Дальше» внизу.
 // Начало общее: звонок клиенту → маршрут → «Вы на месте?». Дальше — замер или рабочий день.
 const VS_MEAS = ['Звонок клиенту', 'Маршрут', 'Вы на месте?', 'Комнаты', 'Замер по стенам', 'Фото «до»', 'Смета', 'Решение клиента'];
-const VS_WORK = ['Звонок клиенту', 'Маршрут', 'Вы на месте?', 'Комнаты сегодня', 'Материал', 'Работа', 'Конец смены'];
+const VS_WORK = ['Звонок клиенту', 'Маршрут', 'Вы на месте?', 'Материал', 'Работа', 'Конец смены'];
 export function renderVisit(no) {
   if (!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) return null;
   if (DEMO[no]) seedOrder(no);
@@ -244,7 +244,11 @@ export function renderVisit(no) {
   const tel = (c.phone || '').replace(/[^+\d]/g, ''), map = 'https://yandex.ru/maps/?rtext=~' + encodeURIComponent(addr);
   const est = rooms.reduce((a, r) => a + roomTotals(r).total, 0);
   const smt = d.sm ? smetaTotals(d) : null, measured = (r) => !!(smt && (smt.rooms.find((x) => x.room.key === r.key) || {}).total);
-  const keep = rooms.filter((r) => v.keep[r.key] !== false), today = rooms.filter((r) => v.today[r.key] !== false && !f.done[r.key]);
+  const keep = rooms.filter((r) => v.keep[r.key] !== false);
+  // Комнаты на сегодня — из «Плана работ» (день смены), ничего выбирать не нужно
+  const wd = workDays(d), di = Math.min(Math.max(0, (f.day || 1) - 1), Math.max(0, wd.length - 1));
+  const today = wd.length ? [...new Map(wd[di].parts.map((p) => [p.r.key, rooms.find((r) => r.key === p.r.key) || p.r])).values()] : rooms;
+  const dayTxt = wd.length ? `день ${di + 1} из ${wd.length} · ${wd[di].date.getDate()} ${MONG[wd[di].date.getMonth()]}` : '';
   const total = smt && smt.total ? smt.total : 0, fin = Math.round(total * (1 - v.disc / 100));
   const A = (a, k = '') => `data-action="${a}" data-no="${no}"${k !== '' ? ` data-k="${k}"` : ''}`;
   const big = (label, attrs, lit = true) => `<div class="f-btn-row bd-flbtns"><${attrs.startsWith('href') ? 'a' : 'button type="button"'} class="f-btn${lit ? ' f-btn--lit' : ''} bd-vbig" ${attrs}>${esc(label)}</${attrs.startsWith('href') ? 'a' : 'button'}></div>`;
@@ -268,14 +272,12 @@ export function renderVisit(no) {
       : flAsk === no + ':refuse' ? block('Причина отказа', no, '', chips([['Дорого', 'Дорого'], ['Сроки', 'Сроки'], ['Передумал', 'Передумал'], ['Неизвестно', 'Неизвестно']], 'vs-refuse'))
       : block('Что решил клиент?', no, '', `<p class="bd-line"><b>${fmt(fin)} ₽</b><small>${keep.length} ${keep.length === 1 ? 'комната' : 'комнаты'}${v.disc ? ` · скидка ${v.disc} %` : ''}</small></p>
           <div class="f-btn-row bd-flbtns">${fb('Согласен — даты', A('vs-yes'), ' f-btn--lit')}${fb('Подумает', A('fl-ask', 'call'))}${fb('Отказ', A('fl-ask', 'refuse'))}</div>`); }
-  else if (name === 'Комнаты сегодня') { const left = rooms.filter((r) => !f.done[r.key]);
-    body = block(`Что клеим сегодня · день ${f.day || 1}`, no, '', left.map((r) => tg(v.today[r.key] !== false, r.name, `${r.floor} этаж`, A('vs-today', r.key))).join('') || '<p class="bd-line"><small>Все комнаты готовы</small></p>'); can = today.length > 0; }
   else if (name === 'Материал') { const mr = (d.mat && d.mat.rooms) || {};
-    body = block('Материал', no, '', today.map((r) => `<p class="bd-line"><b>${esc(r.name)}</b><small>${mr[r.key] && mr[r.key].added ? `${esc(mr[r.key].added.brand)} · добавлен` : 'не добавлен'}</small></p>`).join(''))
+    body = block(`Сегодня по плану · ${dayTxt}`, no, '', today.map((r) => `<p class="bd-line"><b>${esc(r.name)}</b><small>${mr[r.key] && mr[r.key].added ? `${r.floor} этаж · материал: ${esc(mr[r.key].added.brand)}` : `${r.floor} этаж · материал не добавлен`}</small></p>`).join(''))
       + big('Добавить материал', `data-action="bd-edit" data-no="${no}" data-tab="material"`); }
   else if (name === 'Работа') {
     body = ((f.day || 1) === 1 ? block('Контрольная выклейка', no, '', tg(f.shift.ctl, 'Выклеил 3 полосы', 'клиент посмотрел и одобрил', A('fl-sh', 'ctl'))) : '')
-      + block('Комнаты', no, '', today.concat(rooms.filter((r) => f.done[r.key] && v.today[r.key] !== false)).map((r) => tg(f.done[r.key], r.name, f.done[r.key] ? 'готово' : 'в работе', A('fl-room', r.key))).join(''));
+      + block(`Комнаты сегодня · ${dayTxt}`, no, '', today.map((r) => tg(f.done[r.key], r.name, f.done[r.key] ? 'готово' : 'в работе', A('fl-room', r.key))).join(''));
     can = (f.day || 1) > 1 || !!f.shift.ctl; }
   else if (name === 'Конец смены') { const all = rooms.length && rooms.every((r) => f.done[r.key]); can = false;
     body = block('Конец смены', no, '', `<p class="bd-line"><b>${all ? 'Все комнаты готовы' : `Готово: ${rooms.filter((r) => f.done[r.key]).length} из ${rooms.length}`}</b><small>${all ? 'Дальше — итог и оплата' : 'Остальное — в следующую смену'}</small></p>`)

@@ -33,7 +33,7 @@
 <script>
 const NO = '014';
 const VS = (n, extra) => ({ st: 'measure', visit: Object.assign({ kind: 'measure', step: n, called: n > 0 ? 1 : 0, here: n > 2 ? 1 : 0, keep: {}, photos: {}, disc: 0, today: {} }, extra || {}) });
-const VW = (n, extra) => ({ st: 'work', day: 1, shift: n > 5 ? { ctl: 1 } : {}, done: {}, visit: Object.assign({ kind: 'work', step: n, called: 1, here: n > 2 ? 1 : 0, keep: {}, photos: {}, disc: 0, today: {} }, extra || {}) });
+const VW = (n, extra) => ({ st: 'work', day: 1, shift: n > 4 ? { ctl: 1 } : {}, done: {}, visit: Object.assign({ kind: 'work', step: n, called: 1, here: n > 2 ? 1 : 0, keep: {}, photos: {}, disc: 0, today: {} }, extra || {}) });
 const STEPS = [
   ['Главная · карточка замера', 'одна кнопка «Начать»', null, 'home'],
   ['Замер · 1 Звонок клиенту', '«Выезжаю к вам»', VS(0), 'bd-visit-014'],
@@ -45,10 +45,9 @@ const STEPS = [
   ['Замер · 7 Смета', 'оценка → замер, скидка', VS(6, { disc: 3 }), 'bd-visit-014'],
   ['Замер · 8 Решение клиента', 'согласен / подумает / отказ', VS(7, { disc: 3 }), 'bd-visit-014'],
   ['Работа · 1 Звонок клиенту', 'тот же старт: звонок → маршрут → на месте', VW(0, { called: 0 }), 'bd-visit-014'],
-  ['Работа · 4 Комнаты сегодня', 'что клеим сегодня', VW(3), 'bd-visit-014'],
-  ['Работа · 5 Материал', 'добавить материал по комнатам', VW(4), 'bd-visit-014'],
-  ['Работа · 6 Работа', 'выклейка + комнаты готовы', VW(5), 'bd-visit-014'],
-  ['Работа · 7 Конец смены', 'закрыть смену или «Работы выполнены»', VW(6), 'bd-visit-014'],
+  ['Работа · 4 Материал', 'комнаты на сегодня — из «Плана работ»', VW(3), 'bd-visit-014'],
+  ['Работа · 5 Работа', 'выклейка + комнаты готовы', VW(4), 'bd-visit-014'],
+  ['Работа · 6 Конец смены', 'закрыть смену или «Работы выполнены»', VW(5), 'bd-visit-014'],
   ['Выполнено', 'расчёт: наличные или перевод', { st: 'done', visit: null }, 'bd-order'],
   ['Заказ завершён', 'уходит в статистику и соревнования', { st: 'closed', visit: null }, 'bd-order'],
 ];
