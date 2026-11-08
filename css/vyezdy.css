@@ -1972,3 +1972,23 @@ body.nobar #view { padding-bottom: 96px; }
 .gc-mini__t b { font: 800 17px/1.1 Manrope, sans-serif; color: #fff; }
 .gc-mini__t small { font: 600 12px Manrope, sans-serif; color: rgba(237,242,232,.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .gc-mini .gc-fold { position: static; flex: none; }
+
+/* ══ Статистика — дашборд ══ */
+.sd { padding-bottom: 104px !important; }
+.sd-hd { display: flex; flex-direction: column-reverse; gap: 2px; padding: 8px 2px 2px; }
+.sd-hd h1 { margin: 0; font: 800 30px/1.05 Manrope, sans-serif; letter-spacing: -.03em; color: #edf2e8; }
+.sd-hd span { font: 600 12px Inter, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: rgba(237,242,232,.45); }
+.sd-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.sd-tile { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 4px; padding: 14px; border-radius: 20px; background: rgba(255,255,255,.05); border: 1px solid rgba(191,214,204,.14); }
+.sd-tile::before { content: ''; position: absolute; left: 14px; top: 0; width: 28px; height: 3px; border-radius: 0 0 3px 3px; background: var(--c); box-shadow: 0 0 12px var(--c); }
+.sd-tile small { font: 600 12px Inter, sans-serif; color: rgba(237,242,232,.6); }
+.sd-tile b { font: 800 22px/1.1 Manrope, sans-serif; letter-spacing: -.02em; color: #edf2e8; white-space: nowrap; }
+.sd-tile em { font: 500 11.5px Inter, sans-serif; font-style: normal; color: rgba(237,242,232,.45); }
+.sd-line { width: 100%; height: auto; margin-top: 8px; overflow: visible; }
+.sd-line__v { font: 700 10px Manrope, sans-serif; fill: #edf2e8; }
+.sd-line__m { font: 500 10px Inter, sans-serif; fill: rgba(237,242,232,.5); }
+.sd-hb { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.sd-hb__r { display: grid; grid-template-columns: 110px 1fr 28px; align-items: center; gap: 10px; font: 600 13px Manrope, sans-serif; color: rgba(237,242,232,.8); }
+.sd-hb__r i { height: 10px; border-radius: 5px; background: rgba(255,255,255,.06); position: relative; overflow: hidden; }
+.sd-hb__r i::after { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--w); border-radius: 5px; background: var(--c); }
+.sd-hb__r b { text-align: right; color: #edf2e8; }
