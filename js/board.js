@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=385';
-import * as S from './store.js?v=385';
-import { renderOformit, oformitDraft } from './oformit.js?v=385';
-import { roomTotals, svcInfo } from './ocenka.js?v=385';
-import { smetaTotals } from './zakaz.js?v=385';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=385';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=385';
-import { esc, toast, status, seg } from './ui.js?v=385';
-import { topbar, ORDER_STATUS } from './shared.js?v=385';
+import { actions, rerender, go } from './core.js?v=388';
+import * as S from './store.js?v=388';
+import { renderOformit, oformitDraft } from './oformit.js?v=388';
+import { roomTotals, svcInfo } from './ocenka.js?v=388';
+import { smetaTotals } from './zakaz.js?v=388';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=388';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=388';
+import { esc, toast, status, seg } from './ui.js?v=388';
+import { topbar, ORDER_STATUS } from './shared.js?v=388';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -244,15 +244,22 @@ const firstRoom = (no) => { const d = S.get().oformit['ord-' + no], rs = (d && d
 function vsPickRoom(no, key) { const d = S.get().oformit['ord-' + no], v = flowOf(no).visit; if (!key) return; v.room = key; d.mat = d.mat || { view: '', scans: 0, rooms: {} }; d.mat.view = key; d.sm = d.sm || { view: '', rooms: {} }; d.sm.view = key; }
 const PLUS_NAV = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="#edf0e7" stroke-width="2" stroke-linecap="round"/></svg>';
 const plusBtn = (no) => `<button type="button" class="f-icon-btn bd-back" data-action="vs-plus" data-no="${no}" aria-label="Добавить комнату">${PLUS_NAV}</button>`;
-// Верх экрана комнаты: общая информация о заказе — клиент, телефон, адрес, источник (из оценки / сайта / от агента)
-function orderTop(no, d, f) { const c = d.cl || {}, rooms = (d.est && d.est.rooms) || [], rs = f.rs || {}, est = rooms.reduce((a, r) => a + roomTotals(r).total, 0);
+// Верх экрана комнаты: компактная строка «клиент · источник»; нажал — раскрылось (телефон, адрес, источник, стоимость), «Изменить» открывает готовую форму
+function orderTop(no, d, f) { const c = d.cl || {}, v = f.visit || {}, rooms = (d.est && d.est.rooms) || [], rs = f.rs || {}, est = rooms.reduce((a, r) => a + roomTotals(r).total, 0);
   const addr = [c.street, c.house && 'д. ' + c.house, c.flat && 'кв. ' + c.flat].filter(Boolean).join(', ');
   const smt = d.sm ? smetaTotals(d) : null, fact = smt ? smt.rooms.filter((x) => !(rs[x.room.key] && rs[x.room.key].st === 'refuse')).reduce((a, x) => a + x.total, 0) : 0;
   const src = d.channel && d.channel.source ? `${esc(d.channel.source)}${d.channel.partner && d.channel.partner !== 'self' ? ' · через партнёра' : ''}` : '—';
-  return `<section class="f-plate bd-block bd-vtop"><div class="bd-clname"><b>${esc(c.name || '')}</b><small>Заказ №${no} · источник: ${src}</small></div>
+  const head = `<div class="bd-vtop__bar"><button type="button" class="bd-vtop__h" data-action="vs-top" data-no="${no}" aria-expanded="${!!v.topOpen}"><b>Информация по заказу</b><i class="bd-vtop__chev${v.topOpen ? ' is-open' : ''}">${CHEV}</i></button><button type="button" class="bd-vtop__chat" data-action="bd-edit" data-no="${no}" data-tab="chat" aria-label="Чат заказа">${CHAT}</button></div>`;
+  if (!v.topOpen) return `<section class="f-plate bd-vtop bd-vtop--c">${head}</section>`;
+  return `<section class="f-plate bd-vtop">${head}
     <div class="bd-cl"><div><b>${esc(c.phone || '')}</b><small>${esc(addr)}${c.entrance ? ` · подъезд ${esc(c.entrance)}` : ''}${c.floor ? ` · этаж ${esc(c.floor)}` : ''}</small></div>
-    <span class="bd-cl__ic"><a class="f-icon-btn" href="tel:${esc((c.phone || '').replace(/[^+\d]/g, ''))}" aria-label="Позвонить">${PH}</a><a class="f-icon-btn" href="https://yandex.ru/maps/?text=${encodeURIComponent(addr)}" target="_blank" rel="noopener" aria-label="Маршрут">${RT}</a><button type="button" class="f-icon-btn" data-action="bd-edit" data-no="${no}" data-tab="chat" aria-label="Чат заказа">${CHAT}</button></span></div>
-    <p class="bd-range">Предварительно ${fmt(est)} ₽${fact ? ` · по смете ${fmt(fact)} ₽` : ''}</p></section>`; }
+    <span class="bd-cl__ic"><a class="f-icon-btn" href="tel:${esc((c.phone || '').replace(/[^+\d]/g, ''))}" aria-label="Позвонить">${PH}</a><a class="f-icon-btn" href="https://yandex.ru/maps/?text=${encodeURIComponent(addr)}" target="_blank" rel="noopener" aria-label="Маршрут">${RT}</a></span></div>
+    <p class="bd-line"><b>${esc(c.name || '')}</b><small>№${no} · источник: ${src}</small></p>
+    <p class="bd-range">Предварительно ${fmt(est)} ₽${fact ? ` · по смете ${fmt(fact)} ₽` : ''}</p>
+    <div class="f-btn-row bd-flbtns">${fb('Изменить клиента', `data-action="bd-edit" data-no="${no}" data-tab="client"`)}${fb('Изменить источник', `data-action="bd-edit" data-no="${no}" data-tab="channel"`)}</div></section>`; }
+actions['vs-top'] = (el) => { const v = flowOf(el.dataset.no).visit; v.topOpen = !v.topOpen; S.save(); rerender(); };
+// После «Сохранить» / «Отмена» в форме — назад в визит, на тот же шаг
+const backTo = (no) => { const v = flowOf(no).visit; if (v && v.open) vsGo(no, v.step); else go('bd-order-' + no); };
 const RS_T = { done: 'готово', refuse: 'отказ' };
 // Комнаты — в нижней панели: листаются вбок вместе с остальными кнопками. Значок — статус комнаты.
 const roomTabs = (no, d, f) => { const v = f.visit || {}; return ((d.est && d.est.rooms) || []).map((r) => { const st = (f.rs || {})[r.key]; return `<button type="button" class="f-tab bd-rtab${v.room === r.key ? ' is-active' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="vs-room" data-no="${no}" data-k="${r.key}">${st ? (st.st === 'done' ? '✓ ' : '× ') : ''}${esc(r.name)}</button>`; }).join(''); };
@@ -452,14 +459,14 @@ export function renderBoardEdit(no, t) {
   S.setDraftKey('ord-' + no);
   if (startEdit === t) { startEdit = ''; beginEdit(oformitDraft(), t); }
   const c = CL[no];
-  const vv = flowOf(no).visit || {}, inRoom = !!(vv.open && vv.kind === 'work' && vv.step === 3 && t !== 'chat');
+  const vv = flowOf(no).visit || {}, inRoom = !!(vv.open && vv.kind === 'work' && vv.step === 3 && VS_TABS.some((x) => x[0] === t));
   const mid = `<div class="bd-navslot">${inRoom ? plusBtn(no) : `<button type="button" class="f-icon-btn bd-back" data-action="bd-to-order" data-no="${no}" aria-label="К заказу">${BACK}</button>`}${vsNextBtn(no, t) || '<span class="bd-navfree"></span>'}</div>`;
   const navHtml = ''; // шапка (назад, раздел, клиент) — в нижней навигации между «Меню» и «Чатом»
   const dd = oformitDraft();
   if (t === 'chat') { (dd.chat || []).forEach((m) => { m.read = true; }); S.save(); }
   const html = renderOformit('order', { only: t, navHtml, navRight: mid + (inRoom ? roomTabs(no, dd, flowOf(no)) : '') + (inRoom ? '' : ((flowOf(no).visit || {}).open && t !== 'chat' ? infoBtn(no) : '') + (t === 'chat' ? '<span class="f-nav__chat"></span>' : chatBtn(no, dd))) });
   // Вместо «Редактировать / Редактирование» — «Отмена»: правка уже включена.
-  return (inRoom ? roomSeg(no, vv) + orderTop(no, dd, flowOf(no)) : '') + (inRoom ? html.replace(/<div class="o-pvbar">[\s\S]*?<\/div><\/div>/, '') : html).replace('f-nav f-nav--tabs', inRoom ? 'f-nav f-nav--tabs bd-vscroll' : 'f-nav f-nav--tabs').replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
+  return (inRoom ? orderTop(no, dd, flowOf(no)) + roomSeg(no, vv) : '') + (inRoom ? html.replace(/<div class="o-pvbar">[\s\S]*?<\/div><\/div>/, '') : html).replace('f-nav f-nav--tabs', inRoom ? 'f-nav f-nav--tabs bd-vscroll' : 'f-nav f-nav--tabs').replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
 }
 actions['bd-edit'] = (el) => { startEdit = el.dataset.tab; go(`bd-edit-${el.dataset.no}-${el.dataset.tab}`); };
 actions['bd-to-order'] = (el) => { showParts = false; const no = el.dataset.no, f = flowOf(no), v = f.visit;
@@ -509,14 +516,14 @@ document.addEventListener('section-saved', (ev) => {
   }
   editSnap = null;
   setTimeout(() => bigNote(same ? 'Без изменений' : '✓ Сохранено'), ev.detail === 'estimate' ? 30 : 0);
-  setTimeout(() => { go('bd-order-' + m[1]); setTimeout(hideBig, 400); }, 650);
+  setTimeout(() => { backTo(m[1]); setTimeout(hideBig, 400); }, 650);
 });
 actions['bd-cancel'] = (el) => {
   const d = oformitDraft(); delete d.schedHint;
   if (editSnap) { Object.assign(d, clone(editSnap.data)); S.save(); }
   editSnap = null;
   bigNote('Отменено');
-  setTimeout(() => { go('bd-order-' + el.dataset.no); setTimeout(hideBig, 400); }, 650);
+  setTimeout(() => { backTo(el.dataset.no); setTimeout(hideBig, 400); }, 650);
 };
 
 // Крупное сообщение по центру экрана (как «Комната сохранена» в «Оценке»).
