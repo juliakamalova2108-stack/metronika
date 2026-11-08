@@ -2331,3 +2331,9 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-mrow__h span { font: 700 15px Manrope, sans-serif; color: #edf2e8; }
 .sd-mrow__h b { font: 800 15px Manrope, sans-serif; color: #edf2e8; white-space: nowrap; }
 .sd-mrow.is-open > .sd-mrow__h .sd-f__ch { transform: rotate(180deg); }
+
+.sd-vs { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.sd-vs small { font: 500 11.5px Inter, sans-serif; color: rgba(237,242,232,.5); }
+.sd-mrow__h span small { display: block; font: 500 11.5px Inter, sans-serif; color: rgba(237,242,232,.45); margin-top: 2px; }
+.sd-vs--r { align-items: flex-end; }
+.sd-vs--r small { font-size: 10.5px; white-space: nowrap; }

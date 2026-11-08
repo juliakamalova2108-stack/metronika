@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=294';
-import * as S from './store.js?v=294';
-import { esc, toast } from './ui.js?v=294';
-import { selectField, pickers } from './oformit.js?v=294';
+import { actions, rerender, val } from './core.js?v=295';
+import * as S from './store.js?v=295';
+import { esc, toast } from './ui.js?v=295';
+import { selectField, pickers } from './oformit.js?v=295';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -346,14 +346,14 @@ export function renderStatsMaster() {
     const moneyList = (money) => { const rows = moneyRows(money); return rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'операция' : x.cnt < 5 ? 'операции' : 'операций'}`,
       (x) => opsMore(x.key, A.P.filter((o) => o.kind + ':' + o.cat === x.key).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, o.o ? `№${o.o.no} · ${o.o.client}` : o.note || x.t, o.o ? `${o.o.m2} м²` : 'покупка', `${money === 'inc' ? '+' : '−'}${fmt(o.sum)} ₽`)))) : '<p class="sd-note">Нет операций за период</p>'; };
     const moneyRow = (money) => { const on = fold.has('money-' + money), tot = money === 'inc' ? A.inc : A.exp;
-      return `<div class="sd-mrow${on ? ' is-open' : ''}"><button type="button" class="sd-mrow__h" data-action="sd2-fold" data-k="money-${money}" aria-expanded="${on}"><i style="background:${money === 'inc' ? C.inc : C.exp}"></i><span>${money === 'inc' ? 'Доходы' : 'Расходы'}</span><b>${fmt(tot)} ₽</b>${dTag(delta(tot, money === 'inc' ? B.inc : B.exp), money === 'exp')}<i class="sd-f__ch">${CHEV}</i></button>${on ? `<div class="sd-f__full">${moneyList(money)}</div>` : ''}</div>`; };
+      return `<div class="sd-mrow${on ? ' is-open' : ''}"><button type="button" class="sd-mrow__h" data-action="sd2-fold" data-k="money-${money}" aria-expanded="${on}"><i style="background:${money === 'inc' ? C.inc : C.exp}"></i><span>${money === 'inc' ? 'Доходы' : 'Расходы'}</span><b>${fmt(tot)} ₽</b>${B.inc ? `<span class="sd-vs sd-vs--r">${dTag(delta(tot, money === 'inc' ? B.inc : B.exp), money === 'exp')}<small>${prevName()}</small></span>` : '<span></span>'}<i class="sd-f__ch">${CHEV}</i></button>${on ? `<div class="sd-f__full">${moneyList(money)}</div>` : ''}</div>`; };
   if (tab === 'all') {
     const avgChk = A.n ? A.inc / A.n : 0, avgChkB = B.n ? B.inc / B.n : 0;
     const rep = A.n ? Math.round((A.O.filter((o) => o.repeat).length / A.n) * 100) : 0;
-    const hero = `<section class="h-block sd-hero"><small>Прибыль ${scope}</small><div class="sd-hero__v"><b>${fmt(A.profit)}<i> ₽</i></b>${dTag(delta(A.profit, B.profit))}</div>
+    const hero = `<section class="h-block sd-hero"><small>Прибыль ${scope}</small><div class="sd-hero__v"><b>${fmt(A.profit)}<i> ₽</i></b>${B.inc ? `<span class="sd-vs">${dTag(delta(A.profit, B.profit))}<small>${prevName()}</small></span>` : ''}</div>
       <div class="sd-dwrap">${donutBig([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], fmt(A.inc), 'доход, ₽')}${dLegend([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], '')}</div>
       <div class="sd-mrows">${moneyRow('inc')}${moneyRow('exp')}</div>
-      <p class="sd-hero__cmp">${B.inc ? `${isCur() ? 'За тот же срок' : 'За прошлый период'} (${prevName().replace('к ', '')}) прибыль была ${fmt(B.profit)} ₽` : ''}</p></section>`;
+      </section>`;
     const tile = (t, v, d, sub, sp) => `<div class="sd-tile"><small>${t}</small><b>${v}</b>${sp}<em>${d}${sub ? ` <span>${sub}</span>` : ''}</em></div>`;
     const tiles = `<div class="sd-tiles">${tile('Заказов', A.n, dTag(delta(A.n, B.n)), prevName(), bars(mser((a) => a.n), si, P7[0]))}${tile('Средний чек', `${k(avgChk)} ₽`, dTag(delta(avgChk, avgChkB)), prevName(), bars(mser((a) => (a.n ? a.inc / a.n : 0)), si, P7[3]))}
       ${tile('Рабочих дней', A.days, dTag(delta(A.days, B.days)), prevName(), bars(mser((a) => a.days), si, P7[2]))}${tile('Повторные клиенты', `${rep}%`, '', `${A.O.filter((o) => o.repeat).length} из ${A.n}`, bars(mser((a) => (a.n ? a.O.filter((o) => o.repeat).length / a.n : 0)), si, P7[4]))}</div>`;
