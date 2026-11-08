@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=313';
-import * as S from './store.js?v=313';
-import { esc, toast } from './ui.js?v=313';
-import { selectField, pickers } from './oformit.js?v=313';
+import { actions, rerender, val } from './core.js?v=314';
+import * as S from './store.js?v=314';
+import { esc, toast } from './ui.js?v=314';
+import { selectField, pickers } from './oformit.js?v=314';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -363,9 +363,15 @@ function effTab(A, B, LY, lyLbl, lyCol, tile, scope, mser, si) {
   const trav = (a) => a.travel / days(a), wt = (a) => a.wait / days(a), spd = (a) => (a.workH ? a.m2 / a.workH : 0), rsp = (a) => avg(a, 'resp');
   const tiles = `<div class="sd-tiles">${tile('В дороге за день', hmS(trav(A)), dTag(delta(trav(A), trav(B)), true), prevName(), bars(mser(trav), si, P7[1]))}${tile('Ожидание клиента', hmS(wt(A)), dTag(delta(wt(A), wt(B)), true), prevName(), bars(mser(wt), si, P7[5]))}
     ${tile('Скорость, м²/ч', spd(A).toFixed(1).replace('.', ','), dTag(delta(spd(A), spd(B))), prevName(), bars(mser(spd), si, P7[2]))}${tile('Ответ на заявку', hmS(rsp(A)), dTag(delta(rsp(A), rsp(B)), true), prevName(), bars(mser(rsp), si, P7[0]))}</div>`;
-  const TM = [['Выполнение заказа', A.workH * 60, P7[2]], ['Дорога', A.travel, P7[1]], ['Замер', A.measure, P7[3]]].map(([t, v, col]) => ({ key: 'tm:' + t, t, v: Math.round(v / 60), col })).filter((x) => x.v);
-  const tm = fblock('time', ['Куда уходит время', scope], `<span class="sd-dwrap">${donutBig(TM, TM.reduce((a, x) => a + x.v, 0), 'часов')}${dLegend(TM, '')}</span>`,
-    catList(TM, ' ч', (x) => `≈ ${(x.v / A.n).toFixed(1).replace('.', ',')} ч на заказ`, (x) => opsMore('tmo:' + x.key, A.O.slice().sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.m2} м²`, x.t === 'Выполнение заказа' ? `${String(o.workH).replace('.', ',')} ч` : hm(x.t === 'Дорога' ? o.travel : x.t === 'Замер' ? o.measure : o.wait))))));
+  const TMf = (a) => [['Выполнение заказа', a.workH * 60, P7[2]], ['Дорога', a.travel, P7[1]], ['Замер', a.measure, P7[3]]];
+  const TM = TMf(A).map(([t, v, col], i) => ({ key: 'tm:' + t, t, v: Math.round(v / 60), pv: Math.round(TMf(B)[i][1] / 60), col })).filter((x) => x.v);
+  const hrs = (a) => Math.round(a.workH + (a.travel + a.measure) / 60), H = hrs(A) || 1;
+  const tmLeg = `<ul class="sd-hleg2 sd-hleg2--w">${TM.map((x) => `<li><i style="background:${x.col}"></i><span><b>${x.t}</b><small>${fmt(x.v)} ч</small></span><em>${Math.round((x.v / H) * 100)}%</em></li>`).join('')}<li class="is-note">% — доля от всех часов</li></ul>`;
+  const tmStrip = `<div class="sd-ly3"><div class="sd-ly3__h">К прошлому году<small>${lyLbl}</small></div>${LY.n ? `<div class="sd-ly3__g">${lyCol('Всего', hrs(A), hrs(LY), P7[0])}${lyCol('На заказе', A.workH, LY.workH, P7[2])}${lyCol('Дорога', A.travel, LY.travel, P7[1], true)}</div>` : '<small class="sd-ly__no">Год назад заказов не было</small>'}</div>`;
+  const tmOps = (x) => opsMore('tmo:' + x.key, A.O.slice().sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.m2} м²`, x.t === 'Выполнение заказа' ? `${String(o.workH).replace('.', ',')} ч` : hm(x.t === 'Дорога' ? o.travel : o.measure))));
+  const tmRows = `<div class="sd-mrows">${TM.map((x) => row('tmr-' + x.t, x.col, x.t, `${fmt(x.v)} ч`, x.v, x.pv, x.t === 'Дорога', () => `<ul class="sd-pl"><li><span>В среднем на заказ</span><b>${(x.v / A.n).toFixed(1).replace('.', ',')} ч</b></li><li><span>В среднем за рабочий день</span><b>${(x.v / Math.max(1, A.days)).toFixed(1).replace('.', ',')} ч</b></li></ul>${tmOps(x)}`)).join('')}</div>`;
+  const tm = `<section class="h-block sd-hero"><small>На работе ${scope}</small><div class="sd-hero__v"><b>${fmt(hrs(A))}<i> ч</i></b>${hrs(B) ? `<span class="sd-vs">${dTag(delta(hrs(A), hrs(B)))}<small>${prevName()}</small></span>` : ''}</div><p class="sd-hero__s">${A.days} ${plural(A.days, 'рабочий день', 'рабочих дня', 'рабочих дней')} · в среднем ${(hrs(A) / Math.max(1, A.days)).toFixed(1).replace('.', ',')} ч в день</p>
+    <div class="sd-dwrap sd-dwrap--h2">${donutBig(TM, fmt(hrs(A)), 'ЧАСОВ', true)}${tmLeg}</div>${tmStrip}${tmRows}</section>`;
   return tm + hero + tiles;
 }
 
