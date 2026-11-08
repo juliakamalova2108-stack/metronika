@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=307';
-import * as S from './store.js?v=307';
-import { esc, toast } from './ui.js?v=307';
-import { selectField, pickers } from './oformit.js?v=307';
+import { actions, rerender, val } from './core.js?v=308';
+import * as S from './store.js?v=308';
+import { esc, toast } from './ui.js?v=308';
+import { selectField, pickers } from './oformit.js?v=308';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -424,20 +424,26 @@ export function renderStatsMaster() {
     const wStrip = `<div class="sd-ly3"><div class="sd-ly3__h">К прошлому году<small>${lyLbl}</small></div>${LY.n ? `<div class="sd-ly3__g">${lyCol('Поклеено', A.m2, LY.m2, P7[0])}${lyCol('Комнат', rmN(A), rmN(LY), P7[2])}${lyCol('Рулонов', A.rolls, LY.rolls, P7[4])}</div>` : '<small class="sd-ly__no">Год назад заказов не было</small>'}</div>`;
     const wRow = (key, col, name, val, cur, prev, body) => { const on = fold.has(key);
       return `<div class="sd-mrow${on ? ' is-open' : ''}"><button type="button" class="sd-mrow__h" data-action="sd2-fold" data-k="${key}" aria-expanded="${on}"><i style="background:${col}"></i><span>${name}</span><b>${val}</b>${B.n ? `<span class="sd-vs sd-vs--r">${dTag(delta(cur, prev))}<small>${prevName()}</small></span>` : '<span></span>'}<i class="sd-f__ch">${CHEV}</i></button>${on ? `<div class="sd-f__full">${body()}</div>` : ''}</div>`; };
-    const rows = `<div class="sd-mrows">${wRow('w-rooms', P7[2], 'Комнаты', rmN(A), rmN(A), rmN(B), () => catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key), 'rmo:' + x.key)))}</div>`;
     const WT = ['Поклейка обоев', 'Снятие старых обоев', 'Грунтовка стен', 'Шпаклёвка стен', 'Покраска потолка'], WS = { 'Поклейка обоев': 'Поклейка', 'Снятие старых обоев': 'Снятие обоев', 'Грунтовка стен': 'Грунтовка', 'Шпаклёвка стен': 'Шпаклёвка', 'Покраска потолка': 'Потолок' };
     const wSum = (a, t) => a.O.reduce((x, o) => x + (o.works || []).filter((w) => w[0] === t).reduce((y, w) => y + w[1], 0), 0);
-    const wRows = WT.map((t, i) => ({ t: WS[t], col: P7[i], v: wSum(A, t) })).filter((x) => x.v).sort((p1, p2) => p2.v - p1.v);
+    const wRows = WT.map((t, i) => ({ t: WS[t], f: t, col: P7[i], v: wSum(A, t), pv: wSum(B, t) })).filter((x) => x.v).sort((p1, p2) => p2.v - p1.v);
     const wTop = wRows.length > 4 ? [...wRows.slice(0, 4), { t: `Ещё ${wRows.length - 4}`, col: OTHER, v: wRows.slice(4).reduce((a2, x) => a2 + x.v, 0) }] : wRows;
     const wTot = A.wm2 || 1;
     const wLeg2 = `<ul class="sd-hleg2 sd-hleg2--w">${wTop.map((x) => `<li><i style="background:${x.col}"></i><span><b>${esc(x.t)}</b><small>${fmt(x.v)} м²</small></span><em>${Math.round((x.v / wTot) * 100)}%</em></li>`).join('')}</ul>`;
+    const wBody = (x) => { const O = A.O.filter((o) => (o.works || []).some((w) => w[0] === x.f)).sort((p1, p2) => p2.d - p1.d);
+      const wm = (o) => (o.works.find((w) => w[0] === x.f) || [0, 0])[1];
+      return `<ul class="sd-pl"><li><span>Заказов с этой работой</span><b>${O.length}</b></li><li><span>В среднем на заказ</span><b>${O.length ? Math.round(x.v / O.length) : 0} м²</b></li><li><span>Доля от всех работ</span><b>${Math.round((x.v / wTot) * 100)}%</b></li></ul>${opsMore('wto:' + x.f, O.map((o) => opRow(o.d, `№${o.no} · ${o.client}`, o.rooms.map((r) => r[0]).join(', '), `${fmt(wm(o))} м²`)))}`; };
+    const rows = `<div class="sd-mrows">${wRows.map((x) => wRow('wt-' + x.f, x.col, x.f, `${fmt(x.v)} м²`, x.v, x.pv, () => wBody(x))).join('')}</div>`;
+    const rmTotal = rRows.reduce((a2, x) => a2 + x.v, 0);
+    const roomsB = rRows.length ? fblock('rooms', ['Комнаты', scope], `<span class="sd-dwrap">${donutBig(rTop, rmN(A), plural(rmN(A), 'комната', 'комнаты', 'комнат'))}${dLegend(rTop, '')}</span>`,
+      catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key), 'rmo:' + x.key))) : '';
     const hero = `<section class="h-block sd-hero"><small>Выполнено работ ${scope}</small><div class="sd-hero__v"><b>${fmt(A.wm2)}<i> м²</i></b>${B.wm2 ? `<span class="sd-vs">${dTag(delta(A.wm2, B.wm2))}<small>${prevName()}</small></span>` : ''}</div>
       <div class="sd-dwrap sd-dwrap--h2">${donutBig(wTop, fmt(A.wm2), 'РАБОТЫ, М²', true)}${wLeg2}</div>${wStrip}${rows}</section>`;
 
     const m2d = (a) => (a.days ? a.m2 / a.days : 0), m2o = (a) => (a.n ? a.m2 / a.n : 0), rpo = (a) => (a.n ? a.rolls / a.n : 0);
     const tiles = `<div class="sd-tiles">${tile('м² в день', Math.round(m2d(A)), dTag(delta(m2d(A), m2d(B))), prevName(), bars(mser(m2d), si, P7[3]))}${tile('Рулонов', fmt(A.rolls), dTag(delta(A.rolls, B.rolls)), prevName(), bars(mser((a) => a.rolls), si, P7[4]))}
       ${tile('м² на заказ', Math.round(m2o(A)), dTag(delta(m2o(A), m2o(B))), prevName(), bars(mser(m2o), si, P7[0]))}${tile('Рулонов на заказ', rpo(A).toFixed(1).replace('.', ','), dTag(delta(rpo(A), rpo(B))), prevName(), bars(mser(rpo), si, P7[2]))}</div>`;
-    content = A.n ? hero + tiles + brands : '<p class="sd-note">Нет заказов за период</p>';
+    content = A.n ? hero + tiles + roomsB + brands : '<p class="sd-note">Нет заказов за период</p>';
   }
 
   // ── Выбор периода: год стрелками, 12 столбиков-месяцев ──
