@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=395';
-import * as S from './store.js?v=395';
-import { renderOformit, oformitDraft } from './oformit.js?v=395';
-import { roomTotals, svcInfo } from './ocenka.js?v=395';
-import { smetaTotals } from './zakaz.js?v=395';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=395';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=395';
-import { esc, toast, status, seg } from './ui.js?v=395';
-import { topbar, ORDER_STATUS } from './shared.js?v=395';
+import { actions, rerender, go } from './core.js?v=396';
+import * as S from './store.js?v=396';
+import { renderOformit, oformitDraft } from './oformit.js?v=396';
+import { roomTotals, svcInfo } from './ocenka.js?v=396';
+import { smetaTotals } from './zakaz.js?v=396';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=396';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=396';
+import { esc, toast, status, seg } from './ui.js?v=396';
+import { topbar, ORDER_STATUS } from './shared.js?v=396';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -254,6 +254,15 @@ const RS_T = { done: 'готово', refuse: 'отказ' };
 const roomTabs = (no, d, f) => { const v = f.visit || {}; return ((d.est && d.est.rooms) || []).map((r) => { const st = (f.rs || {})[r.key]; return `<button type="button" class="f-tab bd-rtab${v.room === r.key ? ' is-active' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="vs-room" data-no="${no}" data-k="${r.key}">${st ? (st.st === 'done' ? '✓ ' : '× ') : ''}${esc(r.name)}</button>`; }).join(''); };
 // Вкладки комнаты сверху — тот же сегмент, что в «Статистике»
 const roomSeg = (no, v) => `<div class="z-seg bd-vseg" role="tablist">${VS_TABS.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === (v.tab || 'material')}" class="f-btn${k === (v.tab || 'material') ? ' f-btn--lit' : ''}" data-action="vs-tab" data-no="${no}" data-k="${k}">${t}</button>`).join('')}</div>`;
+
+const RST = { start: ['Стартовая', ''], work: ['В работе', ' warn'], done: ['Готово', ' ok'], refuse: ['Отказ', ' bad'] };
+const rStat = (f, k) => { const x = (f.rs || {})[k]; return x ? x.st : (f.rg || {})[k] ? 'work' : 'start'; };
+function roomPlate(no, v, html) { const f = flowOf(no), k = v.room || firstRoom(no); if (!k) return html; const st = rStat(f, k), ask = flAsk === no + ':rstat', rr = flAsk === no + ':rrefuse';
+  const chip = st === 'start' ? `<span class="sd-chip">${RST.start[0]}</span>` : `<button type="button" class="sd-chip${RST[st][1]}" data-action="fl-ask" data-no="${no}" data-k="rstat" aria-label="Статус комнаты">${RST[st][0]} ▾</button>`;
+  const row = rr ? chips([['Обои не подошли', 'Обои не подошли'], ['Клиент передумал', 'Клиент передумал'], ['Не сошлись по цене', 'Не сошлись по цене'], ['Другое', 'Другое']], 'vs-rrefuse')
+    : ask ? `<div class="z-seg bd-vseg">${[['work', 'В работе'], ['done', 'Готово'], ['refuse', 'Отказ']].map(([a, t]) => `<button type="button" class="f-btn${st === a ? ' f-btn--lit' : ''}" data-action="vs-rst" data-no="${no}" data-k="${a}">${t}</button>`).join('')}</div>`
+    : st === 'start' ? `<div class="f-btn-row bd-vseg"><button type="button" class="f-btn f-btn--lit" data-action="vs-rgo" data-no="${no}">Начать</button></div>` : roomSeg(no, v);
+  return html.replace(/(<div class="o-rhead">[\s\S]*?<\/small><\/span>(?:<span class="o-rhead__b"><span><\/span><\/span>)?)<\/div>/, `$1<span class="bd-rst">${chip}</span></div><div class="bd-rrow">${row}</div>`); }
 // «Материал» нельзя пропустить: нужен хотя бы один материал и опыт мастера по каждому
 function vsExpMsg(no, t) { if (t !== 'material') return ''; const d = S.get().oformit['ord-' + no]; const rk = (flowOf(no).visit || {}).room; const mr = (d && d.mat && d.mat.rooms) || {}; const codes = [...new Set((rk ? [mr[rk]] : Object.values(mr)).filter(Boolean).flatMap((r) => (r.items || []).map((i) => i.code)))];
   if (!codes.length) return 'Добавьте материал комнаты — отсканируйте штрихкод';
@@ -341,6 +350,11 @@ actions['vs-plus'] = (el) => { const no = el.dataset.no, f = flowOf(no), v = f.v
   v.tab = 'material'; v.step = 3; vsGo(no, 3); S.setDraftKey('ord-' + no); actions['z-mat-pick'](); };
 actions['vs-tab'] = (el) => { const no = el.dataset.no, v = flowOf(no).visit, d0 = S.get().oformit['ord-' + no], cur = d0 && (v.tab === 'smeta' ? d0.sm && d0.sm.view : d0.mat && d0.mat.view); if (cur && ((d0.est && d0.est.rooms) || []).some((r) => r.key === cur)) v.room = cur; v.tab = el.dataset.k; v.step = 3; vsGo(no, 3); };
 actions['vs-room'] = (el) => { const no = el.dataset.no, v = flowOf(no).visit; if (!v) return; v.room = el.dataset.k; v.tab = 'material'; flAsk = ''; vsGo(no, 3); };
+actions['vs-rgo'] = (el) => { const f = flowOf(el.dataset.no); f.rg = f.rg || {}; f.rg[f.visit.room || firstRoom(el.dataset.no)] = 1; S.save(); rerender(); };
+actions['vs-rst'] = (el) => { const no = el.dataset.no, f = flowOf(no), k = f.visit.room || firstRoom(no), a = el.dataset.k; f.rs = f.rs || {};
+  if (a === 'refuse') { flAsk = no + ':rrefuse'; return rerender(); }
+  if (a === 'work') { delete f.rs[k]; delete f.done[k]; flAsk = ''; S.save(); return rerender(); }
+  flAsk = ''; actions['vs-rdone'](el); };
 actions['vs-rdone'] = (el) => { const no = el.dataset.no, f = flowOf(no), v = f.visit, k = v.room || firstRoom(no); const mr = ((S.get().oformit['ord-' + no] || {}).mat || {}).rooms || {}; const items = (mr[k] && mr[k].items) || [];
   if (!items.length || !items.every((i) => S.reviewsOf(i.code).some((x) => x.authorId === S.me().id))) { v.tab = 'material'; S.save(); toast(!items.length ? 'Добавьте материал комнаты — отсканируйте штрихкод' : 'Поделитесь опытом работы с материалом — кнопка «Мой опыт»'); return vsGo(no, 3); }
   f.rs = f.rs || {}; f.rs[k] = { st: 'done' }; f.done[k] = 1; S.save(); toast('Комната готова'); rerender(); };
@@ -455,7 +469,7 @@ export function renderBoardEdit(no, t) {
   if (t === 'chat') { (dd.chat || []).forEach((m) => { m.read = true; }); S.save(); }
   const html = renderOformit('order', { only: t, navHtml, navRight: mid + (inRoom ? roomTabs(no, dd, flowOf(no)) : '') + (inRoom ? '' : ((flowOf(no).visit || {}).open && t !== 'chat' ? infoBtn(no) : '') + (t === 'chat' ? '<span class="f-nav__chat"></span>' : chatBtn(no, dd))) });
   // Вместо «Редактировать / Редактирование» — «Отмена»: правка уже включена.
-  return (inRoom ? orderTop(no) + roomSeg(no, vv) : '') + (inRoom ? html.replace(/<div class="o-pvbar">[\s\S]*?<\/div><\/div>/, '') : html).replace('f-nav f-nav--tabs', inRoom ? 'f-nav f-nav--tabs bd-vscroll' : 'f-nav f-nav--tabs').replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
+  return (inRoom ? orderTop(no) : '') + (inRoom ? roomPlate(no, vv, html.replace(/<div class="o-pvbar">[\s\S]*?<\/div><\/div>/, '')) : html).replace('f-nav f-nav--tabs', inRoom ? 'f-nav f-nav--tabs bd-vscroll' : 'f-nav f-nav--tabs').replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
 }
 actions['bd-edit'] = (el) => { startEdit = el.dataset.tab; go(`bd-edit-${el.dataset.no}-${el.dataset.tab}`); };
 actions['bd-to-order'] = (el) => { showParts = false; const no = el.dataset.no, f = flowOf(no), v = f.visit;
