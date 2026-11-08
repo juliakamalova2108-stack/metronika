@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=305';
-import * as S from './store.js?v=305';
-import { esc, toast } from './ui.js?v=305';
-import { selectField, pickers } from './oformit.js?v=305';
+import { actions, rerender, val } from './core.js?v=306';
+import * as S from './store.js?v=306';
+import { esc, toast } from './ui.js?v=306';
+import { selectField, pickers } from './oformit.js?v=306';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -423,7 +423,7 @@ export function renderStatsMaster() {
     const wStrip = `<div class="sd-ly3"><div class="sd-ly3__h">К прошлому году<small>${lyLbl}</small></div>${LY.n ? `<div class="sd-ly3__g">${lyCol('Поклеено', A.m2, LY.m2, P7[0])}${lyCol('Комнат', rmN(A), rmN(LY), P7[2])}${lyCol('Рулонов', A.rolls, LY.rolls, P7[4])}</div>` : '<small class="sd-ly__no">Год назад заказов не было</small>'}</div>`;
     const wRow = (key, col, name, val, cur, prev, body) => { const on = fold.has(key);
       return `<div class="sd-mrow${on ? ' is-open' : ''}"><button type="button" class="sd-mrow__h" data-action="sd2-fold" data-k="${key}" aria-expanded="${on}"><i style="background:${col}"></i><span>${name}</span><b>${val}</b>${B.n ? `<span class="sd-vs sd-vs--r">${dTag(delta(cur, prev))}<small>${prevName()}</small></span>` : '<span></span>'}<i class="sd-f__ch">${CHEV}</i></button>${on ? `<div class="sd-f__full">${body()}</div>` : ''}</div>`; };
-    const rows = `<div class="sd-mrows">${wRow('w-rooms', P7[2], 'Комнаты', rmN(A), rmN(A), rmN(B), () => catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key), 'rmo:' + x.key)))}${wRow('w-orders', P7[0], 'Заказы', A.n, A.n, B.n, () => ordList(() => true, 'w-ol'))}${wRow('w-days', P7[3], 'Рабочие дни', A.days, A.days, B.days, () => `<ul class="sd-pl"><li><span>Поклеено</span><b>${fmt(A.m2)} м²</b></li><li><span>Рабочих дней</span><b>${A.days}</b></li><li class="is-t"><span>В среднем за день</span><b>${A.days ? Math.round(A.m2 / A.days) : 0} м²</b></li><li><span>Дней на один заказ</span><b>${A.n ? (A.days / A.n).toFixed(1).replace('.', ',') : 0}</b></li></ul>`)}</div>`;
+    const rows = `<div class="sd-mrows">${wRow('w-rooms', P7[2], 'Комнаты', rmN(A), rmN(A), rmN(B), () => catList(rRows, ' м²', (x) => `${x.n} ${x.n === 1 ? 'комната' : x.n < 5 ? 'комнаты' : 'комнат'}`, (x) => ordList((o) => o.rooms.some((r) => 'rm:' + r[0] === x.key), 'rmo:' + x.key)))}</div>`;
     const hero = `<section class="h-block sd-hero"><small>Поклеено ${scope}</small><div class="sd-hero__v"><b>${fmt(A.m2)}<i> м²</i></b>${B.m2 ? `<span class="sd-vs">${dTag(delta(A.m2, B.m2))}<small>${prevName()}</small></span>` : ''}</div>
       <div class="sd-dwrap sd-dwrap--h2">${donutBig(rTop, fmt(A.m2), 'ПОКЛЕЕНО, М²', true)}${wLeg}</div>${wStrip}${rows}</section>`;
     const m2d = (a) => (a.days ? a.m2 / a.days : 0), m2o = (a) => (a.n ? a.m2 / a.n : 0), rpo = (a) => (a.n ? a.rolls / a.n : 0);
