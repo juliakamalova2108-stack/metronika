@@ -2443,3 +2443,8 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-hleg2 { gap: 9px; }
 .sd-hleg2 li > i.is-ring { box-sizing: border-box; border: 2px solid #edf2e8; background: none; }
 .sd-hleg2 li:first-child em { color: rgba(237,242,232,.45); font-size: 13px; }
+
+.sd-dbig__hl { fill: rgba(47,212,111,.12); stroke: rgba(47,212,111,.45); }
+.sd-dbig__lb { fill: #2fd46f; }
+.sd-pl li.is-t span, .sd-pl li.is-t b { color: #ffc21a; }
+.sd-hleg2 li:first-child em { color: #edf2e8; font-size: 16px; }
