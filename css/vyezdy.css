@@ -2850,3 +2850,4 @@ a.f-btn { display: flex; align-items: center; justify-content: center; text-deco
 .o-rplate .bd-rst { flex: none; } .o-rplate .bd-rst .sd-chip { border: 0; font-size: 12.5px; padding: 6px 12px; }
 .o-rplate .bd-rrow { margin: 10px 2px 0; } .o-rplate .bd-rrow .bd-vseg { margin: 0; }
 .o-rplate.bd-rstart ~ * { display: none; } .o-rplate.bd-rstart > :not(.o-rhead):not(.bd-rrow) { display: none; }
+a.h-go { text-decoration: none; display: flex; align-items: center; justify-content: center; }

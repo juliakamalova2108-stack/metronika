@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=401';
-import * as S from './store.js?v=401';
-import { renderOformit, oformitDraft } from './oformit.js?v=401';
-import { roomTotals, svcInfo } from './ocenka.js?v=401';
-import { smetaTotals } from './zakaz.js?v=401';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=401';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=401';
-import { esc, toast, status, seg } from './ui.js?v=401';
-import { topbar, ORDER_STATUS } from './shared.js?v=401';
+import { actions, rerender, go } from './core.js?v=403';
+import * as S from './store.js?v=403';
+import { renderOformit, oformitDraft } from './oformit.js?v=403';
+import { roomTotals, svcInfo } from './ocenka.js?v=403';
+import { smetaTotals } from './zakaz.js?v=403';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=403';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=403';
+import { esc, toast, status, seg } from './ui.js?v=403';
+import { topbar, ORDER_STATUS } from './shared.js?v=403';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -247,6 +247,12 @@ const plusBtn = (no) => `<button type="button" class="f-icon-btn bd-back" data-a
 // Верх экрана комнаты: узкая строка «Информация по заказу» — открывает то же окно, что было во вкладке «Инфо» (клиент, оценка, план, источник, с «Изменить»); справа чат
 const clientBlk = (no, c, addr) => block('Клиент', no, 'client', `<div class="bd-clname"><b>${esc(c.name || '')}</b><small>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</small></div><div class="bd-cl"><div><b>${esc(c.phone || '')}</b><small>${esc(addr)}${c.entrance ? ` · подъезд ${esc(c.entrance)}` : ''}${c.floor ? ` · этаж ${esc(c.floor)}` : ''}</small><small>Приезд <em>с ${esc(c.hour || '—')}:${esc(c.min || '00')}</em></small></div>
     <span class="bd-cl__ic"><a class="f-icon-btn" href="tel:${esc((c.phone || '').replace(/[^+\d]/g, ''))}" aria-label="Позвонить">${PH}</a><a class="f-icon-btn" href="https://yandex.ru/maps/?text=${encodeURIComponent(addr)}" target="_blank" rel="noopener" aria-label="Маршрут">${RT}</a></span></div>${c.comment ? `<p class="bd-note">${esc(c.comment)}</p>` : ''}`);
+const visitHero = (no, kind, c, addr, rooms, label, attrs) => { const r0 = rooms[0], tag = kind === 'measure' ? `<span class="h-hero__no h-tag h-tag--meas">Замер №${no}</span>` : `<span class="h-hero__no h-tag h-tag--order">Заказ №${no}</span>`;
+  const job = kind !== 'measure' && r0 ? `<div class="h-hero__job"><span class="h-room"><i></i>${esc(r0.name)}<small>${esc(r0.floor || '')} этаж</small></span></div>` : '';
+  return `<article class="h-hero${kind === 'measure' ? ' h-hero--meas' : ''}" style="--c:${kind === 'measure' ? '#e5484d' : ((r0 && r0.color) || '#f59e0b')}"><div class="h-hero__glow" aria-hidden="true"></div>
+    <div class="h-hero__top"><span class="h-pill"><i></i>Сегодня</span>${tag}</div><div class="h-hero__time">${esc(c.hour || '10')}:${esc(c.min || '00')}</div>
+    <div class="h-hero__who"><b>${esc(c.name || '')}</b><small>${esc(addr)}</small></div>${job}
+    <div class="h-hero__act"><${attrs.startsWith('href') ? 'a' : 'button type="button"'} class="h-go${kind === 'measure' ? ' h-go--meas' : ''}" ${attrs}>${esc(label)}</${attrs.startsWith('href') ? 'a' : 'button'}></div></article>`; };
 function orderTop(no) { const n = unread(S.get().oformit['ord-' + no] || {});
   return `<div class="bd-vtop-row"><div class="f-btn-row"><button type="button" class="f-btn" data-action="go" data-to="bd-info-${no}">Информация по заказу</button></div><button type="button" class="f-icon-btn bd-vtop__chat" data-action="bd-edit" data-no="${no}" data-tab="chat" aria-label="Чат заказа">${CHAT}${n ? `<b class="f-nav__badge">${n}</b>` : ''}</button></div>`; }
 // После «Сохранить» / «Отмена» в форме — назад в визит, на тот же шаг
@@ -293,10 +299,10 @@ export function renderVisit(no) {
   const A = (a, k = '') => `data-action="${a}" data-no="${no}"${k !== '' ? ` data-k="${k}"` : ''}`;
   const big = (label, attrs, lit = true) => `<div class="f-btn-row bd-flbtns"><${attrs.startsWith('href') ? 'a' : 'button type="button"'} class="f-btn${lit ? ' f-btn--lit' : ''} bd-vbig" ${attrs}>${esc(label)}</${attrs.startsWith('href') ? 'a' : 'button'}></div>`;
   const name = STEPS[v.step];
-  let body = '', can = true;
-  if (name === 'Звонок клиенту') { body = big('Позвонить', `href="tel:${esc(tel)}" ${A('vs-called')}`); can = !!v.called; }
-  else if (name === 'Маршрут') { body = big('Проложить маршрут', `href="${map}" target="_blank" rel="noopener" ${A('vs-route')}`); }
-  else if (name === 'Вы на месте?') { body = big('Да, я на месте', A('vs-here')); can = !!v.here; }
+  let body = '', can = true, hb = null;
+  if (name === 'Звонок клиенту') { hb = ['Позвонить', `href="tel:${esc(tel)}" ${A('vs-called')}`]; can = !!v.called; }
+  else if (name === 'Маршрут') { hb = ['Проложить маршрут', `href="${map}" target="_blank" rel="noopener" ${A('vs-route')}`]; }
+  else if (name === 'Вы на месте?') { hb = ['Да, я на месте', A('vs-here')]; can = !!v.here; }
   else if (vsScr(v)) { body = block(name, no, '', `<p class="bd-line"><small>${name === 'Комната' ? 'Комнаты — внизу. Вкладки: материал, смета, деньги' : name === 'Замер' ? 'Комнаты и стены — как в замере' : 'Посчитайте смету по факту'}</small></p>`) + big(`Открыть «${name}»`, `data-action="vs-open" data-no="${no}"`); }
   else if (name === 'Комнаты') { body = block('Комнаты для замера', no, '', rooms.map((r) => tg(v.keep[r.key] !== false, r.name, `${r.floor} этаж · по оценке ${fmt(roomTotals(r).total)} ₽`, A('vs-keep', r.key))).join('') || '<p class="bd-line"><small>Комнат пока нет — добавьте</small></p>')
       + big('Добавить комнату', `data-action="bd-edit" data-no="${no}" data-tab="estimate"`, !rooms.length); can = keep.length > 0; }
@@ -325,7 +331,7 @@ export function renderVisit(no) {
       : block(`${esc(cur.name)} — итог комнаты`, no, '', `<div class="f-btn-row bd-flbtns">${fb('Комната готова', A('vs-rdone'), ' f-btn--lit')}${fb('Отказ', A('fl-ask', 'rrefuse'))}</div>`);
     body = block(`Итог смены · ${dayTxt}`, no, '', list) + dec
       + (v.dl ? `<div class="f-btn-row bd-flbtns">${all ? '' : fb('Закрыть смену', A('vs-endshift'))}${all ? fb('Завершить заказ', A('vs-alldone'), ' f-btn--lit') : ''}</div>` : big('Скачать смету', A('vs-dl'))); }
-  const head = v.step <= 2 ? clientBlk(no, c, addr) : '';
+  const head = hb ? visitHero(no, kind, c, addr, rooms, hb[0], hb[1]) : '';
   S.save();
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${orderTop(no)}${head}${body}
     ${v.step <= 2 ? `<nav class="f-nav f-nav--tabs bd-vnav" aria-label="Выезд"><div class="bd-navslot"><div class="f-btn-row bd-vnext"><button type="button" class="f-btn f-btn--lit" ${A('vs-exit')}>Закрыть</button></div></div></nav>` : `    <nav class="f-nav f-nav--tabs bd-vnav bd-vscroll" aria-label="Шаги выезда">${kind === 'work' && v.step >= 3 ? plusBtn(no) : `<button type="button" class="f-icon-btn bd-back" ${A('vs-prev')} aria-label="Назад"${''}>${BACK}</button>`}

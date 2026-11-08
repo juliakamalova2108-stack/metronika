@@ -1,12 +1,12 @@
 // Сценарий агента: сканер обоев → расчёт → исполнитель, дата и процент → клиент → передача заказа.
 // Плюс «Мои заявки» и повторная передача отклонённого или сорванного заказа.
 
-import { actions, rerender, go, val, numVal } from './core.js?v=401';
-import * as S from './store.js?v=401';
-import { SYSTEM_PRICE, WALLPAPER_TYPES, DEMO_BARCODES } from './seed.js?v=401';
-import { areaFromRolls, rollsFromRoom, prelimCost, commissionAmount } from './calc.js?v=401';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, weekdayShort, dayNum, sheet, closeSheet, toast, ICONS } from './ui.js?v=401';
-import { topbar, typeName, orderStatus, prelimBlock, clientBlock, historyBlock } from './shared.js?v=401';
+import { actions, rerender, go, val, numVal } from './core.js?v=403';
+import * as S from './store.js?v=403';
+import { SYSTEM_PRICE, WALLPAPER_TYPES, DEMO_BARCODES } from './seed.js?v=403';
+import { areaFromRolls, rollsFromRoom, prelimCost, commissionAmount } from './calc.js?v=403';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, weekdayShort, dayNum, sheet, closeSheet, toast, ICONS } from './ui.js?v=403';
+import { topbar, typeName, orderStatus, prelimBlock, clientBlock, historyBlock } from './shared.js?v=403';
 
 const STEPS = ['Материал', 'Расчёт', 'Исполнитель', 'Клиент', 'Проверка'];
 
