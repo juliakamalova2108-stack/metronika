@@ -2322,3 +2322,12 @@ body.nobar #view { padding-bottom: 96px; }
 
 .sd-tile > b { white-space: nowrap; } .sd-tile > .sd-mb { justify-self: end; }
 .sd-mb i { width: 6px; }
+
+.sd-mrows { display: flex; flex-direction: column; gap: 8px; }
+.sd-mrow { border-radius: 16px; background: rgba(237,242,232,.04); padding: 0 12px; }
+.sd-mrow.is-open { background: rgba(237,242,232,.06); padding-bottom: 8px; }
+.sd-mrow__h { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: grid; grid-template-columns: 10px 1fr auto auto 28px; gap: 10px; align-items: center; padding: 12px 0; -webkit-tap-highlight-color: transparent; }
+.sd-mrow__h > i:first-child { width: 10px; height: 10px; border-radius: 3px; }
+.sd-mrow__h span { font: 700 15px Manrope, sans-serif; color: #edf2e8; }
+.sd-mrow__h b { font: 800 15px Manrope, sans-serif; color: #edf2e8; white-space: nowrap; }
+.sd-mrow.is-open > .sd-mrow__h .sd-f__ch { transform: rotate(180deg); }

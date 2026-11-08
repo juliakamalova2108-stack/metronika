@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=293';
-import * as S from './store.js?v=293';
-import { esc, toast } from './ui.js?v=293';
-import { selectField, pickers } from './oformit.js?v=293';
+import { actions, rerender, val } from './core.js?v=294';
+import * as S from './store.js?v=294';
+import { esc, toast } from './ui.js?v=294';
+import { selectField, pickers } from './oformit.js?v=294';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -340,20 +340,19 @@ export function renderStatsMaster() {
   let content = '';
 
   if (tab === 'money') tab = 'all';
-    // две пластины друг под другом: Доходы и Расходы
-    const plate = (money) => { const cats = money === 'inc' ? INC_CAT : EXP_CAT;
-      const rows = cats.map(([t, col]) => { const v = A.P.filter((x) => x.kind === money && x.cat === t).reduce((a, x) => a + x.sum, 0), pv = B.P.filter((x) => x.kind === money && x.cat === t).reduce((a, x) => a + x.sum, 0);
-        return { key: money + ':' + t, t, col, v, d: delta(v, pv), inv: money === 'exp', cnt: A.P.filter((x) => x.kind === money && x.cat === t).length }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
-      const tot = money === 'inc' ? A.inc : A.exp;
-      return fblock('money-' + money, [money === 'inc' ? 'Доходы' : 'Расходы', scope, `<span class="sd-f__sum"><b>${fmt(tot)} ₽</b>${dTag(delta(tot, money === 'inc' ? B.inc : B.exp), money === 'exp')}</span>`],
-        mosaic(rows),
-        rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'операция' : x.cnt < 5 ? 'операции' : 'операций'}`,
-          (x) => opsMore(x.key, A.P.filter((o) => o.kind + ':' + o.cat === x.key).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, o.o ? `№${o.o.no} · ${o.o.client}` : o.note || x.t, o.o ? `${o.o.m2} м²` : 'покупка', `${money === 'inc' ? '+' : '−'}${fmt(o.sum)} ₽`)))) : '<p class="sd-note">Нет операций за период</p>'); };
+    // доходы и расходы — внутри блока с кругом: строка под кругом раскрывает категории
+    const moneyRows = (money) => (money === 'inc' ? INC_CAT : EXP_CAT).map(([t, col]) => { const v = A.P.filter((x) => x.kind === money && x.cat === t).reduce((a, x) => a + x.sum, 0), pv = B.P.filter((x) => x.kind === money && x.cat === t).reduce((a, x) => a + x.sum, 0);
+      return { key: money + ':' + t, t, col, v, d: delta(v, pv), inv: money === 'exp', cnt: A.P.filter((x) => x.kind === money && x.cat === t).length }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
+    const moneyList = (money) => { const rows = moneyRows(money); return rows.length ? catList(rows, ' ₽', (x) => `${x.cnt} ${x.cnt === 1 ? 'операция' : x.cnt < 5 ? 'операции' : 'операций'}`,
+      (x) => opsMore(x.key, A.P.filter((o) => o.kind + ':' + o.cat === x.key).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, o.o ? `№${o.o.no} · ${o.o.client}` : o.note || x.t, o.o ? `${o.o.m2} м²` : 'покупка', `${money === 'inc' ? '+' : '−'}${fmt(o.sum)} ₽`)))) : '<p class="sd-note">Нет операций за период</p>'; };
+    const moneyRow = (money) => { const on = fold.has('money-' + money), tot = money === 'inc' ? A.inc : A.exp;
+      return `<div class="sd-mrow${on ? ' is-open' : ''}"><button type="button" class="sd-mrow__h" data-action="sd2-fold" data-k="money-${money}" aria-expanded="${on}"><i style="background:${money === 'inc' ? C.inc : C.exp}"></i><span>${money === 'inc' ? 'Доходы' : 'Расходы'}</span><b>${fmt(tot)} ₽</b>${dTag(delta(tot, money === 'inc' ? B.inc : B.exp), money === 'exp')}<i class="sd-f__ch">${CHEV}</i></button>${on ? `<div class="sd-f__full">${moneyList(money)}</div>` : ''}</div>`; };
   if (tab === 'all') {
     const avgChk = A.n ? A.inc / A.n : 0, avgChkB = B.n ? B.inc / B.n : 0;
     const rep = A.n ? Math.round((A.O.filter((o) => o.repeat).length / A.n) * 100) : 0;
     const hero = `<section class="h-block sd-hero"><small>Прибыль ${scope}</small><div class="sd-hero__v"><b>${fmt(A.profit)}<i> ₽</i></b>${dTag(delta(A.profit, B.profit))}</div>
-      <div class="sd-dwrap">${donutBig([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], fmt(A.inc), 'доход, ₽')}${dLegend([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], ' ₽')}</div>
+      <div class="sd-dwrap">${donutBig([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], fmt(A.inc), 'доход, ₽')}${dLegend([{ t: 'Прибыль', v: Math.max(0, A.profit), col: C.inc }, { t: 'Расходы', v: A.exp, col: C.exp }], '')}</div>
+      <div class="sd-mrows">${moneyRow('inc')}${moneyRow('exp')}</div>
       <p class="sd-hero__cmp">${B.inc ? `${isCur() ? 'За тот же срок' : 'За прошлый период'} (${prevName().replace('к ', '')}) прибыль была ${fmt(B.profit)} ₽` : ''}</p></section>`;
     const tile = (t, v, d, sub, sp) => `<div class="sd-tile"><small>${t}</small><b>${v}</b>${sp}<em>${d}${sub ? ` <span>${sub}</span>` : ''}</em></div>`;
     const tiles = `<div class="sd-tiles">${tile('Заказов', A.n, dTag(delta(A.n, B.n)), prevName(), bars(mser((a) => a.n), si, P7[0]))}${tile('Средний чек', `${k(avgChk)} ₽`, dTag(delta(avgChk, avgChkB)), prevName(), bars(mser((a) => (a.n ? a.inc / a.n : 0)), si, P7[3]))}
@@ -367,10 +366,9 @@ export function renderStatsMaster() {
     if (srcM[0]) ins.push([C.blue, `Больше всего заказов — ${srcM[0][0]}`, `${srcM[0][1]} из ${A.n}`]);
     const insB = ins.length ? `<div class="sd-ins">${ins.map(([c, t, s]) => `<div class="sd-ins__c" style="--c:${c}"><b>${esc(t)}</b><small>${esc(s)}</small></div>`).join('')}</div>` : '';
     const srcRows = SRC.map(([t, , col]) => ({ key: 'src:' + t, t, col, v: A.O.filter((o) => o.src === t).length, d: delta(A.O.filter((o) => o.src === t).length, B.O.filter((o) => o.src === t).length) })).filter((x) => x.v).sort((a, b) => b.v - a.v);
-    content = hero + plate('inc') + plate('exp') + tiles + insB + (srcRows.length ? fblock('src', ['Откуда заказы', scope], `<span class="sd-dwrap">${donutBig(srcRows, A.n, plural(A.n, 'заказ', 'заказа', 'заказов'))}${dLegend(srcRows.slice(0, 5), '')}</span>`, catList(srcRows, '', (x) => `${x.v} ${x.v === 1 ? 'заказ' : x.v < 5 ? 'заказа' : 'заказов'}`,
+    content = hero + tiles + insB + (srcRows.length ? fblock('src', ['Откуда заказы', scope], `<span class="sd-dwrap">${donutBig(srcRows, A.n, plural(A.n, 'заказ', 'заказа', 'заказов'))}${dLegend(srcRows.slice(0, 5), '')}</span>`, catList(srcRows, '', (x) => `${x.v} ${x.v === 1 ? 'заказ' : x.v < 5 ? 'заказа' : 'заказов'}`,
       (x) => opsMore(x.key, A.O.filter((o) => 'src:' + o.src === x.key).sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `${o.m2} м² · ${o.brand}`, `${fmt(o.sum)} ₽`))))) : '');
-  } else if (tab === 'money') {
-    content = plate('inc') + plate('exp');
+
   } else if (tab === 'goals') {
     content = goalsTab();
   } else {
