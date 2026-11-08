@@ -2364,3 +2364,24 @@ body.nobar #view { padding-bottom: 96px; }
 .sd-ly__bars i { display: block; height: 4px; border-radius: 2px; }
 .sd-ly__bars i.is-old { background: rgba(237,242,232,.25); }
 .sd-ly__no { font: 500 11px Inter, sans-serif; color: rgba(237,242,232,.45); }
+
+.sd-ly__t { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.sd-ly__t .sd-d { font-size: 10.5px; padding: 1px 5px; }
+.sd-ly__bar { display: flex; align-items: center; gap: 5px; margin-top: 3px; }
+.sd-ly__bar i { display: block; height: 5px; border-radius: 3px; flex: none; max-width: calc(100% - 40px); }
+.sd-ly__bar b { font: 700 10.5px Manrope, sans-serif; color: #edf2e8; white-space: nowrap; }
+.sd-ly__bar.is-old i { background: rgba(237,242,232,.25); }
+.sd-ly__bar.is-old b { color: rgba(237,242,232,.45); font-weight: 600; }
+.sd-ly__k { display: flex; gap: 10px; margin-top: 2px; font: 500 10px Inter, sans-serif; color: rgba(237,242,232,.5); }
+.sd-ly__k span { display: flex; align-items: center; gap: 4px; }
+.sd-ly__k i { width: 8px; height: 4px; border-radius: 2px; display: block; }
+.sd-ly__k i.is-old { background: rgba(237,242,232,.25); }
+.sd-dleg--sh li { grid-template-columns: 10px auto; }
+.sd-dleg--sh small { display: block; font: 500 11px Inter, sans-serif; color: rgba(237,242,232,.5); }
+
+.sd-ly { gap: 5px; }
+.sd-ly__r { display: flex; flex-direction: column; gap: 3px; }
+.sd-ly__bars { margin-top: 0; gap: 2px; }
+.sd-ly__bars i { height: 3px; }
+.sd-dleg--sh { gap: 6px; }
+.sd-dleg--sh b { font-size: 14px; }
