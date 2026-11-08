@@ -3,13 +3,13 @@
 // кнопки f-btn, верхние вкладки и нижняя панель f-nav / f-topnav / f-tab.
 // Три раздела внизу: Профиль · Работа · Система.
 
-import { actions, changes, rerender, go, val } from './core.js?v=344';
-import * as S from './store.js?v=344';
-import { esc, toast } from './ui.js?v=344';
-import { selectField, pickers } from './oformit.js?v=344';
-import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=344';
-import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=344';
-import { NOTIFY_KINDS } from './more.js?v=344';
+import { actions, changes, rerender, go, val } from './core.js?v=345';
+import * as S from './store.js?v=345';
+import { esc, toast } from './ui.js?v=345';
+import { selectField, pickers } from './oformit.js?v=345';
+import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=345';
+import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=345';
+import { NOTIFY_KINDS } from './more.js?v=345';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -49,7 +49,7 @@ function profile() {
     <label class="f-field"><span class="f-field__label">Телефон</span><span class="f-input"><b class="z-cc">+7</b><input value="${esc(String(me.phone || '').replace(/^(\d{3})(\d{3})(\d{2})(\d{2})$/, '($1) $2-$3-$4'))}" readonly/></span></label>`)
   + plate('Где работаю', `${selectField('st-country', 'Страна', ctryName, [...Object.entries(COUNTRIES).map(([k, c]) => ({ value: k, label: withFlag(c.name), html: countryHtml(c.name) })), ...SOON.map((n) => ({ value: 'soon:' + n, label: withFlag(n), html: countryHtml(n) }))], false, { vhtml: countryHtml(ctryName) })}
     ${(() => { const c = S.currency(), rec = S.countryCurrency(ctry), L = S.CURRENCIES, ord = [L.find((x) => x[0] === rec), ...L.filter((x) => ![rec, 'USD', 'EUR'].includes(x[0])), ...L.filter((x) => x[0] === 'USD' || x[0] === 'EUR')].filter(Boolean);
-      return selectField('st-cur', 'Валюта', S.curLabel(c), ord.map((x) => ({ value: x[0], label: `${S.curLabel(x)}${x[0] === rec ? ' — для вашей страны' : ''}` })), false); })()}
+      return selectField('st-cur', 'Валюта', S.curLabel(c), ord.map((x) => ({ value: x[0], label: `${S.curLabel(x)}` })), false); })()}
     ${input('pf-city', 'Ближайший город', st.city || '', 'list="pf-cities" data-change="pf-loc" data-k="city" autocomplete="off" placeholder="Например, Уфа"')}<datalist id="pf-cities">${CITIES.map((c) => `<option value="${c}">`).join('')}</datalist>
     ${input('pf-place', 'Населённый пункт', st.place || '', 'data-change="pf-loc" data-k="place" autocomplete="off" placeholder="Город, посёлок или село"')}`)
   + plate('', `<div class="o-row st2-kv"><span class="o-row__name">Рейтинг</span><b>${S.ratingOf(me.id).toLocaleString('ru-RU')} м²</b></div>`)
