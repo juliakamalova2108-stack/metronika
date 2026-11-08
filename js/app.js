@@ -1,20 +1,21 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=346';
-import * as S from './store.js?v=346';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=346';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=346';
-import { renderSettlements } from './shared.js?v=346';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=346';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=346';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=346';
-import { renderOformit, onLiveOformit } from './oformit.js?v=346';
-import { onLiveZakaz } from './zakaz.js?v=346';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=346';
-import { renderStatsMaster } from './stats.js?v=346';
-import './kbd.js?v=346';
-import { renderSettingsFig } from './settings.js?v=346';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=346';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=347';
+import * as S from './store.js?v=347';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=347';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=347';
+import { renderSettlements } from './shared.js?v=347';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=347';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=347';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=347';
+import { renderOformit, onLiveOformit } from './oformit.js?v=347';
+import { onLiveZakaz } from './zakaz.js?v=347';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=347';
+import { renderStatsMaster } from './stats.js?v=347';
+import { renderBrandZone, renderHonor, renderCreators } from './brand.js?v=347';
+import './kbd.js?v=347';
+import { renderSettingsFig } from './settings.js?v=347';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=347';
 
 const VERSION = 'прототип 1.0';
 
@@ -29,12 +30,12 @@ const SCREENS = {
   agent: {
     start: 'new',
     nav: [['menu', 'Меню', 'menu'], ['new', 'Новая заявка', 'plus'], ['mine', 'Мои заявки', 'list'], ['money', 'Начисления', 'wallet']],
-    menu: [['new', 'Новая заявка'], ['mine', 'Мои заявки'], ['calls', 'Звонки клиентам'], ['for-client', 'Для клиента'], ['money', 'Начисления'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['settings', 'Настройки']],
+    menu: [['new', 'Новая заявка'], ['mine', 'Мои заявки'], ['calls', 'Звонки клиентам'], ['for-client', 'Для клиента'], ['money', 'Начисления'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['honor', 'Доска почёта'], ['creators', 'Креаторы'], ['settings', 'Настройки']],
   },
   master: {
     start: 'home',
     nav: [['menu', 'Меню', 'menu'], ['home', 'Главная', 'briefcase'], ['orders', 'Заказы', 'inbox'], ['stats', 'Статистика', 'wallet']],
-    menu: [['home', 'Главная'], ['oformit', 'Сущность'], ['orders', 'Заказы'], ['clients', 'Клиенты'], ['gallery', 'Галерея'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['settings', 'Настройки']],
+    menu: [['home', 'Главная'], ['oformit', 'Сущность'], ['orders', 'Заказы'], ['clients', 'Клиенты'], ['gallery', 'Галерея'], ['stats', 'Статистика'], ['brand', 'Бренд-зона'], ['honor', 'Доска почёта'], ['creators', 'Креаторы'], ['settings', 'Настройки']],
   },
 };
 SCREENS.dispatcher = { ...SCREENS.master, menu: [...SCREENS.master.menu.slice(0, 3), ['team', 'Команда'], ...SCREENS.master.menu.slice(3)] };
@@ -46,7 +47,10 @@ function screenFor(name, role) {
   if (name === 'profile') return renderProfileTab();
   if (name === 'settings') return renderSettings();
   if (name === 'stats') return renderStats();
-  if (name === 'brand' || name.startsWith('brand-')) return brandRoute(name);
+  if (name === 'brand') return renderBrandZone();
+  if (name === 'honor') return renderHonor();
+  if (name === 'creators') return renderCreators();
+  if (name.startsWith('brand-')) return brandRoute(name);
   if (role === 'agent') {
     if (name === 'new') return renderNewOrder();
     if (name === 'mine') return renderAgentOrders();
@@ -86,6 +90,8 @@ const MENU_BARS = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5"
 // Иконки пунктов меню (тонкая линия, currentColor)
 const MI = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const MENU_IC = {
+  honor: MI('<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M9 20h6"/>'),
+  creators: MI('<rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="M16 10.5l5-3v9l-5-3"/>'),
   home: MI('<path d="M4 11l8-6.5 8 6.5"/><path d="M6 9.5V19h12V9.5"/><path d="M10 19v-5h4v5"/>'),
   oformit: MI('<path d="M12 4l8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 16l8 4 8-4"/>'),
   orders: MI('<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 14h4.5l1.5 2h4l1.5-2H20"/>'),
@@ -142,7 +148,7 @@ function render() {
   }
   view.innerHTML = S.withCur(html);
   // Экраны, перенесённые из Figma один в один, рисуют свою нижнюю навигацию.
-  const fig = name === 'oformit' || name === 'home' || ((name === 'settings' || name === 'profile' || name === 'stats') && role !== 'agent') || ((name === 'current' || name === 'orders' || name.startsWith('bd-order-') || name.startsWith('bd-edit-')) && role !== 'agent');
+  const fig = name === 'oformit' || name === 'home' || name === 'brand' || name === 'honor' || name === 'creators' || ((name === 'settings' || name === 'profile' || name === 'stats') && role !== 'agent') || ((name === 'current' || name === 'orders' || name.startsWith('bd-order-') || name.startsWith('bd-edit-')) && role !== 'agent');
   document.body.classList.toggle('fig', fig);
   if (fig) {
     const ft = view.querySelector('.f-tab.is-active');
