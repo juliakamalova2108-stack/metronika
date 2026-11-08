@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=270';
-import * as S from './store.js?v=270';
-import { esc, toast } from './ui.js?v=270';
-import { selectField, pickers } from './oformit.js?v=270';
+import { actions, rerender, val } from './core.js?v=271';
+import * as S from './store.js?v=271';
+import { esc, toast } from './ui.js?v=271';
+import { selectField, pickers } from './oformit.js?v=271';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -273,7 +273,7 @@ export function renderStatsMaster() {
     const brands = block(['Обои по брендам', `поклеено ${scope}`], catList(brRows, ' м²', (x) => `${x.rolls} рулонов · ${x.n} ${x.n === 1 ? 'заказ' : x.n < 5 ? 'заказа' : 'заказов'}`, (x) => ordList((o) => 'br:' + o.brand === x.key)));
     const tRows = TYPES.map(([t, col]) => [t, A.O.filter((o) => o.type === t).reduce((a, o) => a + o.m2, 0), col]).filter((x) => x[1]).sort((a, b) => b[1] - a[1]);
     const tTot = tRows.reduce((a, x) => a + x[1], 0) || 1;
-    const types = block(['Тип обоев', 'доля по площади'], `<div class="sd-dn">${donut(tRows, tRows.length, 'типов')}<ul class="sd-leg">${tRows.map(([t, v, col]) => `<li><i style="background:${col}"></i><span>${t}</span><b>${Math.round((v / tTot) * 100)}%</b></li>`).join('')}</ul></div>`);
+    const types = block(['Материалы', 'доля по площади'], `<div class="sd-dn">${donut(tRows, tRows.length, 'типов')}<ul class="sd-leg">${tRows.map(([t, v, col]) => `<li><i style="background:${col}"></i><span>${t}</span><b>${Math.round((v / tTot) * 100)}%</b></li>`).join('')}</ul></div>`);
     const gRows = GLUES.map(([t, , col]) => { const O = A.O.filter((o) => o.glue === t); return { key: 'gl:' + t, t, col, v: O.length, pk: O.reduce((a, o) => a + Math.ceil(o.rolls / 8), 0) }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
     const glue = block(['Клей', 'в скольких заказах'], catList(gRows, '', (x) => `${x.pk} пачек`, (x) => ordList((o) => 'gl:' + o.glue === x.key)));
     const rRows = ROOMS.map(([t, col]) => { let v = 0, n = 0; A.O.forEach((o) => o.rooms.forEach((r) => { if (r[0] === t) { v += r[1]; n++; } })); return { key: 'rm:' + t, t, col, v, n }; }).filter((x) => x.v).sort((a, b) => b.v - a.v);
