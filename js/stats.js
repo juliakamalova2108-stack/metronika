@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=331';
-import * as S from './store.js?v=331';
-import { esc, toast } from './ui.js?v=331';
-import { selectField, pickers } from './oformit.js?v=331';
+import { actions, rerender, val } from './core.js?v=332';
+import * as S from './store.js?v=332';
+import { esc, toast } from './ui.js?v=332';
+import { selectField, pickers } from './oformit.js?v=332';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -391,7 +391,7 @@ function effInner(A, B, LY, lyLbl, lyCol, tile, scope, mser, si, part) {
       <ellipse cx="${cx}" cy="${y}" rx="${r1}" ry="${E}" fill="url(#fin${i})" stroke="${FC[i][0]}" stroke-width="1.2"/>
       <path d="M${cx - r1 + 3} ${y + 1} A${r1 - 3} ${E - 1.5} 0 0 0 ${cx + r1 - 3} ${y + 1}" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="1.5"/>
       <text x="${cx}" y="${y + RH / 2 + 5}" text-anchor="middle" class="sd-fun2__p">${i ? Math.round((FN[i].v / top) * 100) + '%' : '100%'}</text>`; };
-  const svg = `<svg class="sd-fun2__svg" viewBox="0 0 ${W} ${FN.length * RH + E}" aria-hidden="true"><defs>${FC.map(([c1, c2], i) => `<linearGradient id="fg${i}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${c2}"/><stop offset=".45" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient><linearGradient id="fin${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c2}"/><stop offset="1" stop-color="#0b2418"/></linearGradient>`).join('')}</defs>${FN.map((_, i) => band(i)).join('')}</svg>`;
+  const svg = `<svg class="sd-fun2__svg" viewBox="0 0 ${W} ${FN.length * RH + E}" aria-hidden="true"><defs>${FC.map(([c1, c2], i) => `<linearGradient id="fg${i}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${c2}"/><stop offset=".45" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient><linearGradient id="fin${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c2}"/><stop offset="1" stop-color="#0b2418"/></linearGradient>`).join('')}</defs>${FN.map((_, i) => band(i)).reverse().join('')}</svg>`;
   const labels = `<div class="sd-fun2__l" style="padding-top:${E}px">${FN.map((x, i) => `<div class="sd-fun2__it" style="height:${RH}px"><small>${x.t}</small><b class="sd-fun2__v">${x.v}</b>${i && x.drop.length ? `<em>−${x.drop.length}</em>` : '<span></span>'}</div>`).join('')}</div>`;
   const fun = `<div class="sd-fun2">${labels}${svg}</div>`;
   const hero = `<section class="h-block sd-hero"><small>Воронка ${fsrc === 'all' ? 'по всем источникам' : `«${esc(fsrc)}»`} ${scope}</small><div class="sd-hero__v"><b>${conv}<i>%</i></b>${B.leads ? `<span class="sd-vs">${dTag(delta(conv, convB))}<small>${prevName()}</small></span>` : ''}</div><p class="sd-hero__s">обращений дошло до выполненного заказа</p>
