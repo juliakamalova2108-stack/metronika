@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=314';
-import * as S from './store.js?v=314';
-import { esc, toast } from './ui.js?v=314';
-import { selectField, pickers } from './oformit.js?v=314';
+import { actions, rerender, val } from './core.js?v=316';
+import * as S from './store.js?v=316';
+import { esc, toast } from './ui.js?v=316';
+import { selectField, pickers } from './oformit.js?v=316';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -362,7 +362,7 @@ function effTab(A, B, LY, lyLbl, lyCol, tile, scope, mser, si) {
   const avg = (a, k) => (a.n ? a[k] / a.n : 0), days = (a) => Math.max(1, a.days);
   const trav = (a) => a.travel / days(a), wt = (a) => a.wait / days(a), spd = (a) => (a.workH ? a.m2 / a.workH : 0), rsp = (a) => avg(a, 'resp');
   const tiles = `<div class="sd-tiles">${tile('В дороге за день', hmS(trav(A)), dTag(delta(trav(A), trav(B)), true), prevName(), bars(mser(trav), si, P7[1]))}${tile('Ожидание клиента', hmS(wt(A)), dTag(delta(wt(A), wt(B)), true), prevName(), bars(mser(wt), si, P7[5]))}
-    ${tile('Скорость, м²/ч', spd(A).toFixed(1).replace('.', ','), dTag(delta(spd(A), spd(B))), prevName(), bars(mser(spd), si, P7[2]))}${tile('Ответ на заявку', hmS(rsp(A)), dTag(delta(rsp(A), rsp(B)), true), prevName(), bars(mser(rsp), si, P7[0]))}</div>`;
+    ${tile('Замер в среднем', hmS(avg(A, 'measure')), dTag(delta(avg(A, 'measure'), avg(B, 'measure')), true), prevName(), bars(mser((a) => avg(a, 'measure')), si, P7[3]))}${tile('Ответ на заявку', hmS(rsp(A)), dTag(delta(rsp(A), rsp(B)), true), prevName(), bars(mser(rsp), si, P7[0]))}</div>`;
   const TMf = (a) => [['Выполнение заказа', a.workH * 60, P7[2]], ['Дорога', a.travel, P7[1]], ['Замер', a.measure, P7[3]]];
   const TM = TMf(A).map(([t, v, col], i) => ({ key: 'tm:' + t, t, v: Math.round(v / 60), pv: Math.round(TMf(B)[i][1] / 60), col })).filter((x) => x.v);
   const hrs = (a) => Math.round(a.workH + (a.travel + a.measure) / 60), H = hrs(A) || 1;
@@ -372,7 +372,23 @@ function effTab(A, B, LY, lyLbl, lyCol, tile, scope, mser, si) {
   const tmRows = `<div class="sd-mrows">${TM.map((x) => row('tmr-' + x.t, x.col, x.t, `${fmt(x.v)} ч`, x.v, x.pv, x.t === 'Дорога', () => `<ul class="sd-pl"><li><span>В среднем на заказ</span><b>${(x.v / A.n).toFixed(1).replace('.', ',')} ч</b></li><li><span>В среднем за рабочий день</span><b>${(x.v / Math.max(1, A.days)).toFixed(1).replace('.', ',')} ч</b></li></ul>${tmOps(x)}`)).join('')}</div>`;
   const tm = `<section class="h-block sd-hero"><small>На работе ${scope}</small><div class="sd-hero__v"><b>${fmt(hrs(A))}<i> ч</i></b>${hrs(B) ? `<span class="sd-vs">${dTag(delta(hrs(A), hrs(B)))}<small>${prevName()}</small></span>` : ''}</div><p class="sd-hero__s">${A.days} ${plural(A.days, 'рабочий день', 'рабочих дня', 'рабочих дней')} · в среднем ${(hrs(A) / Math.max(1, A.days)).toFixed(1).replace('.', ',')} ч в день</p>
     <div class="sd-dwrap sd-dwrap--h2">${donutBig(TM, fmt(hrs(A)), 'ЧАСОВ', true)}${tmLeg}</div>${tmStrip}${tmRows}</section>`;
-  return tm + hero + tiles;
+  // скорость по видам работ: часы заказа делятся между работами по нормам
+  const NORM = { 'Поклейка обоев': 5, 'Снятие старых обоев': 10, 'Грунтовка стен': 25, 'Шпаклёвка стен': 4, 'Покраска потолка': 6 };
+  const WC = { 'Поклейка обоев': P7[0], 'Снятие старых обоев': P7[1], 'Грунтовка стен': P7[2], 'Шпаклёвка стен': P7[3], 'Покраска потолка': P7[4] };
+  const wh = (o) => { const W = (o.works || []).filter((w) => NORM[w[0]]), tot = W.reduce((a, w) => a + w[1] / NORM[w[0]], 0) || 1; return W.map((w) => [w[0], w[1], (o.workH * (w[1] / NORM[w[0]])) / tot]); };
+  const spAgg = (a) => { const m = {}; a.O.forEach((o) => wh(o).forEach(([t, m2, h]) => { m[t] = m[t] || { m2: 0, h: 0, n: 0 }; m[t].m2 += m2; m[t].h += h; m[t].n++; })); return m; };
+  const SA = spAgg(A), SB = spAgg(B), SL = spAgg(LY), sp = (x) => (x && x.h ? x.m2 / x.h : 0), f1 = (v) => v.toFixed(1).replace('.', ',');
+  const spAll = (a) => (a.workH ? a.wm2 / a.workH : 0);
+  const SP = Object.keys(NORM).filter((t) => SA[t]).map((t) => ({ t, col: WC[t], v: Math.round(SA[t].h), s: sp(SA[t]), ps: sp(SB[t]), d: SA[t] })).sort((p1, p2) => p2.v - p1.v);
+  const SH = SP.reduce((a, x) => a + x.v, 0) || 1;
+  const spLeg = `<ul class="sd-hleg2 sd-hleg2--w">${SP.map((x) => `<li><i style="background:${x.col}"></i><span><b>${x.t.split(' ')[0]}</b><small>${fmt(x.v)} ч · ${Math.round((x.v / SH) * 100)}%</small></span><em>${f1(x.s)}</em></li>`).join('')}<li class="is-note">справа — м² в час</li></ul>`;
+  const top3 = SP.slice(0, 3);
+  const spStrip = `<div class="sd-ly3"><div class="sd-ly3__h">К прошлому году<small>${lyLbl}</small></div>${LY.n ? `<div class="sd-ly3__g">${top3.map((x) => lyCol(x.t.split(' ')[0], x.s, sp(SL[x.t]), x.col)).join('')}</div>` : '<small class="sd-ly__no">Год назад заказов не было</small>'}</div>`;
+  const spOpen = fold.has('sp-types');
+  const spRows = `<div class="sd-mrows"><button type="button" class="sd-wtg${spOpen ? ' is-open' : ''}" data-action="sd2-fold" data-k="sp-types" aria-expanded="${spOpen}"><span>Скорость по видам работ</span><small>${SP.length}</small><i class="sd-f__ch">${CHEV}</i></button>${!spOpen ? '' : SP.map((x) => row('spr-' + x.t, x.col, x.t, `${f1(x.s)} м²/ч`, x.s, x.ps, false, () => `<ul class="sd-pl"><li><span>Сделано</span><b>${fmt(Math.round(x.d.m2))} м²</b></li><li><span>Затрачено</span><b>${f1(x.d.h)} ч</b></li><li class="is-t"><span>Скорость</span><b>${f1(x.s)} м²/ч</b></li><li><span>Заказов с этой работой</span><b>${x.d.n}</b></li></ul>${opsMore('spo:' + x.t, A.O.filter((o) => wh(o).some((w) => w[0] === x.t)).sort((p1, p2) => p2.d - p1.d).map((o) => { const w = wh(o).find((y) => y[0] === x.t); return opRow(o.d, `№${o.no} · ${o.client}`, `${w[1]} м² за ${f1(w[2])} ч`, `${f1(w[1] / w[2])} м²/ч`); }))}`)).join('')}</div>`;
+  const speed = `<section class="h-block sd-hero"><small>Скорость работы ${scope}</small><div class="sd-hero__v"><b>${f1(spAll(A))}<i> м²/ч</i></b>${spAll(B) ? `<span class="sd-vs">${dTag(delta(spAll(A), spAll(B)))}<small>${prevName()}</small></span>` : ''}</div><p class="sd-hero__s">${fmt(A.wm2)} м² работ за ${fmt(Math.round(A.workH))} ч на заказах</p>
+    <div class="sd-dwrap sd-dwrap--h2">${donutBig(SP, f1(spAll(A)), 'М² В ЧАС', true)}${spLeg}</div>${spStrip}${spRows}</section>`;
+  return tm + speed + hero + tiles;
 }
 
 export function renderStatsMaster() {
