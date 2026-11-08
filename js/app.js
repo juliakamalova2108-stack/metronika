@@ -1,21 +1,21 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=375';
-import * as S from './store.js?v=375';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=375';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=375';
-import { renderSettlements } from './shared.js?v=375';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=375';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=375';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=375';
-import { renderOformit, onLiveOformit } from './oformit.js?v=375';
-import { onLiveZakaz } from './zakaz.js?v=375';
-import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=375';
-import { renderStatsMaster } from './stats.js?v=375';
-import { renderBrandZone, renderHonor, renderCreators, renderEvents } from './brand.js?v=375';
-import './kbd.js?v=375';
-import { renderSettingsFig } from './settings.js?v=375';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=375';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=376';
+import * as S from './store.js?v=376';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=376';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=376';
+import { renderSettlements } from './shared.js?v=376';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=376';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=376';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=376';
+import { renderOformit, onLiveOformit } from './oformit.js?v=376';
+import { onLiveZakaz } from './zakaz.js?v=376';
+import { renderBoard, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=376';
+import { renderStatsMaster } from './stats.js?v=376';
+import { renderBrandZone, renderHonor, renderCreators, renderEvents } from './brand.js?v=376';
+import './kbd.js?v=376';
+import { renderSettingsFig } from './settings.js?v=376';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=376';
 
 const VERSION = 'прототип 1.0';
 
@@ -119,7 +119,7 @@ function drawer(role) {
       <div class="drawer__list">${cfg.menu.map(([key, label]) => `<button type="button" class="drawer__item${on(key) ? ' is-on' : ''}" data-action="menu-go" data-to="${key}"${on(key) ? ' aria-current="page"' : ''}><span class="drawer__ic">${MENU_IC[key] || MENU_IC.home}</span><span>${esc(label)}</span></button>`).join('')}</div>
       <div class="drawer__foot">
         <button type="button" class="drawer__me" data-action="menu-go" data-to="profile"><span class="drawer__av">${me.photo ? `<img src="${me.photo}" alt="">` : esc(ini)}</span><span><b>${esc(me.name)}</b><small>${esc(me.roles.map((r) => S.ROLE_NAMES[r]).join(' и '))}</small></span></button>
-        <span class="drawer__ver">Метроника · ${VERSION}</span>
+        <button type="button" class="link-btn" data-action="reset-ask">Начать заново</button><span class="drawer__ver">Метроника · ${VERSION}</span>
       </div>
     </nav>`;
 }

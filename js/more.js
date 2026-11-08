@@ -1,12 +1,12 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=375';
-import * as S from './store.js?v=375';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=375';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=375';
-import { topbar, typeName, renderSettlements } from './shared.js?v=375';
-import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=375';
-import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=375';
+import { actions, changes, rerender, go, val } from './core.js?v=376';
+import * as S from './store.js?v=376';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=376';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=376';
+import { topbar, typeName, renderSettlements } from './shared.js?v=376';
+import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=376';
+import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=376';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
