@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=336';
-import * as S from './store.js?v=336';
-import { esc, toast } from './ui.js?v=336';
-import { selectField, pickers } from './oformit.js?v=336';
+import { actions, rerender, val } from './core.js?v=338';
+import * as S from './store.js?v=338';
+import { esc, toast } from './ui.js?v=338';
+import { selectField, pickers } from './oformit.js?v=338';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -15,7 +15,8 @@ const MONG = ['января', 'февраля', 'марта', 'апреля', '�
 const MONS = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 const MONP = ['январе', 'феврале', 'марте', 'апреле', 'мае', 'июне', 'июле', 'августе', 'сентябре', 'октябре', 'ноябре', 'декабре'];
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
-const k = (v) => (Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(Math.abs(v) >= 10000 ? 0 : 1).replace('.0', '')}к` : String(Math.round(v)));
+const k = (v) => fmt(Math.round(v)); // полные суммы, без «к»
+const kAx = (v) => (v >= 1000 ? `${fmt(Math.round(v / 1000))} тыс` : String(Math.round(v)));
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
 
 // ── Примерные данные: заказы и расходы за 2 года ──
@@ -161,7 +162,7 @@ function chart({ c, kind, labels, series, unit }) {
       ${pts.map(([px, py2], i) => i === s ? `<circle cx="${px}" cy="${py2}" r="11" fill="${x.col}" opacity=".2"/><circle cx="${px}" cy="${py2}" r="5.5" fill="#fff" stroke="${x.col}" stroke-width="3"/>` : (n <= 12 ? `<circle cx="${px}" cy="${py2}" r="3" fill="${x.col}" opacity=".55"/>` : '')).join('')}`;
   }
   const top1 = Math.max(...series.map((x) => x.vals[s]));
-  const pv = series.length > 1 ? series.map((x) => k(x.vals[s])).join(' / ') : `${k(series[0].vals[s])}${unit}`;
+  const pv = series.length > 1 ? series.map((x) => k(x.vals[s])).join(' / ') + (unit === ' ₽' ? ' ₽' : '') : `${k(series[0].vals[s])}${unit}`;
   const pw = pv.length * 7 + 18, px = Math.min(W - pw / 2, Math.max(pw / 2, cx(s))), pyy = Math.max(2, cy(top1) - 32);
   const pill = `<g class="sd-pill"><rect x="${px - pw / 2}" y="${pyy}" width="${pw}" height="22" rx="11"/><text x="${px}" y="${pyy + 15}" text-anchor="middle">${pv}</text></g>`;
   return `<div class="sd-ch"><svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs>${defs}</defs>${grid}${body}${lbl}${pill}</svg>
@@ -558,17 +559,17 @@ export function renderStatsMaster() {
   const RUB = metric[0][2] === ' ₽', BRK = 250000, TOPV = 1000000, LOW = 75;
   const ymap = (v) => (!RUB ? (v / vmax) * 100 : v <= BRK ? (v / BRK) * LOW : Math.min(100, LOW + ((v - BRK) / (TOPV - BRK)) * (100 - LOW)));
   const ticks = RUB ? [0, 50000, 100000, 150000, 200000, 250000, 1000000] : [0, vmax / 2, vmax];
-  const yl = (v) => (metric[0][2] === ' ₽' ? k(v) : fmt(v));
+  const yl = (v) => (metric[0][2] === ' ₽' ? kAx(v) : fmt(v));
   const cols = MA.map((a, i) => { const on = mode === 'month' && pm === i;
     if (!a) return `<span class="sd-pc__c is-off"><span class="sd-pc__bars"></span><small>${MONS[i]}</small></span>`;
     return `<button type="button" class="sd-pc__c${on ? ' is-on' : ''}${mode === 'year' ? ' is-all' : ''}" data-action="sd2-month" data-m="${i}" aria-label="${MONN[i]}: ${metric.map(([key, , u]) => `${fmt(a[key])}${u}`).join(', ')}">
-      <span class="sd-pc__bars">${on ? `<em>${metric.map(([key]) => yl(a[key])).join(' · ')}</em>` : ''}${metric.map(([key, col]) => `<i style="height:${Math.max(1.5, ymap(Math.max(0, a[key])))}%;--c:${col}"></i>`).join('')}</span><small>${MONS[i]}</small></button>`; }).join('');
+      <span class="sd-pc__bars">${on ? `<em>${metric.map(([key]) => fmt(a[key]) + (metric[0][2] === ' ₽' ? ' ₽' : '')).join(' · ')}</em>` : ''}${metric.map(([key, col]) => `<i style="height:${Math.max(1.5, ymap(Math.max(0, a[key])))}%;--c:${col}"></i>`).join('')}</span><small>${MONS[i]}</small></button>`; }).join('');
   const lbl = tab === 'eff' ? 'часов на работе' : tab === 'leads' ? 'обращений' : tab === 'work' ? 'выполнено работ, м²' : tab === 'all' ? `<span class="sd-lg"><i style="background:${C.inc}"></i>доходы <i style="background:${C.exp}"></i>расходы</span>` : tab === 'goals' ? 'доход по месяцам' : 'прибыль по месяцам';
   const per = `<section class="h-block sd-mp">
     <div class="sd-mp__hd"><div class="sd-per__nav"><button type="button" class="f-icon-btn" data-action="sd2-prev" aria-label="Прошлый год"${canPrev() ? '' : ' disabled'}>${ARR('l')}</button>
       <b>${py}</b><button type="button" class="f-icon-btn" data-action="sd2-next" aria-label="Следующий год"${py >= now.getFullYear() ? ' disabled' : ''}>${ARR('r')}</button></div>
       <button type="button" class="sd-mp__all${mode === 'year' ? ' is-on' : ''}" data-action="sd2-year">Весь год</button></div>
-    <div class="sd-pc"><div class="sd-pc__y">${ticks.map((v) => `<span class="${RUB && v === BRK ? 'is-brk' : ''}" style="bottom:${ymap(v)}%"><small>${v ? (RUB ? (v >= 1000000 ? '1 млн' : k(v)) : yl(v)) : 0}</small></span>`).join('')}</div><div class="sd-pc__g">${cols}</div></div>
+    <div class="sd-pc"><div class="sd-pc__y">${ticks.map((v) => `<span class="${RUB && v === BRK ? 'is-brk' : ''}" style="bottom:${ymap(v)}%"><small>${v ? (RUB ? (v >= 1000000 ? '1 млн' : kAx(v)) : yl(v)) : 0}</small></span>`).join('')}</div><div class="sd-pc__g">${cols}</div></div>
     <div class="sd-mp__ft"><small>${lbl}</small><b>${mode === 'year' ? `Сводка за ${py} год` : `Сводка за ${MONN[pm]}`}</b></div></section>`;
   const tabs = [['all', 'Обзор'], ['work', 'Работа'], ['eff', 'Эффективность'], ['leads', 'Воронка'], ['goals', 'Цели']];
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
