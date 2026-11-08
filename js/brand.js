@@ -1,8 +1,8 @@
 // Бренд-зона (Новости · Витрина · Конкурсы), Доска почёта, Креаторы.
 // Экраны в стиле статистики: тёмные блоки h-block, переключатели sd-chip, нижняя навигация f-nav.
-import { actions, rerender } from './core.js?v=349';
-import * as S from './store.js?v=349';
-import { esc, toast } from './ui.js?v=349';
+import { actions, rerender } from './core.js?v=350';
+import * as S from './store.js?v=350';
+import { esc, toast } from './ui.js?v=350';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
@@ -93,7 +93,7 @@ function bzShow(makers) {
       <div class="bz-gal__th">${[0, 1, 2].map((n) => `<button type="button" class="${n === shPh ? 'is-on' : ''}" data-action="bz-ph" data-k="${n}">${ph(it, n)}</button>`).join('')}</div></section>
     <section class="h-block bz-pd"><div class="bz-pd__pr"><b>${fmt(it.price)} ₽</b><small>за рулон</small></div><h2>${esc(it.name)}</h2>
       <div class="bz-pd__rt"><span>★ ${it.rate}</span><small>${it.rv} ${plural(it.rv, 'отзыв', 'отзыва', 'отзывов')} мастеров</small></div>
-      <div class="bz-pd__bt"><a class="bz-btn" href="${search(mk.name + ' ' + it.art)}" target="_blank" rel="noopener">Купить на сайте ${LINK}</a><a class="bz-btn is-on" href="${search(it.art + ' обои')}" target="_blank" rel="noopener">Найти по артикулу ${LINK}</a></div></section>
+      <div class="bz-pd__bt"><a class="bz-btn" href="${search(mk.name + ' ' + it.art)}" target="_blank" rel="noopener">Купить на сайте ${LINK}</a></div></section>
     <section class="h-block bz-sp"><p class="bz-sp__h">Характеристики</p>${spec.map(([k, v]) => `<div class="bz-sp__r"><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</section>`;
 }
 const CONTESTS = [
