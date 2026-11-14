@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=415';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=417';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=415';
-import * as S from './store.js?v=415';
-import { WALLPAPER_TYPES } from './seed.js?v=415';
-import { esc, toast } from './ui.js?v=415';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=415';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=415';
-import { country } from './phonecodes.js?v=415';
-import { suggestAddress } from './address.js?v=415';
-import { suggesters } from './kbd.js?v=415';
-import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=415';
+import { actions, changes, rerender } from './core.js?v=417';
+import * as S from './store.js?v=417';
+import { WALLPAPER_TYPES } from './seed.js?v=417';
+import { esc, toast } from './ui.js?v=417';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=417';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=417';
+import { country } from './phonecodes.js?v=417';
+import { suggestAddress } from './address.js?v=417';
+import { suggesters } from './kbd.js?v=417';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=417';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -548,7 +548,7 @@ function renderFinance(d) {
     return `${head}<section class="f-plate z-fin">${kv('Доход по смете', `${fmt(f.income)} ₽`, 'z-kv--big')}<p class="z-muted">Автоматически из сметы заказа</p></section>
       <section class="f-plate z-fin"><p class="z-title">Оплаты клиента</p>
         <div class="z-tiles3"><div class="o-card"><small>Аванс</small><b>${fmt(f.adv)} ₽</b></div><div class="o-card"><small>Получено</small><b>${fmt(f.paid)} ₽</b></div><div class="o-card"><small>Осталось</small><b>${fmt(Math.max(0, f.income - f.paid))} ₽</b></div></div>
-        ${d.fin.pays.length ? d.fin.pays.map((p) => kv(`${p.kind} · ${p.method} · ${dateWords(p.date)}`, `${fmt(p.amount)} ₽`)).join('') : '<p class="z-text">Оплат пока нет</p>'}</section>
+        ${d.fin.pays.length ? d.fin.pays.map((p) => kv(esc(`${p.kind} · ${p.method} · ${dateWords(p.date)}`), `${fmt(p.amount)} ₽`)).join('') : '<p class="z-text">Оплат пока нет</p>'}</section>
       <section class="f-plate z-fin"><p class="z-title">По смете заказа</p>${[...f.by.entries()].map(([n, v]) => kv(esc(n), `${fmt(v)} ₽`)).join('') || '<p class="z-muted">Смета пока пустая</p>'}</section>
       ${dock(row(btn('+ Оплата', 'z-pay-new')))}`;
   }

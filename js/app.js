@@ -1,21 +1,21 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=415';
-import * as S from './store.js?v=415';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=415';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=415';
-import { renderSettlements } from './shared.js?v=415';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=415';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=415';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=415';
-import { renderOformit, onLiveOformit } from './oformit.js?v=415';
-import { onLiveZakaz } from './zakaz.js?v=415';
-import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=415';
-import { renderStatsMaster } from './stats.js?v=415';
-import { renderEvents } from './brand.js?v=415';
-import './kbd.js?v=415';
-import { renderSettingsFig } from './settings.js?v=415';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=415';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=417';
+import * as S from './store.js?v=417';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=417';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=417';
+import { renderSettlements } from './shared.js?v=417';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=417';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=417';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=417';
+import { renderOformit, onLiveOformit } from './oformit.js?v=417';
+import { onLiveZakaz } from './zakaz.js?v=417';
+import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=417';
+import { renderStatsMaster } from './stats.js?v=417';
+import { renderEvents } from './brand.js?v=417';
+import './kbd.js?v=417';
+import { renderSettingsFig } from './settings.js?v=417';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=417';
 
 const VERSION = 'прототип 1.0';
 
@@ -112,7 +112,7 @@ function drawer(role) {
   return `<div class="drawer__scrim" data-action="menu-close"></div>
     <nav class="drawer__panel" aria-label="Меню">
       <div class="brand brand--mini"><div class="brand__sphere" aria-hidden="true"></div><div class="brand__word">METRONICA</div></div>
-      <div class="drawer__list">${cfg.menu.map(([key, label]) => `<button type="button" class="drawer__item${on(key) ? ' is-on' : ''}" data-action="menu-go" data-to="${key}"${on(key) ? ' aria-current="page"' : ''}><span class="drawer__ic">${MENU_IC[key] || MENU_IC.home}</span><span>${esc(label)}</span></button>`).join('')}${[['work', 'Выполнение заказа'], ['meas', 'Выполнение замера']].map(([k, t]) => `<button type="button" class="drawer__item${cur === 'bd-visit-' + (k === 'work' ? '014' : '015') ? ' is-on' : ''}" data-action="scene-go" data-k="${k}"><span class="drawer__ic">${MENU_IC.orders || MENU_IC.home}</span><span>${t}</span></button>`).join('')}</div>
+      <div class="drawer__list">${cfg.menu.map(([key, label]) => `<button type="button" class="drawer__item${on(key) ? ' is-on' : ''}" data-action="menu-go" data-to="${key}"${on(key) ? ' aria-current="page"' : ''}><span class="drawer__ic">${MENU_IC[key] || MENU_IC.home}</span><span>${esc(label)}</span></button>`).join('')}${role === 'agent' ? [] : [['work', 'Выполнение заказа'], ['meas', 'Выполнение замера']].map(([k, t]) => `<button type="button" class="drawer__item${cur.endsWith('-' + (k === 'work' ? '014' : '015')) || cur.includes('-' + (k === 'work' ? '014' : '015') + '-') ? ' is-on' : ''}" data-action="scene-go" data-k="${k}"><span class="drawer__ic">${MENU_IC.orders || MENU_IC.home}</span><span>${t}</span></button>`).join('')}</div>
       <div class="drawer__foot">
         <button type="button" class="drawer__me" data-action="menu-go" data-to="profile"><span class="drawer__av">${me.photo ? `<img src="${me.photo}" alt="">` : esc(ini)}</span><span><b>${esc(me.name)}</b><small>${esc(me.roles.map((r) => S.ROLE_NAMES[r]).join(' и '))}</small></span></button>
         <button type="button" class="link-btn" data-action="reset-ask">Начать заново</button><span class="drawer__ver">Метроника · ${VERSION}</span>
@@ -234,7 +234,7 @@ document.addEventListener('click', (ev) => {
   const el = ev.target.closest('[data-action]');
   if (!el || el.disabled) return;
   const fn = actions[el.dataset.action];
-  if (fn) { ev.preventDefault(); pendingRender = false; fn(el, ev); }
+  if (fn) { if (!(el.tagName === 'A' && /^(tel:|https?:)/.test(el.getAttribute('href') || ''))) ev.preventDefault(); pendingRender = false; fn(el, ev); }
 });
 document.addEventListener('input', (ev) => {
   if (!ev.target.dataset || !ev.target.dataset.live) return;

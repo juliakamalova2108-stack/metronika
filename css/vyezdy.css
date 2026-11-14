@@ -2857,3 +2857,15 @@ a.h-go { text-decoration: none; display: flex; align-items: center; justify-cont
   box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
 .bd-vtop__info { flex: 1; min-width: 0; padding: 0 18px; font: 600 15px/1 var(--font-body); }
 .bd-vtop__chat { width: 52px; display: grid; place-items: center; padding: 0; }
+
+/* Проверка устройств: отступы под вырез, высота нажимаемых кнопок, узкие экраны */
+.f-nav, .f-nav--tabs { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+.f-nav { height: auto; min-height: 84px; padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
+.f-btn { min-height: 44px; }
+.bd-vtop-row { margin-left: env(safe-area-inset-left); margin-right: env(safe-area-inset-right); }
+.bd-vseg .f-btn, .z-seg .f-btn { padding: 0 6px; font-size: clamp(12px, 3.6vw, 14px); }
+.bd-rfb { padding-top: 12px; }
+.bd-rfb__h { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.bd-rfb__h b { font: 800 22px/1.15 var(--font-display, inherit); color: #fff; }
+@media (max-height: 480px) { .f-nav { min-height: 56px; padding-top: 6px; padding-bottom: calc(6px + env(safe-area-inset-bottom)); } }
+@media (max-width: 340px) { .f-nav--tabs { gap: 4px; } .bd-vnext { min-width: 0; } .f-nav__tab span { font-size: 10px; } }

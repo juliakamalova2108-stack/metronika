@@ -1,8 +1,8 @@
 // Данные прототипа и все действия над ними. Хранятся только в этом браузере (localStorage).
 // Модель повторяет «Скелет системы»: заказ → звенья передачи → начисления; комнаты → стены → смета.
 
-import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=415';
-import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=415';
+import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=417';
+import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=417';
 
 const KEY = 'metronika-prototype-v2';
 let state;
@@ -13,7 +13,7 @@ function load() {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      if (s && s.version === 2) {
+      if (s && s.version === 2 && Array.isArray(s.users) && s.session && typeof s.session === 'object' && s.session.pins) {
         // Демо-опыт мастеров с материалами добавляется и в уже сохранённые данные.
         s.reviews = s.reviews || [];
         const have = new Set(s.reviews.map((r) => r.demo).filter(Boolean));

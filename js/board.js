@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=415';
-import * as S from './store.js?v=415';
-import { renderOformit, oformitDraft } from './oformit.js?v=415';
-import { roomTotals, svcInfo } from './ocenka.js?v=415';
-import { smetaTotals } from './zakaz.js?v=415';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=415';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=415';
-import { esc, toast, status, seg } from './ui.js?v=415';
-import { topbar, ORDER_STATUS } from './shared.js?v=415';
+import { actions, rerender, go } from './core.js?v=417';
+import * as S from './store.js?v=417';
+import { renderOformit, oformitDraft } from './oformit.js?v=417';
+import { roomTotals, svcInfo } from './ocenka.js?v=417';
+import { smetaTotals } from './zakaz.js?v=417';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=417';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=417';
+import { esc, toast, status, seg } from './ui.js?v=417';
+import { topbar, ORDER_STATUS } from './shared.js?v=417';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -83,7 +83,7 @@ export function renderBoard() {
     const mOff = d.sched && d.sched.measure ? Math.round((new Date(d.sched.measure + 'T12:00:00') - dayOf(0)) / 864e5) : 0;
     const off = f.st === 'measure' ? (DEMO[no] && DEMO[no].meas != null ? DEMO[no].meas : mOff) : f.st === 'approval' ? (f.call || 1) : 0;
     const sum = ((d.est && d.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0);
-    return `<div class="bd-slot">${leaf(dayOf(off), off === 0, f.st === 'measure' ? `${d.cl.hour}:${d.cl.min}` : '')}<button type="button" class="bd-card" data-action="bd-open" data-no="${no}">
+    return `<div class="bd-slot">${leaf(dayOf(off), off === 0, f.st === 'measure' ? `${esc(d.cl.hour)}:${esc(d.cl.min)}` : '')}<button type="button" class="bd-card" data-action="bd-open" data-no="${no}">
       <span class="bd-top"><span class="bd-who"><b>${esc(c.n)}</b><small>${esc(c.a)}</small></span><span class="bd-sum"><b>${sum ? fmt(sum) + ' ₽' : '—'}</b><small>№${no}</small></span></span>
       <span class="bd-foot"><span class="bd-room" style="--c:#7ee2a3">${FL_NAME[f.st]}<small>${f.st === 'measure' ? 'выезд на замер' : f.st === 'approval' ? 'перезвонить' : f.st === 'closed' ? 'завершён' : ''}</small></span></span></button></div>`; }).join('');
   const body = rows.length || xcards ? xcards + rows.map(([off, k, n, t]) => card(off, k, n, t)).join('')
@@ -277,7 +277,8 @@ function roomPlate(no, v, html) { const f = flowOf(no), d0 = S.get().oformit['or
     : ask ? `<div class="z-seg bd-vseg">${[['work', 'В работе'], ['done', 'Готово'], ['refuse', 'Отказ']].map(([a, t]) => `<button type="button" class="f-btn${st === a ? ' f-btn--lit' : ''}" data-action="vs-rst" data-no="${no}" data-k="${a}">${t}</button>`).join('')}</div>`
     : st === 'start' ? `<div class="f-btn-row bd-vseg"><button type="button" class="f-btn f-btn--lit" data-action="vs-rgo" data-no="${no}">Начать</button></div>` : roomSeg(no, v);
   if (st === 'start') html = html.replace('class="f-plate o-rplate', 'class="f-plate o-rplate bd-rstart');
-  return html.replace(/(<div class="o-rhead">[\s\S]*?<\/small><\/span>(?:<span class="o-rhead__b"><span><\/span><\/span>)?)<\/div>/, `$1<span class="bd-rst">${chip}</span></div><div class="bd-rrow">${row}</div>`); }
+  const out = html.replace(/(<div class="o-rhead">[\s\S]*?<\/small><\/span>(?:<span class="o-rhead__b"><span><\/span><\/span>)?)<\/div>/, `$1<span class="bd-rst">${chip}</span></div><div class="bd-rrow">${row}</div>`)
+  return out !== html ? out : `<section class="f-plate o-rplate bd-rfb"><div class="bd-rfb__h"><b>${esc(((((d0.est || {}).rooms) || []).find((r) => r.key === k) || {}).name || 'Комната')}</b><span class="bd-rst">${chip}</span></div><div class="bd-rrow">${row}</div></section>` + html; }
 // «Материал» нельзя пропустить: нужен хотя бы один материал и опыт мастера по каждому
 function vsExpMsg(no, t) { if (t !== 'material') return ''; const d = S.get().oformit['ord-' + no]; const rk = (flowOf(no).visit || {}).room; const mr = (d && d.mat && d.mat.rooms) || {}; const codes = [...new Set((rk ? [mr[rk]] : Object.values(mr)).filter(Boolean).flatMap((r) => (r.items || []).map((i) => i.code)))];
   if (!codes.length) return 'Добавьте материал комнаты — отсканируйте штрихкод';
@@ -341,10 +342,10 @@ export function renderVisit(no) {
   S.save();
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${v.step >= 3 ? '' : orderTop(no)}${head}${body}
     ${v.step <= 2 ? `<nav class="f-nav f-nav--tabs bd-vnav" aria-label="Выезд"><div class="bd-navslot"><div class="f-btn-row bd-vnext"><button type="button" class="f-btn f-btn--lit" ${A('vs-exit')}>Закрыть</button></div></div></nav>` : `    <nav class="f-nav f-nav--tabs bd-vnav bd-vscroll" aria-label="Шаги выезда">${kind === 'work' && v.step >= 3 ? '' : `<button type="button" class="f-icon-btn bd-back" ${A('vs-prev')} aria-label="Назад"${''}>${BACK}</button>`}
-      ${v.step < STEPS.length - 1 && can !== false ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn${can ? ' f-btn--lit' : ''}" ${A('vs-next')}${can ? '' : ' disabled'}>Дальше</button></div>` : v.step < STEPS.length - 1 ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn" disabled>Дальше</button></div>` : '<span class="bd-navfree"></span>'}${v.kind === 'work' && v.step >= 3 ? `<button type="button" class="f-nav__tab" data-action="vs-back3" data-no="${no}"><span>Комнаты</span></button>` + infoBtn(no) + chatBtn(no, d) : ''}</nav>`}`;
+      ${v.step < STEPS.length - 1 && can !== false ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn${can ? ' f-btn--lit' : ''}" ${A('vs-next')}${can ? '' : ' disabled'}>Дальше</button></div>` : v.step < STEPS.length - 1 ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn" disabled>Дальше</button></div>` : '<span class="bd-navfree"></span>'}${v.kind === 'work' && v.step >= 3 ? `<button type="button" class="f-nav__tab" data-action="vs-back3" data-no="${no}"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg><span>Комнаты</span></button>` + infoBtn(no) + chatBtn(no, d) : ''}</nav>`}`;
 }
 const vs = (el, fn) => { const no = el.dataset.no, f = flowOf(no); fn(f.visit, f); S.save(); rerender(); };
-const noOfHash = () => location.hash.slice(10);
+const noOfHash = () => (/^#bd-(?:visit|edit|order|info)-([^-]+)/.exec(location.hash) || [])[1] || '';
 actions['vs-called'] = (el) => { setTimeout(() => vs(el, (v) => { v.called = 1; v.step = 1; }), 300); };
 actions['vs-route'] = (el) => { setTimeout(() => vs(el, (v) => { v.step = 2; }), 300); };
 actions['vs-here'] = (el) => { const no = el.dataset.no; flowOf(no).visit.here = 1; vsGo(no, 3); };
@@ -377,13 +378,13 @@ actions['vs-prev'] = (el) => { const no = el.dataset.no; flAsk = ''; if (!flowOf
 actions['vs-exit'] = (el) => { const no = el.dataset.no; flowOf(no).visit.open = 0; S.save(); go('bd-order-' + no); };
 const vsEnd = (no, st, extra) => { const f = flowOf(no); f.visit = null; f.st = st; Object.assign(f, extra || {}); flAsk = ''; S.save(); };
 actions['vs-yes'] = (el) => { const no = el.dataset.no; vsEnd(no, 'queue'); toast('Клиент согласен — выберите даты работ'); go('bd-edit-' + no + '-schedule'); };
-actions['vs-call'] = () => { const no = noOfHash(); vsEnd(no, 'approval', { call: 3 }); toast('Задача «Позвонить клиенту» создана'); go('bd-order-' + no); };
+actions['vs-call'] = (el) => { const no = noOfHash(); vsEnd(no, 'approval', { call: +el.dataset.k || 3 }); toast('Задача «Позвонить клиенту» создана'); go('bd-order-' + no); };
 actions['vs-refuse'] = (el) => { const no = noOfHash(); vsEnd(no, 'refused', { reason: el.dataset.k }); toast('Заказ закрыт как отказ'); go('bd-order-' + no); };
 actions['vs-endshift'] = (el) => { const no = el.dataset.no, f = flowOf(no); f.day = (f.day || 1) + 1; f.shift = {}; f.visit = null; f.st = 'work'; S.save(); toast('Смена закрыта — до завтра'); go('home'); };
 actions['vs-dl'] = (el) => { const no = el.dataset.no, f = flowOf(no), d = S.get().oformit['ord-' + no]; const t = d && d.sm ? smetaTotals(d) : null;
   const txt = `Смета · заказ №${no}\n` + (t ? t.rooms.map((x) => `${x.room.name}: ${fmt(x.total)} ₽`).join('\n') + `\nИтого: ${fmt(t.total)} ₽\n` : '');
   try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' })); a.download = `Смета-${no}.txt`; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { /* не страшно */ }
-  f.visit.dl = 1; S.save(); toast('Смета скачана — отправьте клиенту'); rerender(); };
+  f.visit.dl = 1; if (d) d.smSent = 1; S.save(); toast('Смета скачана — отправьте клиенту'); rerender(); };
 actions['vs-alldone'] = (el) => { const no = el.dataset.no; vsEnd(no, 'done'); toast('Работы выполнены — итог и оплата'); go('bd-order-' + no); };
 const flSet = (el, fn) => { const no = el.dataset.no; fn(flowOf(no), S.get().oformit['ord-' + no]); S.save(); rerender(); };
 actions['fl-startwork'] = (el) => { const f = flowOf(el.dataset.no); f.st = 'work'; f.day = 1; f.shift = {}; f.visit = null; S.save(); go('bd-visit-' + el.dataset.no); };
@@ -391,7 +392,7 @@ actions['fl-ask'] = (el) => { flAsk = el.dataset.k ? el.dataset.no + ':' + el.da
 actions['fl-going'] = (el) => flSet(el, (f) => { f.going = 1; });
 actions['fl-chk'] = (el) => flSet(el, (f) => { f.chk[el.dataset.k] = !f.chk[el.dataset.k]; });
 actions['fl-sh'] = (el) => flSet(el, (f) => { f.shift[el.dataset.k] = !f.shift[el.dataset.k]; });
-actions['fl-room'] = (el) => flSet(el, (f) => { f.done[el.dataset.k] = !f.done[el.dataset.k]; });
+actions['fl-room'] = (el) => flSet(el, (f) => { const k = el.dataset.k; f.rs = f.rs || {}; f.done[k] = !f.done[k]; if (f.done[k]) f.rs[k] = { st: 'done' }; else delete f.rs[k]; });
 actions['fl-shift'] = (el) => flSet(el, (f) => { f.day++; f.shift = {}; toast('Смена закрыта — объём и фото сохранены'); });
 actions['fl-call'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); f.st = 'approval'; f.call = +el.dataset.k; S.save(); toast('Задача «Позвонить клиенту» создана'); rerender(); };
 actions['fl-refuse'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); f.st = 'refused'; f.reason = el.dataset.k; S.save(); toast('Заказ закрыт как отказ'); rerender(); };
@@ -481,7 +482,7 @@ export function renderBoardEdit(no, t) {
   const navHtml = ''; // шапка (назад, раздел, клиент) — в нижней навигации между «Меню» и «Чатом»
   const dd = oformitDraft();
   if (t === 'chat') { (dd.chat || []).forEach((m) => { m.read = true; }); S.save(); }
-  const html = renderOformit('order', { only: t, navHtml, navRight: mid + (inRoom ? `<button type="button" class="f-nav__tab" data-action="vs-hub" data-no="${no}"><span>Итог</span></button>` + infoBtn(no) + chatBtn(no, dd) : ((flowOf(no).visit || {}).open && t !== 'chat' ? infoBtn(no) : '') + (t === 'chat' ? '<span class="f-nav__chat"></span>' : chatBtn(no, dd))) });
+  const html = renderOformit('order', { only: t, navHtml, navRight: mid + (inRoom ? `<button type="button" class="f-nav__tab" data-action="vs-hub" data-no="${no}"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg><span>Итог</span></button>` + infoBtn(no) + chatBtn(no, dd) : ((flowOf(no).visit || {}).open && t !== 'chat' ? infoBtn(no) : '') + (t === 'chat' ? '<span class="f-nav__chat"></span>' : chatBtn(no, dd))) });
   // Вместо «Редактировать / Редактирование» — «Отмена»: правка уже включена.
   return (inRoom ? roomPlate(no, vv, html) : html).replace('f-nav f-nav--tabs', 'f-nav f-nav--tabs').replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
 }

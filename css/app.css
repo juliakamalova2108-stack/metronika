@@ -381,7 +381,7 @@ body.is-auth .app { padding-bottom: 0; }
 .gl-ph--big { aspect-ratio: 3 / 4; }
 
 /* ── Меню: ровно пол-экрана, кнопки с иконками ── */
-.drawer__panel { width: 50vw !important; min-width: 0; padding: calc(18px + env(safe-area-inset-top)) 10px 16px !important; gap: 14px !important;
+.drawer__panel { width: max(50vw, 240px) !important; max-width: 92vw; min-width: 0; padding: calc(18px + env(safe-area-inset-top)) 10px 16px !important; gap: 14px !important;
   background: linear-gradient(180deg, rgba(44,66,67,.96), rgba(18,32,33,.98)) !important; -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
   border-right: 1px solid rgba(214,229,194,.14) !important; border-radius: 0 26px 26px 0; }
 .brand--mini { padding: 4px 0 6px; gap: 8px; }
