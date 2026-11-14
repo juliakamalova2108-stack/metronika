@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=420';
-import * as S from './store.js?v=420';
-import {oformitDraft} from './oformit.js?v=420';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=420';
-import {esc} from './ui.js?v=420';
-import {tape,connect,say,sayLength} from './tape.js?v=420';
+import {actions,changes,rerender,afterRender} from './core.js?v=421';
+import * as S from './store.js?v=421';
+import {oformitDraft} from './oformit.js?v=421';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=421';
+import {esc} from './ui.js?v=421';
+import {tape,connect,say,sayLength} from './tape.js?v=421';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -218,7 +218,7 @@ export function renderMeasurement(d){
   const t=tabs(r,color);
   const body=(r.total?summary(r,color,s.view):card(w,r,t.edges)).replace('<div class="wallbody',`<div style="border-radius: ${t.radius}" class="wallbody`);
   const dlg=r.mwDialog==='new-opening'?openingForm(r,color):(r.mwDialog?listDialog(r,w,color):'');
-  return '<div class="mw-screen">'+bar+measurementSettings(er,r)+tapeBar(r,w)+`<div class="mw" style="--rc: ${color}">${t.html}${body}</div></div>${dlg}`;
+  return '<div class="mw-screen">'+bar+measurementSettings(er,r)+`<div class="mw" style="--rc: ${color}">${t.html}${body}</div></div>${dlg}`;
 }
 
 
@@ -236,7 +236,7 @@ tape.onFix=mm=>{
   let d;try{d=oformitDraft();}catch(e){return;}
   const s=state(d);if(!s.view||s.view==='pick'||s.view==='total')return;
   const r=room(s,s.view);if(!r.walls.length||r.mwDialog)return;
-  r.active=Math.min(r.active||0,r.walls.length-1);const w=r.walls[r.active],t=tapeTarget(r,w);if(!t)return;
+  r.active=Math.min(r.active||0,r.walls.length-1);const w=r.walls[r.active],t=tapeTarget(r,w);if(!t){say('Стена уже замерена. Добавьте новую стену');return;}
   const v=Math.round(mm/10)/100;
   if(t==='len'){w.len=v;if(!r.sameH){r.tapeAsk='h';say(`Длина ${sayLength(mm)}. Жду высоту стены`);}else{r.tapeAsk=null;say(`Длина ${sayLength(mm)}. Стена готова`);}}
   else{w.h=v;r.tapeAsk=null;say(`Высота ${sayLength(mm)}. Стена готова`);}

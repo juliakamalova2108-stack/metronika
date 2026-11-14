@@ -3,14 +3,14 @@
 // кнопки f-btn, верхние вкладки и нижняя панель f-nav / f-topnav / f-tab.
 // Три раздела внизу: Профиль · Работа · Система.
 
-import { actions, changes, rerender, go, val } from './core.js?v=420';
-import * as S from './store.js?v=420';
-import { esc, toast } from './ui.js?v=420';
-import { selectField, pickers } from './oformit.js?v=420';
-import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=420';
-import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=420';
-import { NOTIFY_KINDS } from './more.js?v=420';
-import { tape, connect as tapeConnect, disconnect as tapeOff, say as tapeSay } from './tape.js?v=420';
+import { actions, changes, rerender, go, val } from './core.js?v=421';
+import * as S from './store.js?v=421';
+import { esc, toast } from './ui.js?v=421';
+import { selectField, pickers } from './oformit.js?v=421';
+import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=421';
+import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=421';
+import { NOTIFY_KINDS } from './more.js?v=421';
+import { tape, connect as tapeConnect, disconnect as tapeOff, say as tapeSay } from './tape.js?v=421';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -92,6 +92,7 @@ function system() {
   const on = tape.status === 'on';
   const tapePlate = plate('Рулетка ADA Micro 25', !tape.supported ? '<p class="z-text">Подключение рулетки работает в Chrome на Android.</p>'
     : `<p class="z-text">${on ? `Подключена: ${esc(tape.name || 'MICRO')}. Замеры из неё сами попадают в длину и высоту стены.` : tape.status === 'connecting' ? 'Подключаю…' : 'Не подключена. Включите рулетку, переведите переключатель вправо и нажмите «Подключить».'}</p>
+      ${on ? `<p class="z-text">Пакетов с рулетки: ${tape.dbg.n}${tape.dbg.n ? ` · последний: «${esc(tape.dbg.raw)}»${tape.dbg.mm ? ` → ${tape.dbg.mm} мм` : ' (не распознан)'}` : ''}</p>${tape.dbg.hex ? `<p class="z-text">байты: ${esc(tape.dbg.hex)}</p>` : ''}` : ''}
       ${tog('Голос озвучивания', 'Говорит каждый зафиксированный замер', tape.voice, 'data-action="tp-voice"')}
       ${btnRow(on ? btn('Отключить рулетку', 'tp-off') : btn('Подключить рулетку', 'tp-connect'))}${btnRow(btn('Проверить голос', 'tp-test'))}`);
   return tapePlate + plate('Уведомления', `${tog('Присылать уведомления', 'Новые заказы, сообщения, выплаты', n.on, 'data-action="nt-on"')}

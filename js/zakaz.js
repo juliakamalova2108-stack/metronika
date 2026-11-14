@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=420';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=421';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=420';
-import * as S from './store.js?v=420';
-import { WALLPAPER_TYPES } from './seed.js?v=420';
-import { esc, toast } from './ui.js?v=420';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=420';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=420';
-import { country } from './phonecodes.js?v=420';
-import { suggestAddress } from './address.js?v=420';
-import { suggesters } from './kbd.js?v=420';
-import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=420';
+import { actions, changes, rerender } from './core.js?v=421';
+import * as S from './store.js?v=421';
+import { WALLPAPER_TYPES } from './seed.js?v=421';
+import { esc, toast } from './ui.js?v=421';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=421';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=421';
+import { country } from './phonecodes.js?v=421';
+import { suggestAddress } from './address.js?v=421';
+import { suggesters } from './kbd.js?v=421';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=421';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
