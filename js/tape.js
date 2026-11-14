@@ -3,8 +3,8 @@
 // Замер считается зафиксированным, когда число не меняется STABLE_MS; следующий замер принимается,
 // только когда рулетку сдвинули (число ушло от прошлого зафиксированного на REARM_MM).
 // Каждый зафиксированный замер озвучивается голосом телефона.
-import { rerender } from './core.js?v=424';
-import { toast } from './ui.js?v=424';
+import { rerender } from './core.js?v=425';
+import { toast } from './ui.js?v=425';
 
 const SERVICE = '0000cbbb-0000-1000-8000-00805f9b34fb';
 const CHAR = '0000cbb1-0000-1000-8000-00805f9b34fb';
@@ -32,7 +32,7 @@ export const nextVoice = () => { const L = voices(); if (!L.length) return ''; c
 if (typeof speechSynthesis !== 'undefined' && speechSynthesis.addEventListener) speechSynthesis.addEventListener('voiceschanged', () => {});
 export function say(text, queue = false) {
   if (!tape.voice || typeof speechSynthesis === 'undefined' || !text) return;
-  try { if (!queue) speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ru-RU'; u.rate = 1.1; const n = voiceName(); const v = n && voices().find((x) => x.name === n); if (v) u.voice = v; speechSynthesis.speak(u); } catch (e) { /* голос недоступен */ }
+  try { if (!queue) speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ru-RU'; u.rate = 1.0; u.pitch = 1.1; const n = voiceName(); const v = n && voices().find((x) => x.name === n); if (v) u.voice = v; speechSynthesis.speak(u); } catch (e) { /* голос недоступен */ }
 }
 
 // Один пакет с рулетки (из канала или из теста). Пакеты могут прийти кусками — копим текст и ищем «D1.234m».
