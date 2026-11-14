@@ -346,3 +346,5 @@
 @keyframes gtBlink { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(76, 196, 126, 0.7); } 50% { opacity: 0.35; box-shadow: 0 0 0 5px rgba(76, 196, 126, 0); } }
 .mw .z-xp__known { margin: 10px 0 0; font: 400 12px/1.4 var(--font-body); color: #8fd6a9; }
 .tp-row { margin: 0 0 10px; }
+
+.tp-redo{display:block;margin:0 auto 8px;min-height:44px;padding:0 16px;border:1px solid var(--rc,#999);border-radius:12px;background:transparent;color:inherit;font:inherit;font-weight:600}

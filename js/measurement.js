@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=421';
-import * as S from './store.js?v=421';
-import {oformitDraft} from './oformit.js?v=421';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=421';
-import {esc} from './ui.js?v=421';
-import {tape,connect,say,sayLength} from './tape.js?v=421';
+import {actions,changes,rerender,afterRender} from './core.js?v=422';
+import * as S from './store.js?v=422';
+import {oformitDraft} from './oformit.js?v=422';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=422';
+import {esc} from './ui.js?v=422';
+import {tape,say,sayLength} from './tape.js?v=422';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -162,6 +162,7 @@ function card(w,r,edges){
     :`<input aria-label="Высота этой стены, см" inputmode="numeric" value="${cm(w.h)}" placeholder="0" data-change="mw-height">`;
   return `<div class="wallbody">${edges}
   <section class="equation"><div class="eqplate gross"><b>S общая</b><strong>${n(gross(w,r))} м²</strong></div><div class="opgroup"><div class="caption">S проёмов ${n(holes(w))} м²</div><div class="operators"><span>−</span><span class="IC"></span><span>−</span><span class="IC"></span><span>=</span></div></div><div class="eqplate net"><div class="nettext"><b>S рабочая</b><strong>${n(net(w,r))} м²</strong></div></div></section>
+  ${tape.status==='on'?`<button type="button" class="tp-redo" data-action="mw-redo" aria-label="Перемерить стену">↻ Перемерить</button>`:''}
   <section class="measurement">
     <div class="dimension"><i class="dimline"></i><label class="lengthfield"><input aria-label="Длина стены, см" inputmode="numeric" value="${cm(w.len)}" placeholder="0" data-change="mw-length"><span>см</span></label></div>
     <div class="drawing"><div class="heightdim"><label class="lengthfield hfield">${hInput}<span>см</span></label></div>
@@ -222,30 +223,43 @@ export function renderMeasurement(d){
 }
 
 
-// ---------- цифровая рулетка (Bluetooth): подсказка и кнопки ----------
-const tapeTarget=(r,w)=>r.tapeAsk==='h'?'h':(r.tapeAsk==='len'||!w.len)?'len':null;
-function tapeBar(r,w){
-  if(!tape.supported)return '';
-  if(tape.status==='off')return `<div class="f-btn-row tp-row"><button type="button" class="f-btn" data-action="mw-tape-connect">Подключить рулетку</button></div>`;
-  if(tape.status==='connecting')return `<div class="f-btn-row tp-row"><button type="button" class="f-btn" disabled>Подключаю рулетку…</button></div>`;
-  const t=tapeTarget(r,w),lab=t==='len'?'Жду длину стены':t==='h'?'Жду высоту стены':'Стена готова';
-  return `<div class="f-btn-row tp-row"><button type="button" class="f-btn f-btn--lit" data-action="mw-tape-say">${lab}</button><button type="button" class="f-btn" data-action="mw-tape-voice" aria-pressed="${tape.voice}">${tape.voice?'Голос вкл':'Голос выкл'}</button><button type="button" class="f-btn" data-action="mw-tape-redo">Заново</button></div>`;
-}
-// Зафиксированный замер → в нужное поле активной стены, голосом сообщаем и называем следующий шаг
+// ---------- цифровая рулетка (Bluetooth): голосовые подсказки и запись замеров ----------
+// Порядок: высота комнаты (если «Одинаковая высота», один раз) → «Стена N, жду длину» → (своя высота стены) →
+// «Стена готова». Окно или дверь: «Жду ширину» → «Жду высоту» → добавлено. Подсказку озвучивает сам экран при любом переходе.
+const tapeTarget=(r,w)=>{
+  if(r.mwDialog==='new-opening'){const o=r.newOpening||{};return !parse(o.width)?'ow':!parse(o.height)?'oh':null;}
+  if(r.mwDialog)return null;
+  if(r.sameH&&!r.hDone)return 'rh';
+  if(!w.len)return 'len';
+  if(!r.sameH&&!w.hDone)return 'h';
+  return null;
+};
+const tapePrompt=(t,r)=>{const i=(r.active||0)+1,o=r.newOpening||{};
+  return t==='rh'?'Жду высоту':t==='len'?`Стена ${i}. Жду длину`:t==='h'?`Стена ${i}. Жду высоту`:t==='ow'?`${o.type||'Проём'}. Жду ширину`:t==='oh'?`${o.type||'Проём'}. Жду высоту`:'';};
 tape.onFix=mm=>{
   let d;try{d=oformitDraft();}catch(e){return;}
   const s=state(d);if(!s.view||s.view==='pick'||s.view==='total')return;
-  const r=room(s,s.view);if(!r.walls.length||r.mwDialog)return;
-  r.active=Math.min(r.active||0,r.walls.length-1);const w=r.walls[r.active],t=tapeTarget(r,w);if(!t){say('Стена уже замерена. Добавьте новую стену');return;}
-  const v=Math.round(mm/10)/100;
-  if(t==='len'){w.len=v;if(!r.sameH){r.tapeAsk='h';say(`Длина ${sayLength(mm)}. Жду высоту стены`);}else{r.tapeAsk=null;say(`Длина ${sayLength(mm)}. Стена готова`);}}
-  else{w.h=v;r.tapeAsk=null;say(`Высота ${sayLength(mm)}. Стена готова`);}
+  const r=room(s,s.view);if(!r.walls.length)return;
+  r.active=Math.min(r.active||0,r.walls.length-1);const w=r.walls[r.active],t=tapeTarget(r,w);
+  if(!t){say('Стена уже замерена. Добавьте новую стену');return;}
+  const v=Math.round(mm/10)/100,txt=sayLength(mm),i=r.active+1;tape.chain=true;
+  if(t==='rh'){r.h=v||r.h;r.hDone=true;r.walls.forEach(x=>{if(!x.len)x.h=r.h;});say(`Высота ${txt}`);}
+  else if(t==='len'){w.len=v;say(`Длина ${txt}`);if(!tapeTarget(r,w))say(`Стена ${i} готова. Добавьте окно, дверь или следующую стену`,true);}
+  else if(t==='h'){w.h=v;w.hDone=true;say(`Высота ${txt}`);if(!tapeTarget(r,w))say(`Стена ${i} готова. Добавьте окно, дверь или следующую стену`,true);}
+  else if(t==='ow'){r.newOpening.width=String(Math.round(mm/10));say(`Ширина ${txt}`);}
+  else if(t==='oh'){r.newOpening.height=String(Math.round(mm/10));say(`Высота ${txt}`);save();actions['mw-confirm-opening']();say('Добавлено. Следующее окно, дверь или стена',true);return;}
   save();
 };
-actions['mw-tape-connect']=()=>{connect().then(()=>{if(tape.status==='on'){const r=current();const w=r.walls[r.active||0];if(w&&tapeTarget(r,w)==='len')setTimeout(()=>say('Жду длину стены'),1200);}});};
-actions['mw-tape-voice']=()=>{tape.voice=!tape.voice;if(tape.voice)say('Голос включён');rerender();};
-actions['mw-tape-redo']=()=>{const r=current();r.tapeAsk='len';say('Жду длину стены');save();};
-actions['mw-tape-say']=()=>{const r=current(),w=r.walls[r.active||0],t=w?tapeTarget(r,w):null;say(t==='len'?'Жду длину стены':t==='h'?'Жду высоту стены':'Стена готова');};
+// Озвучка подсказки при любой смене «что ждём»
+let tapeKey='';
+actions['mw-redo']=()=>{const r=current(),w=r.walls[r.active];if(!w)return;w.len=0;if(!r.sameH){w.h=0;w.hDone=false;}tapeKey='';tape.redo=true;save();};
+afterRender.push(()=>{
+  if(tape.status!=='on'||!document.querySelector('.mw-screen')){tapeKey='';return;}
+  let r;try{const d=oformitDraft(),s=state(d);if(!s.view||s.view==='pick'||s.view==='total')return;r=room(s,s.view);}catch(e){return;}
+  if(!r.walls.length)return;const w=r.walls[Math.min(r.active||0,r.walls.length-1)],t=tapeTarget(r,w);
+  const key=[oformitDraft().sm.view,r.active||0,r.mwDialog||'',t||''].join('|');if(key===tapeKey)return;tapeKey=key;
+  const msg=t?(tape.redo?'Перемеряем. ':'')+tapePrompt(t,r):'';tape.redo=false;if(msg){say(msg,tape.chain);}tape.chain=false;
+});
 
 // ---------- полёт ярлыка: из кнопки в свою колонку ----------
 let fly=null;
@@ -275,7 +289,7 @@ actions['mw-pick']=()=>{const d=oformitDraft(),s=state(d),rs=estimateRooms(d);
 actions['mw-room']=el=>{state(oformitDraft()).view=el.dataset.key;save()};
 actions['mw-wall']=el=>{const r=current();r.active=+el.dataset.i;r.total=false;r.mwDialog=null;save()};
 actions['mw-delete-wall']=()=>{const r=current();r.walls.splice(r.active,1);r.active=Math.max(0,Math.min(r.active,r.walls.length-1));r.mwDialog=null;save()};
-actions['mw-add-wall']=()=>{const r=current();r.walls.push({len:0,h:r.h,opens:[],svcs:r.sameSvc?[...r.walls[r.active].svcs]:[]});r.active=r.walls.length-1;r.total=false;r.tapeAsk=tape.status==='on'?'len':null;if(tape.status==='on')say('Жду длину стены');save()};
+actions['mw-add-wall']=()=>{const r=current();r.walls.push({len:0,h:r.h,opens:[],svcs:r.sameSvc?[...r.walls[r.active].svcs]:[]});r.active=r.walls.length-1;r.total=false;save()};
 actions['mw-total']=()=>{current().total=true;save()};
 actions['mw-toggle']=el=>{const r=current(),k=el.dataset.key;r[k]=!r[k];if(k==='sameSvc'&&r[k]){r.walls[r.active].pick=[...r.walls[r.active].svcs];r.mwDialog='services';}if(k==='sameH'&&!r[k])r.walls.forEach(w=>w.h=r.h);save()};
 actions['mw-services']=()=>{const r=current();r.walls[r.active].pick=[...r.walls[r.active].svcs];r.mwDialog='services';save();window.scrollTo(0,0)};
@@ -287,8 +301,8 @@ actions['mw-openings']=el=>{current().mwDialog=el.dataset.type;save()};
 actions['mw-add-opening']=el=>{const r=current();r.newOpening={type:el.dataset.type,width:'',height:''};r.mwDialog='new-opening';save()};
 actions['mw-delete-opening']=el=>{const r=current();r.walls[r.active].opens.splice(+el.dataset.k,1);save()};
 changes['mw-length']=el=>{const r=current();r.walls[r.active].len=fromCm(el.value);S.save()};
-changes['mw-height']=el=>{const r=current();r.walls[r.active].h=fromCm(el.value);S.save()};
-changes['mw-roomheight']=el=>{const r=current();r.h=fromCm(el.value)||r.h;S.save()};
+changes['mw-height']=el=>{const r=current();r.walls[r.active].h=fromCm(el.value);r.walls[r.active].hDone=true;S.save()};
+changes['mw-roomheight']=el=>{const r=current();r.h=fromCm(el.value)||r.h;r.hDone=true;S.save()};
 changes['mw-opening']=el=>{const r=current(),o=r.walls[r.active].opens[+el.dataset.k];o[el.dataset.field]=fromCm(el.value);if(o.width&&o.height)o.area=Math.round(o.width*o.height*100)/100;S.save()};
 changes['mw-new-width']=el=>{current().newOpening.width=el.value;S.save()};
 changes['mw-new-height']=el=>{current().newOpening.height=el.value;S.save()};

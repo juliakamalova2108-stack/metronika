@@ -3,17 +3,17 @@
 // Замер считается зафиксированным, когда число не меняется STABLE_MS; следующий замер принимается,
 // только когда рулетку сдвинули (число ушло от прошлого зафиксированного на REARM_MM).
 // Каждый зафиксированный замер озвучивается голосом телефона.
-import { rerender } from './core.js?v=421';
-import { toast } from './ui.js?v=421';
+import { rerender } from './core.js?v=422';
+import { toast } from './ui.js?v=422';
 
 const SERVICE = '0000cbbb-0000-1000-8000-00805f9b34fb';
 const CHAR = '0000cbb1-0000-1000-8000-00805f9b34fb';
 const PACKET = /^D([0-9]+\.[0-9]{3})m$/;
-export const STABLE_MS = 1000;
+export const STABLE_MS = 500;
 export const REARM_MM = 30;
 const TOL_MM = 3;
 
-export const tape = { status: 'off', voice: true, name: '', dbg: { n: 0, raw: '', hex: '', mm: 0 }, onFix: null, supported: typeof navigator !== 'undefined' && 'bluetooth' in navigator };
+export const tape = { status: 'off', voice: true, name: '', chain: false, dbg: { n: 0, raw: '', hex: '', mm: 0 }, onFix: null, supported: typeof navigator !== 'undefined' && 'bluetooth' in navigator };
 let dev = null, timer = null, cur = null, lastFix = null, armed = true;
 
 // «D2.740m» → 2740 (мм) или null
@@ -23,9 +23,16 @@ const plural = (n, a, b, c) => { const k = n % 100; if (k > 10 && k < 20) return
 export const sayLength = (mm) => { const cm = Math.round(mm / 10), m = Math.floor(cm / 100), c = cm % 100;
   return [m ? `${m} ${plural(m, 'метр', 'метра', 'метров')}` : '', c || !m ? `${c} ${plural(c, 'сантиметр', 'сантиметра', 'сантиметров')}` : ''].filter(Boolean).join(' '); };
 
-export function say(text) {
-  if (!tape.voice || typeof speechSynthesis === 'undefined') return;
-  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ru-RU'; u.rate = 1; speechSynthesis.speak(u); } catch (e) { /* голос недоступен */ }
+// Голос: лучший из русских голосов телефона; можно выбрать другой в Настройках
+const KEY = 'metronika-tape-voice';
+const score = (v) => (/natural|neural|online|enhanced/i.test(v.name) ? 5 : 0) + (/google/i.test(v.name) ? 4 : 0) + (/milena|alena|katya|svetlana|irina|yuri|pavel|ekaterina|anna/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
+export const voices = () => (typeof speechSynthesis === 'undefined' ? [] : speechSynthesis.getVoices().filter((v) => /^ru/i.test(v.lang)).sort((a, b) => score(b) - score(a)));
+export const voiceName = () => { let saved = ''; try { saved = localStorage.getItem(KEY) || ''; } catch (e) { /* без памяти */ } const L = voices(); const v = L.find((x) => x.name === saved) || L[0]; return v ? v.name : ''; };
+export const nextVoice = () => { const L = voices(); if (!L.length) return ''; const i = L.findIndex((x) => x.name === voiceName()); const v = L[(i + 1) % L.length]; try { localStorage.setItem(KEY, v.name); } catch (e) { /* без памяти */ } return v.name; };
+if (typeof speechSynthesis !== 'undefined' && speechSynthesis.addEventListener) speechSynthesis.addEventListener('voiceschanged', () => {});
+export function say(text, queue = false) {
+  if (!tape.voice || typeof speechSynthesis === 'undefined' || !text) return;
+  try { if (!queue) speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ru-RU'; u.rate = 1.1; const n = voiceName(); const v = n && voices().find((x) => x.name === n); if (v) u.voice = v; speechSynthesis.speak(u); } catch (e) { /* голос недоступен */ }
 }
 
 // Один пакет с рулетки (из канала или из теста). Пакеты могут прийти кусками — копим текст и ищем «D1.234m».
