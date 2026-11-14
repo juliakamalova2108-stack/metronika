@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=432';
-import * as S from './store.js?v=432';
-import { renderOformit, oformitDraft } from './oformit.js?v=432';
-import { roomTotals, svcInfo } from './ocenka.js?v=432';
-import { smetaTotals } from './zakaz.js?v=432';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=432';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=432';
-import { esc, toast, status, seg } from './ui.js?v=432';
-import { topbar, ORDER_STATUS } from './shared.js?v=432';
+import { actions, rerender, go } from './core.js?v=433';
+import * as S from './store.js?v=433';
+import { renderOformit, oformitDraft } from './oformit.js?v=433';
+import { roomTotals, svcInfo } from './ocenka.js?v=433';
+import { smetaTotals } from './zakaz.js?v=433';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=433';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=433';
+import { esc, toast, status, seg } from './ui.js?v=433';
+import { topbar, ORDER_STATUS } from './shared.js?v=433';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -85,7 +85,7 @@ export function renderBoard() {
     const sum = ((d.est && d.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0);
     return `<div class="bd-slot">${leaf(dayOf(off), off === 0, f.st === 'measure' ? `${esc(d.cl.hour)}:${esc(d.cl.min)}` : '')}<button type="button" class="bd-card" data-action="bd-open" data-no="${no}">
       <span class="bd-top"><span class="bd-who"><b>${esc(c.n)}</b><small>${esc(c.a)}</small></span><span class="bd-sum"><b>${sum ? fmt(sum) + ' ₽' : '—'}</b><small>№${no}</small></span></span>
-      <span class="bd-foot"><span class="bd-room" style="--c:#7ee2a3">${FL_NAME[f.st]}<small>${f.st === 'measure' ? 'выезд на замер' : f.st === 'approval' ? 'перезвонить' : f.st === 'closed' ? 'завершён' : ''}</small></span></span></button></div>`; }).join('');
+      <span class="bd-foot"><span class="bd-room" style="--c:#7ee2a3">${FL_NAME[f.st]}<small>${f.st === 'measure' ? (mOff < 0 ? `замер просрочен на ${-mOff} дн.` : 'выезд на замер') : f.st === 'approval' ? 'перезвонить' : f.st === 'closed' ? 'завершён' : ''}</small></span></span></button></div>`; }).join('');
   const body = rows.length || xcards ? xcards + rows.map(([off, k, n, t]) => card(off, k, n, t)).join('')
     : `<p class="bd-empty">${q ? 'Ничего не нашлось' : 'В этом этапе пока пусто'}</p>`;
   const tabs = STAGES.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === stage}" class="f-tab${k === stage ? ' is-active' : ''}" data-action="bd-stage" data-stage="${k}">${t}</button>`).join('');
@@ -389,9 +389,11 @@ function logStat(no, kind, reason) {
   const rolls = Object.values((d0.mat && d0.mat.rooms) || {}).reduce((a, r) => a + ((r.items || []).reduce((b, i) => b + (Number(i.rolls) || 0), 0)), 0);
   const rec = { no, kind, at: new Date().toISOString(), client: cl.name || 'Клиент', src: cl.src || '', reason: reason || '',
     sum: Math.round((kind === 'done' ? ok.reduce((a, x) => a + x.total, 0) : (smt && smt.total) || est) * k), m2: Math.round(paste) || 0, rolls, rooms: ok.length };
-  const L = S.get().statsLog = (S.get().statsLog || []).filter((x) => !(x.no === no && x.kind === kind)); L.push(rec);
+  if (kind === 'done' && smt && !ok.length) { rec.kind = 'lost'; rec.reason = 'Все комнаты отказаны'; rec.sum = Math.round(smt.total * k); }   // ни одной комнаты не сделано — это не выполненный заказ
+  const L = S.get().statsLog = (S.get().statsLog || []).filter((x) => !(x.no === no && (x.kind === 'done' || x.kind === 'lost') && kind !== 'x')); L.push(rec);
+  return rec.kind === 'lost' && kind === 'done';
 }
-const vsEnd = (no, st, extra) => { const f = flowOf(no); if (st === 'done' || st === 'refused') logStat(no, st === 'done' ? 'done' : 'lost', extra && extra.reason); if (f.visit && f.visit.kind === 'measure') { const d0 = S.get().oformit['ord-' + no]; if (d0) d0.disc = f.visit.disc || 0; } f.visit = null; f.st = st; Object.assign(f, extra || {}); flAsk = ''; S.save(); };
+const vsEnd = (no, st, extra) => { const f = flowOf(no); let allRef = false; if (st === 'done' || st === 'refused') allRef = logStat(no, st === 'done' ? 'done' : 'lost', extra && extra.reason); if (allRef) { st = 'refused'; extra = { reason: 'Все комнаты отказаны' }; } if (f.visit && f.visit.kind === 'measure') { const d0 = S.get().oformit['ord-' + no]; if (d0) d0.disc = f.visit.disc || 0; } f.visit = null; f.st = st; Object.assign(f, extra || {}); flAsk = ''; S.save(); };
 actions['vs-yes'] = (el) => { const no = el.dataset.no; const d0 = S.get().oformit['ord-' + no]; if (d0) { d0.sched = d0.sched || {}; d0.sched.mode = 'work'; } vsEnd(no, 'queue'); toast('Клиент согласен — выберите даты работ'); go('bd-edit-' + no + '-schedule'); };
 actions['vs-call'] = (el) => { const no = noOfHash(); vsEnd(no, 'approval', { call: +el.dataset.k || 3 }); toast('Задача «Позвонить клиенту» создана'); go('bd-order-' + no); };
 actions['vs-refuse'] = (el) => { const no = noOfHash(); vsEnd(no, 'refused', { reason: el.dataset.k }); toast('Заказ закрыт как отказ'); go('bd-order-' + no); };
@@ -413,7 +415,7 @@ actions['fl-call'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const
 actions['fl-refuse'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); f.st = 'refused'; f.reason = el.dataset.k; logStat(no, 'lost', f.reason); S.save(); toast('Заказ закрыт как отказ'); rerender(); };
 actions['fl-pay'] = (el) => flSet(el, (f, d) => { const rooms = (d.est && d.est.rooms) || []; const sm = d.sm ? smetaTotals(d) : null; const tot = sm && sm.total ? sm.total : rooms.reduce((a, r) => a + roomTotals(r).total, 0);
   d.fin = d.fin || { pays: [], exps: [] }; const paid = d.fin.pays.reduce((a, x) => a + x.amount, 0); d.fin.pays.push({ kind: 'Оплата', amount: Math.max(0, tot - paid), date: iso(0), method: el.dataset.k }); toast('Оплата записана'); });
-actions['fl-to'] = (el) => { const [to, plan] = el.dataset.k.split('+'); flAsk = ''; flSet(el, (f) => { f.st = to; if (to === 'work') { f.day = 1; f.shift = {}; } if (to === 'done') logStat(el.dataset.no, 'done'); }); if (plan) go('bd-edit-' + el.dataset.no + '-schedule'); };
+actions['fl-to'] = (el) => { const [to, plan] = el.dataset.k.split('+'); flAsk = ''; flSet(el, (f) => { f.st = to; if (to === 'work') { f.day = 1; f.shift = {}; } if (to === 'done' && logStat(el.dataset.no, 'done')) { f.st = 'refused'; f.reason = 'Все комнаты отказаны'; } }); if (plan) go('bd-edit-' + el.dataset.no + '-schedule'); };
 export function renderBoardOrder(no, info) {
   if (!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) return null;
   if (DEMO[no]) seedOrder(no);

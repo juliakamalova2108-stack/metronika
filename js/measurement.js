@@ -1,19 +1,21 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=432';
-import * as S from './store.js?v=432';
-import {oformitDraft} from './oformit.js?v=432';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=432';
-import {esc} from './ui.js?v=432';
-import {tape,say,numKeys} from './tape.js?v=432';
+import {actions,changes,rerender,afterRender} from './core.js?v=433';
+import * as S from './store.js?v=433';
+import {oformitDraft} from './oformit.js?v=433';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=433';
+import {esc,toast} from './ui.js?v=433';
+import {tape,say,numKeys} from './tape.js?v=433';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
 const rub=x=>Math.round(x).toLocaleString('ru-RU')+' ₽';
 const parse=x=>Math.max(0,parseFloat(String(x).replace(',','.'))||0);
 const cm=m=>m?String(Math.round(m*100)):'';          // метры → сантиметры для поля
-const fromCm=v=>parse(v)/100;                        // сантиметры из поля → метры
+const fromCm=v=>parse(v)/100;
+const MAXL=50, MAXH=6;   // пределы ввода, м: стена до 50 м, высота до 6 м
+const okL=(m,max)=>{if(m>max){toast(`Слишком много: максимум ${max} м`);return false;}return true;};                        // сантиметры из поля → метры
 
 // ---------- данные ----------
 const state=d=>d.sm||(d.sm={view:'',rooms:{}});   // первый вход: открыть первую комнату, если она есть
@@ -301,9 +303,9 @@ actions['mw-close']=()=>{current().mwDialog=null;save()};
 actions['mw-openings']=el=>{current().mwDialog=el.dataset.type;save()};
 actions['mw-add-opening']=el=>{const r=current();r.newOpening={type:el.dataset.type,width:'',height:''};r.mwDialog='new-opening';save()};
 actions['mw-delete-opening']=el=>{const r=current();r.walls[r.active].opens.splice(+el.dataset.k,1);save()};
-changes['mw-length']=el=>{const r=current();r.walls[r.active].len=fromCm(el.value);S.save()};
-changes['mw-height']=el=>{const r=current();r.walls[r.active].h=fromCm(el.value);r.walls[r.active].hDone=true;S.save()};
-changes['mw-roomheight']=el=>{const r=current();r.h=fromCm(el.value)||r.h;r.hDone=true;S.save()};
+changes['mw-length']=el=>{const r=current(),v=fromCm(el.value);if(!okL(v,MAXL)){rerender();return;}r.walls[r.active].len=v;S.save()};
+changes['mw-height']=el=>{const r=current(),v=fromCm(el.value);if(!okL(v,MAXH)){rerender();return;}r.walls[r.active].h=v;r.walls[r.active].hDone=true;S.save()};
+changes['mw-roomheight']=el=>{const r=current(),v=fromCm(el.value);if(!okL(v,MAXH)){rerender();return;}r.h=v||r.h;r.hDone=true;S.save()};
 changes['mw-opening']=el=>{const r=current(),o=r.walls[r.active].opens[+el.dataset.k];o[el.dataset.field]=fromCm(el.value);if(o.width&&o.height)o.area=Math.round(o.width*o.height*100)/100;S.save()};
 changes['mw-new-width']=el=>{current().newOpening.width=el.value;S.save()};
 changes['mw-new-height']=el=>{current().newOpening.height=el.value;S.save()};
