@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=426';
-import * as S from './store.js?v=426';
-import { renderOformit, oformitDraft } from './oformit.js?v=426';
-import { roomTotals, svcInfo } from './ocenka.js?v=426';
-import { smetaTotals } from './zakaz.js?v=426';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=426';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=426';
-import { esc, toast, status, seg } from './ui.js?v=426';
-import { topbar, ORDER_STATUS } from './shared.js?v=426';
+import { actions, rerender, go } from './core.js?v=427';
+import * as S from './store.js?v=427';
+import { renderOformit, oformitDraft } from './oformit.js?v=427';
+import { roomTotals, svcInfo } from './ocenka.js?v=427';
+import { smetaTotals } from './zakaz.js?v=427';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=427';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=427';
+import { esc, toast, status, seg } from './ui.js?v=427';
+import { topbar, ORDER_STATUS } from './shared.js?v=427';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -310,7 +310,7 @@ export function renderVisit(no) {
   if (name === 'Звонок клиенту') { hb = ['Позвонить', `href="tel:${esc(tel)}" ${A('vs-called')}`]; can = !!v.called; }
   else if (name === 'Маршрут') { hb = ['Проложить маршрут', `href="${map}" target="_blank" rel="noopener" ${A('vs-route')}`]; }
   else if (name === 'Вы на месте?') { hb = ['Да, я на месте', A('vs-here')]; can = !!v.here; }
-  else if (vsScr(v)) { body = block(name, no, '', `<p class="bd-line"><small>${name === 'Комната' ? 'Комнаты — внизу. Вкладки: материал, смета, деньги' : name === 'Замер' ? 'Комнаты и стены — как в замере' : 'Посчитайте смету по факту'}</small></p>`) + big(`Открыть «${name}»`, `data-action="vs-open" data-no="${no}"`); }
+  else if (vsScr(v)) { body = block(name, no, '', `<p class="bd-line"><small>${name === 'Комната' ? 'Вы вышли из комнаты. Вернитесь, чтобы продолжить' : name === 'Замер' ? 'Комнаты и стены — как в замере' : 'Посчитайте смету по факту'}</small></p>`) + big(name === 'Комната' ? 'Вернуться в комнату' : `Открыть «${name}»`, `data-action="vs-open" data-no="${no}"`); }
   else if (name === 'Комнаты') { body = block('Комнаты для замера', no, '', rooms.map((r) => tg(v.keep[r.key] !== false, r.name, `${r.floor} этаж · по оценке ${fmt(roomTotals(r).total)} ₽`, A('vs-keep', r.key))).join('') || '<p class="bd-line"><small>Комнат пока нет — добавьте</small></p>')
       + big('Добавить комнату', `data-action="bd-edit" data-no="${no}" data-tab="estimate"`, !rooms.length); can = keep.length > 0; }
   else if (name === 'Замер по стенам') { body = block('Замер по стенам', no, '', keep.map((r) => `<p class="bd-line"><b>${esc(r.name)}</b><small>${measured(r) ? `замерено · ${fmt((smt.rooms.find((x) => x.room.key === r.key) || {}).total)} ₽` : 'ещё не замерено'}</small></p>`).join(''))
@@ -371,6 +371,7 @@ actions['vs-rst'] = (el) => { const no = el.dataset.no, f = flowOf(no), k = f.vi
   if (a === 'work') { delete f.rs[k]; delete f.done[k]; flAsk = ''; S.save(); return rerender(); }
   flAsk = ''; actions['vs-rdone'](el); };
 actions['vs-rdone'] = (el) => { const no = el.dataset.no, f = flowOf(no), v = f.visit, k = v.room || firstRoom(no); const mr = ((S.get().oformit['ord-' + no] || {}).mat || {}).rooms || {}; const items = (mr[k] && mr[k].items) || [];
+  if (items.length && items.some((i) => !(Number(i.rolls) > 0))) { v.tab = 'material'; S.save(); toast('Укажите количество рулонов'); return vsGo(no, 3); }
   if (!items.length || !items.every((i) => S.reviewsOf(i.code).some((x) => x.authorId === S.me().id))) { v.tab = 'material'; S.save(); toast(!items.length ? 'Добавьте материал комнаты — отсканируйте штрихкод' : 'Поделитесь опытом работы с материалом — кнопка «Мой опыт»'); return vsGo(no, 3); }
   f.rs = f.rs || {}; f.rs[k] = { st: 'done' }; f.done[k] = 1; S.save(); toast('Комната готова'); rerender(); };
 actions['vs-rrefuse'] = (el) => { const no = noOfHash(), f = flowOf(no), v = f.visit, k = v.room || firstRoom(no); f.rs = f.rs || {}; f.rs[k] = { st: 'refuse', reason: el.dataset.k }; f.done[k] = 1; flAsk = ''; S.save(); toast('Комната отмечена как отказ'); rerender(); };

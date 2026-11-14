@@ -7,12 +7,13 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Метроника</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232b3a33%27/%3E%3Cpath d=%27M8 24V8h3l5 8 5-8h3v16h-3V14l-5 8-5-8v10z%27 fill=%27%23edf2e8%27/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@800&family=Onest:wght@500;600;700&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/app.css?v=426" />
-  <link rel="stylesheet" href="css/vyezdy.css?v=426" />
-<link rel="stylesheet" href="css/measurement.css?v=426" />
+  <link rel="stylesheet" href="css/app.css?v=427" />
+  <link rel="stylesheet" href="css/vyezdy.css?v=427" />
+<link rel="stylesheet" href="css/measurement.css?v=427" />
 </head>
 <body>
   <div class="app">
@@ -23,12 +24,12 @@
   <div id="sheet" class="sheet"></div>
   <div id="toast" class="toast" role="status"></div>
   <noscript>Для работы прототипа нужен включённый JavaScript.</noscript>
-  <script type="module" src="js/app.js?v=426"></script>
+  <script type="module" src="js/app.js?v=427"></script>
   <script>
     // Телефон может держать старую страницу в памяти до 10 минут. Спрашиваем номер свежей версии
     // мимо памяти и, если он новее, один раз открываем страницу заново по чуть другому адресу.
     (function () {
-      var V = '426';
+      var V = '427';
       fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
         t = (t || '').trim();
         if (!t || t === V || new URLSearchParams(location.search).get('v') === t) return;
