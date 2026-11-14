@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=427';
-import * as S from './store.js?v=427';
-import { esc, toast } from './ui.js?v=427';
-import { selectField, pickers } from './oformit.js?v=427';
+import { actions, rerender, val } from './core.js?v=428';
+import * as S from './store.js?v=428';
+import { esc, toast } from './ui.js?v=428';
+import { selectField, pickers } from './oformit.js?v=428';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -35,7 +35,7 @@ const SRC = [['Авито', 36, P7[0]], ['Сайт', 20, P7[1]], ['Агенты'
 const NAMES = ['Смирнова', 'Иванов', 'Кузнецова', 'Попов', 'Соколова', 'Лебедев', 'Козлова', 'Новиков', 'Морозова', 'Петров', 'Волкова', 'Соловьёв', 'Васильева', 'Зайцев', 'Павлова', 'Семёнов', 'Голубева', 'Виноградов', 'Богданова', 'Воробьёв'];
 
 let DATA = null;
-function data() {
+function demoData() {
   if (DATA) return DATA;
   let seed = 20261108;
   const rnd = () => { seed |= 0; seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
@@ -95,6 +95,17 @@ function data() {
 const now = new Date();
 let fsrc = 'all';
 let tab = 'all', mode = 'month', py = now.getFullYear(), pm = now.getMonth(), sel = {}, money = 'inc', open = '';
+// Настоящие записи из выездов (S.get().statsLog) добавляются к демо-данным
+function data() {
+  const base = demoData(), log = (S.get().statsLog || []);
+  if (!log.length) return base;
+  const orders = [], ops = [], lost = [];
+  log.forEach((x, i) => { const d = new Date(x.at);
+    if (x.kind === 'done') { const o = { no: x.no, d, client: x.client + ' · из выезда', src: x.src, brand: '', type: '', glue: '', rooms: [], m2: x.m2, rolls: x.rolls, days: 1, repeat: false, primer: '', primerL: 0, sum: x.sum, works: [['Работы по смете', x.sum]], travel: 60, wait: 0, measure: 45, workH: Math.max(1, Math.round(x.m2 / 5)), resp: 30, queue: 3, withMeas: true, waitD: 3, real: true };
+      orders.push(o); ops.push({ kind: 'inc', cat: 'Работы по смете', sum: x.sum, d, o }); }
+    else lost.push({ d, reason: x.reason || 'Отказ клиента', client: x.client + ' · из выезда', m2: x.m2, src: x.src, sum: x.sum, real: true }); });
+  return { orders: base.orders.concat(orders), ops: base.ops.concat(ops), lost: base.lost.concat(lost) };
+}
 const isCur = () => (mode === 'year' ? py === now.getFullYear() : py === now.getFullYear() && pm === now.getMonth());
 const minD = new Date(now.getFullYear() - 2, 0, 1);
 const canPrev = () => py > minD.getFullYear();
@@ -378,7 +389,7 @@ function effInner(A, B, LY, lyLbl, lyCol, tile, scope, mser, si, part) {
   const strip = `<div class="sd-ly3"><div class="sd-ly3__h">К прошлому году<small>${lyLbl}</small></div>${LY.leads ? `<div class="sd-ly3__g">${lyCol('Обращений', A.leads, LY.leads, P7[0])}${lyCol('Выполнено', A.n, LY.n, C.inc)}${lyCol('Слетело', A.lostN, LY.lostN, C.exp, true)}</div>` : '<small class="sd-ly__no">Год назад заявок не было</small>'}</div>`;
   const row = (key, col, name, val, cur, prev, inv, body) => { const on = fold.has(key);
     return `<div class="sd-mrow${on ? ' is-open' : ''}"><button type="button" class="sd-mrow__h" data-action="sd2-fold" data-k="${key}" aria-expanded="${on}"><i style="background:${col}"></i><span>${name}</span><b>${val}</b>${B.leads ? `<span class="sd-vs sd-vs--r">${dTag(delta(cur, prev), inv)}<small>${prevName()}</small></span>` : '<span></span>'}<i class="sd-f__ch">${CHEV}</i></button>${on ? `<div class="sd-f__full">${body()}</div>` : ''}</div>`; };
-  const lostOps = (f, k) => opsMore(k, A.L.filter(f).sort((a, b) => b.d - a.d).map((x) => opRow(x.d, x.client, x.reason, `~${x.m2} м²`)));
+  const lostOps = (f, k) => opsMore(k, A.L.filter(f).sort((a, b) => b.d - a.d).map((x) => opRow(x.d, x.client, x.reason, x.sum ? `${fmt(x.sum)} ₽` : `~${x.m2} м²`)));
   const rows = `<div class="sd-mrows">${row('e-done', C.inc, 'Выполнено', A.n, A.n, B.n, false, () => opsMore('e-dl', A.O.slice().sort((a, b) => b.d - a.d).map((o) => opRow(o.d, `№${o.no} · ${o.client}`, `ответ ${hm(o.resp)} · в дороге ${hm(o.travel)}`, `${o.m2} м²`))))}${row('e-lost', C.exp, 'Слетело', A.lostN, A.lostN, B.lostN, true, () => (reasons.length ? catList(reasons, '', (x) => `${Math.round((x.v / Math.max(1, A.lostN)) * 100)}% от слетевших`, (x) => lostOps((y) => 'lr:' + y.reason === x.key, 'lro:' + x.key)) : '<p class="sd-note">Ни одна заявка не слетела</p>'))}</div>`;
   // воронка продаж: на каком шаге слетают заявки
   const STG = [['Обращения', []], ['Согласование', ['Не дозвонились', 'Выбрали другого мастера']], ['Очередь', ['Отказ после замера', 'Не договорились по цене']], ['В работе', ['Перенесли ремонт']], ['Выполнено', []]];

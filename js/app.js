@@ -1,21 +1,21 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=427';
-import * as S from './store.js?v=427';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=427';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=427';
-import { renderSettlements } from './shared.js?v=427';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=427';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=427';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=427';
-import { renderOformit, onLiveOformit } from './oformit.js?v=427';
-import { onLiveZakaz } from './zakaz.js?v=427';
-import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=427';
-import { renderStatsMaster } from './stats.js?v=427';
-import { renderEvents } from './brand.js?v=427';
-import './kbd.js?v=427';
-import { renderSettingsFig } from './settings.js?v=427';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=427';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=428';
+import * as S from './store.js?v=428';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=428';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=428';
+import { renderSettlements } from './shared.js?v=428';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=428';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=428';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=428';
+import { renderOformit, onLiveOformit } from './oformit.js?v=428';
+import { onLiveZakaz } from './zakaz.js?v=428';
+import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=428';
+import { renderStatsMaster } from './stats.js?v=428';
+import { renderEvents } from './brand.js?v=428';
+import './kbd.js?v=428';
+import { renderSettingsFig } from './settings.js?v=428';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=428';
 
 const VERSION = 'прототип 1.0';
 
