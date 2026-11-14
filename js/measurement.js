@@ -1,11 +1,12 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=418';
-import * as S from './store.js?v=418';
-import {oformitDraft} from './oformit.js?v=418';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=418';
-import {esc} from './ui.js?v=418';
+import {actions,changes,rerender,afterRender} from './core.js?v=420';
+import * as S from './store.js?v=420';
+import {oformitDraft} from './oformit.js?v=420';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=420';
+import {esc} from './ui.js?v=420';
+import {tape,connect,say,sayLength} from './tape.js?v=420';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -217,8 +218,34 @@ export function renderMeasurement(d){
   const t=tabs(r,color);
   const body=(r.total?summary(r,color,s.view):card(w,r,t.edges)).replace('<div class="wallbody',`<div style="border-radius: ${t.radius}" class="wallbody`);
   const dlg=r.mwDialog==='new-opening'?openingForm(r,color):(r.mwDialog?listDialog(r,w,color):'');
-  return '<div class="mw-screen">'+bar+measurementSettings(er,r)+`<div class="mw" style="--rc: ${color}">${t.html}${body}</div></div>${dlg}`;
+  return '<div class="mw-screen">'+bar+measurementSettings(er,r)+tapeBar(r,w)+`<div class="mw" style="--rc: ${color}">${t.html}${body}</div></div>${dlg}`;
 }
+
+
+// ---------- цифровая рулетка (Bluetooth): подсказка и кнопки ----------
+const tapeTarget=(r,w)=>r.tapeAsk==='h'?'h':(r.tapeAsk==='len'||!w.len)?'len':null;
+function tapeBar(r,w){
+  if(!tape.supported)return '';
+  if(tape.status==='off')return `<div class="f-btn-row tp-row"><button type="button" class="f-btn" data-action="mw-tape-connect">Подключить рулетку</button></div>`;
+  if(tape.status==='connecting')return `<div class="f-btn-row tp-row"><button type="button" class="f-btn" disabled>Подключаю рулетку…</button></div>`;
+  const t=tapeTarget(r,w),lab=t==='len'?'Жду длину стены':t==='h'?'Жду высоту стены':'Стена готова';
+  return `<div class="f-btn-row tp-row"><button type="button" class="f-btn f-btn--lit" data-action="mw-tape-say">${lab}</button><button type="button" class="f-btn" data-action="mw-tape-voice" aria-pressed="${tape.voice}">${tape.voice?'Голос вкл':'Голос выкл'}</button><button type="button" class="f-btn" data-action="mw-tape-redo">Заново</button></div>`;
+}
+// Зафиксированный замер → в нужное поле активной стены, голосом сообщаем и называем следующий шаг
+tape.onFix=mm=>{
+  let d;try{d=oformitDraft();}catch(e){return;}
+  const s=state(d);if(!s.view||s.view==='pick'||s.view==='total')return;
+  const r=room(s,s.view);if(!r.walls.length||r.mwDialog)return;
+  r.active=Math.min(r.active||0,r.walls.length-1);const w=r.walls[r.active],t=tapeTarget(r,w);if(!t)return;
+  const v=Math.round(mm/10)/100;
+  if(t==='len'){w.len=v;if(!r.sameH){r.tapeAsk='h';say(`Длина ${sayLength(mm)}. Жду высоту стены`);}else{r.tapeAsk=null;say(`Длина ${sayLength(mm)}. Стена готова`);}}
+  else{w.h=v;r.tapeAsk=null;say(`Высота ${sayLength(mm)}. Стена готова`);}
+  save();
+};
+actions['mw-tape-connect']=()=>{connect().then(()=>{if(tape.status==='on'){const r=current();const w=r.walls[r.active||0];if(w&&tapeTarget(r,w)==='len')setTimeout(()=>say('Жду длину стены'),1200);}});};
+actions['mw-tape-voice']=()=>{tape.voice=!tape.voice;if(tape.voice)say('Голос включён');rerender();};
+actions['mw-tape-redo']=()=>{const r=current();r.tapeAsk='len';say('Жду длину стены');save();};
+actions['mw-tape-say']=()=>{const r=current(),w=r.walls[r.active||0],t=w?tapeTarget(r,w):null;say(t==='len'?'Жду длину стены':t==='h'?'Жду высоту стены':'Стена готова');};
 
 // ---------- полёт ярлыка: из кнопки в свою колонку ----------
 let fly=null;
@@ -248,7 +275,7 @@ actions['mw-pick']=()=>{const d=oformitDraft(),s=state(d),rs=estimateRooms(d);
 actions['mw-room']=el=>{state(oformitDraft()).view=el.dataset.key;save()};
 actions['mw-wall']=el=>{const r=current();r.active=+el.dataset.i;r.total=false;r.mwDialog=null;save()};
 actions['mw-delete-wall']=()=>{const r=current();r.walls.splice(r.active,1);r.active=Math.max(0,Math.min(r.active,r.walls.length-1));r.mwDialog=null;save()};
-actions['mw-add-wall']=()=>{const r=current();r.walls.push({len:0,h:r.h,opens:[],svcs:r.sameSvc?[...r.walls[r.active].svcs]:[]});r.active=r.walls.length-1;r.total=false;save()};
+actions['mw-add-wall']=()=>{const r=current();r.walls.push({len:0,h:r.h,opens:[],svcs:r.sameSvc?[...r.walls[r.active].svcs]:[]});r.active=r.walls.length-1;r.total=false;r.tapeAsk=tape.status==='on'?'len':null;if(tape.status==='on')say('Жду длину стены');save()};
 actions['mw-total']=()=>{current().total=true;save()};
 actions['mw-toggle']=el=>{const r=current(),k=el.dataset.key;r[k]=!r[k];if(k==='sameSvc'&&r[k]){r.walls[r.active].pick=[...r.walls[r.active].svcs];r.mwDialog='services';}if(k==='sameH'&&!r[k])r.walls.forEach(w=>w.h=r.h);save()};
 actions['mw-services']=()=>{const r=current();r.walls[r.active].pick=[...r.walls[r.active].svcs];r.mwDialog='services';save();window.scrollTo(0,0)};
