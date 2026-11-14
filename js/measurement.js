@@ -1,19 +1,19 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=433';
-import * as S from './store.js?v=433';
-import {oformitDraft} from './oformit.js?v=433';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=433';
-import {esc,toast} from './ui.js?v=433';
-import {tape,say,numKeys} from './tape.js?v=433';
+import {actions,changes,rerender,afterRender} from './core.js?v=434';
+import * as S from './store.js?v=434';
+import {oformitDraft} from './oformit.js?v=434';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=434';
+import {esc,toast,sheet,closeSheet} from './ui.js?v=434';
+import {tape,say,numKeys} from './tape.js?v=434';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
 const rub=x=>Math.round(x).toLocaleString('ru-RU')+' ₽';
 const parse=x=>Math.max(0,parseFloat(String(x).replace(',','.'))||0);
-const cm=m=>m?String(Math.round(m*100)):'';          // метры → сантиметры для поля
-const fromCm=v=>parse(v)/100;
+const cm=m=>m?String(Math.round(m*1000)/10).replace('.',','):'';          // метры → сантиметры для поля
+const fromCm=v=>Math.round(parse(v)*10)/1000;   // см с десятыми (до мм)
 const MAXL=50, MAXH=6;   // пределы ввода, м: стена до 50 м, высота до 6 м
 const okL=(m,max)=>{if(m>max){toast(`Слишком много: максимум ${max} м`);return false;}return true;};                        // сантиметры из поля → метры
 
@@ -291,7 +291,10 @@ actions['mw-pick']=()=>{const d=oformitDraft(),s=state(d),rs=estimateRooms(d);
   save();window.scrollTo(0,0)};
 actions['mw-room']=el=>{state(oformitDraft()).view=el.dataset.key;save()};
 actions['mw-wall']=el=>{const r=current();r.active=+el.dataset.i;r.total=false;r.mwDialog=null;save()};
-actions['mw-delete-wall']=()=>{const r=current();r.walls.splice(r.active,1);r.active=Math.max(0,Math.min(r.active,r.walls.length-1));r.mwDialog=null;save()};
+actions['mw-delete-wall']=()=>{const r=current(),w=r.walls[r.active];if(!w)return;
+  if(!(w.len>0)&&!(w.opens&&w.opens.length)){actions['mw-delete-wall-yes']();return;}
+  sheet({title:`Удалить стену ${r.active+1}?`,body:'<p>Длина и проёмы этой стены пропадут из замера.</p>',buttons:[{label:'Отмена',action:'sheet-close'},{label:'Удалить',action:'mw-delete-wall-yes',primary:true}]});};
+actions['mw-delete-wall-yes']=()=>{closeSheet();const r=current();if(!r.walls[r.active])return;r.walls.splice(r.active,1);r.active=Math.max(0,Math.min(r.active,r.walls.length-1));r.mwDialog=null;save()};
 actions['mw-add-wall']=()=>{const r=current();r.walls.push({len:0,h:r.h,opens:[],svcs:r.sameSvc?[...r.walls[r.active].svcs]:[]});r.active=r.walls.length-1;r.total=false;save()};
 actions['mw-total']=()=>{current().total=true;save()};
 actions['mw-toggle']=el=>{const r=current(),k=el.dataset.key;r[k]=!r[k];if(k==='sameSvc'&&r[k]){r.walls[r.active].pick=[...r.walls[r.active].svcs];r.mwDialog='services';}if(k==='sameH'&&!r[k])r.walls.forEach(w=>w.h=r.h);save()};

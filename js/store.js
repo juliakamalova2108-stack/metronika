@@ -1,27 +1,58 @@
 // Данные прототипа и все действия над ними. Хранятся только в этом браузере (localStorage).
 // Модель повторяет «Скелет системы»: заказ → звенья передачи → начисления; комнаты → стены → смета.
 
-import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=433';
-import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=433';
+import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=434';
+import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=434';
 
 const KEY = 'metronika-prototype-v2';
+export let loadNote = '';   // сообщение, если данные пришлось сбросить при запуске
 let state;
 state = load();
 
+// Защита от порчи данных: чиним всё, что можно, остальное — в резервную копию и чистое состояние.
+function isObj(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
+function sane(s) {
+  if (!isObj(s) || s.version !== 2) return false;
+  if (!Array.isArray(s.users) || !s.users.length || !s.users.every((u) => isObj(u) && u.id && Array.isArray(u.roles))) return false;
+  if (!isObj(s.session) || !isObj(s.session.pins)) return false;
+  if (!s.users.some((u) => u.id === s.session.userId)) s.session.userId = s.users[0].id;
+  const arr = (k) => { if (!Array.isArray(s[k])) s[k] = []; };
+  ['orders', 'events', 'credits', 'partnerships', 'reviews'].forEach(arr);
+  s.orders = s.orders.filter(isObj);
+  if (!isObj(s.oformit)) s.oformit = {};
+  Object.keys(s.oformit).forEach((k) => { if (!isObj(s.oformit[k])) delete s.oformit[k]; });
+  Object.values(s.oformit).forEach((d) => {
+    if (d.est !== undefined && !isObj(d.est)) delete d.est;
+    if (d.est) {
+      if (!Array.isArray(d.est.rooms)) d.est.rooms = [];
+      d.est.rooms = d.est.rooms.filter(isObj);
+      d.est.rooms.forEach((r) => { if (!Array.isArray(r.walls)) r.walls = []; r.walls = r.walls.filter(isObj); });
+    }
+    if (d.flow !== undefined && !isObj(d.flow)) delete d.flow;
+    if (d.cl !== undefined && !isObj(d.cl)) delete d.cl;
+  });
+  s.myOrders = (Array.isArray(s.myOrders) ? s.myOrders : []).filter((n) => typeof n === 'string' && s.oformit['ord-' + n]);
+  s.statsLog = (Array.isArray(s.statsLog) ? s.statsLog : []).filter((x) => isObj(x) && x.no && (x.kind === 'done' || x.kind === 'lost'));
+  return true;
+}
 function load() {
+  let raw = null;
   try {
-    const raw = localStorage.getItem(KEY);
+    raw = localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      if (s && s.version === 2 && Array.isArray(s.users) && s.session && typeof s.session === 'object' && s.session.pins) {
+      if (sane(s)) {
         // Демо-опыт мастеров с материалами добавляется и в уже сохранённые данные.
-        s.reviews = s.reviews || [];
         const have = new Set(s.reviews.map((r) => r.demo).filter(Boolean));
         DEMO_REVIEWS.filter((r) => !have.has(r.demo)).forEach((r) => s.reviews.unshift({ ...r, at: new Date(Date.now() + r.day * 864e5).toISOString() }));
         return s;
       }
+      throw new Error('bad-shape');
     }
-  } catch (e) { /* хранилище недоступно — работаем в памяти */ }
+  } catch (e) {
+    // Данные испорчены: копию бережно откладываем, работаем с чистого листа и говорим об этом.
+    if (raw) { try { localStorage.setItem(KEY + '-broken', raw); } catch (e2) { /* места нет — ладно */ } loadNote = 'Сохранённые данные были повреждены — начали с чистого листа. Копия сохранена.'; }
+  }
   return freshState();
 }
 
@@ -44,8 +75,17 @@ function isoStamp(dayOffset, hh) {
   return new Date(`${isoDay(dayOffset)}T${String(hh).padStart(2, '0')}:00:00`).toISOString();
 }
 
+let saveFailed = false;
 export function save() {
-  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* без сохранения */ }
+  try { localStorage.setItem(KEY, JSON.stringify(state)); saveFailed = false; }
+  catch (e) {
+    // Память браузера заполнена или закрыта: один раз сообщаем, чтобы правки не терялись молча.
+    if (!saveFailed) { saveFailed = true; try { window.dispatchEvent(new CustomEvent('metronika-save-fail')); } catch (e2) { /* нет окна */ } }
+  }
+}
+// Другая вкладка изменила данные — подхватываем их, а не затираем своими старыми.
+export function reloadFromStorage() {
+  try { const raw = localStorage.getItem(KEY); if (!raw) return false; const s = JSON.parse(raw); if (!sane(s)) return false; state = s; return true; } catch (e) { return false; }
 }
 export function resetDemo() { state = freshState(); save(); }
 export const get = () => state;

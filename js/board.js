@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=433';
-import * as S from './store.js?v=433';
-import { renderOformit, oformitDraft } from './oformit.js?v=433';
-import { roomTotals, svcInfo } from './ocenka.js?v=433';
-import { smetaTotals } from './zakaz.js?v=433';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=433';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=433';
-import { esc, toast, status, seg } from './ui.js?v=433';
-import { topbar, ORDER_STATUS } from './shared.js?v=433';
+import { actions, rerender, go } from './core.js?v=434';
+import * as S from './store.js?v=434';
+import { renderOformit, oformitDraft } from './oformit.js?v=434';
+import { roomTotals, svcInfo } from './ocenka.js?v=434';
+import { smetaTotals } from './zakaz.js?v=434';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=434';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=434';
+import { esc, toast, status, seg } from './ui.js?v=434';
+import { topbar, ORDER_STATUS } from './shared.js?v=434';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -74,20 +74,26 @@ export function renderBoard() {
   const q = query.trim().toLowerCase();
   Object.keys(DEMO).forEach(seedOrder);
   const stOf = (no) => flowOf(no).st;
-  let rows = QUEUE.filter(([, k]) => !k || stOf(R[k].c.no) === stage);
-  if (stage !== 'queue') rows = rows.filter(([, k]) => k);
+  // Поиск идёт по всем этапам; слова в любом порядке; телефон — с 8, +7 или без форматирования.
+  const qd = q.replace(/\D/g, ''), toks = q.split(/\s+/).filter(Boolean);
+  const hit = (arr) => { if (!q) return true; const t = arr.filter(Boolean).join(' ').toLowerCase(), td = t.replace(/\D/g, ''); const qd2 = qd.replace(/^[78]/, ''); return toks.every((w) => t.includes(w)) || (qd.length >= 3 && (td.includes(qd) || (qd2.length >= 3 && td.includes(qd2)))); };
+  const once = (arr) => { const seen = new Set(); return arr.filter(([, k]) => { if (!k) return true; const no = R[k].c.no; if (seen.has(no)) return false; seen.add(no); return true; }); };
+  let rows = q ? once(QUEUE.filter(([, k]) => k)) : QUEUE.filter(([, k]) => !k || stOf(R[k].c.no) === stage);
+  if (stage !== 'queue' || q) rows = rows.filter(([, k]) => k);
+  if (!q && stage !== 'queue' && stage !== 'work') rows = once(rows);   // «Выполнено», «Отказ», «Замер» — одна карточка на заказ, а не по плановым дням
   const listed = new Set(rows.filter(([, k]) => k).map(([, k]) => R[k].c.no));
-  const extra = [...Object.keys(DEMO), ...MY()].filter((no) => stOf(no) === stage && !listed.has(no) || (stage === 'done' && ['closed'].includes(stOf(no))));
-  if (q) rows = rows.filter(([, k]) => k && [R[k].c.n, R[k].c.a, R[k].c.ph, R[k].c.no].join(' ').toLowerCase().includes(q));
+  const extra = [...Object.keys(DEMO), ...MY()].filter((no) => !listed.has(no) && (q || stOf(no) === stage || (stage === 'done' && stOf(no) === 'closed')));
+  if (q) rows = rows.filter(([, k]) => k && hit([R[k].c.n, R[k].c.a, R[k].c.ph, R[k].c.no]));
   const xcards = extra.map((no) => { const d = S.get().oformit['ord-' + no], f = flowOf(no), cl = d.cl || {}, c = CL[no] || { n: cl.name || 'Клиент', a: [cl.street, cl.house && 'д. ' + cl.house, cl.flat && 'кв. ' + cl.flat].filter(Boolean).join(', ') };
+    if (q && !hit([c.n, c.a, cl.phone, CL[no] && CL[no].ph, no])) return '';
     const mOff = d.sched && d.sched.measure ? Math.round((new Date(d.sched.measure + 'T12:00:00') - dayOf(0)) / 864e5) : 0;
     const off = f.st === 'measure' ? (DEMO[no] && DEMO[no].meas != null ? DEMO[no].meas : mOff) : f.st === 'approval' ? (f.call || 1) : 0;
-    const sum = ((d.est && d.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0);
+    const sum = orderSum(d, f);
     return `<div class="bd-slot">${leaf(dayOf(off), off === 0, f.st === 'measure' ? `${esc(d.cl.hour)}:${esc(d.cl.min)}` : '')}<button type="button" class="bd-card" data-action="bd-open" data-no="${no}">
       <span class="bd-top"><span class="bd-who"><b>${esc(c.n)}</b><small>${esc(c.a)}</small></span><span class="bd-sum"><b>${sum ? fmt(sum) + ' ₽' : '—'}</b><small>№${no}</small></span></span>
       <span class="bd-foot"><span class="bd-room" style="--c:#7ee2a3">${FL_NAME[f.st]}<small>${f.st === 'measure' ? (mOff < 0 ? `замер просрочен на ${-mOff} дн.` : 'выезд на замер') : f.st === 'approval' ? 'перезвонить' : f.st === 'closed' ? 'завершён' : ''}</small></span></span></button></div>`; }).join('');
   const body = rows.length || xcards ? xcards + rows.map(([off, k, n, t]) => card(off, k, n, t)).join('')
-    : `<p class="bd-empty">${q ? 'Ничего не нашлось' : 'В этом этапе пока пусто'}</p>`;
+    : `<p class="bd-empty">${q ? 'Ничего не нашлось' : (STAGE_HELP[stage] || 'В этом этапе пока пусто')}</p>`;
   const tabs = STAGES.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === stage}" class="f-tab${k === stage ? ' is-active' : ''}" data-action="bd-stage" data-stage="${k}">${t}</button>`).join('');
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     <label class="f-input bd-search">${SEARCH}<input id="bd-q" type="search" placeholder="Телефон, имя или адрес…" value="${esc(query)}" data-live="bd-q"/></label>
@@ -152,7 +158,8 @@ const RT = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12
 const CHEV = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const MONG = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const openRooms = new Set();
-const edit = (no, t) => `<button type="button" class="bd-edit" data-action="bd-edit" data-no="${no}" data-tab="${t}">Изменить</button>`;
+const locked = (no, t) => { const st = flowOf(no).st; return st === 'closed' || st === 'refused' || (st === 'done' && t !== 'finance' && t !== 'chat'); };
+const edit = (no, t) => locked(no, t) ? '' : `<button type="button" class="bd-edit" data-action="bd-edit" data-no="${no}" data-tab="${t}">Изменить</button>`;
 const block = (title, no, t, body) => `<section class="f-plate bd-block"><div class="bd-block__hd"><span>${title}</span>${t ? edit(no, t) : ''}</div>${body}</section>`;
 // Дни работ: комнаты подряд с даты начала, остаток дня продолжает следующая комната (как в «Графике»).
 function workDays(d) {
@@ -170,8 +177,20 @@ function workDays(d) {
   return Object.keys(byDate).sort().map((k) => ({ date: new Date(k + 'T12:00:00'), parts: byDate[k] }));
 }
 // ── Путь заказа: на каждом этапе в карточке — блок «Сейчас» с одним следующим шагом ──
+// Одна сумма заказа везде: по смете (если замер сделан; отказные комнаты не считаются; со скидкой), иначе по оценке.
+export function orderSum(d, f) {
+  const est = ((d && d.est && d.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0);
+  let smt = null; try { smt = d && d.sm ? smetaTotals(d) : null; } catch (e) { smt = null; }
+  if (!(smt && smt.total > 0)) return est;
+  const rs = (f && f.rs) || {};
+  return Math.round(smt.rooms.filter((x) => (rs[x.room.key] || {}).st !== 'refuse').reduce((a, x) => a + x.total, 0) * (1 - ((d && d.disc) || 0) / 100));
+}
+const STAGE_HELP = { measure: 'Пока пусто. Сюда попадают заказы, по которым нужен замер: оформите замер во вкладке «Оформить».', approval: 'Пока пусто. Сюда попадают заказы после замера, если клиент «Подумает»: тут напомним перезвонить.', queue: 'Пока пусто. Сюда попадают согласованные заказы с назначенными датами работ.', work: 'Пока пусто. Сюда попадают заказы, которые вы начали.', done: 'Пока пусто. Сюда попадают заказы, где работы выполнены и осталась оплата.', refused: 'Пока пусто. Сюда попадают заказы, от которых клиент отказался.' };
 const FL_NAME = { measure: 'Замер', approval: 'Согласование', queue: 'Очередь', work: 'В работе', done: 'Выполнено', closed: 'Заказ завершён', refused: 'Отказ' };
 const MY = () => S.get().myOrders || [];
+// Допустимые переходы заказа: назад в прошлое или из «Выполнено» в «Очередь» — нельзя.
+const FL_NEXT = { measure: ['approval', 'queue', 'refused'], approval: ['queue', 'refused'], queue: ['work', 'refused'], work: ['done', 'refused'], done: ['closed'], closed: [], refused: ['measure', 'approval', 'queue', 'work'] };
+const canGo = (from, to) => from === to || (FL_NEXT[from] || []).includes(to);
 const FL_START = { '004': 'queue', '007': 'work', '011': 'queue', '014': 'queue', '015': 'measure', '016': 'measure' };
 let flAsk = '';
 export const setFlAsk = (v) => { flAsk = v; };
@@ -201,7 +220,7 @@ function flowBlock(no, d, tot, days) {
   if (flAsk === no + ':result') { body = ln('Что решил клиент?'); btns = fb('Согласен', A('fl-to', 'queue+plan'), ' f-btn--lit') + fb('Подумает', A('fl-ask', 'call')) + fb('Отказ', A('fl-ask', 'refuse')); }
   else if (flAsk === no + ':call') { body = ln('Когда перезвонить?', 'Задача «Позвонить клиенту» появится сама и напомнит') + chips([['1', 'Завтра'], ['3', 'Через 3 дня'], ['7', 'Через неделю']], 'fl-call'); btns = fb('Назад', A('fl-ask', '')); }
   else if (flAsk === no + ':refuse') { body = ln('Причина отказа') + chips([['Дорого', 'Дорого'], ['Сроки', 'Сроки'], ['Передумал', 'Передумал'], ['Неизвестно', 'Неизвестно']], 'fl-refuse'); btns = fb('Назад', A('fl-ask', '')); }
-  else if (flAsk === no + ':menu') { body = ln('Действия с заказом'); btns = fb('Перенести', `data-action="bd-edit" data-no="${no}" data-tab="schedule"`) + fb('Изменить', A('fl-ask', '')) + fb('Отменить заказ', A('fl-ask', 'refuse')); }
+  else if (flAsk === no + ':menu') { body = ln('Действия с заказом'); btns = fb('Перенести', `data-action="bd-edit" data-no="${no}" data-tab="schedule"`) + fb('Изменить', A('fl-ask', '')) + fb('Отказ клиента', A('fl-ask', 'refuse')); }
   else if (f.st === 'measure') {
     body = ln(`Замер ${mtxt}`, f.going ? 'Вы в пути' : 'Накануне придёт напоминание');
     const vis = f.visit && f.visit.step ? `Продолжить выезд · шаг ${f.visit.step + 1}` : 'Начать выезд на замер';
@@ -232,7 +251,7 @@ function flowBlock(no, d, tot, days) {
   else if (f.st === 'refused') { body = ln('Отказ клиента', f.reason ? `Причина: ${esc(f.reason)}` : ''); btns = fb('Вернуть в работу', A('fl-to', FL_START[no] || 'queue')); }
   const steps = ['measure', 'approval', 'queue', 'work', 'done'], ci = steps.indexOf(f.st === 'closed' ? 'done' : f.st);
   const bar = `<div class="bd-flbar">${steps.map((k, j) => `<i class="${j < ci || f.st === 'closed' ? 'past' : j === ci ? 'on' : ''}"></i>`).join('')}</div>`;
-  const menu = ['closed', 'refused'].includes(f.st) || flAsk.startsWith(no + ':') ? '' : `<button type="button" class="bd-edit" ${A('fl-ask', 'menu')}>Ещё</button>`;
+  const menu = ['done', 'closed', 'refused'].includes(f.st) || flAsk.startsWith(no + ':') ? '' : `<button type="button" class="bd-edit" ${A('fl-ask', 'menu')}>Ещё</button>`;
   return `<section class="f-plate bd-block bd-flow"><div class="bd-block__hd"><span>Сейчас · ${FL_NAME[f.st]}</span>${menu}</div>${bar}${body}${btns ? `<div class="f-btn-row bd-flbtns">${btns}</div>` : ''}</section>`;
 }
 // ── Режим выезда: пошагово, на весь экран, «Назад» / «Дальше» внизу.
@@ -244,7 +263,7 @@ const VS_TABS = [['material', 'Материал'], ['smeta', 'Смета'], ['fi
 // Какой готовый экран открыт на шаге: замер — «Замер»; работа — выбранная комната, вкладка Материал / Смета / Деньги
 const vsScr = (v) => { const nm = vsSteps(v.kind)[v.step]; if (v.kind === 'measure') return nm === 'Замер' ? 'smeta' : ''; return nm === 'Комната' ? (v.tab || 'material') : ''; };
 const vsSteps = (k) => (k === 'measure' ? VS_MEAS : VS_WORK);
-function vsGo(no, step) { const f = flowOf(no), v = f.visit; v.step = step; S.save(); if (v.kind === 'work' && step === 3) { if (!v.tab) v.tab = 'material'; vsPickRoom(no, v.room || firstRoom(no)); } const scr = vsScr(v); window.scrollTo(0, 0); go(scr ? `bd-edit-${no}-${scr}` : `bd-visit-${no}`); }
+function vsGo(no, step) { const f = flowOf(no), v = f.visit; v.step = step; S.save(); if (v.kind === 'work' && step === 3) { if (!v.tab) v.tab = 'material'; vsPickRoom(no, v.room || firstRoom(no)); } const scr = vsScr(v); window.scrollTo(0, 0); go(scr ? `bd-edit-${no}-${scr}` : `bd-visit-${no}-${step}`); }
 // «Дальше» в нижней панели готового экрана, когда идёт выезд
 export function vsNextBtn(no, t) { const f = flowOf(no), v = f.visit; if (!v || !v.open) return ''; const scr = vsScr(v); if (scr !== t || v.kind === 'work') return '';   // в комнатах переходят вкладками сверху, «Дальше» не нужно
   const ok = vsExpOk(no, t); return `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn${ok ? ' f-btn--lit' : ' is-off'}" data-action="vs-next" data-no="${no}">Дальше</button></div>`; }
@@ -253,7 +272,7 @@ function vsPickRoom(no, key) { const d = S.get().oformit['ord-' + no], v = flowO
 const PLUS_NAV = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="#edf0e7" stroke-width="2" stroke-linecap="round"/></svg>';
 const plusBtn = (no) => `<button type="button" class="f-icon-btn bd-back" data-action="vs-plus" data-no="${no}" aria-label="Добавить комнату">${PLUS_NAV}</button>`;
 // Верх экрана комнаты: узкая строка «Информация по заказу» — открывает то же окно, что было во вкладке «Инфо» (клиент, оценка, план, источник, с «Изменить»); справа чат
-const clientBlk = (no, c, addr) => block('Клиент', no, 'client', `<div class="bd-clname"><b>${esc(c.name || '')}</b><small>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</small></div><div class="bd-cl"><div><b>${esc(c.phone || '')}</b><small>${esc(addr)}${c.entrance ? ` · подъезд ${esc(c.entrance)}` : ''}${c.floor ? ` · этаж ${esc(c.floor)}` : ''}</small><small>Приезд <em>с ${esc(c.hour || '—')}:${esc(c.min || '00')}</em></small></div>
+const clientBlk = (no, c, addr) => block('Клиент', no, 'client', `<div class="bd-clname"><b>${esc(c.name || '')}</b><small>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</small></div><div class="bd-cl"><div><b>${esc(c.phone || '')}</b><small>${esc(addr)}${c.entrance ? ` · подъезд ${esc(c.entrance)}` : ''}${c.floor ? ` · этаж ${esc(c.floor)}` : ''}</small><small>Приезд <em>${c.hour ? `с ${esc(c.hour)}:${esc(c.min || '00')}` : 'время не указано'}</em></small></div>
     <span class="bd-cl__ic"><a class="f-icon-btn" href="tel:${esc((c.phone || '').replace(/[^+\d]/g, ''))}" aria-label="Позвонить">${PH}</a><a class="f-icon-btn" href="https://yandex.ru/maps/?text=${encodeURIComponent(addr)}" target="_blank" rel="noopener" aria-label="Маршрут">${RT}</a></span></div>${c.comment ? `<p class="bd-note">${esc(c.comment)}</p>` : ''}`);
 const visitHero = (no, kind, c, addr, rooms, label, attrs) => { const r0 = rooms[0], tag = kind === 'measure' ? `<span class="h-hero__no h-tag h-tag--meas">Замер №${no}</span>` : `<span class="h-hero__no h-tag h-tag--order">Заказ №${no}</span>`;
   const job = kind !== 'measure' && r0 ? `<div class="h-hero__job"><span class="h-room"><i></i>${esc(r0.name)}<small>${esc(r0.floor || '')} этаж</small></span></div>` : '';
@@ -278,21 +297,31 @@ function roomPlate(no, v, html) { const f = flowOf(no), d0 = S.get().oformit['or
   const row = rr ? chips([['Обои не подошли', 'Обои не подошли'], ['Клиент передумал', 'Клиент передумал'], ['Не сошлись по цене', 'Не сошлись по цене'], ['Другое', 'Другое']], 'vs-rrefuse')
     : ask ? `<div class="z-seg bd-vseg">${[['work', 'В работе'], ['done', 'Готово'], ['refuse', 'Отказ']].map(([a, t]) => `<button type="button" class="f-btn${st === a ? ' f-btn--lit' : ''}" data-action="vs-rst" data-no="${no}" data-k="${a}">${t}</button>`).join('')}</div>`
     : st === 'start' ? `<div class="f-btn-row bd-vseg"><button type="button" class="f-btn f-btn--lit" data-action="vs-rgo" data-no="${no}">Начать</button></div>` : roomSeg(no, v);
+  const need = st === 'work' ? roomMissing(no, k) : '', hintHtml = need ? `<p class="bd-line"><small>Чтобы закончить комнату: ${need}</small></p>` : '';
   if (st === 'start') html = html.replace('class="f-plate o-rplate', 'class="f-plate o-rplate bd-rstart');
-  const out = html.replace(/(<div class="o-rhead">[\s\S]*?<\/small><\/span>(?:<span class="o-rhead__b"><span><\/span><\/span>)?)<\/div>/, `$1<span class="bd-rst">${chip}</span></div><div class="bd-rrow">${row}</div>`)
-  return out !== html ? out : `<section class="f-plate o-rplate bd-rfb"><div class="bd-rfb__h"><b>${esc(((((d0.est || {}).rooms) || []).find((r) => r.key === k) || {}).name || 'Комната')}</b><span class="bd-rst">${chip}</span></div><div class="bd-rrow">${row}</div></section>` + html; }
+  const out = html.replace(/(<div class="o-rhead">[\s\S]*?<\/small><\/span>(?:<span class="o-rhead__b"><span><\/span><\/span>)?)<\/div>/, `$1<span class="bd-rst">${chip}</span></div><div class="bd-rrow">${row}</div>${hintHtml}`)
+  return out !== html ? out : `<section class="f-plate o-rplate bd-rfb"><div class="bd-rfb__h"><b>${esc(((((d0.est || {}).rooms) || []).find((r) => r.key === k) || {}).name || 'Комната')}</b><span class="bd-rst">${chip}</span></div><div class="bd-rrow">${row}</div>${hintHtml}</section>` + html; }
+// Чего не хватает, чтобы закрыть комнату: подсказка прямо на экране, а не только всплывающим сообщением.
+function roomMissing(no, k) { const d = S.get().oformit['ord-' + no], mr = ((d && d.mat && d.mat.rooms) || {})[k], items = (mr && mr.items) || [];
+  if (!items.length) return 'добавьте материал (отсканируйте штрихкод)';
+  if (items.some((i) => !(Number(i.rolls) > 0))) return 'укажите количество рулонов';
+  if (!items.every((i) => S.reviewsOf(i.code).some((x) => x.authorId === S.me().id))) return 'нажмите «Мой опыт» у материала';
+  return ''; }
 // «Материал» нельзя пропустить: нужен хотя бы один материал и опыт мастера по каждому
-function vsExpMsg(no, t) { if (t === 'smeta') { const d0 = S.get().oformit['ord-' + no], v0 = flowOf(no).visit; return v0 && v0.kind === 'measure' && d0 && !(smetaTotals(d0).total > 0) ? 'Сначала выполните замер стен — смета пока пустая' : ''; } if (t !== 'material') return ''; const d = S.get().oformit['ord-' + no]; const rk = (flowOf(no).visit || {}).room; const mr = (d && d.mat && d.mat.rooms) || {}; const codes = [...new Set((rk ? [mr[rk]] : Object.values(mr)).filter(Boolean).flatMap((r) => (r.items || []).map((i) => i.code)))];
+function vsExpMsg(no, t) { if (t === 'smeta') { const d0 = S.get().oformit['ord-' + no], v0 = flowOf(no).visit; if (!(v0 && v0.kind === 'measure' && d0)) return ''; const t0 = smetaTotals(d0); if (!(t0.total > 0)) return 'Сначала измерьте стены: длина и высота каждой стены'; const emp = t0.rooms.filter((x) => !(x.total > 0)); return emp.length ? `Не замерена комната «${emp[0].room.name}» — измерьте её стены` : ''; } if (t !== 'material') return ''; const d = S.get().oformit['ord-' + no]; const rk = (flowOf(no).visit || {}).room; const mr = (d && d.mat && d.mat.rooms) || {}; const codes = [...new Set((rk ? [mr[rk]] : Object.values(mr)).filter(Boolean).flatMap((r) => (r.items || []).map((i) => i.code)))];
   if (!codes.length) return 'Добавьте материал комнаты — отсканируйте штрихкод';
   return codes.every((c) => S.reviewsOf(c).some((v) => v.authorId === S.me().id)) ? '' : 'Поделитесь опытом работы с материалом — кнопка «Мой опыт»'; }
 const vsExpOk = (no, t) => !vsExpMsg(no, t);
-export function renderVisit(no) {
+export function renderVisit(arg) {
+  const [no, sx] = String(arg).split('-');   // «014» или «014-2»: номер шага в адресе — чтобы «Назад» шёл на прошлый шаг
   if (!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) return null;
   if (DEMO[no]) seedOrder(no);
   S.setDraftKey('ord-' + no);
+  if (['done', 'closed', 'refused', 'approval'].includes(flowOf(no).st)) { history.replaceState(null, '', '#bd-order-' + no); return renderBoardOrder(no); }   // выезд на закрытый заказ не начинаем
   const d = oformitDraft(), f = flowOf(no), kind = f.st === 'measure' ? 'measure' : 'work';
   if (!f.visit || f.visit.kind !== kind) f.visit = { kind, step: 0, keep: {}, photos: {}, disc: 0, today: {} };
   const v = f.visit; v.open = 1;
+  if (sx !== undefined && Number.isFinite(+sx) && v.kind === kind) v.step = Math.max(0, Math.min(4, +sx));
   const STEPS = kind === 'measure' ? VS_MEAS : VS_WORK;
   const c = d.cl || {}, rooms = (d.est && d.est.rooms) || [];
   const addr = [c.street, c.house && 'д. ' + c.house, c.flat && 'кв. ' + c.flat].filter(Boolean).join(', ');
@@ -337,9 +366,10 @@ export function renderVisit(no) {
   else if (name === 'Итог смены') { can = false; const last = !wd.length || di >= wd.length - 1; f.rs = f.rs || {}; const rk = v.room || firstRoom(no), cur = rooms.find((r) => r.key === rk), all = rooms.length > 0 && rooms.every((r) => f.rs[r.key]);
     const list = rooms.map((r) => { const x = f.rs[r.key]; return tg(!!x && x.st === 'done', r.name, x ? (x.st === 'done' ? 'готово' : `отказ · ${x.reason}`) : `${r.floor} этаж · в работе`, A('vs-room', r.key)); }).join('') || '<p class="bd-line"><small>Комнат пока нет — добавьте на экране «Материал»</small></p>';
     const dec = !cur ? '' : flAsk === no + ':rrefuse' ? block(`${esc(cur.name)} — причина отказа`, no, '', chips([['Обои не подошли', 'Обои не подошли'], ['Клиент передумал', 'Клиент передумал'], ['Не сошлись по цене', 'Не сошлись по цене'], ['Другое', 'Другое']], 'vs-rrefuse'))
+      : f.rs[cur.key] ? block(`${esc(cur.name)} — итог комнаты`, no, '', ln(f.rs[cur.key].st === 'done' ? 'Комната готова' : 'Комната отказана', 'Изменить статус — по значку у названия комнаты'))
       : block(`${esc(cur.name)} — итог комнаты`, no, '', `<div class="f-btn-row bd-flbtns">${fb('Комната готова', A('vs-rdone'), ' f-btn--lit')}${fb('Отказ', A('fl-ask', 'rrefuse'))}</div>`);
     body = block(`Итог смены · ${dayTxt}`, no, '', list) + dec
-      + (v.dl ? `<div class="f-btn-row bd-flbtns">${all ? '' : fb('Закрыть смену', A('vs-endshift'))}${all ? fb('Завершить заказ', A('vs-alldone'), ' f-btn--lit') : ''}</div>` : big('Скачать смету', A('vs-dl'))); }
+      + `<div class="f-btn-row bd-flbtns">${all ? '' : fb('Закрыть смену', A('vs-endshift'))}${all ? fb('Завершить заказ', A('vs-alldone'), ' f-btn--lit') : ''}</div>` + big(v.dl ? 'Смета скачана · скачать ещё раз' : 'Скачать смету', A('vs-dl')); }
   const head = hb ? visitHero(no, kind, c, addr, rooms, hb[0], hb[1]) : '';
   S.save();
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${v.step >= 3 ? '' : orderTop(no)}${head}${body}
@@ -385,7 +415,7 @@ function logStat(no, kind, reason) {
   let smt = null; try { smt = d0.sm ? smetaTotals(d0) : null; } catch (e) { smt = null; }
   const est = ((d0.est && d0.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0);
   const rs = f.rs || {}, ok = smt ? smt.rooms.filter((x) => (rs[x.room.key] || {}).st !== 'refuse') : [];
-  const paste = (smt ? smt.lines : []).filter((l) => l.id === 'paste').reduce((a, l) => a + l.qty, 0);
+  const paste = (smt ? smt.lines : []).filter((l) => /^paste/.test(l.id)).reduce((a, l) => a + l.qty, 0);
   const rolls = Object.values((d0.mat && d0.mat.rooms) || {}).reduce((a, r) => a + ((r.items || []).reduce((b, i) => b + (Number(i.rolls) || 0), 0)), 0);
   const rec = { no, kind, at: new Date().toISOString(), client: cl.name || 'Клиент', src: cl.src || '', reason: reason || '',
     sum: Math.round((kind === 'done' ? ok.reduce((a, x) => a + x.total, 0) : (smt && smt.total) || est) * k), m2: Math.round(paste) || 0, rolls, rooms: ok.length };
@@ -393,29 +423,42 @@ function logStat(no, kind, reason) {
   const L = S.get().statsLog = (S.get().statsLog || []).filter((x) => !(x.no === no && (x.kind === 'done' || x.kind === 'lost') && kind !== 'x')); L.push(rec);
   return rec.kind === 'lost' && kind === 'done';
 }
-const vsEnd = (no, st, extra) => { const f = flowOf(no); let allRef = false; if (st === 'done' || st === 'refused') allRef = logStat(no, st === 'done' ? 'done' : 'lost', extra && extra.reason); if (allRef) { st = 'refused'; extra = { reason: 'Все комнаты отказаны' }; } if (f.visit && f.visit.kind === 'measure') { const d0 = S.get().oformit['ord-' + no]; if (d0) d0.disc = f.visit.disc || 0; } f.visit = null; f.st = st; Object.assign(f, extra || {}); flAsk = ''; S.save(); };
-actions['vs-yes'] = (el) => { const no = el.dataset.no; const d0 = S.get().oformit['ord-' + no]; if (d0) { d0.sched = d0.sched || {}; d0.sched.mode = 'work'; } vsEnd(no, 'queue'); toast('Клиент согласен — выберите даты работ'); go('bd-edit-' + no + '-schedule'); };
+const canClose = (no) => { const d0 = S.get().oformit['ord-' + no]; let t = null; try { t = d0 && d0.sm ? smetaTotals(d0) : null; } catch (e) { t = null; } return !!(t && t.total > 0); };
+// Задача «Позвонить клиенту» живёт в самом заказе (вкладка «Задачи», главная) и исчезает, когда клиент решил.
+const dueTxt = (v) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v || ''); return m ? `${Number(m[3])} ${MONG[Number(m[2]) - 1]}` : String(v || ''); };
+function setCallTask(no, days) { const d = S.get().oformit['ord-' + no]; if (!d) return; d.tasks = (d.tasks || []).filter((t) => t.id !== 'call-' + no); if (days) d.tasks.push({ id: 'call-' + no, text: 'Позвонить клиенту: ' + ((d.cl || {}).name || 'клиент'), who: 'me', due: iso(days), done: false }); }
+const vsEnd = (no, st, extra) => { const f = flowOf(no); if (!canGo(f.st, st)) { toast('Так сменить статус нельзя'); return false; } if (st === 'done' && !canClose(no)) { toast('Нельзя завершить: нет замера и сметы'); return false; } let allRef = false; if (st === 'done' || st === 'refused') allRef = logStat(no, st === 'done' ? 'done' : 'lost', extra && extra.reason); if (allRef) { st = 'refused'; extra = { reason: 'Все комнаты отказаны' }; } if (f.visit && f.visit.kind === 'measure') { const d0 = S.get().oformit['ord-' + no]; if (d0) d0.disc = f.visit.disc || 0; } f.visit = null; f.st = st; Object.assign(f, extra || {}); setCallTask(no, st === 'approval' ? (f.call || 3) : 0); flAsk = ''; S.save(); return true; };
+// Клиент согласен: если даты работ уже стоят — идём к заказу, иначе открываем график сразу в режиме правки (с кнопкой «ОК»).
+function afterYes(no) { const d0 = S.get().oformit['ord-' + no]; const placed = d0 && d0.sched && d0.sched.place && Object.keys(d0.sched.place).length;
+  if (placed) { toast('Клиент согласен — даты работ уже назначены'); return go('bd-order-' + no); }
+  toast('Клиент согласен — выберите даты работ'); startEdit = 'schedule'; go('bd-edit-' + no + '-schedule'); }
+actions['vs-yes'] = (el) => { const no = el.dataset.no; const d0 = S.get().oformit['ord-' + no]; if (d0) { d0.sched = d0.sched || {}; d0.sched.mode = 'work'; } if (vsEnd(no, 'queue') === false) return; afterYes(no); };
 actions['vs-call'] = (el) => { const no = noOfHash(); vsEnd(no, 'approval', { call: +el.dataset.k || 3 }); toast('Задача «Позвонить клиенту» создана'); go('bd-order-' + no); };
 actions['vs-refuse'] = (el) => { const no = noOfHash(); vsEnd(no, 'refused', { reason: el.dataset.k }); toast('Заказ закрыт как отказ'); go('bd-order-' + no); };
-actions['vs-endshift'] = (el) => { const no = el.dataset.no, f = flowOf(no); f.day = (f.day || 1) + 1; f.shift = {}; f.visit = null; f.st = 'work'; S.save(); toast('Смена закрыта — до завтра'); go('home'); };
+actions['vs-endshift'] = (el) => { const no = el.dataset.no, f = flowOf(no); if (f.st !== 'work') return; f.day = (f.day || 1) + 1; f.shift = {}; f.visit = null; f.st = 'work'; S.save(); toast('Смена закрыта — до завтра'); go('home'); };
 actions['vs-dl'] = (el) => { const no = el.dataset.no, f = flowOf(no), d = S.get().oformit['ord-' + no]; const t = d && d.sm ? smetaTotals(d) : null;
   const txt = `Смета · заказ №${no}\n` + (t ? t.rooms.map((x) => `${x.room.name}: ${fmt(x.total)} ₽`).join('\n') + `\nИтого: ${fmt(t.total)} ₽\n` : '');
   try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' })); a.download = `Смета-${no}.txt`; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { /* не страшно */ }
   f.visit.dl = 1; if (d) d.smSent = 1; S.save(); toast('Смета скачана — отправьте клиенту'); rerender(); };
-actions['vs-alldone'] = (el) => { const no = el.dataset.no; vsEnd(no, 'done'); toast('Работы выполнены — итог и оплата'); go('bd-order-' + no); };
+actions['vs-alldone'] = (el) => { const no = el.dataset.no; if (vsEnd(no, 'done') === false) return; toast(flowOf(no).st === 'refused' ? 'Все комнаты отказаны — заказ закрыт как отказ' : 'Работы выполнены — итог и оплата'); go('bd-order-' + no); };
 const flSet = (el, fn) => { const no = el.dataset.no; fn(flowOf(no), S.get().oformit['ord-' + no]); S.save(); rerender(); };
-actions['fl-startwork'] = (el) => { const f = flowOf(el.dataset.no); f.st = 'work'; f.day = 1; f.shift = {}; f.visit = null; S.save(); go('bd-visit-' + el.dataset.no); };
+actions['fl-startwork'] = (el) => { const f = flowOf(el.dataset.no); if (!canGo(f.st, 'work')) return toast('Так сменить статус нельзя');
+  if (f.st === 'queue') { const d0 = S.get().oformit['ord-' + el.dataset.no], paid0 = d0 && d0.fin ? d0.fin.pays.reduce((a, x) => a + x.amount, 0) : 0, c = f.chk || {}; if (!(c.a && c.b && (c.c || paid0 > 0))) { toast('Перед стартом отметьте: обои на объекте, клей и грунт, аванс'); go('bd-order-' + el.dataset.no); return; } } f.st = 'work'; f.day = 1; f.shift = {}; f.visit = null; S.save(); go('bd-visit-' + el.dataset.no); };
 actions['fl-ask'] = (el) => { flAsk = el.dataset.k ? el.dataset.no + ':' + el.dataset.k : ''; rerender(); };
 actions['fl-going'] = (el) => flSet(el, (f) => { f.going = 1; });
 actions['fl-chk'] = (el) => flSet(el, (f) => { f.chk[el.dataset.k] = !f.chk[el.dataset.k]; });
 actions['fl-sh'] = (el) => flSet(el, (f) => { f.shift[el.dataset.k] = !f.shift[el.dataset.k]; });
 actions['fl-room'] = (el) => flSet(el, (f) => { const k = el.dataset.k; f.rs = f.rs || {}; f.done[k] = !f.done[k]; if (f.done[k]) f.rs[k] = { st: 'done' }; else delete f.rs[k]; });
 actions['fl-shift'] = (el) => flSet(el, (f) => { f.day++; f.shift = {}; toast('Смена закрыта — объём и фото сохранены'); });
-actions['fl-call'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); f.st = 'approval'; f.call = +el.dataset.k; S.save(); toast('Задача «Позвонить клиенту» создана'); rerender(); };
-actions['fl-refuse'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); f.st = 'refused'; f.reason = el.dataset.k; logStat(no, 'lost', f.reason); S.save(); toast('Заказ закрыт как отказ'); rerender(); };
+actions['fl-call'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); if (!canGo(f.st, 'approval')) return rerender(); f.st = 'approval'; f.call = +el.dataset.k; setCallTask(no, f.call); S.save(); toast('Задача «Позвонить клиенту» создана'); rerender(); };
+actions['fl-refuse'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); if (!canGo(f.st, 'refused') || f.st === 'refused') return rerender(); f.st = 'refused'; f.reason = el.dataset.k; setCallTask(no, 0); logStat(no, 'lost', f.reason); S.save(); toast('Заказ закрыт как отказ'); rerender(); };
 actions['fl-pay'] = (el) => flSet(el, (f, d) => { const rooms = (d.est && d.est.rooms) || []; const sm = d.sm ? smetaTotals(d) : null; const tot = sm && sm.total ? sm.total : rooms.reduce((a, r) => a + roomTotals(r).total, 0);
   d.fin = d.fin || { pays: [], exps: [] }; const paid = d.fin.pays.reduce((a, x) => a + x.amount, 0); d.fin.pays.push({ kind: 'Оплата', amount: Math.max(0, tot - paid), date: iso(0), method: el.dataset.k }); toast('Оплата записана'); });
-actions['fl-to'] = (el) => { const [to, plan] = el.dataset.k.split('+'); flAsk = ''; flSet(el, (f) => { f.st = to; if (to === 'work') { f.day = 1; f.shift = {}; } if (to === 'done' && logStat(el.dataset.no, 'done')) { f.st = 'refused'; f.reason = 'Все комнаты отказаны'; } }); if (plan) go('bd-edit-' + el.dataset.no + '-schedule'); };
+actions['fl-to'] = (el) => { const [to, plan] = el.dataset.k.split('+'); flAsk = ''; const f0 = flowOf(el.dataset.no); if (!canGo(f0.st, to)) { toast('Так сменить статус нельзя'); return rerender(); }
+  if (to === 'done' && !canClose(el.dataset.no)) { toast('Нельзя завершить: нет замера и сметы'); return rerender(); }
+  if (f0.st === 'refused') { const L = S.get().statsLog = (S.get().statsLog || []).filter((x) => !(x.no === el.dataset.no && x.kind === 'lost')); void L; delete f0.reason; }
+  setCallTask(el.dataset.no, 0);
+  flSet(el, (f) => { f.st = to; if (to === 'work') { f.day = 1; f.shift = {}; } if (to === 'done' && logStat(el.dataset.no, 'done')) { f.st = 'refused'; f.reason = 'Все комнаты отказаны'; } }); if (plan) afterYes(el.dataset.no); };
 export function renderBoardOrder(no, info) {
   if (!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) return null;
   if (DEMO[no]) seedOrder(no);
@@ -429,7 +472,7 @@ export function renderBoardOrder(no, info) {
   // Клиент, номер и этап — сверху экрана; внизу только «назад» (место в нижней панели свободно).
   const head = '';
   const mid = info ? `<div class="bd-navslot"><div class="f-btn-row bd-vnext"><button type="button" class="f-btn f-btn--lit" data-action="bd-to-order" data-no="${no}">Закрыть</button></div></div>` : `<div class="bd-navslot"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="К заказам">${BACK}</button><span class="bd-navfree"></span></div>`;
-  const client = block('Клиент', no, 'client', `<div class="bd-clname"><b>${esc(c.name || '')}</b><small>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</small></div><div class="bd-cl"><div><b>${esc(c.phone || '')}</b><small>${esc(addr)}${c.entrance ? ` · подъезд ${esc(c.entrance)}` : ''}${c.floor ? ` · этаж ${esc(c.floor)}` : ''}</small><small>Приезд <em>с ${esc(c.hour || '—')}:${esc(c.min || '00')}</em></small></div>
+  const client = block('Клиент', no, 'client', `<div class="bd-clname"><b>${esc(c.name || '')}</b><small>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</small></div><div class="bd-cl"><div><b>${esc(c.phone || '')}</b><small>${esc(addr)}${c.entrance ? ` · подъезд ${esc(c.entrance)}` : ''}${c.floor ? ` · этаж ${esc(c.floor)}` : ''}</small><small>Приезд <em>${c.hour ? `с ${esc(c.hour)}:${esc(c.min || '00')}` : 'время не указано'}</em></small></div>
     <span class="bd-cl__ic"><a class="f-icon-btn" href="tel:${esc((c.phone || '').replace(/[^+\d]/g, ''))}" aria-label="Позвонить">${PH}</a><a class="f-icon-btn" href="https://yandex.ru/maps/?text=${encodeURIComponent(addr)}" target="_blank" rel="noopener" aria-label="Маршрут">${RT}</a></span></div>${c.comment ? `<p class="bd-note">${esc(c.comment)}</p>` : ''}`);
   const roomsHtml = rooms.map((r) => { const t = roomTotals(r); const on = openRooms.has(r.key);
     return `<div class="o-sroom${on ? ' is-open' : ''}" style="--rc:${r.color}"><button type="button" class="o-sroom__head" data-action="bd-room" data-key="${r.key}" aria-expanded="${on}">
@@ -437,7 +480,7 @@ export function renderBoardOrder(no, info) {
       <div class="o-sroom__list">${t.lines.map((l) => `<div class="o-line"><span class="o-line__n">${esc(l.name)}</span><span class="o-line__q">${String(l.qty).replace('.', ',')} м²</span><b class="o-line__s">${fmt(l.sum)} ₽</b></div>`).join('')}</div></div>`; }).join('');
   const est = block('Оценка <small class="bd-sub">(предварительный расчёт стоимости со слов клиента)</small>', no, 'estimate', `<div class="bd-rooms">${roomsHtml || '<p class="bd-note">Оценки пока нет</p>'}</div>`);
   const sched = block('План работ', no, 'schedule', days.length ? `<div class="bd-days">${days.map((x, i) => `<div class="bd-day"><span class="bd-day__d"><b>${x.date.getDate()}</b><small>${WD[x.date.getDay()]}</small></span><span class="bd-day__r">${x.parts.map((p) => `<span class="bd-room" style="--c:${p.r.color}">${esc(p.r.name)}${p.h < SHIFT_HOURS - 1e-6 ? `<small>${Math.round(p.h)} ч</small>` : ''}</span>`).join('')}</span><span class="bd-day__n">${i + 1}-й день</span></div>`).join('')}</div>` : '<p class="bd-note">Даты не назначены</p>');
-  const sum = block('Итог', no, '', `<div class="bd-total"><div><small>Стоимость</small><b>${fmt(tot.sum)} ₽</b></div><div><small>Срок</small><b>${shiftsText(tot.h)}</b></div></div><p class="bd-range">${range}</p>`);
+  const sum = block('Итог', no, '', `<div class="bd-total"><div><small>Стоимость</small><b>${fmt(orderSum(d, flowOf(no)))} ₽</b></div><div><small>Срок</small><b>${shiftsText(tot.h)}</b></div></div><p class="bd-range">${range}</p>`);
   const chan = block('Источник', no, 'channel', `<p class="bd-line"><b>${esc(d.channel ? d.channel.source : '')}</b><small>${d.channel && d.channel.partner !== 'self' ? 'через партнёра' : 'самостоятельно'}</small></p>`);
   // Остальные разделы — только если в них что-то есть (материал от продавца, смета с замера, оплаты, чат, задачи).
   const extra = [];
@@ -450,7 +493,7 @@ export function renderBoardOrder(no, info) {
   const exps = d.fin ? d.fin.exps.reduce((a, x) => a + x.amount, 0) : 0;
   if (pays || exps) extra.push(block('Финансы', no, 'finance', `<div class="bd-total"><div><small>Получено</small><b>${fmt(pays)} ₽</b></div><div><small>Остаток</small><b>${fmt(Math.max(0, tot.sum - pays))} ₽</b></div></div>${exps ? `<p class="bd-range">Расходы: ${fmt(exps)} ₽</p>` : ''}`));
   const openTasks = (d.tasks || []).filter((t) => !t.done);
-  if (openTasks.length) extra.push(block('Задачи', no, 'tasks', openTasks.slice(0, 3).map((t) => `<p class="bd-line"><b>${esc(t.text)}</b>${t.due ? `<small>до ${esc(t.due)}</small>` : ''}</p>`).join('')));
+  if (openTasks.length) extra.push(block('Задачи', no, 'tasks', openTasks.slice(0, 3).map((t) => `<p class="bd-line"><b>${esc(t.text)}</b>${t.due ? `<small>до ${dueTxt(t.due)}</small>` : ''}</p>`).join('')));
   const more = extra.join('');
   if (info) return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${client}${est}${sched}${chan}
     <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${mid}${chatBtn(no, d)}</nav>`;
@@ -503,7 +546,7 @@ export function renderBoardEdit(no, t) {
   // Вместо «Редактировать / Редактирование» — «Отмена»: правка уже включена.
   return (inRoom ? roomPlate(no, vv, html) : html).replace('f-nav f-nav--tabs', 'f-nav f-nav--tabs').replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
 }
-actions['bd-edit'] = (el) => { startEdit = el.dataset.tab; go(`bd-edit-${el.dataset.no}-${el.dataset.tab}`); };
+actions['bd-edit'] = (el) => { if (locked(el.dataset.no, el.dataset.tab)) return toast('Заказ завершён — правки закрыты'); startEdit = el.dataset.tab; go(`bd-edit-${el.dataset.no}-${el.dataset.tab}`); };
 actions['bd-to-order'] = (el) => { showParts = false; const no = el.dataset.no, f = flowOf(no), v = f.visit;
   if (v && v.open) { if (v.kind === 'work' && v.step === 3) return vsGo(no, 3); const scr = vsScr(v); if (scr && location.hash.includes('-' + scr)) return vsGo(no, Math.max(0, v.step - 1)); return vsGo(no, v.step); }
   go('bd-order-' + no); };
@@ -881,7 +924,7 @@ export function renderHome() {
   Object.keys(DEMO).forEach((no) => { const o = homeOrder(no); const pays = (o.fin && o.fin.pays) || [];
     got += pays.filter((p) => String(p.date || '').slice(0, 7) === ym).reduce((a, p) => a + p.amount, 0);
     paidAll += pays.reduce((a, p) => a + p.amount, 0);
-    total += ((o.est && o.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0); });
+    total += orderSum(o, o.flow); });
   const pct = total ? Math.max(2, Math.round((paidAll / total) * 100)) : 0;
   const MONN = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
   // Доход по месяцам — последние 6 месяцев (прошлые месяцы — примерные данные для показа), текущий подсвечен.
@@ -909,7 +952,7 @@ export function renderHome() {
       <ul class="h-leg">${STG.map(([t, n, col]) => `<li><i style="background:${col}"></i><span>${t}</span><b>${n}</b></li>`).join('')}</ul></div></section>`;
 
   // ── Задачи и замеры: один блок — выезды на замер (ближайшие 7 дней) и задачи на сегодня; пусто — блока нет ──
-  const tasks = Object.keys(DEMO).flatMap((no) => ((homeOrder(no).tasks) || []).filter((t) => (!t.done || t.doneToday === iso(0)) && (!t.due || t.due <= iso(0))).map((t) => ({ t, no })));
+  const tasks = [...Object.keys(DEMO), ...MY()].flatMap((no) => ((homeOrder(no).tasks) || []).filter((t) => (!t.done || t.doneToday === iso(0)) && (!t.due || t.due <= iso(0))).map((t) => ({ t, no })));
   const done = tasks.filter((x) => x.t.done).length;
   const offOf = (date) => Math.round((new Date(date + 'T12:00') - dayOf(0)) / 864e5);
   const realMeas = S.get().orders.filter((o) => !o.trashed && !['closed', 'cancelled', 'failed'].includes(o.status))
@@ -1031,14 +1074,14 @@ export function renderClients() {
   const add = (key, c, ord) => { if (!map.has(key)) map.set(key, { ...c, orders: [] }); map.get(key).orders.push(ord); };
   // примерные заказы доски
   Object.keys(DEMO).forEach((no) => { const x = DEMO[no]; const c = CL[no]; const o = homeOrder(no);
-    const sum = ((o.est && o.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0);
+    const sum = orderSum(o, o.flow);
     const paid = o.fin ? o.fin.pays.reduce((a, p) => a + p.amount, 0) : 0;
     const offs = QUEUE.filter(([, key]) => key && R[key].c.no === no).map(([off]) => off);
     const stage = x.meas != null ? 'measure' : offs.some((f) => f <= 0) && offs.some((f) => f >= 0) ? 'work' : 'queue';
     add(digits(x.ph), { name: c.n, phone: c.ph, addr: c.a, src: x.src }, { no, stage, sum, paid, act: `data-action="bd-open" data-no="${no}"` }); });
   // заказы, оформленные мастером через форму «Оформить»
   MY().forEach((no) => { const o = S.get().oformit['ord-' + no]; if (!o || !o.cl) return; const cl = o.cl;
-    const sum = ((o.est && o.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0);
+    const sum = orderSum(o, o.flow);
     add(digits(cl.phone), { name: cl.name || 'Клиент', phone: cl.phone || '', addr: [cl.street, cl.house && 'д. ' + cl.house, cl.flat && 'кв. ' + cl.flat].filter(Boolean).join(', '), src: (o.channel || {}).source || '' },
       { no, stage: flowOf(no).st, sum, paid: o.fin ? o.fin.pays.reduce((a, p) => a + p.amount, 0) : 0, act: `data-action="bd-open" data-no="${no}"` }); });
   // заказы из базы (ведёт мастер)

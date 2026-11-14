@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=433';
-import * as S from './store.js?v=433';
-import { SYSTEM_PRICE } from './seed.js?v=433';
-import { shiftsText, hoursFor } from './calc.js?v=433';
-import { esc, toast } from './ui.js?v=433';
-import { logEvent } from './zlog.js?v=433';
+import { actions, changes, rerender } from './core.js?v=434';
+import * as S from './store.js?v=434';
+import { SYSTEM_PRICE } from './seed.js?v=434';
+import { shiftsText, hoursFor } from './calc.js?v=434';
+import { esc, toast } from './ui.js?v=434';
+import { logEvent } from './zlog.js?v=434';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -280,7 +280,7 @@ function renameDialog(e) {
 actions['o-rename'] = (el) => { const e = D(); e.rename = { key: el.dataset.key }; save(); };
 actions['o-rename-no'] = () => { D().rename = null; save(); };
 // «OK» на клавиатуре приложения — тоже сохранить.
-changes['o-rename-save'] = () => { if (D().rename) actions['o-rename-yes'](); };
+changes['o-rename-save'] = () => { if (D().rename) actions['o-rename-yes'](); try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) { /* поле уже ушло */ } };
 actions['o-rename-hint'] = (el) => { const i = document.getElementById('o-ren-in'); if (i) { i.value = el.dataset.v; i.focus(); } };
 actions['o-rename-yes'] = () => {
   const e = D(); const r = e.rename && roomOf(e, e.rename.key); e.rename = null;
@@ -445,7 +445,9 @@ actions['o-confirm-yes'] = () => {
   save();
 };
 // Объём вводится без перерисовки экрана: обновляем сумму, срок и итог комнаты на месте.
-const parseQty = (v) => { const n = parseFloat(String(v).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) && n > 0 ? Math.round(n * 100) / 100 : 0; };
+const QTY_MAX = 2000;   // м² на одну работу в комнате — выше не бывает
+const parseQty = (v) => { const n = parseFloat(String(v).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) && n > 0 ? Math.min(QTY_MAX, Math.round(n * 100) / 100) : 0; };
+const capQty = (el) => { const n = parseFloat(String(el.value).replace(',', '.').replace(/\s/g, '')); if (n > QTY_MAX) { el.value = String(QTY_MAX); toast(`Слишком много: максимум ${QTY_MAX} м²`); } };
 // Обновить на экране суммы, сроки, подсветку и итог комнаты — без перерисовки (поле в фокусе не теряется).
 function refreshRoom(r) {
   const t = roomTotals(r);
@@ -466,6 +468,7 @@ function refreshRoom(r) {
 export function onLiveEstimate(el) {
   const k = el.dataset.live;
   if (k !== 'o-qty' && k !== 'o-same') return false;
+  capQty(el);
   const e = D(); const r = roomOf(e, e.view);
   if (k === 'o-same') {
     r.sameQty = parseQty(el.value);

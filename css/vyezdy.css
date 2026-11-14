@@ -1892,11 +1892,11 @@ button.h-rate { border-width: 1px; border-style: solid; cursor: pointer; }
 /* Метки «Заказ №…» / «Замер №…» в карточках «Сегодня» */
 .h-tag { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border-radius: 13px; font: 700 12.5px/1 Manrope, sans-serif !important; letter-spacing: .01em; opacity: 1 !important; }
 .h-tag--order { color: #142220 !important; background: #e3eed3; }
-.h-tag--meas { color: #fff !important; background: #e5484d; box-shadow: 0 4px 14px -4px rgba(229,72,77,.6); }
-.h-hero--meas { --c: #e5484d !important; }
+.h-tag--meas { color: #fff !important; background: #c8373d; box-shadow: 0 4px 14px -4px rgba(229,72,77,.6); }
+.h-hero--meas { --c: #c8373d !important; }
 
 .h-hero--meas .h-hero__act { justify-content: initial; }
-.h-go--meas { background: #e5484d !important; color: #fff !important; box-shadow: 0 10px 24px -10px rgba(229,72,77,.7) !important; }
+.h-go--meas { background: #c8373d !important; color: #fff !important; box-shadow: 0 10px 24px -10px rgba(229,72,77,.7) !important; }
 .h-go--meas svg { stroke: #fff; }
 
 /* Уведомления */
@@ -2869,3 +2869,22 @@ a.h-go { text-decoration: none; display: flex; align-items: center; justify-cont
 .bd-rfb__h b { font: 800 22px/1.15 var(--font-display, inherit); color: #fff; }
 @media (max-height: 480px) { .f-nav { min-height: 56px; padding-top: 6px; padding-bottom: calc(6px + env(safe-area-inset-bottom)); } }
 @media (max-width: 340px) { .f-nav--tabs { gap: 4px; } .bd-vnext { min-width: 0; } .f-nav__tab span { font-size: 10px; } }
+
+/* Мобильный вид (версия 434): нажимаемые зоны, длинные имена, плавающая кнопка меню, крупный шрифт */
+.bd-edit { min-height: 44px; min-width: 44px; padding: 0 14px; }
+body.nobar #view::after { content: ''; display: block; height: 84px; }
+.bd-who b, .bd-who small { max-width: 100%; }
+.cl-card__hd { flex-wrap: wrap; }
+.cl-card__who b { overflow-wrap: anywhere; }
+.cl-card__who small { white-space: normal; overflow-wrap: anywhere; }
+.cl-card__meta { overflow-wrap: anywhere; }
+.cl-ord { min-height: 44px; }
+.cl-ord__sum { white-space: nowrap; }
+.bd-search input:focus-visible, .f-input input:focus-visible { outline: 2px solid #7ee2a3; outline-offset: 2px; }
+@media (max-width: 360px) {
+  .f-topnav__track { scroll-snap-type: x proximity; }
+  .f-tab { padding-left: 10px; padding-right: 10px; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .f-nav { padding-top: 4px; padding-bottom: 4px; }
+}

@@ -1,20 +1,20 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=433';
-import * as S from './store.js?v=433';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=433';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=433';
-import { renderSettlements } from './shared.js?v=433';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=433';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=433';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=433';
-import { renderOformit, onLiveOformit } from './oformit.js?v=433';
-import { onLiveZakaz } from './zakaz.js?v=433';
-import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=433';
-import { renderStatsMaster } from './stats.js?v=433';
-import './kbd.js?v=433';
-import { renderSettingsFig } from './settings.js?v=433';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=433';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=434';
+import * as S from './store.js?v=434';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=434';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=434';
+import { renderSettlements } from './shared.js?v=434';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=434';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=434';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=434';
+import { renderOformit, onLiveOformit } from './oformit.js?v=434';
+import { onLiveZakaz } from './zakaz.js?v=434';
+import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=434';
+import { renderStatsMaster } from './stats.js?v=434';
+import './kbd.js?v=434';
+import { renderSettingsFig } from './settings.js?v=434';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=434';
 
 const VERSION = 'прототип 1.0';
 
@@ -117,13 +117,13 @@ function drawer(role) {
     </nav>`;
 }
 
-function render() {
+function renderInner() {
   const view = document.getElementById('view');
   const bar = document.getElementById('tabbar');
   const drawerEl = document.getElementById('drawer');
   const me = S.me();
   // Вход временно убран: сразу открываем кабинет (по умолчанию — мастер Сергей).
-  if (!me) { S.setSession('u-sergey'); rerender(); return; }
+  if (!me) { const u = S.get().users[0]; if (u) { S.setSession(u.id); } else { S.resetDemo(); } const again = S.me(); if (!again) { view.innerHTML = '<p style="padding:24px">Данные не открываются. Нажмите «Сбросить».</p><button class="btn" data-action="reset-do">Сбросить</button>'; return; } return renderInner(); }
   if (false) {
     document.body.classList.add('is-auth');
     document.body.classList.remove('fig');
@@ -139,7 +139,8 @@ function render() {
   let name = route();
   let html = name ? screenFor(name, role) : null;
   if (html == null) {
-    name = SCREENS[role].start;
+    const bad = name && name !== SCREENS[role].start; name = SCREENS[role].start;
+    if (bad) setTimeout(() => toast('Такой страницы нет — открыта главная'), 50);
     if (location.hash.slice(1) !== name) history.replaceState(null, '', '#' + name);
     html = screenFor(name, role);
   }
@@ -165,6 +166,18 @@ function render() {
   document.title = 'Метроника';
 }
 
+// Любая ошибка рисования не должна оставлять белый экран: показываем понятное окно с выходом.
+function render() {
+  try { renderInner(); } catch (e) {
+    console.error(e);
+    const view = document.getElementById('view');
+    document.body.classList.remove('fig');
+    view.innerHTML = '<section class="f-plate" style="margin:24px 16px;padding:20px"><h2 style="margin:0 0 8px">Что-то пошло не так</h2><p>Экран не открылся — возможно, данные повреждены. Копия сохранится, и приложение начнёт с чистого листа.</p><div class="f-btn-row"><button type="button" class="f-btn" data-action="go" data-to="home">На главную</button><button type="button" class="f-btn f-btn--lit" data-action="crash-reset">Сбросить данные</button></div></section>';
+  }
+}
+actions['crash-reset'] = () => { try { const raw = localStorage.getItem('metronika-prototype-v2'); if (raw) localStorage.setItem('metronika-prototype-v2-broken', raw); } catch (e) { /* не страшно */ } S.resetDemo(); location.hash = ''; rerender(); toast('Данные сброшены, копия сохранена'); };
+window.addEventListener('metronika-save-fail', () => toast('Память браузера заполнена — последние правки могут не сохраниться. Освободите место.'));
+window.addEventListener('storage', (ev) => { if (ev.key === 'metronika-prototype-v2' && S.reloadFromStorage()) { rerender(); toast('Данные обновлены из другой вкладки'); } });
 setRenderer(render);
 // Первая отрисовка тоже проходит через afterRender (см. core.js).
 
@@ -256,3 +269,4 @@ window.addEventListener('hashchange', rerender);
 { const sc = /[?&]scene=(work|meas)/.exec(location.search);
   if (sc) { try { sceneStart(sc[1]); } catch (e) { console.warn('scene', e); } } }
 rerender();
+if (S.loadNote) toast(S.loadNote);

@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=433';
-import * as S from './store.js?v=433';
-import { SHIFT_HOURS } from './calc.js?v=433';
-import { esc, toast } from './ui.js?v=433';
-import { logEvent } from './zlog.js?v=433';
-import { estimateRooms, roomTotals } from './ocenka.js?v=433';
+import { actions, rerender } from './core.js?v=434';
+import * as S from './store.js?v=434';
+import { SHIFT_HOURS } from './calc.js?v=434';
+import { esc, toast } from './ui.js?v=434';
+import { logEvent } from './zlog.js?v=434';
+import { estimateRooms, roomTotals } from './ocenka.js?v=434';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -256,6 +256,7 @@ actions['g-day'] = (el) => {
     d.schedHint.removed = d.schedHint.removed.filter((x) => x !== date); s.dirty = true;
     toast(`Бронь на ${Number(date.slice(8))}.${date.slice(5, 7)} снята`); save(); return;
   }
+  if (date < S.todayISO() && s.measure !== date && !Object.values(s.place || {}).includes(date)) { toast('Прошедшую дату выбрать нельзя'); return; }
   if (s.mode === 'measure') {
     if (s.measure === date) { s.measure = ''; s.sel = ''; s.dirty = true; save(); return; } // замер снят с даты
     if (s.sel === 'measure' || s.measure) { s.measure = date; s.sel = ''; s.dirty = true; save(); }

@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=433';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=434';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=433';
-import * as S from './store.js?v=433';
-import { WALLPAPER_TYPES } from './seed.js?v=433';
-import { esc, toast } from './ui.js?v=433';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=433';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=433';
-import { country } from './phonecodes.js?v=433';
-import { suggestAddress } from './address.js?v=433';
-import { suggesters } from './kbd.js?v=433';
-import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=433';
+import { actions, changes, rerender } from './core.js?v=434';
+import * as S from './store.js?v=434';
+import { WALLPAPER_TYPES } from './seed.js?v=434';
+import { esc, toast } from './ui.js?v=434';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=434';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=434';
+import { country } from './phonecodes.js?v=434';
+import { suggestAddress } from './address.js?v=434';
+import { suggesters } from './kbd.js?v=434';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=434';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -116,11 +116,14 @@ actions['z-cl-save'] = () => {
   if (c.phone) c.phone = phoneFormat(c.phone);
   const e = {};
   if (c.name.trim().length < 2) e.name = 'Введите имя';
+  else if (!/[A-Za-zА-Яа-яЁё]/.test(c.name)) e.name = 'Имя — буквами';
+  else if (c.name.trim().length > 60) e.name = 'Не больше 60 символов';
   const dd = phoneDigits(c.phone);
   if (dd.length < 10) e.phone = dd ? 'Не хватает цифр: нужно 10 после +7' : 'Введите телефон';
   else if (codeInfo(dd).bad) e.phone = `Кода ${dd.slice(0, 3)} нет — проверьте номер`;
   if (!c.street.trim()) e.street = 'Введите адрес';
   if (!c.house.trim()) e.house = 'Дом';
+  else if (!/^\d[\dA-Za-zА-Яа-я\/\- ]{0,9}$/.test(c.house.trim())) e.house = 'Дом: номер, например 12 или 12/2';
   c.err = e;
   if (Object.keys(e).length) { save(); showErrors(); return; }
   c.snap = Object.fromEntries(CL_FIELDS.map((k) => [k, c[k]]));
@@ -291,7 +294,7 @@ function renderMaterial(d) {
 }
 // Рулоны материала мастер вписывает сам (для статистики): поле или − / +.
 actions['z-rolls-step'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.rolls = Math.max(0, (Number(it.rolls) || 0) + Number(el.dataset.d)); save(); };
-changes['z-rolls'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; it.rolls = Math.max(0, parseInt(String(el.value).replace(/\D/g, ''), 10) || 0); save(); };
+changes['z-rolls'] = (el) => { const m = mat(D()); const it = matRoom(m, m.view).items[Number(el.dataset.i)]; const rv = Math.round(parseFloat(String(el.value).replace(',', '.')) || 0); if (rv > 999) toast('Слишком много рулонов: максимум 999'); it.rolls = Math.min(999, Math.max(0, rv)); save(); };
 const matSumOpen = new Set();
 actions['z-msum-toggle'] = (el) => { const k = el.dataset.key; if (matSumOpen.has(k)) matSumOpen.delete(k); else matSumOpen.add(k); rerender(); };
 actions['z-mat-tab'] = (el) => { const m = mat(D()); const r = matRoom(m, m.view); r.active = Number(el.dataset.i); r.total = false; save(); };
@@ -607,6 +610,7 @@ export function onLiveZakaz(el) {
   if (k === 'z-cl' && f === 'phone10') {
     const c = cl(d);
     const dd = phoneDigits(el.value);
+    { const raw = String(el.value).replace(/\D/g, ''); if (raw.length > 11) toast('В номере 10 цифр после +7 — лишние убрали'); }
     c.phone = dd ? phoneFormat(dd) : '';
     if (c.err) delete c.err.phone;
     el.value = localFmt(dd);
