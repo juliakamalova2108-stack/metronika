@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=428';
-import * as S from './store.js?v=428';
-import { renderOformit, oformitDraft } from './oformit.js?v=428';
-import { roomTotals, svcInfo } from './ocenka.js?v=428';
-import { smetaTotals } from './zakaz.js?v=428';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=428';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=428';
-import { esc, toast, status, seg } from './ui.js?v=428';
-import { topbar, ORDER_STATUS } from './shared.js?v=428';
+import { actions, rerender, go } from './core.js?v=429';
+import * as S from './store.js?v=429';
+import { renderOformit, oformitDraft } from './oformit.js?v=429';
+import { roomTotals, svcInfo } from './ocenka.js?v=429';
+import { smetaTotals } from './zakaz.js?v=429';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=429';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=429';
+import { esc, toast, status, seg } from './ui.js?v=429';
+import { topbar, ORDER_STATUS } from './shared.js?v=429';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -193,7 +193,9 @@ function flowBlock(no, d, tot, days) {
   const mtxt = meas ? `${meas.getDate()} ${MONG[meas.getMonth()]}, ${(d.cl || {}).hour || '10'}:${(d.cl || {}).min || '00'}` : '';
   const smt = d.sm ? smetaTotals(d) : null;
   const paid = d.fin ? d.fin.pays.reduce((a, x) => a + x.amount, 0) : 0;
-  const total = Math.round((smt && smt.total ? smt.total : tot.sum) * (1 - ((d && d.disc) || 0) / 100));
+  const refRoom = (k) => ((f.rs || {})[k] || {}).st === 'refuse';
+  const base = smt && smt.total ? smt.rooms.filter((x) => !refRoom(x.room.key)).reduce((a, x) => a + x.total, 0) : tot.sum;   // отказные комнаты в сумму не входят
+  const total = Math.round(base * (1 - ((d && d.disc) || 0) / 100));
   const rooms = (d.est && d.est.rooms) || [];
   let body = '', btns = '';
   if (flAsk === no + ':result') { body = ln('Что решил клиент?'); btns = fb('Согласен', A('fl-to', 'queue+plan'), ' f-btn--lit') + fb('Подумает', A('fl-ask', 'call')) + fb('Отказ', A('fl-ask', 'refuse')); }
@@ -408,10 +410,10 @@ actions['fl-sh'] = (el) => flSet(el, (f) => { f.shift[el.dataset.k] = !f.shift[e
 actions['fl-room'] = (el) => flSet(el, (f) => { const k = el.dataset.k; f.rs = f.rs || {}; f.done[k] = !f.done[k]; if (f.done[k]) f.rs[k] = { st: 'done' }; else delete f.rs[k]; });
 actions['fl-shift'] = (el) => flSet(el, (f) => { f.day++; f.shift = {}; toast('Смена закрыта — объём и фото сохранены'); });
 actions['fl-call'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); f.st = 'approval'; f.call = +el.dataset.k; S.save(); toast('Задача «Позвонить клиенту» создана'); rerender(); };
-actions['fl-refuse'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); f.st = 'refused'; f.reason = el.dataset.k; S.save(); toast('Заказ закрыт как отказ'); rerender(); };
+actions['fl-refuse'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); f.st = 'refused'; f.reason = el.dataset.k; logStat(no, 'lost', f.reason); S.save(); toast('Заказ закрыт как отказ'); rerender(); };
 actions['fl-pay'] = (el) => flSet(el, (f, d) => { const rooms = (d.est && d.est.rooms) || []; const sm = d.sm ? smetaTotals(d) : null; const tot = sm && sm.total ? sm.total : rooms.reduce((a, r) => a + roomTotals(r).total, 0);
   d.fin = d.fin || { pays: [], exps: [] }; const paid = d.fin.pays.reduce((a, x) => a + x.amount, 0); d.fin.pays.push({ kind: 'Оплата', amount: Math.max(0, tot - paid), date: iso(0), method: el.dataset.k }); toast('Оплата записана'); });
-actions['fl-to'] = (el) => { const [to, plan] = el.dataset.k.split('+'); flAsk = ''; flSet(el, (f) => { f.st = to; if (to === 'work') { f.day = 1; f.shift = {}; } }); if (plan) go('bd-edit-' + el.dataset.no + '-schedule'); };
+actions['fl-to'] = (el) => { const [to, plan] = el.dataset.k.split('+'); flAsk = ''; flSet(el, (f) => { f.st = to; if (to === 'work') { f.day = 1; f.shift = {}; } if (to === 'done') logStat(el.dataset.no, 'done'); }); if (plan) go('bd-edit-' + el.dataset.no + '-schedule'); };
 export function renderBoardOrder(no, info) {
   if (!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) return null;
   if (DEMO[no]) seedOrder(no);
@@ -1032,6 +1034,11 @@ export function renderClients() {
     const offs = QUEUE.filter(([, key]) => key && R[key].c.no === no).map(([off]) => off);
     const stage = x.meas != null ? 'measure' : offs.some((f) => f <= 0) && offs.some((f) => f >= 0) ? 'work' : 'queue';
     add(digits(x.ph), { name: c.n, phone: c.ph, addr: c.a, src: x.src }, { no, stage, sum, paid, act: `data-action="bd-open" data-no="${no}"` }); });
+  // заказы, оформленные мастером через форму «Оформить»
+  MY().forEach((no) => { const o = S.get().oformit['ord-' + no]; if (!o || !o.cl) return; const cl = o.cl;
+    const sum = ((o.est && o.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0);
+    add(digits(cl.phone), { name: cl.name || 'Клиент', phone: cl.phone || '', addr: [cl.street, cl.house && 'д. ' + cl.house, cl.flat && 'кв. ' + cl.flat].filter(Boolean).join(', '), src: (o.channel || {}).source || '' },
+      { no, stage: flowOf(no).st, sum, paid: o.fin ? o.fin.pays.reduce((a, p) => a + p.amount, 0) : 0, act: `data-action="bd-open" data-no="${no}"` }); });
   // заказы из базы (ведёт мастер)
   S.get().orders.filter((o) => !o.trashed && o.leadId === meId).forEach((o) => { const c = o.client;
     add(digits(c.phone), { name: c.name, phone: `+7 ${c.phone}`, addr: [c.street, c.house].filter(Boolean).join(', ') + (c.flat ? `, кв. ${c.flat}` : ''), src: o.channel.source },

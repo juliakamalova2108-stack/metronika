@@ -1,9 +1,9 @@
 // Экраны и блоки, общие для всех ролей: шапка, начисления, профиль, история, сводка расчёта.
 
-import { actions, rerender, go } from './core.js?v=428';
-import * as S from './store.js?v=428';
-import { WALLPAPER_TYPES } from './seed.js?v=428';
-import { esc, rub, m2, num, kv, status, btnRow, dateTimeRu, phoneRu, ICONS, sheet, closeSheet, toast } from './ui.js?v=428';
+import { actions, rerender, go } from './core.js?v=429';
+import * as S from './store.js?v=429';
+import { WALLPAPER_TYPES } from './seed.js?v=429';
+import { esc, rub, m2, num, kv, status, btnRow, dateTimeRu, phoneRu, ICONS, sheet, closeSheet, toast } from './ui.js?v=429';
 
 export function topbar(title, { back = '', right = '' } = {}) {
   return `<header class="plate topbar">
@@ -22,6 +22,7 @@ export const ORDER_STATUS = {
   work: ['ok', 'В работе'],
   done: ['ok', 'Выполнен'],
   closed: ['idle', 'Закрыт'],
+  refused: ['bad', 'Отказ'],
   declined: ['bad', 'Отклонён'],
   failed: ['bad', 'Сорван'],
   cancelled: ['idle', 'Отменён'],
