@@ -3,13 +3,13 @@
 // Замер считается зафиксированным, когда число не меняется STABLE_MS; следующий замер принимается,
 // только когда рулетку сдвинули (число ушло от прошлого зафиксированного на REARM_MM).
 // Каждый зафиксированный замер озвучивается голосом телефона.
-import { rerender } from './core.js?v=422';
-import { toast } from './ui.js?v=422';
+import { rerender } from './core.js?v=423';
+import { toast } from './ui.js?v=423';
 
 const SERVICE = '0000cbbb-0000-1000-8000-00805f9b34fb';
 const CHAR = '0000cbb1-0000-1000-8000-00805f9b34fb';
 const PACKET = /^D([0-9]+\.[0-9]{3})m$/;
-export const STABLE_MS = 500;
+export const STABLE_MS = 700;
 export const REARM_MM = 30;
 const TOL_MM = 3;
 
@@ -52,6 +52,9 @@ function reading(mm) {
   anchor = mm; clearTimeout(timer);
   timer = setTimeout(() => { anchor = null; if (!armed) return; armed = false; lastFix = cur; if (tape.onFix) tape.onFix(cur); }, STABLE_MS);
 }
+
+// «Перемерить»: следующее значение принимаем даже если оно такое же, как прошлое
+tape.reset = () => { armed = true; lastFix = null; anchor = null; clearTimeout(timer); };
 
 export async function connect() {
   if (!tape.supported) { toast('Подключение рулетки работает в Chrome на Android'); return; }

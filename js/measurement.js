@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=422';
-import * as S from './store.js?v=422';
-import {oformitDraft} from './oformit.js?v=422';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=422';
-import {esc} from './ui.js?v=422';
-import {tape,say,sayLength} from './tape.js?v=422';
+import {actions,changes,rerender,afterRender} from './core.js?v=423';
+import * as S from './store.js?v=423';
+import {oformitDraft} from './oformit.js?v=423';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=423';
+import {esc} from './ui.js?v=423';
+import {tape,say,sayLength} from './tape.js?v=423';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -230,35 +230,36 @@ const tapeTarget=(r,w)=>{
   if(r.mwDialog==='new-opening'){const o=r.newOpening||{};return !parse(o.width)?'ow':!parse(o.height)?'oh':null;}
   if(r.mwDialog)return null;
   if(r.sameH&&!r.hDone)return 'rh';
-  if(!w.len)return 'len';
   if(!r.sameH&&!w.hDone)return 'h';
+  if(!w.len)return 'len';
   return null;
 };
-const tapePrompt=(t,r)=>{const i=(r.active||0)+1,o=r.newOpening||{};
-  return t==='rh'?'Жду высоту':t==='len'?`Стена ${i}. Жду длину`:t==='h'?`Стена ${i}. Жду высоту`:t==='ow'?`${o.type||'Проём'}. Жду ширину`:t==='oh'?`${o.type||'Проём'}. Жду высоту`:'';};
+const tapePrompt=(t,r)=>{const i=(r.active||0)+1,o=r.newOpening||{},p=o.type||'Проём';
+  return t==='rh'?'Замерьте общую высоту':t==='len'?`Стена ${i}. Замерьте длину`:t==='h'?`Стена ${i}. Замерьте высоту`:t==='ow'?`${p}. Замерьте ширину`:t==='oh'?`${p}. Замерьте высоту`:'';};
+const roomName=(d,k)=>{try{const e=estimateRooms(d).find(x=>x.key===k);return e?e.name:'';}catch(x){return '';}};
 tape.onFix=mm=>{
   let d;try{d=oformitDraft();}catch(e){return;}
   const s=state(d);if(!s.view||s.view==='pick'||s.view==='total')return;
   const r=room(s,s.view);if(!r.walls.length)return;
   r.active=Math.min(r.active||0,r.walls.length-1);const w=r.walls[r.active],t=tapeTarget(r,w);
-  if(!t){say('Стена уже замерена. Добавьте новую стену');return;}
+  if(!t){say('Это уже измерено. Нажмите «Перемерить»');return;}
   const v=Math.round(mm/10)/100,txt=sayLength(mm),i=r.active+1;tape.chain=true;
   if(t==='rh'){r.h=v||r.h;r.hDone=true;r.walls.forEach(x=>{if(!x.len)x.h=r.h;});say(`Высота ${txt}`);}
-  else if(t==='len'){w.len=v;say(`Длина ${txt}`);if(!tapeTarget(r,w))say(`Стена ${i} готова. Добавьте окно, дверь или следующую стену`,true);}
-  else if(t==='h'){w.h=v;w.hDone=true;say(`Высота ${txt}`);if(!tapeTarget(r,w))say(`Стена ${i} готова. Добавьте окно, дверь или следующую стену`,true);}
+  else if(t==='len'){w.len=v;say(`Длина ${txt}`);}
+  else if(t==='h'){w.h=v;w.hDone=true;say(`Высота ${txt}`);}
   else if(t==='ow'){r.newOpening.width=String(Math.round(mm/10));say(`Ширина ${txt}`);}
-  else if(t==='oh'){r.newOpening.height=String(Math.round(mm/10));say(`Высота ${txt}`);save();actions['mw-confirm-opening']();say('Добавлено. Следующее окно, дверь или стена',true);return;}
+  else if(t==='oh'){r.newOpening.height=String(Math.round(mm/10));say(`Высота ${txt}`);save();actions['mw-confirm-opening']();say('Добавлено',true);return;}
   save();
 };
 // Озвучка подсказки при любой смене «что ждём»
-let tapeKey='';
-actions['mw-redo']=()=>{const r=current(),w=r.walls[r.active];if(!w)return;w.len=0;if(!r.sameH){w.h=0;w.hDone=false;}tapeKey='';tape.redo=true;save();};
+let tapeKey='',tapeRoom='';
+actions['mw-redo']=()=>{const r=current(),w=r.walls[r.active];if(!w)return;w.len=0;if(!r.sameH){w.h=0;w.hDone=false;}tapeKey='';tape.redo=true;tape.reset&&tape.reset();save();};
 afterRender.push(()=>{
-  if(tape.status!=='on'||!document.querySelector('.mw-screen')){tapeKey='';return;}
+  if(tape.status!=='on'||!document.querySelector('.mw-screen')){tapeKey='';tapeRoom='';return;}
   let r;try{const d=oformitDraft(),s=state(d);if(!s.view||s.view==='pick'||s.view==='total')return;r=room(s,s.view);}catch(e){return;}
   if(!r.walls.length)return;const w=r.walls[Math.min(r.active||0,r.walls.length-1)],t=tapeTarget(r,w);
   const key=[oformitDraft().sm.view,r.active||0,r.mwDialog||'',t||''].join('|');if(key===tapeKey)return;tapeKey=key;
-  const msg=t?(tape.redo?'Перемеряем. ':'')+tapePrompt(t,r):'';tape.redo=false;if(msg){say(msg,tape.chain);}tape.chain=false;
+  const rk=oformitDraft().sm.view,first=rk!==tapeRoom;tapeRoom=rk;const pre=tape.redo?'Повтор. ':(first?roomName(oformitDraft(),rk)+'. ':'');const msg=t?pre+tapePrompt(t,r):'';tape.redo=false;if(msg){say(msg,tape.chain);}tape.chain=false;
 });
 
 // ---------- полёт ярлыка: из кнопки в свою колонку ----------
