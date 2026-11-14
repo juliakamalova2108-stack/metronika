@@ -1,21 +1,21 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=410';
-import * as S from './store.js?v=410';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=410';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=410';
-import { renderSettlements } from './shared.js?v=410';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=410';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=410';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=410';
-import { renderOformit, onLiveOformit } from './oformit.js?v=410';
-import { onLiveZakaz } from './zakaz.js?v=410';
-import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=410';
-import { renderStatsMaster } from './stats.js?v=410';
-import { renderBrandZone, renderHonor, renderCreators, renderEvents } from './brand.js?v=410';
-import './kbd.js?v=410';
-import { renderSettingsFig } from './settings.js?v=410';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=410';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=411';
+import * as S from './store.js?v=411';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=411';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=411';
+import { renderSettlements } from './shared.js?v=411';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=411';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=411';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=411';
+import { renderOformit, onLiveOformit } from './oformit.js?v=411';
+import { onLiveZakaz } from './zakaz.js?v=411';
+import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=411';
+import { renderStatsMaster } from './stats.js?v=411';
+import { renderBrandZone, renderHonor, renderCreators, renderEvents } from './brand.js?v=411';
+import './kbd.js?v=411';
+import { renderSettingsFig } from './settings.js?v=411';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, brandRoute, renderCalls, renderForClient, onSegMore } from './more.js?v=411';
 
 const VERSION = 'прототип 1.0';
 
@@ -116,7 +116,7 @@ function drawer(role) {
   return `<div class="drawer__scrim" data-action="menu-close"></div>
     <nav class="drawer__panel" aria-label="Меню">
       <div class="brand brand--mini"><div class="brand__sphere" aria-hidden="true"></div><div class="brand__word">METRONICA</div></div>
-      <div class="drawer__list">${cfg.menu.map(([key, label]) => `<button type="button" class="drawer__item${on(key) ? ' is-on' : ''}" data-action="menu-go" data-to="${key}"${on(key) ? ' aria-current="page"' : ''}><span class="drawer__ic">${MENU_IC[key] || MENU_IC.home}</span><span>${esc(label)}</span></button>`).join('')}</div>
+      <div class="drawer__list">${cfg.menu.map(([key, label]) => `<button type="button" class="drawer__item${on(key) ? ' is-on' : ''}" data-action="menu-go" data-to="${key}"${on(key) ? ' aria-current="page"' : ''}><span class="drawer__ic">${MENU_IC[key] || MENU_IC.home}</span><span>${esc(label)}</span></button>`).join('')}${[['work', 'Выполнение заказа'], ['meas', 'Выполнение замера']].map(([k, t]) => `<button type="button" class="drawer__item${cur === 'bd-visit-' + (k === 'work' ? '014' : '015') ? ' is-on' : ''}" data-action="scene-go" data-k="${k}"><span class="drawer__ic">${MENU_IC.orders || MENU_IC.home}</span><span>${t}</span></button>`).join('')}</div>
       <div class="drawer__foot">
         <button type="button" class="drawer__me" data-action="menu-go" data-to="profile"><span class="drawer__av">${me.photo ? `<img src="${me.photo}" alt="">` : esc(ini)}</span><span><b>${esc(me.name)}</b><small>${esc(me.roles.map((r) => S.ROLE_NAMES[r]).join(' и '))}</small></span></button>
         <button type="button" class="link-btn" data-action="reset-ask">Начать заново</button><span class="drawer__ver">Метроника · ${VERSION}</span>
@@ -184,6 +184,7 @@ actions['menu-open'] = () => {
   if (first) first.focus();
 };
 actions['menu-close'] = () => document.getElementById('drawer').classList.remove('is-on');
+actions['scene-go'] = (el) => { actions['menu-close'](); try { sceneStart(el.dataset.k); } catch (e) { console.warn(e); } rerender(); };
 actions['menu-go'] = (el) => { actions['menu-close'](); go(el.dataset.to); };
 // Смена пользователя без входа: выбор из демо-аккаунтов.
 const pickUser = () => {
