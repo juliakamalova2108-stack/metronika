@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=425';
-import * as S from './store.js?v=425';
-import {oformitDraft} from './oformit.js?v=425';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=425';
-import {esc} from './ui.js?v=425';
-import {tape,say,sayLength} from './tape.js?v=425';
+import {actions,changes,rerender,afterRender} from './core.js?v=426';
+import * as S from './store.js?v=426';
+import {oformitDraft} from './oformit.js?v=426';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=426';
+import {esc} from './ui.js?v=426';
+import {tape,say,numKeys} from './tape.js?v=426';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -234,21 +234,21 @@ const tapeTarget=(r,w)=>{
   if(!w.len)return 'len';
   return null;
 };
-const tapePrompt=(t,r)=>{const i=(r.active||0)+1,o=r.newOpening||{},p=o.type||'Проём';
-  return t==='rh'?'Замерьте общую высоту':t==='len'?`Стена ${i}. Замерьте длину`:t==='h'?`Стена ${i}. Замерьте высоту`:t==='ow'?`${p}. Замерьте ширину`:t==='oh'?`${p}. Замерьте высоту`:'';};
-const roomName=(d,k)=>{try{const e=estimateRooms(d).find(x=>x.key===k);return e?e.name:'';}catch(x){return '';}};
+const OPK=o=>o.type==='Дверь'?'dver':o.type==='Окно'?'okno':'proem';
+const tapePrompt=(t,r)=>{const i=(r.active||0)+1,o=r.newOpening||{};
+  return t==='rh'?['rh']:t==='len'?['stena',...numKeys(i),'len']:t==='h'?['stena',...numKeys(i),'hgt']:t==='ow'?[OPK(o),'wid']:t==='oh'?[OPK(o),'hgt']:[];};
 tape.onFix=mm=>{
   let d;try{d=oformitDraft();}catch(e){return;}
   const s=state(d);if(!s.view||s.view==='pick'||s.view==='total')return;
   const r=room(s,s.view);if(!r.walls.length)return;
   r.active=Math.min(r.active||0,r.walls.length-1);const w=r.walls[r.active],t=tapeTarget(r,w);
-  if(!t){say('Это уже измерено. Нажмите «Перемерить»');return;}
-  const v=Math.round(mm/10)/100,txt=sayLength(mm),i=r.active+1;tape.chain=true;
-  if(t==='rh'){r.h=v||r.h;r.hDone=true;r.walls.forEach(x=>{if(!x.len)x.h=r.h;});say(`Высота ${txt}`);}
-  else if(t==='len'){w.len=v;say(`Длина ${txt}`);}
-  else if(t==='h'){w.h=v;w.hDone=true;say(`Высота ${txt}`);}
-  else if(t==='ow'){r.newOpening.width=String(Math.round(mm/10));say(`Ширина ${txt}`);}
-  else if(t==='oh'){r.newOpening.height=String(Math.round(mm/10));say(`Высота ${txt}`);save();actions['mw-confirm-opening']();say('Добавлено',true);return;}
+  if(!t){say(['done']);return;}
+  const v=Math.round(mm/10)/100,cm=numKeys(mm/10);tape.chain=true;
+  if(t==='rh'){r.h=v||r.h;r.hDone=true;r.walls.forEach(x=>{if(!x.len)x.h=r.h;});say(['vysota',...cm]);}
+  else if(t==='len'){w.len=v;say(['dlina',...cm]);}
+  else if(t==='h'){w.h=v;w.hDone=true;say(['vysota',...cm]);}
+  else if(t==='ow'){r.newOpening.width=String(Math.round(mm/10));say(['shirina',...cm]);}
+  else if(t==='oh'){r.newOpening.height=String(Math.round(mm/10));say(['vysota',...cm]);save();actions['mw-confirm-opening']();say(['added'],true);return;}
   save();
 };
 // Озвучка подсказки при любой смене «что ждём»
@@ -259,7 +259,7 @@ afterRender.push(()=>{
   let r;try{const d=oformitDraft(),s=state(d);if(!s.view||s.view==='pick'||s.view==='total')return;r=room(s,s.view);}catch(e){return;}
   if(!r.walls.length)return;const w=r.walls[Math.min(r.active||0,r.walls.length-1)],t=tapeTarget(r,w);
   const key=[oformitDraft().sm.view,r.active||0,r.mwDialog||'',t||''].join('|');if(key===tapeKey)return;tapeKey=key;
-  const rk=oformitDraft().sm.view,first=rk!==tapeRoom;tapeRoom=rk;const pre=tape.redo?'Повтор. ':(first?roomName(oformitDraft(),rk)+'. ':'');const msg=t?pre+tapePrompt(t,r):'';tape.redo=false;if(msg){say(msg,tape.chain);}tape.chain=false;
+  const rk=oformitDraft().sm.view,first=rk!==tapeRoom;tapeRoom=rk;const msg=t?[...(tape.redo?['repeat']:[]),...tapePrompt(t,r)]:'';tape.redo=false;if(msg.length){say(msg,tape.chain);}tape.chain=false;
 });
 
 // ---------- полёт ярлыка: из кнопки в свою колонку ----------

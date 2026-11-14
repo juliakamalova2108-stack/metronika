@@ -3,14 +3,14 @@
 // кнопки f-btn, верхние вкладки и нижняя панель f-nav / f-topnav / f-tab.
 // Три раздела внизу: Профиль · Работа · Система.
 
-import { actions, changes, rerender, go, val } from './core.js?v=425';
-import * as S from './store.js?v=425';
-import { esc, toast } from './ui.js?v=425';
-import { selectField, pickers } from './oformit.js?v=425';
-import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=425';
-import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=425';
-import { NOTIFY_KINDS } from './more.js?v=425';
-import { tape, connect as tapeConnect, disconnect as tapeOff, say as tapeSay, voiceName, nextVoice, voices } from './tape.js?v=425';
+import { actions, changes, rerender, go, val } from './core.js?v=426';
+import * as S from './store.js?v=426';
+import { esc, toast } from './ui.js?v=426';
+import { selectField, pickers } from './oformit.js?v=426';
+import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=426';
+import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=426';
+import { NOTIFY_KINDS } from './more.js?v=426';
+import { tape, connect as tapeConnect, disconnect as tapeOff, say as tapeSay, voiceName, nextVoice, voices } from './tape.js?v=426';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -103,8 +103,8 @@ function system() {
 actions['tp-connect'] = () => { tapeConnect(); };
 actions['tp-off'] = () => { tapeOff(); };
 actions['tp-voice'] = () => { tape.voice = !tape.voice; if (tape.voice) tapeSay('Голос включён'); rerender(); };
-actions['tp-voice-next'] = () => { nextVoice(); tapeSay('Жду длину. Стена один'); rerender(); };
-actions['tp-test'] = () => { const was = tape.voice; tape.voice = true; tapeSay('Длина два метра семьдесят сантиметров'); tape.voice = was; };
+actions['tp-voice-next'] = () => { nextVoice(); tapeSay(['test']); rerender(); };
+actions['tp-test'] = () => { const was = tape.voice; tape.voice = true; tapeSay(['test']); tape.voice = was; };
 
 export function renderSettingsFig(start) {
   if (start) group = start;

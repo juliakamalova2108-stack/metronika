@@ -3,8 +3,8 @@
 // Замер считается зафиксированным, когда число не меняется STABLE_MS; следующий замер принимается,
 // только когда рулетку сдвинули (число ушло от прошлого зафиксированного на REARM_MM).
 // Каждый зафиксированный замер озвучивается голосом телефона.
-import { rerender } from './core.js?v=425';
-import { toast } from './ui.js?v=425';
+import { rerender } from './core.js?v=426';
+import { toast } from './ui.js?v=426';
 
 const SERVICE = '0000cbbb-0000-1000-8000-00805f9b34fb';
 const CHAR = '0000cbb1-0000-1000-8000-00805f9b34fb';
@@ -30,9 +30,36 @@ export const voices = () => (typeof speechSynthesis === 'undefined' ? [] : speec
 export const voiceName = () => { let saved = ''; try { saved = localStorage.getItem(KEY) || ''; } catch (e) { /* без памяти */ } const L = voices(); const v = L.find((x) => x.name === saved) || L[0]; return v ? v.name : ''; };
 export const nextVoice = () => { const L = voices(); if (!L.length) return ''; const i = L.findIndex((x) => x.name === voiceName()); const v = L[(i + 1) % L.length]; try { localStorage.setItem(KEY, v.name); } catch (e) { /* без памяти */ } return v.name; };
 if (typeof speechSynthesis !== 'undefined' && speechSynthesis.addEventListener) speechSynthesis.addEventListener('voiceschanged', () => {});
-export function say(text, queue = false) {
-  if (!tape.voice || typeof speechSynthesis === 'undefined' || !text) return;
-  try { if (!queue) speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ru-RU'; u.rate = 1.0; u.pitch = 1.1; const n = voiceName(); const v = n && voices().find((x) => x.name === n); if (v) u.voice = v; speechSynthesis.speak(u); } catch (e) { /* голос недоступен */ }
+// ---- Голос Метроники: записанные фразы audio/<ключ>.mp3 (если файлов нет, читает голос телефона) ----
+export const CLIPS = { stena: 'Стена', rh: 'Замерьте общую высоту', len: 'Замерьте длину', hgt: 'Замерьте высоту', wid: 'Замерьте ширину', repeat: 'Повтор', dlina: 'Длина', vysota: 'Высота', shirina: 'Ширина', okno: 'Окно', dver: 'Дверь', proem: 'Проём', added: 'Добавлено', done: 'Это уже измерено. Нажмите «Перемерить»', test: 'Проверка голоса. Метроника на связи' };
+const ONES = ['ноль','один','два','три','четыре','пять','шесть','семь','восемь','девять','десять','одиннадцать','двенадцать','тринадцать','четырнадцать','пятнадцать','шестнадцать','семнадцать','восемнадцать','девятнадцать'];
+const TENS = { 20: 'двадцать', 30: 'тридцать', 40: 'сорок', 50: 'пятьдесят', 60: 'шестьдесят', 70: 'семьдесят', 80: 'восемьдесят', 90: 'девяносто' };
+const HUND = { 100: 'сто', 200: 'двести', 300: 'триста', 400: 'четыреста', 500: 'пятьсот', 600: 'шестьсот', 700: 'семьсот', 800: 'восемьсот', 900: 'девятьсот' };
+export const NUMCLIPS = { ...Object.fromEntries(ONES.map((w, i) => ['n' + i, w])), ...Object.fromEntries(Object.entries(TENS).map(([k, w]) => ['n' + k, w])), ...Object.fromEntries(Object.entries(HUND).map(([k, w]) => ['n' + k, w])) };
+// число в сантиметрах -> ключи клипов (310 -> n300, n10)
+export const numKeys = (cm) => { let n = Math.max(0, Math.min(999, Math.round(cm))); const k = []; if (n >= 100) { k.push('n' + Math.floor(n / 100) * 100); n %= 100; } if (n >= 20) { k.push('n' + Math.floor(n / 10) * 10); n %= 10; if (n) k.push('n' + n); } else if (n || !k.length) k.push('n' + n); return k; };
+const textOf = (k) => CLIPS[k] || NUMCLIPS[k] || String(k);
+let clipsOk = null, player = null, pending = [], busy = false;
+if (typeof fetch !== 'undefined' && typeof location !== 'undefined') fetch('audio/rh.mp3', { method: 'HEAD' }).then((r) => { clipsOk = r.ok; }).catch(() => { clipsOk = false; });
+function pump() {
+  if (busy) return; const k = pending.shift(); if (!k) return;
+  busy = true; player = player || new Audio();
+  const next = () => { busy = false; pump(); };
+  player.onended = next; player.onerror = next; player.src = 'audio/' + k + '.mp3'; player.play().catch(next);
+}
+function playKeys(keys, queue) {
+  if (!queue) { pending = []; if (player) { try { player.pause(); } catch (e) { /* уже стоит */ } } busy = false; }
+  pending.push(...keys); pump();
+}
+// say('текст') — голос телефона; say(['len', 'n300', 'n10']) — голос Метроники (или телефон, если файлов нет)
+export function say(x, queue = false) {
+  if (!tape.voice || !x || !x.length) return;
+  if (Array.isArray(x)) {
+    if (clipsOk && typeof Audio !== 'undefined') { playKeys(x, queue); return; }
+    x = x.map(textOf).join(' ');
+  }
+  if (typeof speechSynthesis === 'undefined') return;
+  try { if (!queue) speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(x); u.lang = 'ru-RU'; u.rate = 1.0; u.pitch = 1.1; const n = voiceName(); const v = n && voices().find((y) => y.name === n); if (v) u.voice = v; speechSynthesis.speak(u); } catch (e) { /* голос недоступен */ }
 }
 
 // Один пакет с рулетки (из канала или из теста). Пакеты могут прийти кусками — копим текст и ищем «D1.234m».
