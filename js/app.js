@@ -1,21 +1,20 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=431';
-import * as S from './store.js?v=431';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=431';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=431';
-import { renderSettlements } from './shared.js?v=431';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=431';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=431';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=431';
-import { renderOformit, onLiveOformit } from './oformit.js?v=431';
-import { onLiveZakaz } from './zakaz.js?v=431';
-import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=431';
-import { renderStatsMaster } from './stats.js?v=431';
-import { renderEvents } from './brand.js?v=431';
-import './kbd.js?v=431';
-import { renderSettingsFig } from './settings.js?v=431';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=431';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=432';
+import * as S from './store.js?v=432';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=432';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=432';
+import { renderSettlements } from './shared.js?v=432';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=432';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=432';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=432';
+import { renderOformit, onLiveOformit } from './oformit.js?v=432';
+import { onLiveZakaz } from './zakaz.js?v=432';
+import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=432';
+import { renderStatsMaster } from './stats.js?v=432';
+import './kbd.js?v=432';
+import { renderSettingsFig } from './settings.js?v=432';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=432';
 
 const VERSION = 'прототип 1.0';
 
@@ -30,12 +29,12 @@ const SCREENS = {
   agent: {
     start: 'new',
     nav: [['menu', 'Меню', 'menu'], ['new', 'Новая заявка', 'plus'], ['mine', 'Мои заявки', 'list'], ['money', 'Начисления', 'wallet']],
-    menu: [['new', 'Новая заявка'], ['mine', 'Мои заявки'], ['calls', 'Звонки клиентам'], ['for-client', 'Для клиента'], ['money', 'Начисления'], ['stats', 'Статистика'], ['events', 'События'], ['settings', 'Настройки']],
+    menu: [['new', 'Новая заявка'], ['mine', 'Мои заявки'], ['calls', 'Звонки клиентам'], ['for-client', 'Для клиента'], ['money', 'Начисления'], ['stats', 'Статистика'], ['settings', 'Настройки']],
   },
   master: {
     start: 'home',
     nav: [['menu', 'Меню', 'menu'], ['home', 'Главная', 'briefcase'], ['orders', 'Заказы', 'inbox'], ['stats', 'Статистика', 'wallet']],
-    menu: [['home', 'Главная'], ['orders', 'Заказы'], ['clients', 'Клиенты'], ['gallery', 'Галерея'], ['stats', 'Статистика'], ['events', 'События'], ['settings', 'Настройки']],
+    menu: [['home', 'Главная'], ['orders', 'Заказы'], ['clients', 'Клиенты'], ['gallery', 'Галерея'], ['stats', 'Статистика'], ['settings', 'Настройки']],
   },
 };
 SCREENS.dispatcher = { ...SCREENS.master, menu: [...SCREENS.master.menu.slice(0, 3), ['team', 'Команда'], ...SCREENS.master.menu.slice(3)] };
@@ -47,7 +46,6 @@ function screenFor(name, role) {
   if (name === 'profile') return renderProfileTab();
   if (name === 'settings') return renderSettings();
   if (name === 'stats') return renderStats();
-  if (name === 'events') return renderEvents();
   if (role === 'agent') {
     if (name === 'new') return renderNewOrder();
     if (name === 'mine') return renderAgentOrders();
@@ -89,7 +87,6 @@ const MENU_BARS = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5"
 // Иконки пунктов меню (тонкая линия, currentColor)
 const MI = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const MENU_IC = {
-  events: MI('<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="M12 13l1 2 2 .3-1.5 1.4.4 2.1-1.9-1-1.9 1 .4-2.1L9 15.3l2-.3z"/>'),
   honor: MI('<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M9 20h6"/>'),
   creators: MI('<rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="M16 10.5l5-3v9l-5-3"/>'),
   home: MI('<path d="M4 11l8-6.5 8 6.5"/><path d="M6 9.5V19h12V9.5"/><path d="M10 19v-5h4v5"/>'),
@@ -148,7 +145,7 @@ function render() {
   }
   view.innerHTML = S.withCur(html);
   // Экраны, перенесённые из Figma один в один, рисуют свою нижнюю навигацию.
-  const fig = name === 'oformit' || name === 'home' || name === 'events' || ((name === 'settings' || name === 'profile' || name === 'stats') && role !== 'agent') || ((name === 'current' || name === 'orders' || name.startsWith('bd-order-') || name.startsWith('bd-edit-') || name.startsWith('bd-visit-') || name.startsWith('bd-info-')) && role !== 'agent');
+  const fig = name === 'oformit' || name === 'home' || ((name === 'settings' || name === 'profile' || name === 'stats') && role !== 'agent') || ((name === 'current' || name === 'orders' || name.startsWith('bd-order-') || name.startsWith('bd-edit-') || name.startsWith('bd-visit-') || name.startsWith('bd-info-')) && role !== 'agent');
   document.body.classList.toggle('fig', fig);
   if (fig) {
     const ft = view.querySelector('.f-tab.is-active');

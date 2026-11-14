@@ -2,12 +2,12 @@
 // Одна карточка для всех ролей: ведущий (мастер или диспетчер) редактирует всё, мастер от диспетчера — свои комнаты,
 // агент смотрит заказ целиком и пишет в чат.
 
-import { actions, changes, rerender, go, val, numVal } from './core.js?v=431';
-import * as S from './store.js?v=431';
-import { SERVICES, UNIT, CHANNELS, EXPENSE_CATS, DEMO_BARCODES, DEMO_DEVICE, WALLPAPER_TYPES } from './seed.js?v=431';
-import { shiftsText, wallArea, penalty as penaltyRule, commissionAmount } from './calc.js?v=431';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=431';
-import { topbar, typeName, orderStatus, prelimBlock, historyBlock } from './shared.js?v=431';
+import { actions, changes, rerender, go, val, numVal } from './core.js?v=432';
+import * as S from './store.js?v=432';
+import { SERVICES, UNIT, CHANNELS, EXPENSE_CATS, DEMO_BARCODES, DEMO_DEVICE, WALLPAPER_TYPES } from './seed.js?v=432';
+import { shiftsText, wallArea, penalty as penaltyRule, commissionAmount } from './calc.js?v=432';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=432';
+import { topbar, typeName, orderStatus, prelimBlock, historyBlock } from './shared.js?v=432';
 
 let tab = 'channel';
 let lastId = '';
