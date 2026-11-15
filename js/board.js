@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=434';
-import * as S from './store.js?v=434';
-import { renderOformit, oformitDraft } from './oformit.js?v=434';
-import { roomTotals, svcInfo } from './ocenka.js?v=434';
-import { smetaTotals } from './zakaz.js?v=434';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=434';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=434';
-import { esc, toast, status, seg } from './ui.js?v=434';
-import { topbar, ORDER_STATUS } from './shared.js?v=434';
+import { actions, rerender, go } from './core.js?v=435';
+import * as S from './store.js?v=435';
+import { renderOformit, oformitDraft } from './oformit.js?v=435';
+import { roomTotals, svcInfo } from './ocenka.js?v=435';
+import { smetaTotals } from './zakaz.js?v=435';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=435';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=435';
+import { esc, toast, status, seg } from './ui.js?v=435';
+import { topbar, ORDER_STATUS } from './shared.js?v=435';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -182,7 +182,7 @@ export function orderSum(d, f) {
   const est = ((d && d.est && d.est.rooms) || []).reduce((a, r) => a + roomTotals(r).total, 0);
   let smt = null; try { smt = d && d.sm ? smetaTotals(d) : null; } catch (e) { smt = null; }
   if (!(smt && smt.total > 0)) return est;
-  const rs = (f && f.rs) || {};
+  const rs = f && f.st !== 'refused' ? (f.rs || {}) : {};   // у отказного заказа показываем сумму до отказа
   return Math.round(smt.rooms.filter((x) => (rs[x.room.key] || {}).st !== 'refuse').reduce((a, x) => a + x.total, 0) * (1 - ((d && d.disc) || 0) / 100));
 }
 const STAGE_HELP = { measure: 'Пока пусто. Сюда попадают заказы, по которым нужен замер: оформите замер во вкладке «Оформить».', approval: 'Пока пусто. Сюда попадают заказы после замера, если клиент «Подумает»: тут напомним перезвонить.', queue: 'Пока пусто. Сюда попадают согласованные заказы с назначенными датами работ.', work: 'Пока пусто. Сюда попадают заказы, которые вы начали.', done: 'Пока пусто. Сюда попадают заказы, где работы выполнены и осталась оплата.', refused: 'Пока пусто. Сюда попадают заказы, от которых клиент отказался.' };
@@ -317,7 +317,7 @@ export function renderVisit(arg) {
   if (!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) return null;
   if (DEMO[no]) seedOrder(no);
   S.setDraftKey('ord-' + no);
-  if (['done', 'closed', 'refused', 'approval'].includes(flowOf(no).st)) { history.replaceState(null, '', '#bd-order-' + no); return renderBoardOrder(no); }   // выезд на закрытый заказ не начинаем
+  if (['done', 'closed', 'refused', 'approval', 'queue'].includes(flowOf(no).st)) { history.replaceState(null, '', '#bd-order-' + no); return renderBoardOrder(no); }   // выезд на закрытый заказ не начинаем
   const d = oformitDraft(), f = flowOf(no), kind = f.st === 'measure' ? 'measure' : 'work';
   if (!f.visit || f.visit.kind !== kind) f.visit = { kind, step: 0, keep: {}, photos: {}, disc: 0, today: {} };
   const v = f.visit; v.open = 1;
@@ -378,8 +378,8 @@ export function renderVisit(arg) {
 }
 const vs = (el, fn) => { const no = el.dataset.no, f = flowOf(no); fn(f.visit, f); S.save(); rerender(); };
 const noOfHash = () => (/^#bd-(?:visit|edit|order|info)-([^-]+)/.exec(location.hash) || [])[1] || '';
-actions['vs-called'] = (el) => { setTimeout(() => vs(el, (v) => { v.called = 1; v.step = 1; }), 300); };
-actions['vs-route'] = (el) => { setTimeout(() => vs(el, (v) => { v.step = 2; }), 300); };
+actions['vs-called'] = (el) => { setTimeout(() => { const no = el.dataset.no; flowOf(no).visit.called = 1; vsGo(no, 1); }, 300); };
+actions['vs-route'] = (el) => { setTimeout(() => vsGo(el.dataset.no, 2), 300); };
 actions['vs-here'] = (el) => { const no = el.dataset.no; flowOf(no).visit.here = 1; vsGo(no, 3); };
 actions['vs-open'] = (el) => vsGo(el.dataset.no, flowOf(el.dataset.no).visit.step);
 actions['vs-keep'] = (el) => vs(el, (v) => { v.keep[el.dataset.k] = v.keep[el.dataset.k] === false; });
@@ -388,7 +388,7 @@ actions['vs-photo'] = (el) => vs(el, (v) => { v.photos[el.dataset.k] = !v.photos
 actions['vs-disc'] = (el) => { const v = flowOf(noOfHash()).visit; v.disc = +el.dataset.k; S.save(); rerender(); };
 actions['vs-next'] = (el) => { const no = el.dataset.no; const f0 = flowOf(no).visit, scr0 = vsScr(f0); const msg = vsExpMsg(no, scr0); if (msg) return toast(msg);
   if (f0.kind === 'work' && f0.step === 3) { const i = VS_TABS.findIndex((x) => x[0] === (f0.tab || 'material')); if (i < VS_TABS.length - 1) { f0.tab = VS_TABS[i + 1][0]; return vsGo(no, 3); } }
-  vsGo(no, f0.step + 1); };
+  vsGo(no, Math.min(4, f0.step + 1)); };
 actions['vs-plus'] = (el) => { const no = el.dataset.no, f = flowOf(no), v = f.visit; S.setDraftKey('ord-' + no);
   if (v.step === 3 && v.tab === 'smeta') return actions['mw-pick']();
   const dm = S.get().oformit['ord-' + no]; if (v.step === 3 && v.tab === 'material' && dm && dm.mat && dm.mat.view === 'pick') return actions['z-mat-pick']();
@@ -423,16 +423,19 @@ function logStat(no, kind, reason) {
   const L = S.get().statsLog = (S.get().statsLog || []).filter((x) => !(x.no === no && (x.kind === 'done' || x.kind === 'lost') && kind !== 'x')); L.push(rec);
   return rec.kind === 'lost' && kind === 'done';
 }
+// Заказ вернули из отказа: запись «потерянный» в статистике и причина больше не нужны.
+function leaveRefused(no) { const f = flowOf(no); if (f.st !== 'refused') return; S.get().statsLog = (S.get().statsLog || []).filter((x) => !(x.no === no && x.kind === 'lost')); delete f.reason; }
 const canClose = (no) => { const d0 = S.get().oformit['ord-' + no]; let t = null; try { t = d0 && d0.sm ? smetaTotals(d0) : null; } catch (e) { t = null; } return !!(t && t.total > 0); };
 // Задача «Позвонить клиенту» живёт в самом заказе (вкладка «Задачи», главная) и исчезает, когда клиент решил.
 const dueTxt = (v) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v || ''); return m ? `${Number(m[3])} ${MONG[Number(m[2]) - 1]}` : String(v || ''); };
 function setCallTask(no, days) { const d = S.get().oformit['ord-' + no]; if (!d) return; d.tasks = (d.tasks || []).filter((t) => t.id !== 'call-' + no); if (days) d.tasks.push({ id: 'call-' + no, text: 'Позвонить клиенту: ' + ((d.cl || {}).name || 'клиент'), who: 'me', due: iso(days), done: false }); }
-const vsEnd = (no, st, extra) => { const f = flowOf(no); if (!canGo(f.st, st)) { toast('Так сменить статус нельзя'); return false; } if (st === 'done' && !canClose(no)) { toast('Нельзя завершить: нет замера и сметы'); return false; } let allRef = false; if (st === 'done' || st === 'refused') allRef = logStat(no, st === 'done' ? 'done' : 'lost', extra && extra.reason); if (allRef) { st = 'refused'; extra = { reason: 'Все комнаты отказаны' }; } if (f.visit && f.visit.kind === 'measure') { const d0 = S.get().oformit['ord-' + no]; if (d0) d0.disc = f.visit.disc || 0; } f.visit = null; f.st = st; Object.assign(f, extra || {}); setCallTask(no, st === 'approval' ? (f.call || 3) : 0); flAsk = ''; S.save(); return true; };
+const vsEnd = (no, st, extra) => { const f = flowOf(no); if (!canGo(f.st, st)) { toast('Так сменить статус нельзя'); return false; } if (st === 'done' && !canClose(no)) { toast('Нельзя завершить: нет замера и сметы'); return false; }
+  if (st !== 'refused') leaveRefused(no); let allRef = false; if (st === 'done' || st === 'refused') allRef = logStat(no, st === 'done' ? 'done' : 'lost', extra && extra.reason); if (allRef) { st = 'refused'; extra = { reason: 'Все комнаты отказаны' }; } if (f.visit && f.visit.kind === 'measure') { const d0 = S.get().oformit['ord-' + no]; if (d0) d0.disc = f.visit.disc || 0; } f.visit = null; f.st = st; Object.assign(f, extra || {}); setCallTask(no, st === 'approval' ? (f.call || 3) : 0); flAsk = ''; S.save(); return true; };
 // Клиент согласен: если даты работ уже стоят — идём к заказу, иначе открываем график сразу в режиме правки (с кнопкой «ОК»).
 function afterYes(no) { const d0 = S.get().oformit['ord-' + no]; const placed = d0 && d0.sched && d0.sched.place && Object.keys(d0.sched.place).length;
   if (placed) { toast('Клиент согласен — даты работ уже назначены'); return go('bd-order-' + no); }
   toast('Клиент согласен — выберите даты работ'); startEdit = 'schedule'; go('bd-edit-' + no + '-schedule'); }
-actions['vs-yes'] = (el) => { const no = el.dataset.no; const d0 = S.get().oformit['ord-' + no]; if (d0) { d0.sched = d0.sched || {}; d0.sched.mode = 'work'; } if (vsEnd(no, 'queue') === false) return; afterYes(no); };
+actions['vs-yes'] = (el) => { const no = el.dataset.no; if (!canGo(flowOf(no).st, 'queue')) return toast('Так сменить статус нельзя'); const d0 = S.get().oformit['ord-' + no]; if (d0) { d0.sched = d0.sched || {}; d0.sched.mode = 'work'; } if (vsEnd(no, 'queue') === false) return; afterYes(no); };
 actions['vs-call'] = (el) => { const no = noOfHash(); vsEnd(no, 'approval', { call: +el.dataset.k || 3 }); toast('Задача «Позвонить клиенту» создана'); go('bd-order-' + no); };
 actions['vs-refuse'] = (el) => { const no = noOfHash(); vsEnd(no, 'refused', { reason: el.dataset.k }); toast('Заказ закрыт как отказ'); go('bd-order-' + no); };
 actions['vs-endshift'] = (el) => { const no = el.dataset.no, f = flowOf(no); if (f.st !== 'work') return; f.day = (f.day || 1) + 1; f.shift = {}; f.visit = null; f.st = 'work'; S.save(); toast('Смена закрыта — до завтра'); go('home'); };
@@ -443,6 +446,7 @@ actions['vs-dl'] = (el) => { const no = el.dataset.no, f = flowOf(no), d = S.get
 actions['vs-alldone'] = (el) => { const no = el.dataset.no; if (vsEnd(no, 'done') === false) return; toast(flowOf(no).st === 'refused' ? 'Все комнаты отказаны — заказ закрыт как отказ' : 'Работы выполнены — итог и оплата'); go('bd-order-' + no); };
 const flSet = (el, fn) => { const no = el.dataset.no; fn(flowOf(no), S.get().oformit['ord-' + no]); S.save(); rerender(); };
 actions['fl-startwork'] = (el) => { const f = flowOf(el.dataset.no); if (!canGo(f.st, 'work')) return toast('Так сменить статус нельзя');
+  if (f.st === 'refused') leaveRefused(el.dataset.no);
   if (f.st === 'queue') { const d0 = S.get().oformit['ord-' + el.dataset.no], paid0 = d0 && d0.fin ? d0.fin.pays.reduce((a, x) => a + x.amount, 0) : 0, c = f.chk || {}; if (!(c.a && c.b && (c.c || paid0 > 0))) { toast('Перед стартом отметьте: обои на объекте, клей и грунт, аванс'); go('bd-order-' + el.dataset.no); return; } } f.st = 'work'; f.day = 1; f.shift = {}; f.visit = null; S.save(); go('bd-visit-' + el.dataset.no); };
 actions['fl-ask'] = (el) => { flAsk = el.dataset.k ? el.dataset.no + ':' + el.dataset.k : ''; rerender(); };
 actions['fl-going'] = (el) => flSet(el, (f) => { f.going = 1; });
@@ -450,13 +454,13 @@ actions['fl-chk'] = (el) => flSet(el, (f) => { f.chk[el.dataset.k] = !f.chk[el.d
 actions['fl-sh'] = (el) => flSet(el, (f) => { f.shift[el.dataset.k] = !f.shift[el.dataset.k]; });
 actions['fl-room'] = (el) => flSet(el, (f) => { const k = el.dataset.k; f.rs = f.rs || {}; f.done[k] = !f.done[k]; if (f.done[k]) f.rs[k] = { st: 'done' }; else delete f.rs[k]; });
 actions['fl-shift'] = (el) => flSet(el, (f) => { f.day++; f.shift = {}; toast('Смена закрыта — объём и фото сохранены'); });
-actions['fl-call'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); if (!canGo(f.st, 'approval')) return rerender(); f.st = 'approval'; f.call = +el.dataset.k; setCallTask(no, f.call); S.save(); toast('Задача «Позвонить клиенту» создана'); rerender(); };
+actions['fl-call'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); if (!canGo(f.st, 'approval')) return rerender(); leaveRefused(no); f.st = 'approval'; f.call = +el.dataset.k; setCallTask(no, f.call); S.save(); toast('Задача «Позвонить клиенту» создана'); rerender(); };
 actions['fl-refuse'] = (el) => { const no = flAsk.split(':')[0]; flAsk = ''; const f = flowOf(no); if (!canGo(f.st, 'refused') || f.st === 'refused') return rerender(); f.st = 'refused'; f.reason = el.dataset.k; setCallTask(no, 0); logStat(no, 'lost', f.reason); S.save(); toast('Заказ закрыт как отказ'); rerender(); };
 actions['fl-pay'] = (el) => flSet(el, (f, d) => { const rooms = (d.est && d.est.rooms) || []; const sm = d.sm ? smetaTotals(d) : null; const tot = sm && sm.total ? sm.total : rooms.reduce((a, r) => a + roomTotals(r).total, 0);
   d.fin = d.fin || { pays: [], exps: [] }; const paid = d.fin.pays.reduce((a, x) => a + x.amount, 0); d.fin.pays.push({ kind: 'Оплата', amount: Math.max(0, tot - paid), date: iso(0), method: el.dataset.k }); toast('Оплата записана'); });
 actions['fl-to'] = (el) => { const [to, plan] = el.dataset.k.split('+'); flAsk = ''; const f0 = flowOf(el.dataset.no); if (!canGo(f0.st, to)) { toast('Так сменить статус нельзя'); return rerender(); }
   if (to === 'done' && !canClose(el.dataset.no)) { toast('Нельзя завершить: нет замера и сметы'); return rerender(); }
-  if (f0.st === 'refused') { const L = S.get().statsLog = (S.get().statsLog || []).filter((x) => !(x.no === el.dataset.no && x.kind === 'lost')); void L; delete f0.reason; }
+  if (to !== 'refused') leaveRefused(el.dataset.no);
   setCallTask(el.dataset.no, 0);
   flSet(el, (f) => { f.st = to; if (to === 'work') { f.day = 1; f.shift = {}; } if (to === 'done' && logStat(el.dataset.no, 'done')) { f.st = 'refused'; f.reason = 'Все комнаты отказаны'; } }); if (plan) afterYes(el.dataset.no); };
 export function renderBoardOrder(no, info) {
@@ -533,6 +537,7 @@ function beginEdit(d, t) {
 export function renderBoardEdit(no, t) {
   if ((!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) || !TAB_T[t]) return null;
   if (t === 'chat') return renderBoardChat(no);
+  if (locked(no, t)) { history.replaceState(null, '', '#bd-order-' + no); return renderBoardOrder(no); }   // закрытый заказ по прямой ссылке не правим
   if (DEMO[no]) seedOrder(no);
   S.setDraftKey('ord-' + no);
   if (startEdit === t) { startEdit = ''; beginEdit(oformitDraft(), t); }

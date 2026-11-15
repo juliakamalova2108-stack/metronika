@@ -2888,3 +2888,6 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 @media (orientation: landscape) and (max-height: 500px) {
   .f-nav { padding-top: 4px; padding-bottom: 4px; }
 }
+.link-btn, .st2-reset { min-height: 44px; }
+.cl-call { min-width: 44px; min-height: 44px; }
+.cl-search input { min-height: 44px; }
