@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=497';
-import * as S from './store.js?v=497';
-import { renderOformit, oformitDraft } from './oformit.js?v=497';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=497';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=497';
-import { renderMeasurement } from './measurement.js?v=497';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=497';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=497';
-import { esc, toast, status, seg } from './ui.js?v=497';
-import { topbar, ORDER_STATUS } from './shared.js?v=497';
+import { actions, rerender, go } from './core.js?v=498';
+import * as S from './store.js?v=498';
+import { renderOformit, oformitDraft } from './oformit.js?v=498';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=498';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=498';
+import { renderMeasurement } from './measurement.js?v=498';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=498';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=498';
+import { esc, toast, status, seg } from './ui.js?v=498';
+import { topbar, ORDER_STATUS } from './shared.js?v=498';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -493,7 +493,8 @@ const SUM_CHEV = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path 
 const plu3 = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? b : c);
 const qtyTxt = (q) => String(Math.round(q * 100) / 100).replace('.', ',');
 function plateView(no, rooms, d, money) {
-  const fTot = orderSum(d, flowOf(no));
+  // Итог = сумме показанных плашек комнат (roomTotals), чтобы цифры всегда сходились
+  const fTot = rooms.reduce((a, r) => a + roomTotals(r).total, 0);
   d.fin = d.fin || { pays: [], exps: [] }; d.fin.pays = d.fin.pays || [];
   const pays = d.fin.pays.reduce((a, x) => a + x.amount, 0);
   const keys = rooms.map((r) => r.key);
