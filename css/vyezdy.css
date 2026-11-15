@@ -2920,6 +2920,8 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 .g-cell--work .g-badge { position: static; flex: none; min-width: 12px; height: 12px; padding: 0 2px; font: 700 9px/12px var(--font-body); text-align: center; }
 .g-cell--work .g-cell__rooms { position: relative; display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; }
 .g-cell.g-cell--work .g-cell__rooms span { display: block; font: 300 9px/10px var(--font-body) !important; color: #0b1a1c; text-align: left; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.g-cell--work .g-cell__sum { position: relative; display: flex; align-items: baseline; justify-content: space-between; gap: 2px; max-width: 100%; overflow: hidden; }
-.g-cell--work .g-cell__sum em { font: 400 7.5px/10px var(--font-body); font-style: normal; letter-spacing: -0.3px; color: #0b1a1c; white-space: nowrap; }
-.g-cell--work .g-more { font: 600 8px/10px var(--font-body); font-style: normal; color: #0b1a1c; flex: none; }
+
+/* Календарь: сумма дня — на всю нижнюю строку; «ещё N» вместо второй комнаты. */
+.g-cell--work .g-cell__sum { position: relative; display: block; width: 100%; overflow: hidden; }
+.g-cell--work .g-cell__sum em { display: block; width: 100%; font: 400 9.5px/11px var(--font-body); font-style: normal; letter-spacing: -0.3px; color: #0b1a1c; white-space: nowrap; text-align: left; }
+.g-cell.g-cell--work .g-cell__rooms .g-more { font: 300 9px/10px var(--font-body) !important; font-style: normal; color: #0b1a1c; }
