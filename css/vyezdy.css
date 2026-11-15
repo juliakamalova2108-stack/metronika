@@ -2940,3 +2940,6 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 .f-nav--otabs .f-nav__tab svg { width: 22px; height: 22px; }
 .f-nav--otabs .f-nav__tab.is-on { background: rgba(214, 229, 194, 0.14); color: #e6f2cc; }
 .f-nav--otabs .f-nav__tab.is-on svg path, .f-nav--otabs .f-nav__tab.is-on svg rect, .f-nav--otabs .f-nav__tab.is-on svg circle { stroke: #e6f2cc; }
+
+/* «Инфо»: комнаты оценки показаны полностью, без сворачивания */
+.o-sroom--static .o-sroom__head { cursor: default; }

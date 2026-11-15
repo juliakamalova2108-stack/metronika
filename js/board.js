@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=478';
-import * as S from './store.js?v=478';
-import { renderOformit, oformitDraft } from './oformit.js?v=478';
-import { roomTotals, svcInfo } from './ocenka.js?v=478';
-import { smetaTotals } from './zakaz.js?v=478';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=478';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=478';
-import { esc, toast, status, seg } from './ui.js?v=478';
-import { topbar, ORDER_STATUS } from './shared.js?v=478';
+import { actions, rerender, go } from './core.js?v=479';
+import * as S from './store.js?v=479';
+import { renderOformit, oformitDraft } from './oformit.js?v=479';
+import { roomTotals, svcInfo } from './ocenka.js?v=479';
+import { smetaTotals } from './zakaz.js?v=479';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=479';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=479';
+import { esc, toast, status, seg } from './ui.js?v=479';
+import { topbar, ORDER_STATUS } from './shared.js?v=479';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -110,7 +110,7 @@ actions['bd-stage'] = (el) => { stage = el.dataset.stage; rerender(); window.scr
 // Запоминаем этап и место в списке: «назад» возвращает ровно туда, откуда открыли.
 let backY = 0;
 let restore = false;
-actions['bd-open'] = (el) => { backY = window.scrollY; go('bd-order-' + el.dataset.no); };
+actions['bd-open'] = (el) => { backY = window.scrollY; go('bd-info-' + el.dataset.no); };
 const pad = (n) => String(n).padStart(2, '0');
 const iso = (off) => { const d = dayOf(off); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
 // Примерные заказы: что в них «заполнено» — канал, клиент, оценка по комнатам, график.
@@ -521,8 +521,13 @@ export function renderBoardOrder(no, view) {
   const openTasks = (d.tasks || []).filter((t) => !t.done);
   if (openTasks.length) extra.push(block('Задачи', no, 'tasks', openTasks.slice(0, 3).map((t) => `<p class="bd-line"><b>${esc(t.text)}</b>${t.due ? `<small>до ${dueTxt(t.due)}</small>` : ''}</p>`).join('')));
   const more = extra.join('');
-  // Вкладка «Инфо» — первый этап: вводные со слов клиента, дата начала, оценка
-  const infoView = `${est}${sched}${chan}${sum}`;
+  // Вкладка «Инфо» — первый этап: всё, что вписали в начале; комнаты раскрыты полностью
+  const roomsOpen = rooms.map((r) => { const t = roomTotals(r);
+    return `<div class="o-sroom is-open o-sroom--static" style="--rc:${r.color}"><div class="o-sroom__head">
+      <span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж · ${t.lines.length} усл.</small></span><span class="o-sroom__sum"><b>${fmt(t.total)} ₽</b><small>${shiftsText(t.hours)}</small></span></div>
+      <div class="o-sroom__list">${t.lines.map((l) => `<div class="o-line"><span class="o-line__n">${esc(l.name)}</span><span class="o-line__q">${String(l.qty).replace('.', ',')} м²</span><b class="o-line__s">${fmt(l.sum)} ₽</b></div>`).join('')}</div></div>`; }).join('');
+  const estOpen = block('Оценка <small class="bd-sub">(со слов клиента)</small>', no, 'estimate', `<div class="bd-rooms">${roomsOpen || '<p class="bd-note">Оценки пока нет</p>'}</div>`);
+  const infoView = `${estOpen}${sched}${chan}${sum}`;
   // Вкладка «Задачи»
   const allTasks = d.tasks || [];
   const tasksView = block('Задачи', no, 'tasks', allTasks.length ? allTasks.map((t) => `<p class="bd-line${t.done ? ' is-done' : ''}"><b>${esc(t.text)}</b>${t.due ? `<small>до ${dueTxt(t.due)}</small>` : ''}</p>`).join('') : '<p class="bd-line"><b>Задач нет</b></p>');
