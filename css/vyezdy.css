@@ -2913,15 +2913,14 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 /* Календарь (главная и «План»): названия комнат в дне — чёрные, тонкие. */
 .g-cell--work span { color: #0b1a1c; font-weight: 300; text-shadow: none; }
 
-/* Календарь: в закрашенном дне — дата и «З» сверху, две комнаты, внизу сумма дня и «+N». */
-.g-cell.g-cell--work { align-items: stretch; justify-content: flex-start; padding: 3px 3px 2px 3px; text-align: left; }
-.g-cell--work .g-cell__top { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 2px; min-height: 14px; max-width: 100%; font: inherit; color: inherit; }
+/* Календарь: в закрашенном дне — дата по центру («З» справа), сумма тем же шрифтом, две комнаты; больше двух — «+N». */
+.g-cell.g-cell--work { align-items: stretch; justify-content: flex-start; padding: 3px 2px 2px; text-align: center; }
+.g-cell--work .g-cell__top { position: relative; display: flex; justify-content: center; align-items: center; min-height: 14px; max-width: 100%; font: inherit; color: inherit; }
 .g-cell.g-cell--work .g-cell__top b { font: 500 12px/14px var(--font-body); text-decoration: none; }
-.g-cell--work .g-badge { position: static; flex: none; min-width: 12px; height: 12px; padding: 0 2px; font: 700 9px/12px var(--font-body); text-align: center; }
-.g-cell--work .g-cell__rooms { position: relative; display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; }
-.g-cell.g-cell--work .g-cell__rooms span { display: block; font: 300 9px/10px var(--font-body) !important; color: #0b1a1c; text-align: left; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-/* Календарь: сумма дня — на всю нижнюю строку; «ещё N» вместо второй комнаты. */
-.g-cell--work .g-cell__sum { position: relative; display: block; width: 100%; overflow: hidden; }
-.g-cell--work .g-cell__sum em { display: block; width: 100%; font: 400 9.5px/11px var(--font-body); font-style: normal; letter-spacing: -0.3px; color: #0b1a1c; white-space: nowrap; text-align: left; }
-.g-cell.g-cell--work .g-cell__rooms .g-more { font: 300 9px/10px var(--font-body) !important; font-style: normal; color: #0b1a1c; }
+.g-cell--work .g-badge { position: absolute; top: 1px; right: 0; min-width: 12px; height: 12px; padding: 0 2px; font: 700 9px/12px var(--font-body); text-align: center; }
+.g-cell.g-cell--work .g-cell__sum { display: block; max-width: 100%; overflow: hidden; font: 500 12px/14px var(--font-body) !important; color: inherit; letter-spacing: -0.6px; white-space: nowrap; }
+.g-cell--work .g-cell__rooms { position: relative; display: flex; flex-direction: column; min-width: 0; margin-top: 1px; }
+.g-cell.g-cell--work .g-cell__rooms > span { display: flex; justify-content: center; gap: 2px; font: 300 9px/10px var(--font-body) !important; color: #0b1a1c; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.g-cell--work .g-plus { font-style: normal; font-weight: 600; flex: none; }
+.g-cell--work .g-cell__rooms .g-n { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.g-cell.g-cell--work .g-cell__sum.is-long { font-size: 10.5px !important; letter-spacing: -0.5px; }
