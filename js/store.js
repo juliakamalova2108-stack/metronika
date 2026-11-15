@@ -1,8 +1,8 @@
 // Данные прототипа и все действия над ними. Хранятся только в этом браузере (localStorage).
 // Модель повторяет «Скелет системы»: заказ → звенья передачи → начисления; комнаты → стены → смета.
 
-import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=436';
-import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=436';
+import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=437';
+import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=437';
 
 const KEY = 'metronika-prototype-v2';
 export let loadNote = '';   // сообщение, если данные пришлось сбросить при запуске
@@ -15,7 +15,7 @@ function sane(s) {
   if (!isObj(s) || s.version !== 2) return false;
   if (!Array.isArray(s.users) || !s.users.length || !s.users.every((u) => isObj(u) && u.id && Array.isArray(u.roles))) return false;
   if (!isObj(s.session) || !isObj(s.session.pins)) return false;
-  if (!s.users.some((u) => u.id === s.session.userId)) s.session.userId = s.users[0].id;
+  if (s.session.userId && !s.users.some((u) => u.id === s.session.userId)) s.session.userId = (s.users.find((u) => u.id === 'u-sergey') || s.users[0]).id;
   const arr = (k) => { if (!Array.isArray(s[k])) s[k] = []; };
   ['orders', 'events', 'credits', 'partnerships', 'reviews'].forEach(arr);
   s.orders = s.orders.filter(isObj);
