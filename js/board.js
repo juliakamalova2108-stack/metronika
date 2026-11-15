@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=468';
-import * as S from './store.js?v=468';
-import { renderOformit, oformitDraft } from './oformit.js?v=468';
-import { roomTotals, svcInfo } from './ocenka.js?v=468';
-import { smetaTotals } from './zakaz.js?v=468';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=468';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=468';
-import { esc, toast, status, seg } from './ui.js?v=468';
-import { topbar, ORDER_STATUS } from './shared.js?v=468';
+import { actions, rerender, go } from './core.js?v=470';
+import * as S from './store.js?v=470';
+import { renderOformit, oformitDraft } from './oformit.js?v=470';
+import { roomTotals, svcInfo } from './ocenka.js?v=470';
+import { smetaTotals } from './zakaz.js?v=470';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=470';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=470';
+import { esc, toast, status, seg } from './ui.js?v=470';
+import { topbar, ORDER_STATUS } from './shared.js?v=470';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -91,7 +91,7 @@ export function renderBoard() {
     const sum = orderSum(d, f);
     return `<div class="bd-slot">${leaf(dayOf(off), off === 0, f.st === 'measure' ? `${esc(d.cl.hour)}:${esc(d.cl.min)}` : '')}<button type="button" class="bd-card" data-action="bd-open" data-no="${no}">
       <span class="bd-top"><span class="bd-who"><b>${esc(c.n)}</b><small>${esc(c.a)}</small></span><span class="bd-sum"><b>${sum ? fmt(sum) + ' ₽' : '—'}</b><small>№${no}</small></span></span>
-      <span class="bd-foot"><span class="bd-room" style="--c:#7ee2a3">${FL_NAME[f.st]}<small>${f.st === 'measure' ? (mOff < 0 ? `замер просрочен на ${-mOff} дн.` : 'выезд на замер') : f.st === 'approval' ? 'перезвонить' : f.st === 'closed' ? 'завершён' : ''}</small></span></span></button></div>`; }).join('');
+      <span class="bd-foot"><span class="bd-room" style="--c:#7ee2a3">${FL_NAME[f.st]}<small>${f.st === 'measure' ? (mOff < 0 ? `замер просрочен на ${-mOff} дн.` : '') : f.st === 'approval' ? 'перезвонить' : f.st === 'closed' ? 'завершён' : ''}</small></span></span></button></div>`; }).join('');
   const body = rows.length || xcards ? xcards + rows.map(([off, k, n, t]) => card(off, k, n, t)).join('')
     : `<p class="bd-empty">${q ? 'Ничего не нашлось' : (STAGE_HELP[stage] || 'В этом этапе пока пусто')}</p>`;
   const tabs = STAGES.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === stage}" class="f-tab${k === stage ? ' is-active' : ''}" data-action="bd-stage" data-stage="${k}">${t}</button>`).join('');
