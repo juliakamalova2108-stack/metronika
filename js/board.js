@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=492';
-import * as S from './store.js?v=492';
-import { renderOformit, oformitDraft } from './oformit.js?v=492';
-import { roomTotals, svcInfo } from './ocenka.js?v=492';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=492';
-import { renderMeasurement } from './measurement.js?v=492';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=492';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=492';
-import { esc, toast, status, seg } from './ui.js?v=492';
-import { topbar, ORDER_STATUS } from './shared.js?v=492';
+import { actions, rerender, go } from './core.js?v=493';
+import * as S from './store.js?v=493';
+import { renderOformit, oformitDraft } from './oformit.js?v=493';
+import { roomTotals, svcInfo } from './ocenka.js?v=493';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=493';
+import { renderMeasurement } from './measurement.js?v=493';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=493';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=493';
+import { esc, toast, status, seg } from './ui.js?v=493';
+import { topbar, ORDER_STATUS } from './shared.js?v=493';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -542,20 +542,25 @@ export function renderBoardOrder(no, view) {
   const matBlock = block('Материалы <small class="bd-sub">(сбор артикулов)</small>', no, 'material', `<div class="bd-rooms">${matView}</div>`);
   let matComp = ''; try { matComp = renderMaterial(d); } catch (e) { matComp = matBlock; }
   const matTab = matComp;
-  // Финансы — список комнат (как плашка комнаты в Смете/Материалах: название + этаж),
-  // внутри — сводка по видам услуг и цена комнаты, кнопка «+ Аванс». Внизу — общий итог заказа и оплаты.
+  // Финансы — сверху та же полоса плиток, что в Смете/Материалах (.o-pvbar/.o-pv: комната — цена, Итог — сумма заказа),
+  // клик по плитке прокручивает к карточке. Ниже — все комнаты списком (плашка o-rplate), в каждой сводка по услугам,
+  // цена комнаты и «+ Аванс». В конце — общий итог заказа и оплаты.
   const fTot = orderSum(d, flowOf(no));
+  const finCards = rooms.map((r) => { const t = roomTotals(r);
+    return `<button type="button" class="o-pv" style="--rc:${r.color || '#7c8f8a'}" data-action="bd-fin-scroll" data-key="${esc(r.key)}"><b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span></button>`; }).join('');
+  const finSumTile = `<button type="button" class="o-pv o-pv--sum" style="--rc:#c8d9a8" data-action="bd-fin-scroll" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(fTot)}<small> ₽</small></span></button>`;
+  const finStrip = rooms.length ? `<div class="o-pvbar"><div class="o-pvs">${finCards}${finSumTile}</div></div>` : '';
   const finRoom = (r) => { const t = roomTotals(r);
-    return `<section class="f-plate o-rplate" style="--rc:${r.color}"><div class="o-rhead"><span class="o-rhead__t"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span></div>
+    return `<section class="f-plate o-rplate" id="fin-${esc(r.key)}" style="--rc:${r.color}"><div class="o-rhead"><span class="o-rhead__t"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span></div>
       ${t.lines.map((l) => `<p class="bd-line bd-line--sum"><b>${esc(l.name)}</b><em>${fmt(l.sum)} ₽</em></p>`).join('') || '<p class="bd-note">Работы пока не добавлены</p>'}
       <p class="bd-line bd-line--sum bd-line--tot"><b>Цена комнаты</b><em>${fmt(t.total)} ₽</em></p>
       <div class="f-btn-row"><button type="button" class="f-btn" data-action="z-pay-new">+ Аванс</button></div></section>`; };
   const payLines = (d.fin && d.fin.pays || []).map((x) => `<p class="bd-line"><b>${esc(x.kind || 'Оплата')} ${fmt(x.amount)} ₽</b><small>${esc(x.method || '')}${x.date ? ` · ${fmtISO(x.date)}` : ''}</small></p>`).join('');
-  const finTotal = `<section class="f-plate o-grand"><p class="o-grand__t">Итого по заказу</p><b class="o-grand__sum">${fmt(fTot)} ₽</b></section>
+  const finTotal = `<section class="f-plate o-grand" id="fin-total"><p class="o-grand__t">Итого по заказу</p><b class="o-grand__sum">${fmt(fTot)} ₽</b></section>
     <section class="f-plate"><div class="summary-areas"><span>Получено<b>${fmt(pays)} ₽</b></span><span>Осталось<b>${fmt(Math.max(0, fTot - pays))} ₽</b></span></div>
     ${payLines || '<p class="bd-note">Оплат пока нет</p>'}</section>
     <div class="f-btn-row bd-flbtns"><button type="button" class="f-btn f-btn--lit" data-action="z-pay-new">+ Оплата</button></div>`;
-  const finTab = (d.ui && d.ui.form === 'pay') ? renderPayForm(d) : `<div class="o-stack"><p class="o-sec">Комнаты</p>${rooms.map(finRoom).join('') || '<p class="bd-note">Комнат нет</p>'}${finTotal}</div>`;
+  const finTab = (d.ui && d.ui.form === 'pay') ? renderPayForm(d) : `${finStrip}<div class="o-stack">${rooms.map(finRoom).join('') || '<p class="bd-note">Комнат нет</p>'}${finTotal}</div>`;
   const viewBody = view === 'zam' ? zamView : view === 'mat' ? matTab : view === 'finance' ? finTab : infoView;
   // где сейчас действие — отметим точкой на вкладке
   const stTab = { measure: 'zam', approval: 'zam', queue: 'mat', work: 'mat', done: 'finance', closed: 'finance', refused: 'info' }[f.st] || 'info';
@@ -623,6 +628,7 @@ actions['bd-to-order'] = (el) => { showParts = false; const no = el.dataset.no, 
   go('bd-order-' + no); };
 actions['bd-room'] = (el) => { const k = el.dataset.key; if (openRooms.has(k)) openRooms.delete(k); else openRooms.add(k); rerender(); };
 actions['bd-back'] = () => go('orders');
+actions['bd-fin-scroll'] = (el) => { const t = document.getElementById('fin-' + el.dataset.key); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 export function onLiveBoard(el) {
   if (el.dataset.live === 'client-q') { clientQ = el.value; const pos = el.selectionStart; rerender(); const a = document.getElementById('client-q'); if (a) { a.focus(); try { a.setSelectionRange(pos, pos); } catch (e) { /* поле */ } } return true; }
   if (el.dataset.live !== 'bd-q') return false;
