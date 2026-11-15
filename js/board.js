@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=511';
-import * as S from './store.js?v=511';
-import { renderOformit, oformitDraft } from './oformit.js?v=511';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=511';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=511';
-import { renderMeasurement } from './measurement.js?v=511';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=511';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=511';
-import { esc, toast, status, seg } from './ui.js?v=511';
-import { topbar, ORDER_STATUS } from './shared.js?v=511';
+import { actions, rerender, go } from './core.js?v=512';
+import * as S from './store.js?v=512';
+import { renderOformit, oformitDraft } from './oformit.js?v=512';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=512';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=512';
+import { renderMeasurement } from './measurement.js?v=512';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=512';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=512';
+import { esc, toast, status, seg } from './ui.js?v=512';
+import { topbar, ORDER_STATUS } from './shared.js?v=512';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -544,10 +544,6 @@ export function renderBoardOrder(no, view) {
   const r0cl = rooms[0];
   const telDigits = (c.phone || '').replace(/[^+\d]/g, '');
   const mapRoute = 'https://yandex.ru/maps/?rtext=~' + encodeURIComponent('Уфа, ' + addr);
-  const nDays = days.length;
-  const curDay = Math.min(Math.max(1, flowOf(no).day || 1), nDays || 1);
-  const segs = nDays ? Array.from({ length: nDays }, (_, i) => `<i class="${i < curDay - 1 ? 'past' : i === curDay - 1 ? 'on' : ''}"></i>`).join('') : '';
-  const prog = nDays ? `<span class="h-prog"><span class="h-prog__bar">${segs}</span><small>день ${curDay} из ${nDays}</small></span>` : '';
   const clientCard = `<article class="h-hero bd-clcard" style="--c:${(r0cl && r0cl.color) || '#f59e0b'}">
     <div class="h-hero__glow" aria-hidden="true"></div>
     <div class="h-hero__top"><span class="h-pill"><i></i>Сегодня</span>
@@ -555,7 +551,7 @@ export function renderBoardOrder(no, view) {
     <div class="h-hero__time">${esc(c.hour || '10')}:${esc(c.min || '00')}</div>
     <div class="h-hero__who"><b>${esc(c.name || '')}</b><small>${esc(addr)}</small></div>
     <div class="bd-clcard__bottom">
-      ${r0cl ? `<div class="h-hero__job bd-clcard__job"><span class="h-room"><i></i>${esc(r0cl.name)}<small>${esc(r0cl.floor || '')} этаж</small></span>${prog}</div>` : '<span></span>'}
+      <div class="bd-clcard__total"><small>Сумма заказа</small><b>${fmt(orderSum(d, flowOf(no)))} ₽</b></div>
       <div class="bd-clcard__acts">
         <a class="bd-clround" href="tel:${esc(telDigits)}" aria-label="Позвонить клиенту">${PH}</a>
         <a class="bd-clround bd-clround--go" href="${mapRoute}" target="_blank" rel="noopener" aria-label="Проложить маршрут">${WAYIC}</a>
