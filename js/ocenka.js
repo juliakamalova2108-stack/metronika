@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=494';
-import * as S from './store.js?v=494';
-import { SYSTEM_PRICE } from './seed.js?v=494';
-import { shiftsText, hoursFor } from './calc.js?v=494';
-import { esc, toast } from './ui.js?v=494';
-import { logEvent } from './zlog.js?v=494';
+import { actions, changes, rerender } from './core.js?v=495';
+import * as S from './store.js?v=495';
+import { SYSTEM_PRICE } from './seed.js?v=495';
+import { shiftsText, hoursFor } from './calc.js?v=495';
+import { esc, toast } from './ui.js?v=495';
+import { logEvent } from './zlog.js?v=495';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -178,7 +178,7 @@ function servicesView(e, r) {
 }
 
 // Короткие названия для строк ввода: строки одной высоты, название в одну строку.
-const SHORT = { 'paste-flizelin': 'Поклейка флиз. обоев', 'paste-paper': 'Поклейка бум. обоев', strip: 'Демонтаж обоев', 'strip-paint': 'Снятие краски', 'strip-plaster': 'Снятие штукатурки', mesh: 'Малярная сетка', 'paste-glass': 'Поклейка стеклообоев', 'paste-photo': 'Поклейка фотообоев' };
+export const SHORT = { 'paste-flizelin': 'Поклейка флиз. обоев', 'paste-paper': 'Поклейка бум. обоев', strip: 'Демонтаж обоев', 'strip-paint': 'Снятие краски', 'strip-plaster': 'Снятие штукатурки', mesh: 'Малярная сетка', 'paste-glass': 'Поклейка стеклообоев', 'paste-photo': 'Поклейка фотообоев' };
 export const SHORT_NAMES = SHORT;
 // Строка услуги: слева поле м² (под левую руку), в середине название и цена, справа сумма.
 function svcCard(l, locked, changed = false, err = false) {
