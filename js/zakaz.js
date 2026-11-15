@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=493';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=494';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=493';
-import * as S from './store.js?v=493';
-import { WALLPAPER_TYPES } from './seed.js?v=493';
-import { esc, toast } from './ui.js?v=493';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=493';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=493';
-import { country } from './phonecodes.js?v=493';
-import { suggestAddress } from './address.js?v=493';
-import { suggesters } from './kbd.js?v=493';
-import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=493';
+import { actions, changes, rerender } from './core.js?v=494';
+import * as S from './store.js?v=494';
+import { WALLPAPER_TYPES } from './seed.js?v=494';
+import { esc, toast } from './ui.js?v=494';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=494';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=494';
+import { country } from './phonecodes.js?v=494';
+import { suggestAddress } from './address.js?v=494';
+import { suggesters } from './kbd.js?v=494';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=494';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -535,13 +535,13 @@ export function renderPayForm(d) {
       ${selectField('z-p-method', 'Способ оплаты', p.method, ['Перевод', 'Наличные', 'Карта'].map((x) => ({ value: x, label: x })), false)}</section>
       ${dock(row(btn('Отмена', 'z-form-close'), btn('Сохранить', 'z-pay-save')))}`;
 }
-actions['z-pay-new'] = () => { D().ui = { form: 'pay', pay: { kind: 'Аванс', sum: '', date: todayISO(), method: 'Перевод' } }; save(); };
+actions['z-pay-new'] = (el) => { D().ui = { form: 'pay', pay: { kind: 'Аванс', sum: '', date: todayISO(), method: 'Перевод', room: (el && el.dataset.room) || '' } }; save(); };
 actions['z-pay-kind'] = (el) => { D().ui.pay.kind = el.dataset.v; save(); };
 pickers['z-p-method'] = (v, d) => { d.ui.pay.method = v; };
 actions['z-pay-save'] = () => {
   const d = D(); const p = d.ui.pay; const a = Math.round(parse(p.sum));
   if (!(a > 0)) { d.ui.err = { sum: 'Введите сумму' }; save(); showErrors(); return; }
-  d.fin.pays.push({ kind: p.kind, amount: a, date: p.date || todayISO(), method: p.method });
+  d.fin.pays.push({ kind: p.kind, amount: a, date: p.date || todayISO(), method: p.method, room: p.room || '' });
   logEvent(d, p.kind === 'Аванс' ? 'Получен аванс' : 'Получена оплата', `${fmt(a)} ₽ · ${p.method}`); d.ui = {}; save();
 };
 actions['z-exp-new'] = () => { D().ui = { form: 'exp', exp: { name: '', sum: '', comment: '' } }; save(); };
