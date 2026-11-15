@@ -1,17 +1,17 @@
 // Вход по телефону → код из SMS → PIN; регистрация; повторный вход по PIN.
 // Функционал взят из секции «Вход» в Figma, оформление — из «Выездов».
 
-import { actions, rerender, val } from './core.js?v=438';
-import * as S from './store.js?v=438';
-import { DEMO_CODE } from './seed.js?v=438';
-import { esc, field, btnRow, seg, phoneRu, toast } from './ui.js?v=438';
+import { actions, rerender, val } from './core.js?v=439';
+import * as S from './store.js?v=439';
+import { DEMO_CODE } from './seed.js?v=439';
+import { esc, field, btnRow, seg, phoneRu, toast } from './ui.js?v=439';
 
 const flow = { step: 'phone', mode: 'login', phone: '', error: '', reg: { name: '', role: 'master', c1: false, c2: false }, pin1: '', userId: null };
 // ?demo=1 — показ сценария: сразу вход мастером, без PIN
 let unlocked = /[?&]demo=1/.test(location.search);
 if (unlocked && !S.get().session.userId) S.setSession('u-sergey');
 // Каждое новое открытие приложения начинается с роли мастера (Сергей); смена роли в меню действует, пока вкладка открыта.
-try { if (!sessionStorage.getItem('metronika-boot')) { sessionStorage.setItem('metronika-boot', '1'); if (S.get().users.some((u) => u.id === 'u-sergey')) S.setSession('u-sergey'); } } catch (e) { /* без sessionStorage — как раньше */ }
+try { if (S.ONLY_MASTER || !sessionStorage.getItem('metronika-boot')) { sessionStorage.setItem('metronika-boot', '1'); if (S.get().users.some((u) => u.id === 'u-sergey')) S.setSession('u-sergey'); } } catch (e) { /* без sessionStorage — как раньше */ }
 
 export const isUnlocked = () => unlocked;
 export function lock() { unlocked = false; }
@@ -98,11 +98,7 @@ export function renderAuth() {
       <div class="well">
         <p class="small">Демо-аккаунты прототипа: нажмите, чтобы подставить номер</p>
         <div class="chips">
-          <button type="button" class="chip-btn" data-action="demo-phone" data-phone="9001111111">Алина<small>агент · продавец</small></button>
           <button type="button" class="chip-btn" data-action="demo-phone" data-phone="9002222222">Сергей<small>мастер</small></button>
-          <button type="button" class="chip-btn" data-action="demo-phone" data-phone="9003333333">Иван<small>диспетчер и мастер</small></button>
-          <button type="button" class="chip-btn" data-action="demo-phone" data-phone="9004444444">Андрей<small>мастер у Ивана</small></button>
-          <button type="button" class="chip-btn" data-action="demo-phone" data-phone="9005555555">Олег<small>мастер у Ивана</small></button>
         </div>
       </div>
     </form></div>`;

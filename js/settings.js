@@ -3,14 +3,14 @@
 // кнопки f-btn, верхние вкладки и нижняя панель f-nav / f-topnav / f-tab.
 // Три раздела внизу: Профиль · Работа · Система.
 
-import { actions, changes, rerender, go, val } from './core.js?v=438';
-import * as S from './store.js?v=438';
-import { esc, toast } from './ui.js?v=438';
-import { selectField, pickers } from './oformit.js?v=438';
-import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=438';
-import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=438';
-import { NOTIFY_KINDS } from './more.js?v=438';
-import { tape, connect as tapeConnect, disconnect as tapeOff, say as tapeSay, voiceName, nextVoice, voices } from './tape.js?v=438';
+import { actions, changes, rerender, go, val } from './core.js?v=439';
+import * as S from './store.js?v=439';
+import { esc, toast } from './ui.js?v=439';
+import { selectField, pickers } from './oformit.js?v=439';
+import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=439';
+import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=439';
+import { NOTIFY_KINDS } from './more.js?v=439';
+import { tape, connect as tapeConnect, disconnect as tapeOff, say as tapeSay, voiceName, nextVoice, voices } from './tape.js?v=439';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -54,7 +54,7 @@ function profile() {
     ${input('pf-city', 'Ближайший город', st.city || '', 'list="pf-cities" data-change="pf-loc" data-k="city" autocomplete="off" placeholder="Например, Уфа"')}<datalist id="pf-cities">${CITIES.map((c) => `<option value="${c}">`).join('')}</datalist>
     ${input('pf-place', 'Населённый пункт', st.place || '', 'data-change="pf-loc" data-k="place" autocomplete="off" placeholder="Город, посёлок или село"')}`)
   + plate('PIN-код', `<div class="z-grid2">${input('pin-a', 'Новый PIN', '', 'inputmode="numeric" maxlength="4"', 'password')}${input('pin-b', 'Ещё раз', '', 'inputmode="numeric" maxlength="4"', 'password')}</div>${btnRow(btn('Сменить PIN', 'pin-change'))}`)
-  + btnRow(btn('Выйти', 'logout')) + '<button type="button" class="link-btn st2-reset" data-action="reset-ask">Сбросить демо-данные</button>';
+  + (S.ONLY_MASTER ? '' : btnRow(btn('Выйти', 'logout'))) + '<button type="button" class="link-btn st2-reset" data-action="reset-ask">Сбросить демо-данные</button>';
 }
 
 // ── Работа: услуги ──

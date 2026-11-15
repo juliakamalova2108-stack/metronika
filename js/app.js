@@ -1,20 +1,20 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=438';
-import * as S from './store.js?v=438';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=438';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=438';
-import { renderSettlements } from './shared.js?v=438';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=438';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=438';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=438';
-import { renderOformit, onLiveOformit } from './oformit.js?v=438';
-import { onLiveZakaz } from './zakaz.js?v=438';
-import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=438';
-import { renderStatsMaster } from './stats.js?v=438';
-import './kbd.js?v=438';
-import { renderSettingsFig } from './settings.js?v=438';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=438';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=439';
+import * as S from './store.js?v=439';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=439';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=439';
+import { renderSettlements } from './shared.js?v=439';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=439';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=439';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=439';
+import { renderOformit, onLiveOformit } from './oformit.js?v=439';
+import { onLiveZakaz } from './zakaz.js?v=439';
+import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=439';
+import { renderStatsMaster } from './stats.js?v=439';
+import './kbd.js?v=439';
+import { renderSettingsFig } from './settings.js?v=439';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=439';
 
 const VERSION = 'прототип 1.0';
 
@@ -123,6 +123,7 @@ function renderInner() {
   const drawerEl = document.getElementById('drawer');
   const me = S.me();
   // Вход временно убран: сразу открываем кабинет (по умолчанию — мастер Сергей).
+  if (S.ONLY_MASTER && me && me.id !== 'u-sergey' && S.get().users.some((x) => x.id === 'u-sergey')) { S.setSession('u-sergey'); return renderInner(); }
   if (!me) { const us = S.get().users, u = us.find((x) => x.id === 'u-sergey') || us[0]; if (u) { S.setSession(u.id); } else { S.resetDemo(); } const again = S.me(); if (!again) { view.innerHTML = '<p style="padding:24px">Данные не открываются. Нажмите «Сбросить».</p><button class="btn" data-action="reset-do">Сбросить</button>'; return; } return renderInner(); }
   if (false) {
     document.body.classList.add('is-auth');
@@ -195,6 +196,7 @@ actions['menu-go'] = (el) => { actions['menu-close'](); go(el.dataset.to); };
 // Смена пользователя без входа: выбор из демо-аккаунтов.
 const pickUser = () => {
   actions['menu-close']();
+  if (S.ONLY_MASTER) return;
   const cur = S.me();
   sheet({
     title: 'Кем войти',
