@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=476';
-import * as S from './store.js?v=476';
-import { renderOformit, oformitDraft } from './oformit.js?v=476';
-import { roomTotals, svcInfo } from './ocenka.js?v=476';
-import { smetaTotals } from './zakaz.js?v=476';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=476';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=476';
-import { esc, toast, status, seg } from './ui.js?v=476';
-import { topbar, ORDER_STATUS } from './shared.js?v=476';
+import { actions, rerender, go } from './core.js?v=477';
+import * as S from './store.js?v=477';
+import { renderOformit, oformitDraft } from './oformit.js?v=477';
+import { roomTotals, svcInfo } from './ocenka.js?v=477';
+import { smetaTotals } from './zakaz.js?v=477';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=477';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=477';
+import { esc, toast, status, seg } from './ui.js?v=477';
+import { topbar, ORDER_STATUS } from './shared.js?v=477';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -759,7 +759,6 @@ const HI = {
 let homeDay = 0;
 let homeMonth = 0;
 let homeSel = '';
-let homeStMenu = '';
 export function renderHome() {
   Object.keys(DEMO).forEach(seedOrder);
   homeSeed();
@@ -1008,29 +1007,14 @@ export function renderHome() {
   const monthKey = `${mm.getFullYear()}-${pad(mm.getMonth() + 1)}`;
   const selD = new Date(selIso + 'T12:00'); const selOff = Math.round((selD - base) / 864e5);
   const qTime = (no) => { const q = QUEUE.find(([off, key]) => off === selOff && key && R[key].c.no === no); return q ? q[3] : `${DEMO[no].hour}:00`; };
-// Карточки дня — тот же компонент, что на доске; снизу отдельная форма: слева действие, справа статус
-  const ST_COL = { measure: '#e5484d', approval: '#8b5cf6', queue: '#f59e0b', work: '#3b82f6', done: '#7ee2a3', closed: '#7ee2a3', refused: '#9aa7a0' };
-  const stAct = (no) => { const f = flowOf(no);
-    if (f.st === 'measure') return ['Замерить', `data-action="go" data-to="bd-visit-${no}"`];
-    if (f.st === 'approval') return ['Позвонить', `data-action="home-call" data-no="${no}"`];
-    if (f.st === 'queue') return ['Начать', `data-action="fl-startwork" data-no="${no}" data-to="bd-visit-${no}"`];
-    if (f.st === 'work') return [f.visit && f.visit.step ? 'Продолжить' : 'Начать', `data-action="go" data-to="bd-visit-${no}"`];
-    return ['', '']; };
-  const CARET = ic('<path d="M6 9l4 4 4-4"/>');
-  const stMenu = (no, st) => homeStMenu === no ? `<div class="bd-stscrim" data-action="home-st-close"></div><div class="bd-stmenu">${(FL_NEXT[st] || []).map((k) => `<button type="button" class="bd-stopt" data-action="home-setst" data-no="${no}" data-k="${k}"><i style="background:${ST_COL[k] || '#9aa7a0'}"></i>${FL_NAME[k]}</button>`).join('') || '<span class="bd-stopt is-empty">менять некуда</span>'}</div>` : '';
-  const under = (no, st, act, aAttr) => `<div class="bd-under">${act ? `<button type="button" class="bd-do" ${aAttr}>${act} ${HI.arrow}</button>` : '<span></span>'}<span class="bd-stwrap"><button type="button" class="bd-st" data-action="home-st-open" data-no="${no}" style="--c:${ST_COL[st] || '#9aa7a0'}"><i></i>${FL_NAME[st] || ''}${CARET}</button>${stMenu(no, st)}</span></div>`;
+// Карточки дня — тот же компонент, что на доске (копия, без изменений)
   const measCard = (m) => { const no = m.no; const sum = no ? orderSum(homeOrder(no), flowOf(no)) : 0;
-    const act = m.demo && flowOf(no).visit && flowOf(no).visit.step ? 'Продолжить' : 'Замерить';
-    const aAttr = m.demo ? `data-action="go" data-to="bd-visit-${no}"` : `data-action="go" data-to="p-order-${esc(m.id)}"`;
-    const open = m.demo ? `data-action="bd-open" data-no="${no}"` : `data-action="go" data-to="p-order-${esc(m.id)}"`;
-    return `<div class="bd-unit"><div class="bd-slot">${leaf(selD, selOff === 0, m.time)}<button type="button" class="bd-card${selOff === 0 ? ' is-today' : ''}" ${open}>
+    return `<div class="bd-slot">${leaf(selD, selOff === 0, m.time)}<button type="button" class="bd-card${selOff === 0 ? ' is-today' : ''}" ${m.demo ? `data-action="bd-open" data-no="${no}"` : `data-action="go" data-to="p-order-${esc(m.id)}"`}>
       <span class="bd-top"><span class="bd-who"><b>${esc(m.n)}</b><small>${esc(m.a)}</small></span><span class="bd-sum"><b>${sum ? fmt(sum) + ' ₽' : '—'}</b><small>${no ? '№' + esc(no) : ''}</small></span></span>
-      <span class="bd-foot"><span class="bd-room" style="--c:#7ee2a3">${FL_NAME.measure}</span></span></button></div>${under(no, 'measure', act, aAttr)}</div>`; };
+      <span class="bd-foot"><span class="bd-room" style="--c:#7ee2a3">${FL_NAME.measure}</span></span></button></div>`; };
   const rows = [
     ...(glay[selIso] || []).map((x) => { const q = QUEUE.find(([off, key]) => off === selOff && key && R[key].c.no === x.no && R[key].r === x.room.name);
-      if (!q) return { t: qTime(x.no), html: '' };
-      const [act, aAttr] = stAct(x.no);
-      return { t: qTime(x.no), html: `<div class="bd-unit">${boardCard(q[0], q[1], q[2], q[3])}${under(x.no, flowOf(x.no).st, act, aAttr)}</div>` }; }).filter((r) => r.html),
+      return { t: qTime(x.no), html: q ? boardCard(q[0], q[1], q[2], q[3]) : '' }; }).filter((r) => r.html),
     ...meas.filter((m) => iso(m.off) === selIso).map((m) => ({ t: m.time, html: measCard(m) })),
   ].sort((x, y) => x.t.padStart(5, '0').localeCompare(y.t.padStart(5, '0')));
   const calHtml = `<section class="h-cal2">
@@ -1102,19 +1086,7 @@ actions['home-ranks'] = () => { homeRanks = true; rerender(); };
 actions['home-ranks-close'] = () => { homeRanks = false; rankView = null; rerender(); };
 actions['home-day'] = (el) => { homeDay = Number(el.dataset.off); rerender(); };
 actions['home-cal-m'] = (el) => { homeMonth += Number(el.dataset.d); rerender(); };
-actions['home-call'] = (el) => { const no = el.dataset.no; const ph = String(((CL[no] && CL[no].ph) || (homeOrder(no).cl || {}).phone || '')).replace(/\D/g, '').slice(-10); if (!ph) return toast('У клиента нет телефона'); location.href = 'tel:+7' + ph; };
 actions['home-cal-day'] = (el) => { homeSel = el.dataset.date; rerender(); };
-actions['home-st-open'] = (el) => { homeStMenu = homeStMenu === el.dataset.no ? '' : el.dataset.no; rerender(); };
-actions['home-st-close'] = () => { homeStMenu = ''; rerender(); };
-actions['home-setst'] = (el) => { const no = el.dataset.no, to = el.dataset.k; homeStMenu = ''; const f = flowOf(no);
-  if (!canGo(f.st, to)) { toast('Так сменить статус нельзя'); return rerender(); }
-  if (to === 'done' && !canClose(no)) { toast('Нельзя завершить: нет замера и сметы'); return rerender(); }
-  if (to !== 'refused') leaveRefused(no);
-  setCallTask(no, 0);
-  f.st = to; if (to === 'work') { f.day = 1; f.shift = {}; }
-  if (to === 'refused') logStat(no, 'lost');
-  else if (to === 'done' && logStat(no, 'done')) { f.st = 'refused'; f.reason = 'Все комнаты отказаны'; }
-  S.save(); toast('Статус: ' + FL_NAME[f.st]); rerender(); };
 actions['home-task'] = (el) => { const o = homeOrder(el.dataset.no); const t = (o.tasks || []).find((x) => x.id === el.dataset.id); if (!t) return;
   t.done = !t.done; t.doneToday = t.done ? iso(0) : ''; S.save(); rerender(); };
 
