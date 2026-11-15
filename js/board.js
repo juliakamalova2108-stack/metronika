@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=505';
-import * as S from './store.js?v=505';
-import { renderOformit, oformitDraft } from './oformit.js?v=505';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=505';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=505';
-import { renderMeasurement } from './measurement.js?v=505';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=505';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=505';
-import { esc, toast, status, seg } from './ui.js?v=505';
-import { topbar, ORDER_STATUS } from './shared.js?v=505';
+import { actions, rerender, go } from './core.js?v=506';
+import * as S from './store.js?v=506';
+import { renderOformit, oformitDraft } from './oformit.js?v=506';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=506';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=506';
+import { renderMeasurement } from './measurement.js?v=506';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=506';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=506';
+import { esc, toast, status, seg } from './ui.js?v=506';
+import { topbar, ORDER_STATUS } from './shared.js?v=506';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -30,6 +30,7 @@ const H = { no: '014', n: 'Ильдар Хасанов', a: 'ул. Кирова 
 // Заказы на этапе замера (примерные): замер назначен, оценки и плана ещё нет.
 const OP = { no: '015', n: 'Ольга Петрова', a: 'ул. Комсомольская 21, кв. 40', ph: '+7 (917) 700-11-22' };
 const DA = { no: '016', n: 'Дмитрий Ахметов', a: 'пр. Октября 88, кв. 113', ph: '+7 (960) 333-44-55' };
+const ES = { no: '021', n: 'Елена Соколова', a: 'ул. Достоевского 7, кв. 5', ph: '+7 (919) 111-22-33' };
 // комнаты: название, этаж, цвет, сумма, смены (доли дня)
 const R = {
   pS: { c: P, r: 'Спальня', f: '1 этаж', col: '#3b82f6', sum: 11900, sh: [1, 1] },
@@ -134,10 +135,12 @@ const DEMO = {
     rooms: [['Гостиная', '#f59e0b', 3, [['strip', 10], ['prime', 40], ['paste-flizelin', 38]]]], days: [7] },
   '015': { src: 'Авито', ph: '9177001122', street: 'г Уфа, ул Комсомольская', house: '21', flat: '40', fl: '4', hour: '17', min: '30', rooms: [['Спальня', '#3b82f6', 4, [['prime', 18], ['paste-flizelin', 28]]], ['Коридор', '#10b981', 4, [['prime', 9], ['paste-flizelin', 12]]]], days: [3], meas: 0 },
   '016': { src: 'Сайт', ph: '9603334455', street: 'г Уфа, пр Октября', house: '88', flat: '113', fl: '7', hour: '12', rooms: [['Гостиная', '#f59e0b', 7, [['prime', 30], ['paste-flizelin', 34]]]], days: [5], meas: 2 },
+  '021': { src: 'Авито', ph: '9191112233', street: 'г Уфа, ул Достоевского', house: '7', flat: '5', fl: '2', hour: '10',
+    rooms: [['Кухня', '#ef4444', 2, [['strip', 18], ['prime', 18], ['paste-flizelin', 22]]], ['Гостиная', '#f59e0b', 2, [['prime', 45], ['paste-flizelin', 42]]], ['Спальня', '#3b82f6', 2, [['prime', 24], ['paste-flizelin', 28]]], ['Ванная', '#8b5cf6', 2, [['prime', 9], ['paste-flizelin', 6]]]], days: [1, 2, 3, 4] },
 };
-const CL = { '004': P, '007': A, '011': I, '014': H, '015': OP, '016': DA };
+const CL = { '004': P, '007': A, '011': I, '014': H, '015': OP, '016': DA, '021': ES };
 // Участники заказа (кроме мастера): кто передал заказ, кто ещё работает по нему.
-const PARTS = { '004': [['u-agent', 'Алина Смирнова', 'Агент']], '007': [['shop', 'Продавец «Обои+»', 'Передал материал']], '011': [], '014': [], '015': [], '016': [] };
+const PARTS = { '004': [['u-agent', 'Алина Смирнова', 'Агент']], '007': [['shop', 'Продавец «Обои+»', 'Передал материал']], '011': [], '014': [], '015': [], '016': [], '021': [] };
 function seedOrder(no) {
   const st = S.get(); st.oformit = st.oformit || {};
   const key = 'ord-' + no;
@@ -223,7 +226,7 @@ setQueueProvider(queueOrders, () => { const m = {}; homeMeasList().forEach((x) =
 // Допустимые переходы заказа: назад в прошлое или из «Выполнено» в «Очередь» — нельзя.
 const FL_NEXT = { measure: ['approval', 'queue', 'refused'], approval: ['queue', 'refused'], queue: ['work', 'refused'], work: ['done', 'refused'], done: ['closed'], closed: [], refused: ['measure', 'approval', 'queue', 'work'] };
 const canGo = (from, to) => from === to || (FL_NEXT[from] || []).includes(to);
-const FL_START = { '004': 'queue', '007': 'work', '011': 'queue', '014': 'queue', '015': 'measure', '016': 'measure' };
+const FL_START = { '004': 'queue', '007': 'work', '011': 'queue', '014': 'queue', '015': 'measure', '016': 'measure', '021': 'queue' };
 let flAsk = '';
 export const setFlAsk = (v) => { flAsk = v; };
 export { flowOf };
