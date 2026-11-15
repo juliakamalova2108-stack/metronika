@@ -2949,3 +2949,8 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 .f-nav--otabs .f-nav__tab.has-act::after { content: ''; position: absolute; top: 4px; right: calc(50% - 16px); width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 .f-nav--otabs .f-nav__tab.has-act.is-on::after { display: none; }
 .bd-ok { color: var(--accent); font: 600 11px/1 var(--font-body); }
+
+/* Заказ: шесть пунктов в ряд (Меню + 5 вкладок) — чуть компактнее */
+.f-nav--otabs { gap: 0; }
+.f-nav--otabs .f-nav__tab, .f-nav--otabs .f-nav__menu, .f-nav--otabs .f-nav__chat { flex: 1; min-width: 0; padding-left: 0; padding-right: 0; font-size: 10px; }
+.f-nav--otabs .f-nav__tab span, .f-nav--otabs .f-nav__menu span, .f-nav--otabs .f-nav__chat span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }

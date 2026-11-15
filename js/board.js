@@ -3,15 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=480';
-import * as S from './store.js?v=480';
-import { renderOformit, oformitDraft } from './oformit.js?v=480';
-import { roomTotals, svcInfo } from './ocenka.js?v=480';
-import { smetaTotals } from './zakaz.js?v=480';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=480';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=480';
-import { esc, toast, status, seg } from './ui.js?v=480';
-import { topbar, ORDER_STATUS } from './shared.js?v=480';
+import { actions, rerender, go } from './core.js?v=482';
+import * as S from './store.js?v=482';
+import { renderOformit, oformitDraft } from './oformit.js?v=482';
+import { roomTotals, svcInfo } from './ocenka.js?v=482';
+import { smetaTotals } from './zakaz.js?v=482';
+import { renderMeasurement } from './measurement.js?v=482';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=482';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=482';
+import { esc, toast, status, seg } from './ui.js?v=482';
+import { topbar, ORDER_STATUS } from './shared.js?v=482';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -532,7 +533,8 @@ export function renderBoardOrder(no, view) {
   const estOpen = block('Оценка <small class="bd-sub">(со слов клиента)</small>', no, 'estimate', `<div class="bd-rooms">${roomsOpen || '<p class="bd-note">Оценки пока нет</p>'}</div>`);
   const infoView = `${f.st === 'refused' ? flow : ''}${estOpen}${sched}${chan}${sum}`;
   // Замеры — действие шага (на замере) + смета по комнатам
-  const zamView = `${['measure', 'approval'].includes(f.st) ? flow : ''}${zam}`;
+  let measComp = ''; try { measComp = renderMeasurement(d); } catch (e) { measComp = zam; }
+  const zamView = `${['measure', 'approval'].includes(f.st) ? flow : ''}${measComp}`;
   // Материалы — сбор артикулов по комнатам (+ действие, когда идёт работа)
   const matView = rooms.map((r) => { const mr = (d.mat && d.mat.rooms || {})[r.key] || {}; const art = mr.added ? `${esc(mr.added.brand || '')} ${esc(mr.added.type || '')}`.trim() : '';
     return `<div class="o-sroom is-open o-sroom--static" style="--rc:${r.color}"><div class="o-sroom__head"><span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span>${art ? '<span class="o-sroom__sum"><b class="bd-ok">собран</b></span>' : ''}</div>
@@ -552,7 +554,7 @@ export function renderBoardOrder(no, view) {
   const IC_COIN = ic('<circle cx="12" cy="12" r="8.3"/><path d="M10 8.5h3.2a1.9 1.9 0 010 3.8H10V16M10 12h4"/>');
   const topbar = `<div class="bd-obar"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="Назад">${BACKIC}</button><span>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</span></div>`;
   const nTab = (v, to, label, icon) => `<button type="button" class="f-nav__tab${(view || '') === v ? ' is-on' : ''}${stTab === v ? ' has-act' : ''}" data-action="go" data-to="${to}">${icon}<span>${label}</span></button>`;
-  const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ">${nTab('', 'bd-info-' + no, 'Инф', INFO)}${nTab('zam', 'bd-zam-' + no, 'Замеры', IC_RULER)}${nTab('mat', 'bd-mat-' + no, 'Материалы', IC_ROLL)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${chatBtn(no, d)}</nav>`;
+  const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${nTab('', 'bd-info-' + no, 'Инф', INFO)}${nTab('zam', 'bd-zam-' + no, 'Замеры', IC_RULER)}${nTab('mat', 'bd-mat-' + no, 'Материалы', IC_ROLL)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${chatBtn(no, d)}</nav>`;
   if (info) return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${client}${viewBody}${tabbar}`;
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${client}${viewBody}${tabbar}`;
 }
