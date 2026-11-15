@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=508';
-import * as S from './store.js?v=508';
-import { renderOformit, oformitDraft } from './oformit.js?v=508';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=508';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=508';
-import { renderMeasurement } from './measurement.js?v=508';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=508';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=508';
-import { esc, toast, status, seg } from './ui.js?v=508';
-import { topbar, ORDER_STATUS } from './shared.js?v=508';
+import { actions, rerender, go } from './core.js?v=511';
+import * as S from './store.js?v=511';
+import { renderOformit, oformitDraft } from './oformit.js?v=511';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=511';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=511';
+import { renderMeasurement } from './measurement.js?v=511';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=511';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=511';
+import { esc, toast, status, seg } from './ui.js?v=511';
+import { topbar, ORDER_STATUS } from './shared.js?v=511';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -539,20 +539,27 @@ export function renderBoardOrder(no, view) {
   const addr = [c.street, c.house && 'д. ' + c.house, c.flat && 'кв. ' + c.flat].filter(Boolean).join(', ');
   // Клиентская пластина (бывший «шильдик» выезда): иконка редактирования в углу, кнопки «Звонок» и «В путь».
   // Кнопки «Начать» и мастера выезда больше нет — мастер приезжает и работает через нижние вкладки.
+  // Клиентская пластина — ровно как карточка на главной (крупное время, комната, прогресс),
+  // только вместо тега «Заказ №» — иконка редактирования, а вместо «Открыть» — «Звонок» и «В путь».
   const r0cl = rooms[0];
   const telDigits = (c.phone || '').replace(/[^+\d]/g, '');
   const mapRoute = 'https://yandex.ru/maps/?rtext=~' + encodeURIComponent('Уфа, ' + addr);
+  const nDays = days.length;
+  const curDay = Math.min(Math.max(1, flowOf(no).day || 1), nDays || 1);
+  const segs = nDays ? Array.from({ length: nDays }, (_, i) => `<i class="${i < curDay - 1 ? 'past' : i === curDay - 1 ? 'on' : ''}"></i>`).join('') : '';
+  const prog = nDays ? `<span class="h-prog"><span class="h-prog__bar">${segs}</span><small>день ${curDay} из ${nDays}</small></span>` : '';
   const clientCard = `<article class="h-hero bd-clcard" style="--c:${(r0cl && r0cl.color) || '#f59e0b'}">
     <div class="h-hero__glow" aria-hidden="true"></div>
-    <div class="h-hero__top"><span class="h-pill"><i></i>${c.hour ? `с ${esc(c.hour)}:${esc(c.min || '00')}` : 'время не указано'}</span>
+    <div class="h-hero__top"><span class="h-pill"><i></i>Сегодня</span>
       <button type="button" class="bd-clcard__edit" data-action="bd-edit" data-no="${no}" data-tab="client" aria-label="Изменить данные клиента">${PENIC}</button></div>
-    <div class="h-hero__who h-hero__who--big"><b>${esc(c.name || '')}</b><small>${esc(addr)}${c.entrance ? ` · подъезд ${esc(c.entrance)}` : ''}${c.floor ? ` · этаж ${esc(c.floor)}` : ''}</small></div>
-    ${r0cl ? `<div class="h-hero__job"><span class="h-room"><i></i>${esc(r0cl.name)}<small>${esc(r0cl.floor || '')} этаж</small></span></div>` : ''}
-    ${c.comment ? `<p class="bd-clcard__note">${esc(c.comment)}</p>` : ''}
-    <div class="bd-clcard__acts">
-      <a class="bd-clbtn" href="tel:${esc(telDigits)}" aria-label="Позвонить клиенту">${PH}<span>Звонок</span></a>
-      <a class="bd-clbtn bd-clbtn--go" href="${mapRoute}" target="_blank" rel="noopener" aria-label="Проложить маршрут">${WAYIC}<span>В путь</span></a>
-    </div></article>`;
+    <div class="h-hero__time">${esc(c.hour || '10')}:${esc(c.min || '00')}</div>
+    <div class="h-hero__who"><b>${esc(c.name || '')}</b><small>${esc(addr)}</small></div>
+    <div class="bd-clcard__bottom">
+      ${r0cl ? `<div class="h-hero__job bd-clcard__job"><span class="h-room"><i></i>${esc(r0cl.name)}<small>${esc(r0cl.floor || '')} этаж</small></span>${prog}</div>` : '<span></span>'}
+      <div class="bd-clcard__acts">
+        <a class="bd-clround" href="tel:${esc(telDigits)}" aria-label="Позвонить клиенту">${PH}</a>
+        <a class="bd-clround bd-clround--go" href="${mapRoute}" target="_blank" rel="noopener" aria-label="Проложить маршрут">${WAYIC}</a>
+      </div></div></article>`;
   const sched = block('План работ', no, 'schedule', days.length ? `<div class="bd-days">${days.map((x, i) => `<div class="bd-day"><span class="bd-day__d"><b>${x.date.getDate()}</b><small>${WD[x.date.getDay()]}</small></span><span class="bd-day__r">${x.parts.map((p) => `<span class="bd-room" style="--c:${p.r.color}">${esc(p.r.name)}${p.h < SHIFT_HOURS - 1e-6 ? `<small>${Math.round(p.h)} ч</small>` : ''}</span>`).join('')}</span><span class="bd-day__n">${i + 1}-й день</span></div>`).join('')}</div>` : '<p class="bd-note">Даты не назначены</p>');
   const sum = block('Итог', no, '', `<div class="bd-total"><div><small>Стоимость</small><b>${fmt(orderSum(d, flowOf(no)))} ₽</b></div><div><small>Срок</small><b>${shiftsText(tot.h)}</b></div></div><p class="bd-range">${range}</p>`);
   const chan = block('Источник', no, 'channel', `<p class="bd-line"><b>${esc(d.channel ? d.channel.source : '')}</b><small>${d.channel && d.channel.partner !== 'self' ? 'через партнёра' : 'самостоятельно'}</small></p>`);
@@ -828,8 +835,6 @@ export function renderHome() {
   const WDF = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
   const short = (n) => n.split(' ')[1] || n;
   const today = QUEUE.filter(([off, k]) => off === 0 && k);
-  const upcoming = QUEUE.filter(([off, k]) => off > 0 && k);
-  const heroRows = today.length ? today : upcoming.slice(0, 1);
 
   // ── Требует действия (считаем заранее: счётчик нужен в шапке) ──
   const nextOff = (no) => { const r = QUEUE.find(([off, k]) => off >= 0 && k && R[k].c.no === no); return r ? r[0] : null; };
@@ -968,23 +973,7 @@ export function renderHome() {
       <button type="button" class="h-icb h-new" data-action="go" data-to="oformit" aria-label="Новый заказ">${PLUS}<span>Заказ</span></button></span></div>
     ${meHtml}`;
 
-  // ── Главная карточка: сегодняшний выезд ──
-  const hero = ([off, key, k, time]) => {
-    const x = R[key]; const c = x.c; const sh = ORDER_SH[c.no];
-    const map = 'https://yandex.ru/maps/?text=' + encodeURIComponent('Уфа, ' + c.a);
-    const d = dayOf(off);
-    const when = off === 0 ? 'Сегодня' : `${WD[d.getDay()]}, ${d.getDate()} ${MON[d.getMonth()]}`;
-    const segs = sh.map((_, i) => `<i class="${i < k ? 'past' : i === k ? 'on' : ''}"></i>`).join('');
-    return `<article class="h-hero" style="--c:${x.col}">
-      <div class="h-hero__glow" aria-hidden="true"></div>
-      <div class="h-hero__top"><span class="h-pill"><i></i>${when}</span><span class="h-hero__no h-tag h-tag--order">Заказ №${c.no}</span></div>
-      <div class="h-hero__time">${time}</div>
-      <div class="h-hero__who"><b>${esc(c.n)}</b><small>${esc(c.a)}</small></div>
-      <div class="h-hero__job"><span class="h-room"><i></i>${esc(x.r)}<small>${esc(x.f)}</small></span>
-        <span class="h-prog"><span class="h-prog__bar">${segs}</span><small>день ${k + 1} из ${sh.length}</small></span></div>
-      <div class="h-hero__act"><button type="button" class="h-go" data-action="go" data-no="${c.no}" data-to="bd-info-${c.no}">Открыть ${HI.arrow}</button></div></article>`;
-  };
-  const heroHtml = `<div class="h-heros${heroRows.length > 1 ? ' is-many' : ''}">${heroRows.map(hero).join('')}</div>`;
+  // Большие карточки-hero убраны с главной: главная — календарь, под ним карточки дня (тап → заказ).
 
   // ── Требует действия ──
   const attHtml = att.length ? `<section class="h-block"><div class="h-block__hd"><h2>Требует действия</h2><span class="h-count">${att.length}</span></div>
@@ -1047,20 +1036,12 @@ export function renderHome() {
   const meas = homeMeasList();
   const RULER = ic('<path d="M3.5 15.5l12-12 5 5-12 12z"/><path d="M7 12l2 2M9.5 9.5l1.5 1.5M12 7l2 2"/>');
   const whenOf = (off) => { if (off === 0) return 'сегодня'; if (off === 1) return 'завтра'; const d = dayOf(off); return `${WD[d.getDay()]}, ${d.getDate()} ${MON[d.getMonth()]}`; };
-  const measToday = meas.filter((m) => m.off === 0);
   const measRows = meas.filter((m) => m.off > 0).map((m) => `<div class="h-meas">
       <span class="h-meas__ic">${RULER}</span>
       <span class="h-meas__t"><b>Замер · ${esc(m.time)} <em>${whenOf(m.off)}</em></b><small>${esc(m.n)} · ${esc(m.a)}</small></span>
       <a class="h-meas__a" href="tel:+7${esc(String(m.ph).replace(/\D/g, '').slice(-10))}" aria-label="Позвонить">${HI.call}</a>
       <a class="h-meas__a" href="https://yandex.ru/maps/?text=${encodeURIComponent('Уфа, ' + m.a)}" target="_blank" rel="noopener" aria-label="Маршрут">${HI.route}</a></div>`).join('');
   const taskRows = tasks.map(({ t, no }) => `<button type="button" class="h-task${t.done ? ' is-done' : ''}" data-action="home-task" data-no="${no}" data-id="${esc(t.id)}"><i>${t.done ? ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>') : ''}</i><span>${esc(t.text)}<small>№${no} · ${esc(short((CL[no] && CL[no].n) || (homeOrder(no).cl || {}).name || 'Клиент'))}</small></span></button>`).join('');
-  // Сегодняшние замеры — вторым рядом под выездом в «Сегодня»
-  const measTodayHtml = measToday.length ? `<div class="h-heros h-mtoday">${measToday.map((m) => `<article class="h-hero h-hero--meas" style="--c:#e5484d">
-      <div class="h-hero__glow" aria-hidden="true"></div>
-      <div class="h-hero__top"><span class="h-pill"><i></i>Сегодня</span><span class="h-hero__no h-tag h-tag--meas">Замер${m.no ? ` №${esc(m.no)}` : ''}</span></div>
-      <div class="h-hero__time">${esc(m.time)}</div>
-      <div class="h-hero__who"><b>${esc(m.n)}</b><small>${esc(m.a)}</small></div>
-      <div class="h-hero__act"><button type="button" class="h-go h-go--meas" ${m.demo ? `data-action="go" data-to="bd-info-${m.no}"` : `data-action="go" data-to="p-order-${esc(m.id)}"`}>Открыть ${HI.arrow}</button></div></article>`).join('')}</div>` : '';
   // ── Календарь — тот же, что во вкладке «График»: дни комнат цветом, название и сумма за день, «З» — замер; тап по дню — список ниже ──
   const glay = homeLayout(queueOrders(null));
   const measBy = {}; meas.forEach((m) => { const k = iso(m.off); measBy[k] = (measBy[k] || 0) + 1; });
@@ -1122,7 +1103,7 @@ export function renderHome() {
 
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     ${homeRanks ? ranksSheet() : ''}${homeNotif ? notifSheet() : ''}
-    <div class="h-page">${head.replace('%%BELL%%', bellHtml)}${heroHtml}${measTodayHtml}${calHtml}</div>
+    <div class="h-page">${head.replace('%%BELL%%', bellHtml)}${calHtml}</div>
     <button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
 }
 let homeRanks = false;
