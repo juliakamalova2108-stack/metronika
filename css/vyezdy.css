@@ -2930,3 +2930,4 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 .g-cell.g-cell--work .g-cell__rooms span, .g-cell.g-cell--work .g-cell__rooms i { font: 300 9px/10px var(--font-body) !important; font-style: normal; }
 .g-cell.g-cell--work .g-cell__rooms .g-plus { font-weight: 600 !important; }
 .g-cell.g-cell--work { padding: 3px 1px 2px !important; }
+.g-cell.g-cell--work .g-cell__rooms .g-more { font-weight: 600 !important; }
