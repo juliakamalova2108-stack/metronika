@@ -1,20 +1,20 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=500';
-import * as S from './store.js?v=500';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=500';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=500';
-import { renderSettlements } from './shared.js?v=500';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=500';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=500';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=500';
-import { renderOformit, onLiveOformit } from './oformit.js?v=500';
-import { onLiveZakaz } from './zakaz.js?v=500';
-import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=500';
-import { renderStatsMaster } from './stats.js?v=500';
-import './kbd.js?v=500';
-import { renderSettingsFig } from './settings.js?v=500';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=500';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=501';
+import * as S from './store.js?v=501';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=501';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=501';
+import { renderSettlements } from './shared.js?v=501';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=501';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=501';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=501';
+import { renderOformit, onLiveOformit } from './oformit.js?v=501';
+import { onLiveZakaz } from './zakaz.js?v=501';
+import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=501';
+import { renderStatsMaster } from './stats.js?v=501';
+import './kbd.js?v=501';
+import { renderSettingsFig } from './settings.js?v=501';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=501';
 
 const VERSION = 'прототип 1.0';
 
@@ -248,10 +248,16 @@ document.addEventListener('change', (ev) => {
   if (pressing) pendingRender = true; else rerender();
 });
 document.addEventListener('click', (ev) => {
+  // tel:/mailto: НИКОГДА не уводят фрейм приложения (иначе на десктопе приложение «умирает»):
+  // гасим переход и открываем ссылку в отдельном контексте; действие (например, отметку звонка) всё равно выполняем.
+  const link = ev.target.closest('a[href]');
+  const href = link ? (link.getAttribute('href') || '') : '';
+  const external = /^(tel:|mailto:)/i.test(href);
+  if (external) { ev.preventDefault(); try { window.open(href, '_blank', 'noopener'); } catch (e) { /* не страшно */ } }
   const el = ev.target.closest('[data-action]');
   if (!el || el.disabled) return;
   const fn = actions[el.dataset.action];
-  if (fn) { if (!(el.tagName === 'A' && /^(tel:|https?:)/.test(el.getAttribute('href') || ''))) ev.preventDefault(); pendingRender = false; fn(el, ev); }
+  if (fn) { if (!external && !(el.tagName === 'A' && /^https?:/.test(el.getAttribute('href') || ''))) ev.preventDefault(); pendingRender = false; fn(el, ev); }
 });
 document.addEventListener('input', (ev) => {
   if (!ev.target.dataset || !ev.target.dataset.live) return;
