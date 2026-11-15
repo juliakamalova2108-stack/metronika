@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=501';
-import * as S from './store.js?v=501';
-import { renderOformit, oformitDraft } from './oformit.js?v=501';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=501';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=501';
-import { renderMeasurement } from './measurement.js?v=501';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=501';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=501';
-import { esc, toast, status, seg } from './ui.js?v=501';
-import { topbar, ORDER_STATUS } from './shared.js?v=501';
+import { actions, rerender, go } from './core.js?v=502';
+import * as S from './store.js?v=502';
+import { renderOformit, oformitDraft } from './oformit.js?v=502';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=502';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=502';
+import { renderMeasurement } from './measurement.js?v=502';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=502';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=502';
+import { esc, toast, status, seg } from './ui.js?v=502';
+import { topbar, ORDER_STATUS } from './shared.js?v=502';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -600,6 +600,12 @@ export function renderBoardOrder(no, view) {
       <span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж · ${t.lines.length} усл.</small></span><span class="o-sroom__sum"><b>${fmt(t.total)} ₽</b><small>${shiftsText(t.hours)}</small></span></div>
       <div class="o-sroom__list">${t.lines.map((l) => `<div class="o-line"><span class="o-line__n">${esc(l.name)}</span><span class="o-line__q">${String(l.qty).replace('.', ',')} м²</span><b class="o-line__s">${fmt(l.sum)} ₽</b></div>`).join('')}</div></div>`; }).join('');
   const estOpen = block('Оценка <small class="bd-sub">(со слов клиента)</small>', no, 'estimate', `<div class="bd-rooms">${roomsOpen || '<p class="bd-note">Оценки пока нет</p>'}</div>`);
+  // Шильдик как на главной: карточка выезда с кнопкой «Начать»/«Продолжить» — вверху вкладки «Инф»
+  const heroKind = f.st === 'measure' ? 'measure' : 'work';
+  const heroAct = f.st === 'queue' ? 'fl-startwork' : 'go';
+  const heroLabel = f.visit && f.visit.step ? 'Продолжить' : 'Начать';
+  const heroTop = ['measure', 'queue', 'work'].includes(f.st)
+    ? visitHero(no, heroKind, c, addr, rooms, heroLabel, `data-action="${heroAct}" data-no="${no}" data-to="bd-visit-${no}"`) : '';
   const infoView = `${f.st === 'refused' ? flow : ''}${estOpen}${sched}${chan}${sum}`;
   // Замеры — действие шага (на замере) + смета по комнатам
   let measComp = ''; try { measComp = renderMeasurement(d); } catch (e) { measComp = zam; }
@@ -625,7 +631,7 @@ export function renderBoardOrder(no, view) {
   const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${nTab('', 'bd-info-' + no, 'Инф', INFO)}${nTab('zam', 'bd-zam-' + no, 'Замер', IC_RULER)}${nTab('mat', 'bd-mat-' + no, 'Материалы', IC_ROLL)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${chatBtn(no, d)}</nav>`;
   // Клиент — только во вкладке «Инф»; в остальных сверху лишь шапка с № и статусом
   const showClient = !view || view === 'info';
-  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${showClient ? client : ''}${viewBody}${tabbar}`;
+  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${showClient ? heroTop + client : ''}${viewBody}${tabbar}`;
 }
 // Правка блока — та же форма, что при оформлении; «назад» возвращает в сводку заказа.
 // Чат заказа — кнопка справа в нижней навигации; красная цифра — непрочитанные сообщения не от мастера.
