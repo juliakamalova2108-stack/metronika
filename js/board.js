@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=495';
-import * as S from './store.js?v=495';
-import { renderOformit, oformitDraft } from './oformit.js?v=495';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=495';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=495';
-import { renderMeasurement } from './measurement.js?v=495';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=495';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=495';
-import { esc, toast, status, seg } from './ui.js?v=495';
-import { topbar, ORDER_STATUS } from './shared.js?v=495';
+import { actions, rerender, go } from './core.js?v=497';
+import * as S from './store.js?v=497';
+import { renderOformit, oformitDraft } from './oformit.js?v=497';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=497';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=497';
+import { renderMeasurement } from './measurement.js?v=497';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=497';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=497';
+import { esc, toast, status, seg } from './ui.js?v=497';
+import { topbar, ORDER_STATUS } from './shared.js?v=497';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -486,6 +486,73 @@ actions['fl-to'] = (el) => { const [to, plan] = el.dataset.k.split('+'); flAsk =
   flSet(el, (f) => { f.st = to; if (to === 'work') { f.day = 1; f.shift = {}; } if (to === 'done' && logStat(el.dataset.no, 'done')) { f.st = 'refused'; f.reason = 'Все комнаты отказаны'; } }); if (plan) afterYes(el.dataset.no); };
 const iso0 = (dt) => `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
 const fmtISO = (sv) => { const dt = new Date(sv + 'T12:00:00'); return `${dt.getDate()} ${MONG[dt.getMonth()]}`; };
+// Общий компонент комнат для вкладок «Замер» и «Финансы»: карусель комнат + плитка «Итог»,
+// внутри — плашки комнат с таблицей работ. money=false → только «Работа · м²» (Замер);
+// money=true → «Работа · м² · ₽/м² · Сумма», цена комнаты и оплаты (Финансы).
+const SUM_CHEV = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const plu3 = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? b : c);
+const qtyTxt = (q) => String(Math.round(q * 100) / 100).replace('.', ',');
+function plateView(no, rooms, d, money) {
+  const fTot = orderSum(d, flowOf(no));
+  d.fin = d.fin || { pays: [], exps: [] }; d.fin.pays = d.fin.pays || [];
+  const pays = d.fin.pays.reduce((a, x) => a + x.amount, 0);
+  const keys = rooms.map((r) => r.key);
+  // Единый общий выбор комнаты для Замера и Финансов — d.fin.view (включая плитку «Итог»)
+  let vw = d.fin.view;
+  if (vw !== 'total' && !keys.includes(vw)) { const sh = (d.sm && d.sm.view) || (d.mat && d.mat.view); vw = keys.includes(sh) ? sh : (keys[0] || 'total'); }
+  d.fin.view = vw;
+  if (vw !== 'total') { d.sm = d.sm || { view: '', rooms: {} }; d.sm.view = vw; }
+  const roomM2 = (t) => t.lines.reduce((a, l) => a + l.qty, 0);
+  // таблица работ
+  const WHEAD = money ? '<div class="o-tline o-tline--h"><span>Работа</span><span>м²</span><span>₽/м²</span><span>Сумма</span></div>'
+    : '<div class="o-tline o-tline--h o-tline--m2"><span>Работа</span><span>м²</span></div>';
+  const wline = (l) => money
+    ? `<div class="o-tline"><span class="o-tline__n">${esc(SHORT[l.id] || l.name)}</span><span>${qtyTxt(l.qty)}</span><span>${fmt(l.price)}</span><b>${fmt(l.sum)} ₽</b></div>`
+    : `<div class="o-tline o-tline--m2"><span class="o-tline__n">${esc(SHORT[l.id] || l.name)}</span><b>${qtyTxt(l.qty)} м²</b></div>`;
+  const metric = (t) => money ? `${fmt(t.total)} ₽` : `${qtyTxt(roomM2(t))} м²`;
+  const sub = (t) => money ? shiftsText(t.hours) : `${t.lines.length} ${plu3(t.lines.length, 'услуга', 'услуги', 'услуг')}`;
+  // карусель
+  const cards = rooms.map((r) => { const t = roomTotals(r);
+    return `<button type="button" class="o-pv${vw === r.key ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="bd-fin-view" data-no="${no}" data-key="${esc(r.key)}"><b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${t.lines.length ? metric(t) : '—'}</span></button>`; }).join('');
+  const totM2 = rooms.reduce((a, r) => a + roomM2(roomTotals(r)), 0);
+  const sumTile = `<button type="button" class="o-pv o-pv--sum${vw === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="bd-fin-view" data-no="${no}" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${money ? fmt(fTot) + ' ₽' : qtyTxt(totM2) + ' м²'}</span></button>`;
+  const strip = rooms.length ? `<div class="o-pvbar"><div class="o-pvs">${cards}${sumTile}</div></div>` : '';
+  const payRow = (x) => `<p class="bd-line"><b>${esc(x.kind || 'Оплата')} ${fmt(x.amount)} ₽</b><small>${esc(x.method || '')}${x.date ? ` · ${fmtISO(x.date)}` : ''}</small></p>`;
+  let body;
+  if (vw === 'total' || !rooms.length) {
+    const plate = (r) => { const t = roomTotals(r); const on = finOpen.has(r.key);
+      return `<section class="o-sroom${on ? ' is-open' : ''}" style="--rc:${r.color || '#7c8f8a'}">
+        <button type="button" class="o-sroom__head" data-action="bd-finsum" data-key="${esc(r.key)}" aria-expanded="${on}">
+          <span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж · ${sub(t)}</small></span>
+          <span class="o-sroom__sum"><b>${t.lines.length ? metric(t) : '—'}</b>${money ? `<small>${shiftsText(t.hours)}</small>` : ''}</span>
+          <span class="o-sroom__chev">${SUM_CHEV}</span></button>
+        <div class="o-sroom__list">${WHEAD}${t.lines.map(wline).join('')}</div></section>`; };
+    const by = new Map();
+    rooms.forEach((r) => roomTotals(r).lines.forEach((l) => { const e = by.get(l.id) || { ...l, qty: 0, sum: 0 }; e.qty += l.qty; e.sum += l.sum; by.set(l.id, e); }));
+    const byLines = [...by.values()].map((l) => wline(l)).join('');
+    const n = rooms.length;
+    const grand = money
+      ? `<section class="f-plate o-grand"><p class="o-grand__t">Общий итог</p><b class="o-grand__sum">${fmt(fTot)} ₽</b><p class="o-grand__x">${n} ${plu3(n, 'комната', 'комнаты', 'комнат')}</p></section>`
+      : `<section class="f-plate o-grand"><p class="o-grand__t">Всего квадратуры</p><b class="o-grand__sum">${qtyTxt(totM2)} м²</b><p class="o-grand__x">${n} ${plu3(n, 'комната', 'комнаты', 'комнат')}</p></section>`;
+    const payBlock = money
+      ? `<section class="f-plate o-rplate"><div class="o-rhead"><span class="o-rhead__t"><b>Оплаты</b></span></div>
+        <div class="summary-areas"><span>Получено<b>${fmt(pays)} ₽</b></span><span>Осталось<b>${fmt(Math.max(0, fTot - pays))} ₽</b></span></div>
+        ${d.fin.pays.map(payRow).join('') || '<p class="bd-note">Оплат пока нет</p>'}</section>
+        <div class="f-btn-row bd-flbtns"><button type="button" class="f-btn f-btn--lit" data-action="z-pay-new" data-no="${no}">+ Оплата</button></div>` : '';
+    body = `<p class="o-sec">Комнаты</p>${rooms.map(plate).join('')}
+      <section class="f-plate o-bywork"><p class="o-sec o-sec--in">Итого по видам работ</p>${WHEAD}${byLines}</section>${grand}${payBlock}`;
+  } else {
+    const r = rooms.find((x) => x.key === vw); const t = roomTotals(r);
+    const rp = money ? d.fin.pays.filter((x) => x.room === r.key) : [];
+    const got = rp.reduce((a, x) => a + x.amount, 0);
+    body = `<section class="o-sroom is-open o-sroom--static" style="--rc:${r.color || '#7c8f8a'}">
+        <div class="o-sroom__head"><span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж · ${sub(t)}</small></span><span class="o-sroom__sum"><b>${t.lines.length ? metric(t) : '—'}</b>${money ? `<small>${shiftsText(t.hours)}</small>` : ''}</span></div>
+        <div class="o-sroom__list">${t.lines.length ? WHEAD + t.lines.map(wline).join('') : '<p class="bd-note">Работы пока не добавлены</p>'}</div></section>
+      ${money && rp.length ? `<section class="f-plate o-rpay"><p class="o-sec o-sec--in">Оплаты комнаты</p>${rp.map(payRow).join('')}<p class="bd-line bd-line--sum bd-line--tot"><b>Получено</b><em>${fmt(got)} ₽</em></p></section>` : ''}
+      ${money ? `<div class="f-btn-row"><button type="button" class="f-btn" data-action="z-pay-new" data-no="${no}" data-room="${esc(r.key)}">+ Аванс</button></div>` : ''}`;
+  }
+  return `${strip}<div class="o-stack f-fill">${body}</div>`;
+}
 export function renderBoardOrder(no, view) {
   const info = !!view;
   if (!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) return null;
@@ -534,8 +601,7 @@ export function renderBoardOrder(no, view) {
   const estOpen = block('Оценка <small class="bd-sub">(со слов клиента)</small>', no, 'estimate', `<div class="bd-rooms">${roomsOpen || '<p class="bd-note">Оценки пока нет</p>'}</div>`);
   const infoView = `${f.st === 'refused' ? flow : ''}${estOpen}${sched}${chan}${sum}`;
   // Замеры — действие шага (на замере) + смета по комнатам
-  let measComp = ''; try { measComp = renderMeasurement(d); } catch (e) { measComp = zam; }
-  const zamView = `${['measure', 'approval'].includes(f.st) ? flow : ''}${measComp}`;
+  const zamView = `${['measure', 'approval'].includes(f.st) ? flow : ''}${plateView(no, rooms, d, false)}`;
   // Материалы — сбор артикулов по комнатам (+ действие, когда идёт работа)
   const matView = rooms.map((r) => { const mr = (d.mat && d.mat.rooms || {})[r.key] || {}; const art = mr.added ? `${esc(mr.added.brand || '')} ${esc(mr.added.type || '')}`.trim() : '';
     return `<div class="o-sroom is-open o-sroom--static" style="--rc:${r.color}"><div class="o-sroom__head"><span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span>${art ? '<span class="o-sroom__sum"><b class="bd-ok">собран</b></span>' : ''}</div>
@@ -543,63 +609,8 @@ export function renderBoardOrder(no, view) {
   const matBlock = block('Материалы <small class="bd-sub">(сбор артикулов)</small>', no, 'material', `<div class="bd-rooms">${matView}</div>`);
   let matComp = ''; try { matComp = renderMaterial(d); } catch (e) { matComp = matBlock; }
   const matTab = matComp;
-  // Финансы — ровно та же механика комнат, что в Смете/Материале: одна карусель наверху,
-  // выбранная комната хранится в d.fin.view (как d.sm.view), внизу рисуется ТОЛЬКО она.
-  // Выбор общий — синхронизируется с замером/материалом. «+ Аванс» привязан к выбранной комнате.
-  const fTot = orderSum(d, flowOf(no));
-  d.fin = d.fin || { pays: [], exps: [] }; d.fin.pays = d.fin.pays || [];
-  const finKeys = rooms.map((r) => r.key);
-  // общий выбор комнаты: берём из смежных вкладок, иначе первую комнату
-  let finView = d.fin.view;
-  if (finView !== 'total' && !finKeys.includes(finView)) {
-    const shared = (d.sm && d.sm.view) || (d.mat && d.mat.view);
-    finView = finKeys.includes(shared) ? shared : (finKeys[0] || 'total');
-  }
-  d.fin.view = finView;
-  const payFor = (k) => (d.fin.pays || []).filter((x) => x.room === k);
-  const payRow = (x) => `<p class="bd-line"><b>${esc(x.kind || 'Оплата')} ${fmt(x.amount)} ₽</b><small>${esc(x.method || '')}${x.date ? ` · ${fmtISO(x.date)}` : ''}</small></p>`;
-  const plu = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? b : c);
-  // Таблица работ — ровно как в «Итоге» Оценки: Работа · м² · ₽/м² · Сумма
-  const WHEAD = '<div class="o-tline o-tline--h"><span>Работа</span><span>м²</span><span>₽/м²</span><span>Сумма</span></div>';
-  const wline = (l) => `<div class="o-tline"><span class="o-tline__n">${esc(SHORT[l.id] || l.name)}</span><span>${String(l.qty).replace('.', ',')}</span><span>${fmt(l.price)}</span><b>${fmt(l.sum)} ₽</b></div>`;
-  // верхняя карусель: комнаты (цена) + плитка «Итог» (сумма заказа); выбранная обведена
-  const finCards = rooms.map((r) => { const t = roomTotals(r);
-    return `<button type="button" class="o-pv${finView === r.key ? ' is-on' : ''}" style="--rc:${r.color || '#7c8f8a'}" data-action="bd-fin-view" data-no="${no}" data-key="${esc(r.key)}"><b class="o-pv__n">${esc(r.name)}</b><span class="o-pv__m">${t.total ? fmt(t.total) : '—'}<small> ₽</small></span></button>`; }).join('');
-  const finSumTile = `<button type="button" class="o-pv o-pv--sum${finView === 'total' ? ' is-on' : ''}" style="--rc:#c8d9a8" data-action="bd-fin-view" data-no="${no}" data-key="total"><b class="o-pv__n">Итог</b><span class="o-pv__m">${fmt(fTot)}<small> ₽</small></span></button>`;
-  const finStrip = rooms.length ? `<div class="o-pvbar"><div class="o-pvs">${finCards}${finSumTile}</div></div>` : '';
-  let finBody;
-  if (finView === 'total' || !rooms.length) {
-    // Итог — те же свёрнутые плашки комнат, что в «Итоге» Оценки, + «Итого по видам работ» + оплаты
-    const SUM_CHEV = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    const plate = (r) => { const t = roomTotals(r); const on = finOpen.has(r.key);
-      return `<section class="o-sroom${on ? ' is-open' : ''}" style="--rc:${r.color || '#7c8f8a'}">
-        <button type="button" class="o-sroom__head" data-action="bd-finsum" data-key="${esc(r.key)}" aria-expanded="${on}">
-          <span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж · ${t.lines.length} ${plu(t.lines.length, 'услуга', 'услуги', 'услуг')}</small></span>
-          <span class="o-sroom__sum"><b>${fmt(t.total)} ₽</b><small>${shiftsText(t.hours)}</small></span>
-          <span class="o-sroom__chev">${SUM_CHEV}</span></button>
-        <div class="o-sroom__list">${WHEAD}${t.lines.map(wline).join('')}</div></section>`; };
-    const by = new Map();
-    rooms.forEach((r) => roomTotals(r).lines.forEach((l) => { const e = by.get(l.id) || { ...l, qty: 0, sum: 0 }; e.qty += l.qty; e.sum += l.sum; by.set(l.id, e); }));
-    const byLines = [...by.values()].map((l) => wline({ ...l, qty: Math.round(l.qty * 100) / 100 })).join('');
-    const n = rooms.length;
-    finBody = `<p class="o-sec">Комнаты</p>${rooms.map(plate).join('')}
-      <section class="f-plate o-bywork"><p class="o-sec o-sec--in">Итого по видам работ</p>${WHEAD}${byLines}</section>
-      <section class="f-plate o-grand"><p class="o-grand__t">Общий итог</p><b class="o-grand__sum">${fmt(fTot)} ₽</b><p class="o-grand__x">${n} ${plu(n, 'комната', 'комнаты', 'комнат')}</p></section>
-      <section class="f-plate o-rplate"><div class="o-rhead"><span class="o-rhead__t"><b>Оплаты</b></span></div>
-      <div class="summary-areas"><span>Получено<b>${fmt(pays)} ₽</b></span><span>Осталось<b>${fmt(Math.max(0, fTot - pays))} ₽</b></span></div>
-      ${(d.fin.pays || []).map(payRow).join('') || '<p class="bd-note">Оплат пока нет</p>'}</section>
-      <div class="f-btn-row bd-flbtns"><button type="button" class="f-btn f-btn--lit" data-action="z-pay-new" data-no="${no}">+ Оплата</button></div>`;
-  } else {
-    // Выбранная комната — раскрытая плашка «Итога» Оценки: таблица работ + цена + оплаты комнаты + «+ Аванс»
-    const r = rooms.find((x) => x.key === finView); const t = roomTotals(r); const rp = payFor(r.key);
-    const got = rp.reduce((a, x) => a + x.amount, 0);
-    finBody = `<section class="o-sroom is-open o-sroom--static" style="--rc:${r.color || '#7c8f8a'}">
-        <div class="o-sroom__head"><span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж · ${t.lines.length} ${plu(t.lines.length, 'услуга', 'услуги', 'услуг')}</small></span><span class="o-sroom__sum"><b>${fmt(t.total)} ₽</b><small>${shiftsText(t.hours)}</small></span></div>
-        <div class="o-sroom__list">${t.lines.length ? WHEAD + t.lines.map(wline).join('') : '<p class="bd-note">Работы пока не добавлены</p>'}</div></section>
-      ${rp.length ? `<section class="f-plate o-rpay"><p class="o-sec o-sec--in">Оплаты комнаты</p>${rp.map(payRow).join('')}<p class="bd-line bd-line--sum bd-line--tot"><b>Получено</b><em>${fmt(got)} ₽</em></p></section>` : ''}
-      <div class="f-btn-row"><button type="button" class="f-btn" data-action="z-pay-new" data-no="${no}" data-room="${esc(r.key)}">+ Аванс</button></div>`;
-  }
-  const finTab = (d.ui && d.ui.form === 'pay') ? renderPayForm(d) : `${finStrip}<div class="o-stack f-fill">${finBody}</div>`;
+  // Финансы — общий компонент комнат с деньгами (Работа · м² · ₽/м² · Сумма)
+  const finTab = (d.ui && d.ui.form === 'pay') ? renderPayForm(d) : plateView(no, rooms, d, true);
   const viewBody = view === 'zam' ? zamView : view === 'mat' ? matTab : view === 'finance' ? finTab : infoView;
   // где сейчас действие — отметим точкой на вкладке
   const stTab = { measure: 'zam', approval: 'zam', queue: 'mat', work: 'mat', done: 'finance', closed: 'finance', refused: 'info' }[f.st] || 'info';
@@ -609,7 +620,7 @@ export function renderBoardOrder(no, view) {
   const IC_COIN = ic('<circle cx="12" cy="12" r="8.3"/><path d="M10 8.5h3.2a1.9 1.9 0 010 3.8H10V16M10 12h4"/>');
   const topbar = `<div class="bd-obar"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="Назад">${BACKIC}</button><span>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</span></div>`;
   const nTab = (v, to, label, icon) => `<button type="button" class="f-nav__tab${(view || '') === v ? ' is-on' : ''}${stTab === v ? ' has-act' : ''}" data-action="go" data-to="${to}">${icon}<span>${label}</span></button>`;
-  const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${nTab('', 'bd-info-' + no, 'Инф', INFO)}${nTab('zam', 'bd-zam-' + no, 'Смета', IC_RULER)}${nTab('mat', 'bd-mat-' + no, 'Материалы', IC_ROLL)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${chatBtn(no, d)}</nav>`;
+  const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${nTab('', 'bd-info-' + no, 'Инф', INFO)}${nTab('zam', 'bd-zam-' + no, 'Замер', IC_RULER)}${nTab('mat', 'bd-mat-' + no, 'Материалы', IC_ROLL)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${chatBtn(no, d)}</nav>`;
   // Клиент — только во вкладке «Инф»; в остальных сверху лишь шапка с № и статусом
   const showClient = !view || view === 'info';
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${showClient ? client : ''}${viewBody}${tabbar}`;
