@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=488';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=489';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=488';
-import * as S from './store.js?v=488';
-import { WALLPAPER_TYPES } from './seed.js?v=488';
-import { esc, toast } from './ui.js?v=488';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=488';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=488';
-import { country } from './phonecodes.js?v=488';
-import { suggestAddress } from './address.js?v=488';
-import { suggesters } from './kbd.js?v=488';
-import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=488';
+import { actions, changes, rerender } from './core.js?v=489';
+import * as S from './store.js?v=489';
+import { WALLPAPER_TYPES } from './seed.js?v=489';
+import { esc, toast } from './ui.js?v=489';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=489';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=489';
+import { country } from './phonecodes.js?v=489';
+import { suggestAddress } from './address.js?v=489';
+import { suggesters } from './kbd.js?v=489';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=489';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -523,51 +523,17 @@ function money(d) {
   return { by, income, pasteBase, agent, own, paid, adv, ch };
 }
 const kv = (l, v, cls = '') => `<div class="z-kv${cls ? ' ' + cls : ''}"><span>${l}</span><b>${v}</b></div>`;
-export function renderFinance(d) {
-  const f = money(d);
-  const ui = d.ui || {};
-  const tab = segState.fin || 'income';
-  const head = seg('fin', [['income', 'Доходы'], ['expense', 'Расходы'], ['total', 'Итог']], tab);
-  if (ui.form === 'pay') {
-    const p = ui.pay;
-    return `${head}<section class="f-plate"><p class="z-title">Добавить оплату</p>${status('warn', 'редактирование')}
+export function renderPayForm(d) {
+  const ui = d.ui || (d.ui = {});
+  if (!ui.pay) ui.pay = { kind: 'Аванс', sum: '', date: todayISO(), method: 'Перевод' };
+  ui.form = 'pay';
+  const p = ui.pay;
+  return `<section class="f-plate"><p class="z-title">Добавить оплату</p>${status('warn', 'редактирование')}
       <div class="z-kind">${['Аванс', 'Оплата'].map((k) => `<button type="button" class="${p.kind === k ? 'is-on' : ''}" data-action="z-pay-kind" data-v="${k}">${k}</button>`).join('')}</div>
-      ${input('z-p-sum', 'Сумма', p.sum, { ph: '0 ₽', mode: 'numeric', live: 'z-p:sum', changed: !!p.sum, err: (ui.err || {}).sum })}
+      ${input('z-p-sum', 'Сумма', p.sum, { ph: '0 \u20bd', mode: 'numeric', live: 'z-p:sum', changed: !!p.sum, err: (ui.err || {}).sum })}
       <label class="f-field" for="z-p-date"><span class="f-field__label">Дата</span><span class="f-input"><input id="z-p-date" type="date" value="${p.date}" data-live="z-p:date"/></span></label>
       ${selectField('z-p-method', 'Способ оплаты', p.method, ['Перевод', 'Наличные', 'Карта'].map((x) => ({ value: x, label: x })), false)}</section>
       ${dock(row(btn('Отмена', 'z-form-close'), btn('Сохранить', 'z-pay-save')))}`;
-  }
-  if (ui.form === 'exp') {
-    const e = ui.exp;
-    return `${head}<section class="f-plate"><p class="z-title">Новый расход</p>${status('warn', 'редактирование')}
-      ${input('z-e-name', 'Название расхода', e.name, { ph: 'Клей для обоев', live: 'z-e:name', changed: !!e.name, err: (ui.err || {}).name })}
-      ${input('z-e-sum', 'Сумма', e.sum, { ph: '0 ₽', mode: 'numeric', live: 'z-e:sum', changed: !!e.sum, err: (ui.err || {}).sum })}
-      ${input('z-e-com', 'Комментарий', e.comment, { ph: 'Покупка материала', live: 'z-e:comment', changed: !!e.comment })}
-      ${row(btn('Прикрепить чек', 'z-attach'))}</section>
-      ${dock(row(btn('Отмена', 'z-form-close'), btn('Сохранить', 'z-exp-save')))}`;
-  }
-  const expTotal = f.agent + f.own;
-  if (tab === 'income') {
-    return `${head}<section class="f-plate z-fin">${kv('Доход по смете', `${fmt(f.income)} ₽`, 'z-kv--big')}<p class="z-muted">Автоматически из сметы заказа</p></section>
-      <section class="f-plate z-fin"><p class="z-title">Оплаты клиента</p>
-        <div class="z-tiles3"><div class="o-card"><small>Аванс</small><b>${fmt(f.adv)} ₽</b></div><div class="o-card"><small>Получено</small><b>${fmt(f.paid)} ₽</b></div><div class="o-card"><small>Осталось</small><b>${fmt(Math.max(0, f.income - f.paid))} ₽</b></div></div>
-        ${d.fin.pays.length ? d.fin.pays.map((p) => kv(esc(`${p.kind} · ${p.method} · ${dateWords(p.date)}`), `${fmt(p.amount)} ₽`)).join('') : '<p class="z-text">Оплат пока нет</p>'}</section>
-      <section class="f-plate z-fin"><p class="z-title">По смете заказа</p>${[...f.by.entries()].map(([n, v]) => kv(esc(n), `${fmt(v)} ₽`)).join('') || '<p class="z-muted">Смета пока пустая</p>'}</section>
-      ${dock(row(btn('+ Оплата', 'z-pay-new')))}`;
-  }
-  if (tab === 'expense') {
-    return `${head}<section class="f-plate z-fin"><p class="z-title">Расходы заказа</p>
-        <div class="o-card z-exp-row"><span><b>Агентские</b><small>${f.ch.partner !== 'self' ? `${String(f.ch.pct).replace('.', ',')}% от ${fmt(f.pasteBase)} ₽` : 'Заказ без партнёра'}</small></span><b>${fmt2(f.agent)} ₽</b></div>
-        <div class="o-card z-exp-row"><span><b>Авто</b><small>Пробег: 0 км</small></span><b>0 ₽</b></div>
-        <div class="o-card z-exp-row"><span><b>Реклама</b><small>Из источника заказа</small></span><b>0 ₽</b></div>
-        ${d.fin.exps.map((e) => `<div class="o-card z-exp-row"><span><b>${esc(e.name)}</b><small>${esc(e.comment || 'Покупки и прочее')}</small></span><b>${fmt2(e.amount)} ₽</b></div>`).join('')}</section>
-      <div class="z-sum">${kv('Всего расходов', `${fmt2(expTotal)} ₽`)}</div>
-      ${dock(row(btn('+ Добавить расход', 'z-exp-new')))}`;
-  }
-  return `${head}<section class="f-plate z-fin">${kv('Доходы', `${fmt(f.income)} ₽`, 'z-kv--big')}<p class="z-muted">Автоматически из сметы заказа</p></section>
-    <section class="f-plate z-fin">${kv('Расходы', `${fmt2(expTotal)} ₽`, 'z-kv--big')}${kv('Агентские', `${fmt2(f.agent)} ₽`, 'z-kv--sm')}${kv('Авто', '0 ₽', 'z-kv--sm')}${kv('Реклама', '0 ₽', 'z-kv--sm')}${kv('Покупки и прочее', `${fmt2(f.own)} ₽`, 'z-kv--sm')}</section>
-    <section class="f-plate z-fin z-net"><p class="z-title">Чистый заработок</p><b>${fmt2(f.income - expTotal)} ₽</b><p class="z-muted">Стоимость работ минус все расходы</p></section>
-    ${dock(row(btn('Открыть расходы', 'z-seg', { data: 'data-key="fin" data-v="expense"' })))}`;
 }
 actions['z-pay-new'] = () => { D().ui = { form: 'pay', pay: { kind: 'Аванс', sum: '', date: todayISO(), method: 'Перевод' } }; save(); };
 actions['z-pay-kind'] = (el) => { D().ui.pay.kind = el.dataset.v; save(); };
@@ -651,7 +617,7 @@ registerSection('material', renderMaterial);
 registerSection('smeta', renderSmeta);
 registerSection('chat', renderChat);
 registerSection('tasks', renderTasks);
-registerSection('finance', renderFinance);
+registerSection('finance', renderPayForm);
 registerSection('history', renderHistory);
 
 
