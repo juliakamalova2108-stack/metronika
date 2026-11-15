@@ -1,20 +1,20 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=506';
-import * as S from './store.js?v=506';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=506';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=506';
-import { renderSettlements } from './shared.js?v=506';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=506';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=506';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=506';
-import { renderOformit, onLiveOformit } from './oformit.js?v=506';
-import { onLiveZakaz } from './zakaz.js?v=506';
-import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderVisit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=506';
-import { renderStatsMaster } from './stats.js?v=506';
-import './kbd.js?v=506';
-import { renderSettingsFig } from './settings.js?v=506';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=506';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=508';
+import * as S from './store.js?v=508';
+import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=508';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=508';
+import { renderSettlements } from './shared.js?v=508';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=508';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=508';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=508';
+import { renderOformit, onLiveOformit } from './oformit.js?v=508';
+import { onLiveZakaz } from './zakaz.js?v=508';
+import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=508';
+import { renderStatsMaster } from './stats.js?v=508';
+import './kbd.js?v=508';
+import { renderSettingsFig } from './settings.js?v=508';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=508';
 
 const VERSION = 'сборка ' + ((/[?&]v=([^&]+)/.exec(import.meta.url) || [])[1] || '?');
 
@@ -59,7 +59,7 @@ function screenFor(name, role) {
     if (name === 'money') return null;
     if (name === 'orders') { S.setDraftKey(null); return renderBoard(); }
     if (name.startsWith('bd-order-')) return renderBoardOrder(name.slice(9));
-    if (name.startsWith('bd-visit-')) return renderVisit(name.slice(9));
+    if (name.startsWith('bd-visit-')) { const vno = name.slice(9).split('-')[0]; history.replaceState(null, '', '#bd-info-' + vno); return renderBoardOrder(vno, 'info'); }
     if (name.startsWith('bd-info-')) return renderBoardOrder(name.slice(8), 'info');
     if (name.startsWith('bd-zam-')) return renderBoardOrder(name.slice(7), 'zam');
     if (name.startsWith('bd-mat-')) return renderBoardOrder(name.slice(7), 'mat');
