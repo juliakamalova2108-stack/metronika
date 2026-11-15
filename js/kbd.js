@@ -1,4 +1,4 @@
-import { afterRender } from './core.js?v=479';
+import { afterRender } from './core.js?v=480';
 
 // Подсказки над клавишами: поле с data-suggest="имя" получает список из suggesters[имя](текст).
 // Выбор подсказки шлёт полю событие kb-pick с выбранным пунктом.

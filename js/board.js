@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=479';
-import * as S from './store.js?v=479';
-import { renderOformit, oformitDraft } from './oformit.js?v=479';
-import { roomTotals, svcInfo } from './ocenka.js?v=479';
-import { smetaTotals } from './zakaz.js?v=479';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=479';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=479';
-import { esc, toast, status, seg } from './ui.js?v=479';
-import { topbar, ORDER_STATUS } from './shared.js?v=479';
+import { actions, rerender, go } from './core.js?v=480';
+import * as S from './store.js?v=480';
+import { renderOformit, oformitDraft } from './oformit.js?v=480';
+import { roomTotals, svcInfo } from './ocenka.js?v=480';
+import { smetaTotals } from './zakaz.js?v=480';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=480';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=480';
+import { esc, toast, status, seg } from './ui.js?v=480';
+import { topbar, ORDER_STATUS } from './shared.js?v=480';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -521,37 +521,40 @@ export function renderBoardOrder(no, view) {
   const openTasks = (d.tasks || []).filter((t) => !t.done);
   if (openTasks.length) extra.push(block('Задачи', no, 'tasks', openTasks.slice(0, 3).map((t) => `<p class="bd-line"><b>${esc(t.text)}</b>${t.due ? `<small>до ${dueTxt(t.due)}</small>` : ''}</p>`).join('')));
   const more = extra.join('');
-  // Вкладка «Инфо» — первый этап: всё, что вписали в начале; комнаты раскрыты полностью
+  // ── Экран заказа: Инф (вводные) + три главные вещи внизу: Замеры · Материалы · Финансы ──
+  const f = flowOf(no);
+  const flow = flowBlock(no, d, tot, days);
+  // Инф — всё, что вписали в начале; комнаты оценки раскрыты
   const roomsOpen = rooms.map((r) => { const t = roomTotals(r);
     return `<div class="o-sroom is-open o-sroom--static" style="--rc:${r.color}"><div class="o-sroom__head">
       <span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж · ${t.lines.length} усл.</small></span><span class="o-sroom__sum"><b>${fmt(t.total)} ₽</b><small>${shiftsText(t.hours)}</small></span></div>
       <div class="o-sroom__list">${t.lines.map((l) => `<div class="o-line"><span class="o-line__n">${esc(l.name)}</span><span class="o-line__q">${String(l.qty).replace('.', ',')} м²</span><b class="o-line__s">${fmt(l.sum)} ₽</b></div>`).join('')}</div></div>`; }).join('');
   const estOpen = block('Оценка <small class="bd-sub">(со слов клиента)</small>', no, 'estimate', `<div class="bd-rooms">${roomsOpen || '<p class="bd-note">Оценки пока нет</p>'}</div>`);
-  const infoView = `${estOpen}${sched}${chan}${sum}`;
-  // Вкладка «Задачи»
-  const allTasks = d.tasks || [];
-  const tasksView = block('Задачи', no, 'tasks', allTasks.length ? allTasks.map((t) => `<p class="bd-line${t.done ? ' is-done' : ''}"><b>${esc(t.text)}</b>${t.due ? `<small>до ${dueTxt(t.due)}</small>` : ''}</p>`).join('') : '<p class="bd-line"><b>Задач нет</b></p>');
-  // Вкладка «Финансы»
+  const infoView = `${f.st === 'refused' ? flow : ''}${estOpen}${sched}${chan}${sum}`;
+  // Замеры — действие шага (на замере) + смета по комнатам
+  const zamView = `${['measure', 'approval'].includes(f.st) ? flow : ''}${zam}`;
+  // Материалы — сбор артикулов по комнатам (+ действие, когда идёт работа)
+  const matView = rooms.map((r) => { const mr = (d.mat && d.mat.rooms || {})[r.key] || {}; const art = mr.added ? `${esc(mr.added.brand || '')} ${esc(mr.added.type || '')}`.trim() : '';
+    return `<div class="o-sroom is-open o-sroom--static" style="--rc:${r.color}"><div class="o-sroom__head"><span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж</small></span>${art ? '<span class="o-sroom__sum"><b class="bd-ok">собран</b></span>' : ''}</div>
+      <div class="o-sroom__list"><div class="o-line"><span class="o-line__n${art ? '' : ' bd-sub'}">${art || 'артикулы не собраны'}</span></div></div></div>`; }).join('');
+  const matBlock = block('Материалы <small class="bd-sub">(сбор артикулов)</small>', no, 'material', `<div class="bd-rooms">${matView}</div>`);
+  const matTab = `${['queue', 'work'].includes(f.st) ? flow : ''}${matBlock}`;
+  // Финансы — на весь заказ
   const fTot = orderSum(d, flowOf(no));
-  const finView = block('Финансы', no, 'finance', `<div class="bd-total"><div><small>Получено</small><b>${fmt(pays)} ₽</b></div><div><small>Остаток</small><b>${fmt(Math.max(0, fTot - pays))} ₽</b></div></div>${(d.fin && d.fin.pays || []).map((x) => `<p class="bd-line"><b>${esc(x.kind || 'Оплата')} ${fmt(x.amount)} ₽</b><small>${esc(x.method || '')}${x.date ? ` · ${fmtISO(x.date)}` : ''}</small></p>`).join('') + (d.fin && d.fin.exps || []).map((x) => `<p class="bd-line"><b>Расход ${fmt(x.amount)} ₽</b><small>${esc(x.note || '')}</small></p>`).join('')}`);
-  // Вкладка «История» — события заказа по датам
-  const ev = [];
-  if (d.sched && d.sched.measure) ev.push([d.sched.measure, 'Замер']);
-  if (days.length) ev.push([iso0(days[0].date), 'Начало работ']);
-  (d.fin && d.fin.pays || []).forEach((x) => { if (x.date) ev.push([x.date, `Оплата ${fmt(x.amount)} ₽`]); });
-  ev.sort((a, b) => a[0].localeCompare(b[0]));
-  const histView = block('История', no, '', ev.length ? ev.map(([dt, t]) => `<p class="bd-line"><b>${esc(t)}</b><small>${fmtISO(dt)}</small></p>`).join('') : '<p class="bd-line"><b>Событий пока нет</b></p>');
-  const viewBody = view === 'tasks' ? tasksView : view === 'finance' ? finView : view === 'history' ? histView : infoView;
+  const finBlock = block('Финансы', no, 'finance', `<div class="bd-total"><div><small>Получено</small><b>${fmt(pays)} ₽</b></div><div><small>Остаток</small><b>${fmt(Math.max(0, fTot - pays))} ₽</b></div></div>${(d.fin && d.fin.pays || []).map((x) => `<p class="bd-line"><b>${esc(x.kind || 'Оплата')} ${fmt(x.amount)} ₽</b><small>${esc(x.method || '')}${x.date ? ` · ${fmtISO(x.date)}` : ''}</small></p>`).join('')}`);
+  const finTab = `${['done', 'closed'].includes(f.st) ? flow : ''}${finBlock}`;
+  const viewBody = view === 'zam' ? zamView : view === 'mat' ? matTab : view === 'finance' ? finTab : infoView;
+  // где сейчас действие — отметим точкой на вкладке
+  const stTab = { measure: 'zam', approval: 'zam', queue: 'mat', work: 'mat', done: 'finance', closed: 'finance', refused: 'info' }[f.st] || 'info';
   const BACKIC = ic('<path d="M15 5l-7 7 7 7"/>');
-  const IC_PLAY = ic('<rect x="3.5" y="6.5" width="17" height="13" rx="2.4"/><path d="M8.5 6.5V5h7v1.5"/>');
-  const IC_TASK = ic('<path d="M4 7h9M4 12h9M4 17h6"/><path d="M16.5 6.2l1.6 1.6 3-3"/>');
+  const IC_RULER = ic('<path d="M3.5 15.5l12-12 4.5 4.5-12 12z"/><path d="M7 12l1.6 1.6M9.5 9.5l1.6 1.6M12 7l1.6 1.6"/>');
+  const IC_ROLL = ic('<rect x="4.5" y="4" width="10" height="16" rx="2"/><path d="M14.5 7.5H18a1.5 1.5 0 011.5 1.5v9a2 2 0 01-2 2"/>');
   const IC_COIN = ic('<circle cx="12" cy="12" r="8.3"/><path d="M10 8.5h3.2a1.9 1.9 0 010 3.8H10V16M10 12h4"/>');
-  const IC_CLOCK = ic('<circle cx="12" cy="12" r="8.3"/><path d="M12 7.3V12l3 1.8"/>');
   const topbar = `<div class="bd-obar"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="Назад">${BACKIC}</button><span>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</span></div>`;
-  const nTab = (v, to, label, icon) => `<button type="button" class="f-nav__tab${(view || '') === v ? ' is-on' : ''}" data-action="go" data-to="${to}">${icon}<span>${label}</span></button>`;
-  const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ">${nTab('', 'bd-order-' + no, 'Исполн.', IC_PLAY)}${nTab('info', 'bd-info-' + no, 'Инф', INFO)}${nTab('tasks', 'bd-tasks-' + no, 'Задачи', IC_TASK)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${nTab('history', 'bd-history-' + no, 'История', IC_CLOCK)}${chatBtn(no, d)}</nav>`;
+  const nTab = (v, to, label, icon) => `<button type="button" class="f-nav__tab${(view || '') === v ? ' is-on' : ''}${stTab === v ? ' has-act' : ''}" data-action="go" data-to="${to}">${icon}<span>${label}</span></button>`;
+  const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ">${nTab('', 'bd-info-' + no, 'Инф', INFO)}${nTab('zam', 'bd-zam-' + no, 'Замеры', IC_RULER)}${nTab('mat', 'bd-mat-' + no, 'Материалы', IC_ROLL)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${chatBtn(no, d)}</nav>`;
   if (info) return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${client}${viewBody}${tabbar}`;
-  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${client}${flowBlock(no, d, tot, days)}${tabbar}`;
+  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${client}${viewBody}${tabbar}`;
 }
 // Правка блока — та же форма, что при оформлении; «назад» возвращает в сводку заказа.
 // Чат заказа — кнопка справа в нижней навигации; красная цифра — непрочитанные сообщения не от мастера.

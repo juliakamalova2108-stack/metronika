@@ -2943,3 +2943,9 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 
 /* «Инфо»: комнаты оценки показаны полностью, без сворачивания */
 .o-sroom--static .o-sroom__head { cursor: default; }
+
+/* Заказ: отметка «здесь сейчас действие» на вкладке, метка собранного материала */
+.f-nav--otabs .f-nav__tab.has-act { position: relative; }
+.f-nav--otabs .f-nav__tab.has-act::after { content: ''; position: absolute; top: 4px; right: calc(50% - 16px); width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.f-nav--otabs .f-nav__tab.has-act.is-on::after { display: none; }
+.bd-ok { color: var(--accent); font: 600 11px/1 var(--font-body); }
