@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=450';
-import * as S from './store.js?v=450';
-import { renderOformit, oformitDraft } from './oformit.js?v=450';
-import { roomTotals, svcInfo } from './ocenka.js?v=450';
-import { smetaTotals } from './zakaz.js?v=450';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=450';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=450';
-import { esc, toast, status, seg } from './ui.js?v=450';
-import { topbar, ORDER_STATUS } from './shared.js?v=450';
+import { actions, rerender, go } from './core.js?v=452';
+import * as S from './store.js?v=452';
+import { renderOformit, oformitDraft } from './oformit.js?v=452';
+import { roomTotals, svcInfo } from './ocenka.js?v=452';
+import { smetaTotals } from './zakaz.js?v=452';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=452';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=452';
+import { esc, toast, status, seg } from './ui.js?v=452';
+import { topbar, ORDER_STATUS } from './shared.js?v=452';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -188,12 +188,27 @@ export function orderSum(d, f) {
 const STAGE_HELP = { measure: 'Пока пусто. Сюда попадают заказы, по которым нужен замер: оформите замер во вкладке «Оформить».', approval: 'Пока пусто. Сюда попадают заказы после замера, если клиент «Подумает»: тут напомним перезвонить.', queue: 'Пока пусто. Сюда попадают согласованные заказы с назначенными датами работ.', work: 'Пока пусто. Сюда попадают заказы, которые вы начали.', done: 'Пока пусто. Сюда попадают заказы, где работы выполнены и осталась оплата.', refused: 'Пока пусто. Сюда попадают заказы, от которых клиент отказался.' };
 const FL_NAME = { measure: 'Замер', approval: 'Согласование', queue: 'Очередь', work: 'В работе', done: 'Выполнено', closed: 'Заказ завершён', refused: 'Отказ' };
 const MY = () => S.get().myOrders || [];
-// «План» нового заказа видит очередь: подтверждённые заказы (в очереди и в работе) занимают дни календаря.
-setQueueProvider((ex) => {
+function homeMeasList() {
+  const meId = S.me().id;
+  const offOf = (date) => Math.round((new Date(date + 'T12:00') - dayOf(0)) / 864e5);
+  const realMeas = S.get().orders.filter((o) => !o.trashed && !['closed', 'cancelled', 'failed'].includes(o.status))
+    .flatMap((o) => o.visits.filter((v) => v.type === 'measure' && v.masterId === meId && v.date >= iso(0) && v.date <= iso(6))
+      .map((v) => ({ id: o.id, no: String(o.no), off: offOf(v.date), time: v.time, n: o.client.name, a: [o.client.street, o.client.house].filter(Boolean).join(', ') + (o.client.flat ? `, кв. ${o.client.flat}` : ''), ph: o.client.phone })));
+  // Примерные замеры для показа (пока в демо-заказах нет будущих замеров)
+  const DEMO_MEAS = Object.keys(DEMO).filter((no) => DEMO[no].meas != null).map((no) => { const x = DEMO[no]; return { no, demo: true, off: x.meas, time: `${Number(x.hour)}:${x.min || '00'}`, n: CL[no].n, a: CL[no].a, ph: x.ph }; });
   Object.keys(DEMO).forEach(seedOrder);
-  return [...Object.keys(DEMO), ...MY()].filter((no) => String(no) !== ex && ['queue', 'work'].includes((flowOf(no) || {}).st))
+  MY().forEach((no) => { const d = S.get().oformit['ord-' + no]; if (!d || flowOf(no).st !== 'measure' || !d.sched || !d.sched.measure) return; const cl = d.cl || {};
+    DEMO_MEAS.push({ no, demo: true, off: offOf(d.sched.measure), time: `${Number(cl.hour || 10)}:${cl.min || '00'}`, n: cl.name || 'Клиент', a: [cl.street, cl.house && 'д. ' + cl.house, cl.flat && 'кв. ' + cl.flat].filter(Boolean).join(', '), ph: cl.phone || '' }); });
+  const meas = (realMeas.length ? realMeas : DEMO_MEAS).filter((m) => !m.demo || DEMO[m.no] ? (!m.demo || flowOf(m.no).st === 'measure') : true).sort((x, y) => x.off - y.off || x.time.localeCompare(y.time));
+  return meas;
+}
+// Один источник для календаря на главной и в «Плане»: одни и те же заказы, одни и те же дни.
+const queueOrders = (ex) => {
+  Object.keys(DEMO).forEach(seedOrder);
+  return [...Object.keys(DEMO), ...MY().filter((no) => ['queue', 'work'].includes((flowOf(no) || {}).st))].filter((no) => String(no) !== ex)
     .map((no) => { const d = homeOrder(no); const nm = (CL[no] && CL[no].n) || (d.cl && d.cl.name) || ''; return { no, d, n: nm.split(' ')[1] || nm }; });
-});
+};
+setQueueProvider(queueOrders, () => { const m = {}; homeMeasList().forEach((x) => { const k = iso(x.off); m[k] = (m[k] || 0) + 1; }); return m; });
 // Допустимые переходы заказа: назад в прошлое или из «Выполнено» в «Очередь» — нельзя.
 const FL_NEXT = { measure: ['approval', 'queue', 'refused'], approval: ['queue', 'refused'], queue: ['work', 'refused'], work: ['done', 'refused'], done: ['closed'], closed: [], refused: ['measure', 'approval', 'queue', 'work'] };
 const canGo = (from, to) => from === to || (FL_NEXT[from] || []).includes(to);
@@ -966,15 +981,7 @@ export function renderHome() {
   const tasks = [...Object.keys(DEMO), ...MY()].flatMap((no) => ((homeOrder(no).tasks) || []).filter((t) => (!t.done || t.doneToday === iso(0)) && (!t.due || t.due <= iso(0))).map((t) => ({ t, no })));
   const done = tasks.filter((x) => x.t.done).length;
   const offOf = (date) => Math.round((new Date(date + 'T12:00') - dayOf(0)) / 864e5);
-  const realMeas = S.get().orders.filter((o) => !o.trashed && !['closed', 'cancelled', 'failed'].includes(o.status))
-    .flatMap((o) => o.visits.filter((v) => v.type === 'measure' && v.masterId === meId && v.date >= iso(0) && v.date <= iso(6))
-      .map((v) => ({ id: o.id, no: String(o.no), off: offOf(v.date), time: v.time, n: o.client.name, a: [o.client.street, o.client.house].filter(Boolean).join(', ') + (o.client.flat ? `, кв. ${o.client.flat}` : ''), ph: o.client.phone })));
-  // Примерные замеры для показа (пока в демо-заказах нет будущих замеров)
-  const DEMO_MEAS = Object.keys(DEMO).filter((no) => DEMO[no].meas != null).map((no) => { const x = DEMO[no]; return { no, demo: true, off: x.meas, time: `${Number(x.hour)}:${x.min || '00'}`, n: CL[no].n, a: CL[no].a, ph: x.ph }; });
-  Object.keys(DEMO).forEach(seedOrder);
-  MY().forEach((no) => { const d = S.get().oformit['ord-' + no]; if (!d || flowOf(no).st !== 'measure' || !d.sched || !d.sched.measure) return; const cl = d.cl || {};
-    DEMO_MEAS.push({ no, demo: true, off: offOf(d.sched.measure), time: `${Number(cl.hour || 10)}:${cl.min || '00'}`, n: cl.name || 'Клиент', a: [cl.street, cl.house && 'д. ' + cl.house, cl.flat && 'кв. ' + cl.flat].filter(Boolean).join(', '), ph: cl.phone || '' }); });
-  const meas = (realMeas.length ? realMeas : DEMO_MEAS).filter((m) => !m.demo || DEMO[m.no] ? (!m.demo || flowOf(m.no).st === 'measure') : true).sort((x, y) => x.off - y.off || x.time.localeCompare(y.time));
+  const meas = homeMeasList();
   const RULER = ic('<path d="M3.5 15.5l12-12 5 5-12 12z"/><path d="M7 12l2 2M9.5 9.5l1.5 1.5M12 7l2 2"/>');
   const whenOf = (off) => { if (off === 0) return 'сегодня'; if (off === 1) return 'завтра'; const d = dayOf(off); return `${WD[d.getDay()]}, ${d.getDate()} ${MON[d.getMonth()]}`; };
   const measToday = meas.filter((m) => m.off === 0);
@@ -992,7 +999,7 @@ export function renderHome() {
       <div class="h-hero__who"><b>${esc(m.n)}</b><small>${esc(m.a)}</small></div>
       <div class="h-hero__act"><button type="button" class="h-go h-go--meas" ${m.demo ? `data-action="go" data-to="bd-visit-${m.no}"` : `data-action="go" data-to="p-order-${esc(m.id)}"`}>${m.demo && flowOf(m.no).visit && flowOf(m.no).visit.step ? 'Продолжить' : 'Начать'} ${HI.arrow}</button></div></article>`).join('')}</div>` : '';
   // ── Календарь — тот же, что во вкладке «График»: дни комнат цветом, название и сумма за день, «З» — замер; тап по дню — список ниже ──
-  const glay = homeLayout(Object.keys(DEMO).map((no) => ({ no, d: homeOrder(no) })));
+  const glay = homeLayout(queueOrders(null));
   const measBy = {}; meas.forEach((m) => { const k = iso(m.off); measBy[k] = (measBy[k] || 0) + 1; });
   const todayIso = iso(0); const selIso = homeSel || todayIso;
   const base = dayOf(0); const mm = new Date(base.getFullYear(), base.getMonth() + homeMonth, 1);

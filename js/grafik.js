@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=450';
-import * as S from './store.js?v=450';
-import { SHIFT_HOURS } from './calc.js?v=450';
-import { esc, toast } from './ui.js?v=450';
-import { logEvent } from './zlog.js?v=450';
-import { estimateRooms, roomTotals } from './ocenka.js?v=450';
+import { actions, rerender } from './core.js?v=452';
+import * as S from './store.js?v=452';
+import { SHIFT_HOURS } from './calc.js?v=452';
+import { esc, toast } from './ui.js?v=452';
+import { logEvent } from './zlog.js?v=452';
+import { estimateRooms, roomTotals } from './ocenka.js?v=452';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -40,7 +40,8 @@ function roomDays(r) {
 const EPS = 1e-6;
 // Очередь: подтверждённые заказы мастера занимают смены в календаре. Их список отдаёт доска (board.js).
 let queueProvider = () => [];
-export function setQueueProvider(f) { queueProvider = f; }
+let measProvider = () => ({});
+export function setQueueProvider(f, m) { queueProvider = f; if (m) measProvider = m; }
 const MON_G = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 function othersInfo() {
   const k = S.draftKey(); const ex = k && String(k).startsWith('ord-') ? String(k).slice(4) : null;
@@ -131,6 +132,7 @@ function measuresOn(date) {
 
 function calendar(s, rooms, lay, locked, hint) {
   const todayIso = S.todayISO();
+  let measAll = {}; try { measAll = measProvider() || {}; } catch (e) { measAll = {}; }
   const hAdd = new Set((hint && hint.added) || []); const hDel = new Set((hint && hint.removed) || []);
   const [Y, M] = s.month.split('-').map(Number);
   const first = new Date(Y, M - 1, 1);
@@ -152,9 +154,9 @@ function calendar(s, rooms, lay, locked, hint) {
       const style = one ? `background:${segs[0].room.color}` : `background:${hexA(segs[segs.length - 1].room.color, 0.18)}`;
       const text = segs.length === 1 ? `<span>${nm(segs[0])}</span><span>${fmt(segs[0].cost)}</span>` : segs.map((x) => `<span>${nm(x)}</span>`).join('');
       cells.push(`<button type="button" class="g-cell g-cell--work${sel ? ' is-sel' : ''}${mark}${segs.some((x) => x.other) ? ' g-cell--q' : ''}${segs.length > 1 ? ' g-cell--multi' : ''}${hAdd.has(date) ? ' g-cell--hadd' : ''}${hDel.has(date) ? ' g-cell--hchg' : ''}" style="${style}" ${act} aria-label="${dd}, ${esc(segs.map((x) => x.label || x.room.name).join(' и '))}">
-        ${bars}<b>${dd}</b>${text}</button>`);
+        ${bars}<b>${dd}</b>${text}${(measAll[date] || 0) ? `<i class="g-badge" aria-label="замер">З</i>` : ''}</button>`);
     } else {
-      const meas = s.mode === 'measure' ? measuresOn(date) + (s.measure === date ? 1 : 0) : 0;
+      const meas = (measAll[date] || 0) + (s.mode === 'measure' && s.measure === date ? 1 : 0);
       cells.push(`<button type="button" class="g-cell${hDel.has(date) ? ' g-cell--hdel' : ''}${date === todayIso ? ' is-today' : ''}${date < todayIso ? ' is-past' : ''}" ${act} aria-label="${dd}${hDel.has(date) ? ', бронь снята' : ''}"><b>${dd}</b>${meas ? `<i class="g-badge" aria-label="замер${meas > 1 ? ": " + meas : ""}">З</i>` : ''}${hDel.has(date) ? '<span class="g-hint-x">снять</span>' : ''}</button>`);
     }
   }
