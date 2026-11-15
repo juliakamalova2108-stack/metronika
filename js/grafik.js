@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=457';
-import * as S from './store.js?v=457';
-import { SHIFT_HOURS } from './calc.js?v=457';
-import { esc, toast } from './ui.js?v=457';
-import { logEvent } from './zlog.js?v=457';
-import { estimateRooms, roomTotals } from './ocenka.js?v=457';
+import { actions, rerender } from './core.js?v=459';
+import * as S from './store.js?v=459';
+import { SHIFT_HOURS } from './calc.js?v=459';
+import { esc, toast } from './ui.js?v=459';
+import { logEvent } from './zlog.js?v=459';
+import { estimateRooms, roomTotals } from './ocenka.js?v=459';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -148,9 +148,10 @@ function calendarGrid(o) {
       // Доля дня каждой комнаты — полоса своего цвета; свободный остаток дня — бледный.
       const bars = one ? '' : segs.map((x) => `<i class="g-chip__fill" style="background:${x.room.color};left:${((x.from / SHIFT_HOURS) * 100).toFixed(1)}%;width:${(((x.vis != null ? x.vis : x.hours) / SHIFT_HOURS) * 100).toFixed(1)}%"></i>`).join('');
       const style = one ? `background:${segs[0].room.color}` : `background:${hexA(segs[segs.length - 1].room.color, 0.18)}`;
-      // Сверху дата и сумма дня; ниже — до двух комнат друг под другом, остальные — отметкой «+N».
+      // Сверху дата и сумма дня; ниже — до трёх комнат друг под другом, если больше — две и «+N».
       const total = segs.reduce((t, x) => t + (x.cost || 0), 0);
-      const names = segs.slice(0, 2).map((x) => `<span>${esc(x.room.name)}</span>`).join('') + (segs.length > 2 ? `<span class="g-more">+${segs.length - 2}</span>` : '');
+      const shown = segs.length > 3 ? 2 : segs.length;
+      const names = segs.slice(0, shown).map((x) => `<span>${esc(x.room.name)}</span>`).join('') + (segs.length > shown ? `<span class="g-more">+${segs.length - shown}</span>` : '');
       cells.push(`<button type="button" class="g-cell g-cell--work${segs.some((x) => x.other) ? ' g-cell--q' : ''}${segs.length > 1 ? ' g-cell--multi' : ''}${mark}${hAdd.has(date) ? ' g-cell--hadd' : ''}${hDel.has(date) ? ' g-cell--hchg' : ''}" style="${style}" ${act} aria-label="${dd}, ${esc(segs.map((x) => x.room.name).join(' и '))}${m ? ', замер' : ''}">${bars}<span class="g-cell__top"><b>${dd}</b><em>${fmt(total).replace(/\s/g, '\u202f')}</em></span><span class="g-cell__rooms">${names}</span>${badge}</button>`);
     } else {
       cells.push(`<button type="button" class="g-cell${hDel.has(date) ? ' g-cell--hdel' : ''}${mark}" ${act} aria-label="${dd}${hDel.has(date) ? ', бронь снята' : m ? ', замер' : ''}"><b>${dd}</b>${badge}${hDel.has(date) ? '<span class="g-hint-x">снять</span>' : ''}</button>`);
