@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=435';
-import * as S from './store.js?v=435';
-import { renderOformit, oformitDraft } from './oformit.js?v=435';
-import { roomTotals, svcInfo } from './ocenka.js?v=435';
-import { smetaTotals } from './zakaz.js?v=435';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=435';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=435';
-import { esc, toast, status, seg } from './ui.js?v=435';
-import { topbar, ORDER_STATUS } from './shared.js?v=435';
+import { actions, rerender, go } from './core.js?v=436';
+import * as S from './store.js?v=436';
+import { renderOformit, oformitDraft } from './oformit.js?v=436';
+import { roomTotals, svcInfo } from './ocenka.js?v=436';
+import { smetaTotals } from './zakaz.js?v=436';
+import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=436';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=436';
+import { esc, toast, status, seg } from './ui.js?v=436';
+import { topbar, ORDER_STATUS } from './shared.js?v=436';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -432,7 +432,7 @@ function setCallTask(no, days) { const d = S.get().oformit['ord-' + no]; if (!d)
 const vsEnd = (no, st, extra) => { const f = flowOf(no); if (!canGo(f.st, st)) { toast('Так сменить статус нельзя'); return false; } if (st === 'done' && !canClose(no)) { toast('Нельзя завершить: нет замера и сметы'); return false; }
   if (st !== 'refused') leaveRefused(no); let allRef = false; if (st === 'done' || st === 'refused') allRef = logStat(no, st === 'done' ? 'done' : 'lost', extra && extra.reason); if (allRef) { st = 'refused'; extra = { reason: 'Все комнаты отказаны' }; } if (f.visit && f.visit.kind === 'measure') { const d0 = S.get().oformit['ord-' + no]; if (d0) d0.disc = f.visit.disc || 0; } f.visit = null; f.st = st; Object.assign(f, extra || {}); setCallTask(no, st === 'approval' ? (f.call || 3) : 0); flAsk = ''; S.save(); return true; };
 // Клиент согласен: если даты работ уже стоят — идём к заказу, иначе открываем график сразу в режиме правки (с кнопкой «ОК»).
-function afterYes(no) { const d0 = S.get().oformit['ord-' + no]; const placed = d0 && d0.sched && d0.sched.place && Object.keys(d0.sched.place).length;
+function afterYes(no) { const d0 = S.get().oformit['ord-' + no]; if (d0) { d0.sched = d0.sched || {}; d0.sched.mode = 'work'; } const placed = d0 && d0.sched && d0.sched.place && Object.keys(d0.sched.place).length;
   if (placed) { toast('Клиент согласен — даты работ уже назначены'); return go('bd-order-' + no); }
   toast('Клиент согласен — выберите даты работ'); startEdit = 'schedule'; go('bd-edit-' + no + '-schedule'); }
 actions['vs-yes'] = (el) => { const no = el.dataset.no; if (!canGo(flowOf(no).st, 'queue')) return toast('Так сменить статус нельзя'); const d0 = S.get().oformit['ord-' + no]; if (d0) { d0.sched = d0.sched || {}; d0.sched.mode = 'work'; } if (vsEnd(no, 'queue') === false) return; afterYes(no); };
@@ -495,7 +495,7 @@ export function renderBoardOrder(no, info) {
   const zam = block('Замер', no, 'smeta', smt && smt.total ? `${smt.rooms.filter((x) => x.total).map((x) => `<p class="bd-line bd-line--sum"><b>${esc(x.room.name)}</b><small>${x.lines.map((l) => `${esc(l.name.split(' ')[0])} ${String(Math.round(l.qty * 10) / 10).replace('.', ',')} м²`).join(' · ')}</small><em>${fmt(x.total)} ₽</em></p>`).join('')}<p class="bd-range">Итого по смете: ${fmt(smt.total)} ₽</p>` : '<p class="bd-note">Замера пока нет</p>');
   const pays = d.fin ? d.fin.pays.reduce((a, x) => a + x.amount, 0) : 0;
   const exps = d.fin ? d.fin.exps.reduce((a, x) => a + x.amount, 0) : 0;
-  if (pays || exps) extra.push(block('Финансы', no, 'finance', `<div class="bd-total"><div><small>Получено</small><b>${fmt(pays)} ₽</b></div><div><small>Остаток</small><b>${fmt(Math.max(0, tot.sum - pays))} ₽</b></div></div>${exps ? `<p class="bd-range">Расходы: ${fmt(exps)} ₽</p>` : ''}`));
+  if (pays || exps) extra.push(block('Финансы', no, 'finance', `<div class="bd-total"><div><small>Получено</small><b>${fmt(pays)} ₽</b></div><div><small>Остаток</small><b>${fmt(Math.max(0, orderSum(d, flowOf(no)) - pays))} ₽</b></div></div>${exps ? `<p class="bd-range">Расходы: ${fmt(exps)} ₽</p>` : ''}`));
   const openTasks = (d.tasks || []).filter((t) => !t.done);
   if (openTasks.length) extra.push(block('Задачи', no, 'tasks', openTasks.slice(0, 3).map((t) => `<p class="bd-line"><b>${esc(t.text)}</b>${t.due ? `<small>до ${dueTxt(t.due)}</small>` : ''}</p>`).join('')));
   const more = extra.join('');
@@ -977,7 +977,7 @@ export function renderHome() {
       <span class="h-meas__t"><b>Замер · ${esc(m.time)} <em>${whenOf(m.off)}</em></b><small>${esc(m.n)} · ${esc(m.a)}</small></span>
       <a class="h-meas__a" href="tel:+7${esc(String(m.ph).replace(/\D/g, '').slice(-10))}" aria-label="Позвонить">${HI.call}</a>
       <a class="h-meas__a" href="https://yandex.ru/maps/?text=${encodeURIComponent('Уфа, ' + m.a)}" target="_blank" rel="noopener" aria-label="Маршрут">${HI.route}</a></div>`).join('');
-  const taskRows = tasks.map(({ t, no }) => `<button type="button" class="h-task${t.done ? ' is-done' : ''}" data-action="home-task" data-no="${no}" data-id="${esc(t.id)}"><i>${t.done ? ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>') : ''}</i><span>${esc(t.text)}<small>№${no} · ${esc(short(CL[no].n))}</small></span></button>`).join('');
+  const taskRows = tasks.map(({ t, no }) => `<button type="button" class="h-task${t.done ? ' is-done' : ''}" data-action="home-task" data-no="${no}" data-id="${esc(t.id)}"><i>${t.done ? ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>') : ''}</i><span>${esc(t.text)}<small>№${no} · ${esc(short((CL[no] && CL[no].n) || (homeOrder(no).cl || {}).name || 'Клиент'))}</small></span></button>`).join('');
   // Сегодняшние замеры — вторым рядом под выездом в «Сегодня»
   const measTodayHtml = measToday.length ? `<div class="h-heros h-mtoday">${measToday.map((m) => `<article class="h-hero h-hero--meas" style="--c:#e5484d">
       <div class="h-hero__glow" aria-hidden="true"></div>
@@ -1018,6 +1018,7 @@ export function renderHome() {
   Object.entries(firstOff).filter(([no, off]) => off >= 2 && off <= 3 && !QUEUE.some(([o2, key]) => o2 < 0 && key && R[key].c.no === no))
     .forEach(([no, off]) => nAdd(`start-${no}-${iso(off)}`, 'visit', CAL, `Через ${off} ${off === 1 ? 'день' : 'дня'} начинается заказ №${no}`, `${short(CL[no].n)} · ${CL[no].a}`, `через ${off} дн`, toOrder(no)));
   // что требует действия
+  tasks.filter((x) => !x.t.done).forEach(({ t, no }) => nAdd(`task-${no}-${t.id}`, 'visit', CAL, t.text, `№${no}`, 'сегодня', toOrder(no)));
   att.forEach((a) => nAdd(`att-${a.k}-${a.no}`, a.k, a.icon, a.t, a.s, '', toTab(a.no, a.tab)));
   // материала нет, а выезд через 1–2 дня
   Object.entries(firstOff).filter(([, off]) => off >= 1 && off <= 2).forEach(([no, off]) => { const o = homeOrder(no);
