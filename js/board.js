@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=477';
-import * as S from './store.js?v=477';
-import { renderOformit, oformitDraft } from './oformit.js?v=477';
-import { roomTotals, svcInfo } from './ocenka.js?v=477';
-import { smetaTotals } from './zakaz.js?v=477';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=477';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=477';
-import { esc, toast, status, seg } from './ui.js?v=477';
-import { topbar, ORDER_STATUS } from './shared.js?v=477';
+import { actions, rerender, go } from './core.js?v=478';
+import * as S from './store.js?v=478';
+import { renderOformit, oformitDraft } from './oformit.js?v=478';
+import { roomTotals, svcInfo } from './ocenka.js?v=478';
+import { smetaTotals } from './zakaz.js?v=478';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=478';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=478';
+import { esc, toast, status, seg } from './ui.js?v=478';
+import { topbar, ORDER_STATUS } from './shared.js?v=478';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -254,14 +254,11 @@ function flowBlock(no, d, tot, days) {
     btns = fb('Позвонил — итог', A('fl-ask', 'result'), ' f-btn--lit');
   } else if (f.st === 'queue') {
     const c = f.chk, all = c.a && c.b && c.c;
-    body = ln(days.length ? `Старт ${days[0].date.getDate()} ${MONG[days[0].date.getMonth()]}` : 'Даты не назначены', 'Перед выездом проверьте:')
-      + tg(c.a, 'Обои на объекте', '', A('fl-chk', 'a')) + tg(c.b, 'Клей и грунт куплены', '', A('fl-chk', 'b')) + tg(c.c || paid > 0, 'Аванс получен', paid ? `${fmt(paid)} ₽` : '', A('fl-chk', 'c'));
+    body = ln(days.length ? `Старт ${days[0].date.getDate()} ${MONG[days[0].date.getMonth()]}` : 'Даты не назначены', days.length ? 'Можно начинать' : '');
     btns = days.length ? fb('Начать', `data-action="fl-startwork" data-no="${no}"`, ' f-btn--lit') : fb('Назначить даты', `data-action="bd-edit" data-no="${no}" data-tab="schedule"`, ' f-btn--lit');
   } else if (f.st === 'work') {
     const n = Math.max(1, days.length), allR = rooms.length && rooms.every((r) => f.done[r.key]);
     body = ln(`День ${Math.min(f.day, n)} из ${n}`, 'Смена')
-      + tg(f.shift.mat || d.mat, 'Материал по штрихкоду', 'рулоны по комнатам', d.mat ? `data-action="bd-edit" data-no="${no}" data-tab="material"` : A('fl-sh', 'mat'))
-      + tg(f.shift.ctl, 'Контрольная выклейка', '3 полосы, клиент одобрил', A('fl-sh', 'ctl'))
       + `<p class="bd-line bd-flsub"><small>Комнаты</small></p>` + rooms.map((r) => tg(f.done[r.key], r.name, `${r.floor} этаж`, A('fl-room', r.key))).join('');
     btns = allR ? fb('Работы выполнены', A('fl-to', 'done'), ' f-btn--lit') : fb(f.visit && f.visit.step ? `Продолжить · шаг ${f.visit.step + 1}` : 'Начать смену', `data-action="go" data-to="bd-visit-${no}"`, ' f-btn--lit');
   } else if (f.st === 'done') {
@@ -469,7 +466,7 @@ actions['vs-alldone'] = (el) => { const no = el.dataset.no; if (vsEnd(no, 'done'
 const flSet = (el, fn) => { const no = el.dataset.no; fn(flowOf(no), S.get().oformit['ord-' + no]); S.save(); rerender(); };
 actions['fl-startwork'] = (el) => { const f = flowOf(el.dataset.no); if (!canGo(f.st, 'work')) return toast('Так сменить статус нельзя');
   if (f.st === 'refused') leaveRefused(el.dataset.no);
-  if (f.st === 'queue') { const d0 = S.get().oformit['ord-' + el.dataset.no], paid0 = d0 && d0.fin ? d0.fin.pays.reduce((a, x) => a + x.amount, 0) : 0, c = f.chk || {}; if (!(c.a && c.b && (c.c || paid0 > 0))) { toast('Перед стартом отметьте: обои на объекте, клей и грунт, аванс'); go('bd-order-' + el.dataset.no); return; } } f.st = 'work'; f.day = 1; f.shift = {}; f.visit = null; S.save(); go('bd-visit-' + el.dataset.no); };
+  f.st = 'work'; f.day = 1; f.shift = {}; f.visit = null; S.save(); go('bd-visit-' + el.dataset.no); };
 actions['fl-ask'] = (el) => { flAsk = el.dataset.k ? el.dataset.no + ':' + el.dataset.k : ''; rerender(); };
 actions['fl-going'] = (el) => flSet(el, (f) => { f.going = 1; });
 actions['fl-chk'] = (el) => flSet(el, (f) => { f.chk[el.dataset.k] = !f.chk[el.dataset.k]; });
@@ -485,7 +482,10 @@ actions['fl-to'] = (el) => { const [to, plan] = el.dataset.k.split('+'); flAsk =
   if (to !== 'refused') leaveRefused(el.dataset.no);
   setCallTask(el.dataset.no, 0);
   flSet(el, (f) => { f.st = to; if (to === 'work') { f.day = 1; f.shift = {}; } if (to === 'done' && logStat(el.dataset.no, 'done')) { f.st = 'refused'; f.reason = 'Все комнаты отказаны'; } }); if (plan) afterYes(el.dataset.no); };
-export function renderBoardOrder(no, info) {
+const iso0 = (dt) => `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+const fmtISO = (sv) => { const dt = new Date(sv + 'T12:00:00'); return `${dt.getDate()} ${MONG[dt.getMonth()]}`; };
+export function renderBoardOrder(no, view) {
+  const info = !!view;
   if (!DEMO[no] && !(S.get().oformit || {})['ord-' + no]) return null;
   if (DEMO[no]) seedOrder(no);
   S.setDraftKey('ord-' + no);
@@ -521,10 +521,32 @@ export function renderBoardOrder(no, info) {
   const openTasks = (d.tasks || []).filter((t) => !t.done);
   if (openTasks.length) extra.push(block('Задачи', no, 'tasks', openTasks.slice(0, 3).map((t) => `<p class="bd-line"><b>${esc(t.text)}</b>${t.due ? `<small>до ${dueTxt(t.due)}</small>` : ''}</p>`).join('')));
   const more = extra.join('');
-  if (info) return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${client}${est}${sched}${chan}
-    <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${mid}${chatBtn(no, d)}</nav>`;
-  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${head}${client}${flowBlock(no, d, tot, days)}${est}${sched}${sum}${chan}${zam}${more}
-    <nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${mid}${chatBtn(no, d)}</nav>`;
+  // Вкладка «Инфо» — первый этап: вводные со слов клиента, дата начала, оценка
+  const infoView = `${est}${sched}${chan}${sum}`;
+  // Вкладка «Задачи»
+  const allTasks = d.tasks || [];
+  const tasksView = block('Задачи', no, 'tasks', allTasks.length ? allTasks.map((t) => `<p class="bd-line${t.done ? ' is-done' : ''}"><b>${esc(t.text)}</b>${t.due ? `<small>до ${dueTxt(t.due)}</small>` : ''}</p>`).join('') : '<p class="bd-line"><b>Задач нет</b></p>');
+  // Вкладка «Финансы»
+  const fTot = orderSum(d, flowOf(no));
+  const finView = block('Финансы', no, 'finance', `<div class="bd-total"><div><small>Получено</small><b>${fmt(pays)} ₽</b></div><div><small>Остаток</small><b>${fmt(Math.max(0, fTot - pays))} ₽</b></div></div>${(d.fin && d.fin.pays || []).map((x) => `<p class="bd-line"><b>${esc(x.kind || 'Оплата')} ${fmt(x.amount)} ₽</b><small>${esc(x.method || '')}${x.date ? ` · ${fmtISO(x.date)}` : ''}</small></p>`).join('') + (d.fin && d.fin.exps || []).map((x) => `<p class="bd-line"><b>Расход ${fmt(x.amount)} ₽</b><small>${esc(x.note || '')}</small></p>`).join('')}`);
+  // Вкладка «История» — события заказа по датам
+  const ev = [];
+  if (d.sched && d.sched.measure) ev.push([d.sched.measure, 'Замер']);
+  if (days.length) ev.push([iso0(days[0].date), 'Начало работ']);
+  (d.fin && d.fin.pays || []).forEach((x) => { if (x.date) ev.push([x.date, `Оплата ${fmt(x.amount)} ₽`]); });
+  ev.sort((a, b) => a[0].localeCompare(b[0]));
+  const histView = block('История', no, '', ev.length ? ev.map(([dt, t]) => `<p class="bd-line"><b>${esc(t)}</b><small>${fmtISO(dt)}</small></p>`).join('') : '<p class="bd-line"><b>Событий пока нет</b></p>');
+  const viewBody = view === 'tasks' ? tasksView : view === 'finance' ? finView : view === 'history' ? histView : infoView;
+  const BACKIC = ic('<path d="M15 5l-7 7 7 7"/>');
+  const IC_PLAY = ic('<rect x="3.5" y="6.5" width="17" height="13" rx="2.4"/><path d="M8.5 6.5V5h7v1.5"/>');
+  const IC_TASK = ic('<path d="M4 7h9M4 12h9M4 17h6"/><path d="M16.5 6.2l1.6 1.6 3-3"/>');
+  const IC_COIN = ic('<circle cx="12" cy="12" r="8.3"/><path d="M10 8.5h3.2a1.9 1.9 0 010 3.8H10V16M10 12h4"/>');
+  const IC_CLOCK = ic('<circle cx="12" cy="12" r="8.3"/><path d="M12 7.3V12l3 1.8"/>');
+  const topbar = `<div class="bd-obar"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="Назад">${BACKIC}</button><span>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</span></div>`;
+  const nTab = (v, to, label, icon) => `<button type="button" class="f-nav__tab${(view || '') === v ? ' is-on' : ''}" data-action="go" data-to="${to}">${icon}<span>${label}</span></button>`;
+  const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ">${nTab('', 'bd-order-' + no, 'Исполн.', IC_PLAY)}${nTab('info', 'bd-info-' + no, 'Инф', INFO)}${nTab('tasks', 'bd-tasks-' + no, 'Задачи', IC_TASK)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${nTab('history', 'bd-history-' + no, 'История', IC_CLOCK)}${chatBtn(no, d)}</nav>`;
+  if (info) return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${client}${viewBody}${tabbar}`;
+  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${client}${flowBlock(no, d, tot, days)}${tabbar}`;
 }
 // Правка блока — та же форма, что при оформлении; «назад» возвращает в сводку заказа.
 // Чат заказа — кнопка справа в нижней навигации; красная цифра — непрочитанные сообщения не от мастера.
