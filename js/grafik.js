@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=448';
-import * as S from './store.js?v=448';
-import { SHIFT_HOURS } from './calc.js?v=448';
-import { esc, toast } from './ui.js?v=448';
-import { logEvent } from './zlog.js?v=448';
-import { estimateRooms, roomTotals } from './ocenka.js?v=448';
+import { actions, rerender } from './core.js?v=450';
+import * as S from './store.js?v=450';
+import { SHIFT_HOURS } from './calc.js?v=450';
+import { esc, toast } from './ui.js?v=450';
+import { logEvent } from './zlog.js?v=450';
+import { estimateRooms, roomTotals } from './ocenka.js?v=450';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -144,13 +144,13 @@ function calendar(s, rooms, lay, locked, hint) {
     if (s.mode === 'rooms' && lay[date]) {
       const segs = lay[date];
       const sel = segs.some((x) => !x.other && s.sel === x.room.key);
-      const nm = (x) => esc(x.label || x.room.name);
+      const nm = (x) => esc(x.room.name);
       const mark = `${date === todayIso ? ' is-today' : ''}${date < todayIso ? ' is-past' : ''}`;
       const one = segs.length === 1 && segs[0].hours >= SHIFT_HOURS - EPS;
       // Доля дня каждой комнаты — полоса своего цвета; свободный остаток дня — бледный.
       const bars = one ? '' : segs.map((x) => `<i class="g-chip__fill" style="background:${x.room.color};left:${((x.from / SHIFT_HOURS) * 100).toFixed(1)}%;width:${((x.hours / SHIFT_HOURS) * 100).toFixed(1)}%"></i>`).join('');
       const style = one ? `background:${segs[0].room.color}` : `background:${hexA(segs[segs.length - 1].room.color, 0.18)}`;
-      const text = segs.length === 1 ? `<span>${nm(segs[0])}</span><span>${fmt(segs[0].cost)}</span>` : segs.slice(0, 2).map((x) => `<span>${nm(x)}</span>`).join('') + (segs.length > 2 ? `<span>+${segs.length - 2}</span>` : '');
+      const text = segs.length === 1 ? `<span>${nm(segs[0])}</span><span>${fmt(segs[0].cost)}</span>` : segs.map((x) => `<span>${nm(x)}</span>`).join('');
       cells.push(`<button type="button" class="g-cell g-cell--work${sel ? ' is-sel' : ''}${mark}${segs.some((x) => x.other) ? ' g-cell--q' : ''}${segs.length > 1 ? ' g-cell--multi' : ''}${hAdd.has(date) ? ' g-cell--hadd' : ''}${hDel.has(date) ? ' g-cell--hchg' : ''}" style="${style}" ${act} aria-label="${dd}, ${esc(segs.map((x) => x.label || x.room.name).join(' и '))}">
         ${bars}<b>${dd}</b>${text}</button>`);
     } else {

@@ -2893,11 +2893,6 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 .cl-search input { min-height: 44px; }
 .o-same .o-svc__n { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.15; }
 
-/* График: название комнаты в дне читается поверх цветных полос — крупнее, жирнее, с тенью. */
-.g-cell--work span { font-weight: 600 !important; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 3px rgba(0, 0, 0, 0.55); }
-.g-cell--multi span { font-size: 10px !important; line-height: 11px !important; }
-.g-screen .g-cell--work:not(.g-cell--multi) span:first-of-type { font-size: 10px; line-height: 11px; }
-
 /* План: как календарь на главной + «Очередь» под ним. Экран прокручивается, календарь не сжимается. */
 .g-screen.f-fill { overflow-y: auto !important; overflow-x: hidden; padding-bottom: 8px; }
 .g-screen > .g-plate { flex: none; }
