@@ -2912,3 +2912,8 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 
 /* Календарь (главная и «План»): названия комнат в дне — чёрные, тонкие. */
 .g-cell--work span { color: #0b1a1c; font-weight: 300; text-shadow: none; }
+
+/* Календарь: дата в закрашенном дне мельче; «+N» — сколько ещё комнат в этот день. */
+.g-cell.g-cell--work b { font: 500 13px/15px var(--font-body); }
+.g-cell--work .g-more { position: absolute; top: 3px; left: 4px; font: 600 9px/10px var(--font-body); font-style: normal; color: #0b1a1c; }
+.g-cell.g-cell--multi span { font-size: 9px !important; line-height: 10px !important; }
