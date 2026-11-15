@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=499';
-import * as S from './store.js?v=499';
-import { renderOformit, oformitDraft } from './oformit.js?v=499';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=499';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=499';
-import { renderMeasurement } from './measurement.js?v=499';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=499';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=499';
-import { esc, toast, status, seg } from './ui.js?v=499';
-import { topbar, ORDER_STATUS } from './shared.js?v=499';
+import { actions, rerender, go } from './core.js?v=500';
+import * as S from './store.js?v=500';
+import { renderOformit, oformitDraft } from './oformit.js?v=500';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=500';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=500';
+import { renderMeasurement } from './measurement.js?v=500';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=500';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=500';
+import { esc, toast, status, seg } from './ui.js?v=500';
+import { topbar, ORDER_STATUS } from './shared.js?v=500';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -359,7 +359,7 @@ export function renderVisit(arg) {
   const big = (label, attrs, lit = true) => `<div class="f-btn-row bd-flbtns"><${attrs.startsWith('href') ? 'a' : 'button type="button"'} class="f-btn${lit ? ' f-btn--lit' : ''} bd-vbig" ${attrs}>${esc(label)}</${attrs.startsWith('href') ? 'a' : 'button'}></div>`;
   const name = STEPS[v.step];
   let body = '', can = true, hb = null;
-  if (name === 'Звонок клиенту') { hb = ['Позвонить', `href="tel:${esc(tel)}" ${A('vs-called')}`]; can = !!v.called; }
+  if (name === 'Звонок клиенту') { hb = ['Позвонить', `href="tel:${esc(tel)}" target="_blank" rel="noopener" ${A('vs-called')}`]; can = !!v.called; }
   else if (name === 'Маршрут') { hb = ['Проложить маршрут', `href="${map}" target="_blank" rel="noopener" ${A('vs-route')}`]; }
   else if (name === 'Вы на месте?') { hb = ['Да, я на месте', A('vs-here')]; can = !!v.here; }
   else if (vsScr(v)) { body = block(name, no, '', `<p class="bd-line"><small>${name === 'Комната' ? 'Вы вышли из комнаты. Вернитесь, чтобы продолжить' : name === 'Замер' ? 'Комнаты и стены — как в замере' : 'Посчитайте смету по факту'}</small></p>`) + big(name === 'Комната' ? 'Вернуться в комнату' : `Открыть «${name}»`, `data-action="vs-open" data-no="${no}"`); }
@@ -394,7 +394,7 @@ export function renderVisit(arg) {
   const head = hb ? visitHero(no, kind, c, addr, rooms, hb[0], hb[1]) : '';
   S.save();
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${v.step >= 3 ? '' : orderTop(no)}${head}${body}
-    ${v.step <= 2 ? `<nav class="f-nav f-nav--tabs bd-vnav" aria-label="Выезд"><div class="bd-navslot"><div class="f-btn-row bd-vnext"><button type="button" class="f-btn f-btn--lit" ${A('vs-exit')}>Закрыть</button></div></div></nav>` : `    <nav class="f-nav f-nav--tabs bd-vnav bd-vscroll" aria-label="Шаги выезда">${kind === 'work' && v.step >= 3 ? '' : `<button type="button" class="f-icon-btn bd-back" ${A('vs-prev')} aria-label="Назад"${''}>${BACK}</button>`}
+    ${v.step <= 2 ? `<nav class="f-nav f-nav--tabs bd-vnav" aria-label="Выезд"><div class="bd-navslot"><div class="f-btn-row bd-vnext bd-vexit2"><button type="button" class="f-btn" data-action="go" data-to="home">На главную</button><button type="button" class="f-btn f-btn--lit" ${A('vs-exit')}>Закрыть</button></div></div></nav>` : `    <nav class="f-nav f-nav--tabs bd-vnav bd-vscroll" aria-label="Шаги выезда">${kind === 'work' && v.step >= 3 ? '' : `<button type="button" class="f-icon-btn bd-back" ${A('vs-prev')} aria-label="Назад"${''}>${BACK}</button>`}
       ${v.step < STEPS.length - 1 && can !== false ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn${can ? ' f-btn--lit' : ''}" ${A('vs-next')}${can ? '' : ' disabled'}>Дальше</button></div>` : v.step < STEPS.length - 1 ? `<div class="f-btn-row bd-vnext"><button type="button" class="f-btn" disabled>Дальше</button></div>` : '<span class="bd-navfree"></span>'}${v.kind === 'work' && v.step >= 3 ? `<button type="button" class="f-nav__tab" data-action="vs-back3" data-no="${no}"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg><span>Комнаты</span></button>` + infoBtn(no) + chatBtn(no, d) : ''}</nav>`}`;
 }
 const vs = (el, fn) => { const no = el.dataset.no, f = flowOf(no); fn(f.visit, f); S.save(); rerender(); };
