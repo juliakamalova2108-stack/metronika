@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=487';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=488';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=487';
-import * as S from './store.js?v=487';
-import { WALLPAPER_TYPES } from './seed.js?v=487';
-import { esc, toast } from './ui.js?v=487';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=487';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=487';
-import { country } from './phonecodes.js?v=487';
-import { suggestAddress } from './address.js?v=487';
-import { suggesters } from './kbd.js?v=487';
-import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=487';
+import { actions, changes, rerender } from './core.js?v=488';
+import * as S from './store.js?v=488';
+import { WALLPAPER_TYPES } from './seed.js?v=488';
+import { esc, toast } from './ui.js?v=488';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=488';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=488';
+import { country } from './phonecodes.js?v=488';
+import { suggestAddress } from './address.js?v=488';
+import { suggesters } from './kbd.js?v=488';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=488';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -48,7 +48,7 @@ const segState = Object.create(null);
 actions['z-seg'] = (el) => { segState[el.dataset.key] = el.dataset.v; D().ui = { ...(D().ui || {}), form: '' }; save(); };
 
 // ---------- карусель комнат (как в «Оценке») ----------
-function carousel(items, cur, ear, action) {
+export function carousel(items, cur, ear, action) {
   const i = Math.max(0, items.findIndex((x) => x.key === cur));
   const it = items[i]; const prev = items[i - 1]; const next = items[i + 1];
   return `<div class="o-head${ear ? ' o-head--tabs' : ''}">
@@ -59,7 +59,7 @@ function carousel(items, cur, ear, action) {
     ${ear || ''}
     <div class="o-cur"><b>${esc(it.title)}</b>${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</div></div>`;
 }
-const roomItems = (rooms) => rooms.map((r) => ({ key: r.key, title: r.name, sub: `${r.floor} этаж`, label: esc(r.name) }));
+export const roomItems = (rooms) => rooms.map((r) => ({ key: r.key, title: r.name, sub: `${r.floor} этаж`, label: esc(r.name) }));
 const noRooms = (what) => `<section class="f-plate"><p class="z-muted">${what}: сначала добавьте комнаты во вкладке «Оценка».</p></section>`;
 
 // ======================= 01 · Клиент =======================
