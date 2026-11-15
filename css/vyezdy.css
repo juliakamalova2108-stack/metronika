@@ -784,6 +784,8 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .bd-block__hd { display: flex; justify-content: space-between; align-items: center; }
 .bd-block__hd > span { font: 600 13px/16px var(--font-body); color: rgba(237, 242, 232, 0.75); text-transform: uppercase; letter-spacing: 0.05em; }
 .bd-edit { height: 30px; padding: 0 12px; border-radius: 6px; border: 1px solid rgba(204, 222, 209, 0.55); background: #213839; color: #edf0e7; font: 500 12px/14px var(--font-body); cursor: pointer; }
+.bd-edit--ic { width: 36px; height: 36px; padding: 0; display: grid; place-items: center; border-radius: 11px; }
+.bd-edit--ic svg { width: 18px; height: 18px; }
 .bd-cl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; }
 .bd-cl > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .bd-cl b { font: 700 17px/22px var(--font-body); color: #edf2e8; }

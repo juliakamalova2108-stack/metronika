@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=512';
-import * as S from './store.js?v=512';
-import { renderOformit, oformitDraft } from './oformit.js?v=512';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=512';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=512';
-import { renderMeasurement } from './measurement.js?v=512';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=512';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=512';
-import { esc, toast, status, seg } from './ui.js?v=512';
-import { topbar, ORDER_STATUS } from './shared.js?v=512';
+import { actions, rerender, go } from './core.js?v=513';
+import * as S from './store.js?v=513';
+import { renderOformit, oformitDraft } from './oformit.js?v=513';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=513';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=513';
+import { renderMeasurement } from './measurement.js?v=513';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=513';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=513';
+import { esc, toast, status, seg } from './ui.js?v=513';
+import { topbar, ORDER_STATUS } from './shared.js?v=513';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -175,7 +175,7 @@ const MONG = ['января', 'февраля', 'марта', 'апреля', '�
 const openRooms = new Set();
 const finOpen = new Set();
 const locked = (no, t) => { const st = flowOf(no).st; return st === 'closed' || st === 'refused' || (st === 'done' && t !== 'finance' && t !== 'chat'); };
-const edit = (no, t) => locked(no, t) ? '' : `<button type="button" class="bd-edit" data-action="bd-edit" data-no="${no}" data-tab="${t}">Изменить</button>`;
+const edit = (no, t) => locked(no, t) ? '' : `<button type="button" class="bd-edit bd-edit--ic" data-action="bd-edit" data-no="${no}" data-tab="${t}" aria-label="Изменить">${PENIC}</button>`;
 const block = (title, no, t, body) => `<section class="f-plate bd-block"><div class="bd-block__hd"><span>${title}</span>${t ? edit(no, t) : ''}</div>${body}</section>`;
 // Дни работ: комнаты подряд с даты начала, остаток дня продолжает следующая комната (как в «Графике»).
 function workDays(d) {
