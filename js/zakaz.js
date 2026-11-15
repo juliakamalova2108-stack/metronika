@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=484';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=485';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=484';
-import * as S from './store.js?v=484';
-import { WALLPAPER_TYPES } from './seed.js?v=484';
-import { esc, toast } from './ui.js?v=484';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=484';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=484';
-import { country } from './phonecodes.js?v=484';
-import { suggestAddress } from './address.js?v=484';
-import { suggesters } from './kbd.js?v=484';
-import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=484';
+import { actions, changes, rerender } from './core.js?v=485';
+import * as S from './store.js?v=485';
+import { WALLPAPER_TYPES } from './seed.js?v=485';
+import { esc, toast } from './ui.js?v=485';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=485';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=485';
+import { country } from './phonecodes.js?v=485';
+import { suggestAddress } from './address.js?v=485';
+import { suggesters } from './kbd.js?v=485';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=485';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -191,7 +191,7 @@ const TRASH_SVG = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 4.5h10M6.5 4
 const plural = (n, a, b, c) => (n % 10 === 1 && n % 100 !== 11 ? a : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? b : c);
 const matTitle = (it) => { const x = S.material(it.code); return x ? `${x.brand} · ${x.name}` : it.brand; };
 
-function renderMaterial(d) {
+export function renderMaterial(d) {
   const rooms = estimateRooms(d);
   const m = mat(d);
   const st0 = materialStart(d); if (st0) return st0;   // комнат нет (заявка с Авито или от агента) — «Добавить комнату»
