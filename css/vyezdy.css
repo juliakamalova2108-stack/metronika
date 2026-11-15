@@ -2897,3 +2897,20 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 .g-cell--work span { font-weight: 600 !important; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 3px rgba(0, 0, 0, 0.55); }
 .g-cell--multi span { font-size: 10px !important; line-height: 11px !important; }
 .g-screen .g-cell--work:not(.g-cell--multi) span:first-of-type { font-size: 10px; line-height: 11px; }
+
+/* План: как календарь на главной + «Очередь» под ним. Экран прокручивается, календарь не сжимается. */
+.g-screen.f-fill { overflow-y: auto !important; overflow-x: hidden; padding-bottom: 8px; }
+.g-screen > .g-plate { flex: none; }
+.g-screen .g-grid { flex: none; max-height: none; grid-template-rows: repeat(var(--weeks), 54px); gap: 4px; }
+.g-screen .g-cell { min-height: 0; }
+.g-screen .g-cell.is-sel { outline: 2px solid #edf2e8; outline-offset: 1px; z-index: 1; }
+.g-screen .g-cell.is-today b { color: #7ee2a3; }
+.g-screen .g-cell.g-cell--work.is-today b { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.g-screen .g-cell.is-past:not(.g-cell--work) b { opacity: .45; }
+.g-screen .g-cell--q { cursor: default; }
+.g-queue { display: flex; flex-direction: column; gap: 8px; padding: 0 4px; }
+.g-queue__free { margin: 0; font: 400 14px/20px var(--font-body); color: #edf0e7; }
+.g-queue__free b { font-weight: 600; color: #7ee2a3; }
+.g-queue__t { margin: 4px 0 0; font: 500 16px/22px var(--font-body); color: #edf0e7; }
+.g-queue .h-list { display: flex; flex-direction: column; gap: 8px; }
+.g-queue__d { white-space: nowrap; min-width: 74px; }

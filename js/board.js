@@ -3,15 +3,15 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=444';
-import * as S from './store.js?v=444';
-import { renderOformit, oformitDraft } from './oformit.js?v=444';
-import { roomTotals, svcInfo } from './ocenka.js?v=444';
-import { smetaTotals } from './zakaz.js?v=444';
-import { bookedDays, homeLayout, homeCalendarHtml } from './grafik.js?v=444';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=444';
-import { esc, toast, status, seg } from './ui.js?v=444';
-import { topbar, ORDER_STATUS } from './shared.js?v=444';
+import { actions, rerender, go } from './core.js?v=448';
+import * as S from './store.js?v=448';
+import { renderOformit, oformitDraft } from './oformit.js?v=448';
+import { roomTotals, svcInfo } from './ocenka.js?v=448';
+import { smetaTotals } from './zakaz.js?v=448';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=448';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=448';
+import { esc, toast, status, seg } from './ui.js?v=448';
+import { topbar, ORDER_STATUS } from './shared.js?v=448';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -188,6 +188,12 @@ export function orderSum(d, f) {
 const STAGE_HELP = { measure: 'Пока пусто. Сюда попадают заказы, по которым нужен замер: оформите замер во вкладке «Оформить».', approval: 'Пока пусто. Сюда попадают заказы после замера, если клиент «Подумает»: тут напомним перезвонить.', queue: 'Пока пусто. Сюда попадают согласованные заказы с назначенными датами работ.', work: 'Пока пусто. Сюда попадают заказы, которые вы начали.', done: 'Пока пусто. Сюда попадают заказы, где работы выполнены и осталась оплата.', refused: 'Пока пусто. Сюда попадают заказы, от которых клиент отказался.' };
 const FL_NAME = { measure: 'Замер', approval: 'Согласование', queue: 'Очередь', work: 'В работе', done: 'Выполнено', closed: 'Заказ завершён', refused: 'Отказ' };
 const MY = () => S.get().myOrders || [];
+// «План» нового заказа видит очередь: подтверждённые заказы (в очереди и в работе) занимают дни календаря.
+setQueueProvider((ex) => {
+  Object.keys(DEMO).forEach(seedOrder);
+  return [...Object.keys(DEMO), ...MY()].filter((no) => String(no) !== ex && ['queue', 'work'].includes((flowOf(no) || {}).st))
+    .map((no) => { const d = homeOrder(no); const nm = (CL[no] && CL[no].n) || (d.cl && d.cl.name) || ''; return { no, d, n: nm.split(' ')[1] || nm }; });
+});
 // Допустимые переходы заказа: назад в прошлое или из «Выполнено» в «Очередь» — нельзя.
 const FL_NEXT = { measure: ['approval', 'queue', 'refused'], approval: ['queue', 'refused'], queue: ['work', 'refused'], work: ['done', 'refused'], done: ['closed'], closed: [], refused: ['measure', 'approval', 'queue', 'work'] };
 const canGo = (from, to) => from === to || (FL_NEXT[from] || []).includes(to);
