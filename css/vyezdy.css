@@ -2923,4 +2923,10 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 .g-cell.g-cell--work .g-cell__rooms > span { display: flex; justify-content: center; gap: 2px; font: 300 9px/10px var(--font-body) !important; color: #0b1a1c; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .g-cell--work .g-plus { font-style: normal; font-weight: 600; flex: none; }
 .g-cell--work .g-cell__rooms .g-n { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.g-cell.g-cell--work .g-cell__sum.is-long { font-size: 10.5px !important; letter-spacing: -0.5px; }
+
+/* Календарь: размеры шрифтов одни и те же во всех клетках — не зависят ни от числа комнат, ни от суммы. */
+.g-cell.g-cell--work .g-cell__top b { font: 500 11px/14px var(--font-body) !important; }
+.g-cell.g-cell--work .g-cell__sum { font: 500 11px/14px var(--font-body) !important; letter-spacing: -0.9px; }
+.g-cell.g-cell--work .g-cell__rooms span, .g-cell.g-cell--work .g-cell__rooms i { font: 300 9px/10px var(--font-body) !important; font-style: normal; }
+.g-cell.g-cell--work .g-cell__rooms .g-plus { font-weight: 600 !important; }
+.g-cell.g-cell--work { padding: 3px 1px 2px !important; }

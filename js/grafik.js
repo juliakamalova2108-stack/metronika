@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=465';
-import * as S from './store.js?v=465';
-import { SHIFT_HOURS } from './calc.js?v=465';
-import { esc, toast } from './ui.js?v=465';
-import { logEvent } from './zlog.js?v=465';
-import { estimateRooms, roomTotals } from './ocenka.js?v=465';
+import { actions, rerender } from './core.js?v=467';
+import * as S from './store.js?v=467';
+import { SHIFT_HOURS } from './calc.js?v=467';
+import { esc, toast } from './ui.js?v=467';
+import { logEvent } from './zlog.js?v=467';
+import { estimateRooms, roomTotals } from './ocenka.js?v=467';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -153,7 +153,7 @@ function calendarGrid(o) {
       // Две комнаты — обе; больше двух — вторая строка получает «+N» (сколько комнат не поместилось).
       const nm = (x, extra) => `<span><span class="g-n">${esc(x.room.name)}</span>${extra || ''}</span>`;
       const names = segs.length <= 2 ? segs.map((x) => nm(x)).join('') : nm(segs[0]) + nm(segs[1], `<i class="g-plus">+${segs.length - 2}</i>`);
-      cells.push(`<button type="button" class="g-cell g-cell--work${segs.some((x) => x.other) ? ' g-cell--q' : ''}${segs.length > 1 ? ' g-cell--multi' : ''}${mark}${hAdd.has(date) ? ' g-cell--hadd' : ''}${hDel.has(date) ? ' g-cell--hchg' : ''}" style="${style}" ${act} aria-label="${dd}, ${esc(segs.map((x) => x.room.name).join(' и '))}${m ? ', замер' : ''}">${bars}<span class="g-cell__top"><b>${dd}</b>${badge}</span><span class="g-cell__sum${total >= 100000 ? ' is-long' : ''}">${fmt(total).replace(/\s/g, '\u202f')}</span><span class="g-cell__rooms">${names}</span></button>`);
+      cells.push(`<button type="button" class="g-cell g-cell--work${segs.some((x) => x.other) ? ' g-cell--q' : ''}${segs.length > 1 ? ' g-cell--multi' : ''}${mark}${hAdd.has(date) ? ' g-cell--hadd' : ''}${hDel.has(date) ? ' g-cell--hchg' : ''}" style="${style}" ${act} aria-label="${dd}, ${esc(segs.map((x) => x.room.name).join(' и '))}${m ? ', замер' : ''}">${bars}<span class="g-cell__top"><b>${dd}</b>${badge}</span><span class="g-cell__sum">${fmt(total).replace(/\s/g, '\u202f')}</span><span class="g-cell__rooms">${names}</span></button>`);
     } else {
       cells.push(`<button type="button" class="g-cell${hDel.has(date) ? ' g-cell--hdel' : ''}${mark}" ${act} aria-label="${dd}${hDel.has(date) ? ', бронь снята' : m ? ', замер' : ''}"><b>${dd}</b>${badge}${hDel.has(date) ? '<span class="g-hint-x">снять</span>' : ''}</button>`);
     }
