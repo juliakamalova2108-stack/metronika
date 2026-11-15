@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=482';
-import * as S from './store.js?v=482';
-import { renderOformit, oformitDraft } from './oformit.js?v=482';
-import { roomTotals, svcInfo } from './ocenka.js?v=482';
-import { smetaTotals } from './zakaz.js?v=482';
-import { renderMeasurement } from './measurement.js?v=482';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=482';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=482';
-import { esc, toast, status, seg } from './ui.js?v=482';
-import { topbar, ORDER_STATUS } from './shared.js?v=482';
+import { actions, rerender, go } from './core.js?v=483';
+import * as S from './store.js?v=483';
+import { renderOformit, oformitDraft } from './oformit.js?v=483';
+import { roomTotals, svcInfo } from './ocenka.js?v=483';
+import { smetaTotals } from './zakaz.js?v=483';
+import { renderMeasurement } from './measurement.js?v=483';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=483';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=483';
+import { esc, toast, status, seg } from './ui.js?v=483';
+import { topbar, ORDER_STATUS } from './shared.js?v=483';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -555,8 +555,9 @@ export function renderBoardOrder(no, view) {
   const topbar = `<div class="bd-obar"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="Назад">${BACKIC}</button><span>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</span></div>`;
   const nTab = (v, to, label, icon) => `<button type="button" class="f-nav__tab${(view || '') === v ? ' is-on' : ''}${stTab === v ? ' has-act' : ''}" data-action="go" data-to="${to}">${icon}<span>${label}</span></button>`;
   const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${nTab('', 'bd-info-' + no, 'Инф', INFO)}${nTab('zam', 'bd-zam-' + no, 'Замеры', IC_RULER)}${nTab('mat', 'bd-mat-' + no, 'Материалы', IC_ROLL)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${chatBtn(no, d)}</nav>`;
-  if (info) return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${client}${viewBody}${tabbar}`;
-  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${client}${viewBody}${tabbar}`;
+  // Клиент — только во вкладке «Инф»; в остальных сверху лишь шапка с № и статусом
+  const showClient = !view || view === 'info';
+  return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${showClient ? client : ''}${viewBody}${tabbar}`;
 }
 // Правка блока — та же форма, что при оформлении; «назад» возвращает в сводку заказа.
 // Чат заказа — кнопка справа в нижней навигации; красная цифра — непрочитанные сообщения не от мастера.
