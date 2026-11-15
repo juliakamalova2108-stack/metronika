@@ -2913,7 +2913,11 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 /* Календарь (главная и «План»): названия комнат в дне — чёрные, тонкие. */
 .g-cell--work span { color: #0b1a1c; font-weight: 300; text-shadow: none; }
 
-/* Календарь: дата в закрашенном дне мельче; «+N» — сколько ещё комнат в этот день. */
-.g-cell.g-cell--work b { font: 500 13px/15px var(--font-body); }
-.g-cell--work .g-more { position: absolute; top: 3px; left: 4px; font: 600 9px/10px var(--font-body); font-style: normal; color: #0b1a1c; }
-.g-cell.g-cell--multi span { font-size: 9px !important; line-height: 10px !important; }
+/* Календарь: в закрашенном дне сверху дата и сумма дня, ниже комнаты (две, остальные — «+N»). */
+.g-cell.g-cell--work { align-items: stretch; justify-content: flex-start; padding: 3px 2px 2px 3px; text-align: left; }
+.g-cell--work .g-cell__top { position: relative; display: flex; align-items: baseline; gap: 2px; max-width: 100%; overflow: hidden; font: inherit; color: inherit; }
+.g-cell.g-cell--work .g-cell__top b { font: 500 12px/14px var(--font-body); text-decoration: none; }
+.g-cell--work .g-cell__top em { font: 300 7.5px/10px var(--font-body); letter-spacing: -0.2px; font-style: normal; color: #0b1a1c; white-space: nowrap; }
+.g-cell--work .g-cell__rooms { position: relative; display: flex; flex-direction: column; min-width: 0; margin-top: 1px; }
+.g-cell.g-cell--work .g-cell__rooms span { display: block; font: 300 9px/10px var(--font-body) !important; color: #0b1a1c; text-align: left; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.g-cell--work .g-badge { top: auto; bottom: 2px; right: 2px; }
