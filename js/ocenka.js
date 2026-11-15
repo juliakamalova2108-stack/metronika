@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=440';
-import * as S from './store.js?v=440';
-import { SYSTEM_PRICE } from './seed.js?v=440';
-import { shiftsText, hoursFor } from './calc.js?v=440';
-import { esc, toast } from './ui.js?v=440';
-import { logEvent } from './zlog.js?v=440';
+import { actions, changes, rerender } from './core.js?v=442';
+import * as S from './store.js?v=442';
+import { SYSTEM_PRICE } from './seed.js?v=442';
+import { shiftsText, hoursFor } from './calc.js?v=442';
+import { esc, toast } from './ui.js?v=442';
+import { logEvent } from './zlog.js?v=442';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -179,15 +179,15 @@ function svcCard(l, locked, changed = false, err = false) {
     <b class="o-svc__s" data-o-sum="${l.id}">${l.qty ? `${fmt(l.sum)} ₽` : ''}</b>
   </div>`;
 }
-// «Одинаковая высота»: введённая цифра заливается во все услуги комнаты; любую услугу потом можно поправить в её строке.
+// «Одинаковая квадратура» (в замере — «высота»): введённая цифра заливается во все услуги комнаты; любую услугу потом можно поправить в её строке.
 const sameOn = (r) => r.same !== false;
-function sameCard(r, locked) {
+function sameCard(r, locked, label = 'Одинаковая высота') {
   const on = sameOn(r); const ro = locked || !on;
   return `<div class="o-same-wrap" style="--rc:${r.color || '#7c8f8a'}"><section class="o-same o-same--v2${on ? '' : ' is-off'}" style="--rc:${r.color || '#7c8f8a'}">
     <div class="o-svc">
-      <label class="o-qty${ro ? ' is-locked' : ''}"><input id="o-same-q" inputmode="decimal" value="${r.sameQty ? esc(numTxt(r.sameQty)) : ''}" placeholder="—" ${ro ? 'readonly' : ''} data-live="o-same" aria-label="Одинаковая высота"/><span>м²</span></label>
-      <span class="o-svc__t"><span class="o-svc__n">Одинаковая высота</span><small>${on ? 'заливается во все работы' : 'выключена — каждая работа отдельно'}</small></span>
-      <button type="button" class="o-same__tog" role="switch" aria-checked="${on}" aria-label="Одинаковая высота" data-action="o-same-tog" ${locked ? 'disabled' : ''}>${toggle(on)}</button>
+      <label class="o-qty${ro ? ' is-locked' : ''}"><input id="o-same-q" inputmode="decimal" value="${r.sameQty ? esc(numTxt(r.sameQty)) : ''}" placeholder="—" ${ro ? 'readonly' : ''} data-live="o-same" aria-label="${label}"/><span>м²</span></label>
+      <span class="o-svc__t"><span class="o-svc__n">${label}</span><small>${on ? 'заливается во все работы' : 'выключена — каждая работа отдельно'}</small></span>
+      <button type="button" class="o-same__tog" role="switch" aria-checked="${on}" aria-label="${label}" data-action="o-same-tog" ${locked ? 'disabled' : ''}>${toggle(on)}</button>
     </div>
   </section></div>`;
 }
@@ -197,9 +197,8 @@ function volumesView(e, r) {
   const locked = r.status === 'saved';
   const filled = r.svcs.length && r.svcs.every((x) => x.qty > 0);
   const status = locked ? '<span class="f-status f-status--ok o-status"><i></i>сохранено</span>' : '<span class="f-status f-status--warn o-status"><i></i>редактирование</span>';
-  // Оценка — простая механика из макета: комната → услуги → объём в каждой услуге. «Одинаковая высота» живёт только в замере.
-  return `${carousel(e, roomTabs(r))}
-    <section class="f-plate o-room o-room--rows f-fill" style="--rc:${r.color || '#7c8f8a'}">
+  return `${carousel(e, roomTabs(r), sameCard(r, locked, 'Одинаковая квадратура'))}
+    <section class="f-plate o-room o-room--rows f-fill${sameOn(r) ? ' is-same' : ''}" style="--rc:${r.color || '#7c8f8a'}">
       <div class="o-room__bar">${status}</div>
       ${t.lines.map((l) => svcCard(l, locked, qtyChanged(r, l.id), !l.qty && (r.qtyErr || []).includes(l.id))).join('')}
     </section>
@@ -424,7 +423,7 @@ actions['o-svc-toggle'] = (el) => {
 actions['o-svc-done'] = () => {
   const e = D(); const r = roomOf(e, e.view);
   const pick = r.pick || [];
-  pick.filter((id) => !r.svcs.some((x) => x.id === id)).forEach((id) => r.svcs.push({ id, qty: 0 }));
+  pick.filter((id) => !r.svcs.some((x) => x.id === id)).forEach((id) => r.svcs.push({ id, qty: sameOn(r) && r.sameQty ? r.sameQty : 0 }));
   { const L = svcList(); r.svcs.sort((a, b) => L.findIndex((s) => s.id === a.id) - L.findIndex((s) => s.id === b.id)); }
   r.pick = null; r.panel = '';
   if (r.status === 'saved') r.status = 'editing';

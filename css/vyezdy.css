@@ -2891,3 +2891,4 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 .link-btn, .st2-reset { min-height: 44px; }
 .cl-call { min-width: 44px; min-height: 44px; }
 .cl-search input { min-height: 44px; }
+.o-same .o-svc__n { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.15; }
