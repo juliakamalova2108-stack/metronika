@@ -1,12 +1,12 @@
 // «Оформить заказ» → вкладка «Замер» (в открытом заказе — «Смета»).
 // Графитовая пластина с закладками стен, плашки площадей, стена-миллиметровка, кнопки под своими колонками,
 // размеры в сантиметрах, полёт ярлыка. Оформление — css/measurement.css; цвет комнаты передаётся как --rc.
-import {actions,changes,rerender,afterRender} from './core.js?v=502';
-import * as S from './store.js?v=502';
-import {oformitDraft} from './oformit.js?v=502';
-import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=502';
-import {esc,toast,sheet,closeSheet} from './ui.js?v=502';
-import {tape,say,numKeys} from './tape.js?v=502';
+import {actions,changes,rerender,afterRender} from './core.js?v=503';
+import * as S from './store.js?v=503';
+import {oformitDraft} from './oformit.js?v=503';
+import {estimateRooms,svcInfo,SVC_LIST,SHORT_NAMES,measurementRoomPicker,measurementServices,measurementStrip,measurementSettings,measurementStart,measurementClosePick} from './ocenka.js?v=503';
+import {esc,toast,sheet,closeSheet} from './ui.js?v=503';
+import {tape,say,numKeys} from './tape.js?v=503';
 
 // ---------- числа ----------
 const n=x=>Number(x||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -289,7 +289,7 @@ actions['mw-pick']=()=>{const d=oformitDraft(),s=state(d),rs=estimateRooms(d);
     s.view=s.back&&(s.back==='total'||rs.some(r=>r.key===s.back))?s.back:rs[rs.length-1].key;}
   else{s.back=s.view;s.view='pick';}
   save();window.scrollTo(0,0)};
-actions['mw-room']=el=>{state(oformitDraft()).view=el.dataset.key;save()};
+actions['mw-room']=el=>{const d=oformitDraft();d.room=el.dataset.key;state(d).view=el.dataset.key;save()};
 actions['mw-wall']=el=>{const r=current();r.active=+el.dataset.i;r.total=false;r.mwDialog=null;save()};
 actions['mw-delete-wall']=()=>{const r=current(),w=r.walls[r.active];if(!w)return;
   if(!(w.len>0)&&!(w.opens&&w.opens.length)){actions['mw-delete-wall-yes']();return;}

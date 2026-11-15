@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=502';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=503';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=502';
-import * as S from './store.js?v=502';
-import { WALLPAPER_TYPES } from './seed.js?v=502';
-import { esc, toast } from './ui.js?v=502';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=502';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=502';
-import { country } from './phonecodes.js?v=502';
-import { suggestAddress } from './address.js?v=502';
-import { suggesters } from './kbd.js?v=502';
-import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=502';
+import { actions, changes, rerender } from './core.js?v=503';
+import * as S from './store.js?v=503';
+import { WALLPAPER_TYPES } from './seed.js?v=503';
+import { esc, toast } from './ui.js?v=503';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=503';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=503';
+import { country } from './phonecodes.js?v=503';
+import { suggestAddress } from './address.js?v=503';
+import { suggesters } from './kbd.js?v=503';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=503';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -306,7 +306,7 @@ actions['z-mat-pick'] = () => { const d = D(), m = mat(d), rs = estimateRooms(d)
   save(); window.scrollTo(0, 0); };
 actions['z-mat-floor'] = (el) => { mat(D()).floor = Number(el.dataset.f); save(); };
 actions['z-mat-add-room'] = (el) => materialAddRoom(el, mat(D()));
-actions['z-mat-view'] = (el) => { mat(D()).view = el.dataset.key; save(); };
+actions['z-mat-view'] = (el) => { const d = D(); d.room = el.dataset.key; mat(d).view = el.dataset.key; save(); };
 actions['z-scan-open'] = () => { const m = mat(D()); const r = matRoom(m, m.view); r.panel = r.panel === 'scan' ? '' : 'scan'; save(); };
 actions['z-scan-close'] = () => { const m = mat(D()); matRoom(m, m.view).panel = ''; save(); };
 // Один сканер — три результата (кадр «02»): найден в базе → новый штрихкод → не считан, по кругу.
