@@ -2909,3 +2909,6 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 .g-queue__t { margin: 4px 0 0; font: 500 16px/22px var(--font-body); color: #edf0e7; }
 .g-queue .h-list { display: flex; flex-direction: column; gap: 8px; }
 .g-queue__d { white-space: nowrap; min-width: 74px; }
+
+/* Календарь (главная и «План»): названия комнат в дне — чёрные, тонкие. */
+.g-cell--work span { color: #0b1a1c; font-weight: 300; text-shadow: none; }
