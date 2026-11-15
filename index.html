@@ -11,9 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@800&family=Onest:wght@500;600;700&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/app.css?v=504" />
-  <link rel="stylesheet" href="css/vyezdy.css?v=504" />
-<link rel="stylesheet" href="css/measurement.css?v=504" />
+  <style>html,body{background:#22383a;margin:0}</style>
 </head>
 <body>
   <div class="app">
@@ -24,17 +22,22 @@
   <div id="sheet" class="sheet"></div>
   <div id="toast" class="toast" role="status"></div>
   <noscript>Для работы прототипа нужен включённый JavaScript.</noscript>
-  <script type="module" src="js/app.js?v=504"></script>
   <script>
-    // Телефон может держать старую страницу в памяти до 10 минут. Спрашиваем номер свежей версии
-    // мимо памяти и, если он новее, один раз открываем страницу заново по чуть другому адресу.
+    // Код грузим по ЖИВОМУ номеру сборки: оболочка может быть закэширована, но version.txt
+    // спрашиваем мимо кэша и подключаем CSS и app.js уже с актуальным номером. Так старая
+    // оболочка не может подтянуть старый код. V — запасной номер, если version.txt недоступен.
     (function () {
-      var V = '504';
-      fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
-        t = (t || '').trim();
-        if (!t || t === V || new URLSearchParams(location.search).get('v') === t) return;
-        var q = new URLSearchParams(location.search); q.set('v', t); location.replace(location.pathname + '?' + q.toString() + location.hash);
-      }).catch(function () {});
+      var V = '505';
+      function boot(v) {
+        ['css/app.css', 'css/vyezdy.css', 'css/measurement.css'].forEach(function (href) {
+          var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href + '?v=' + v; document.head.appendChild(l);
+        });
+        var s = document.createElement('script'); s.type = 'module'; s.src = 'js/app.js?v=' + v; document.body.appendChild(s);
+      }
+      fetch('version.txt?t=' + Date.now(), { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.text() : ''; })
+        .then(function (t) { t = (t || '').trim(); boot(t || V); })
+        .catch(function () { boot(V); });
     })();
   </script>
 </body>
