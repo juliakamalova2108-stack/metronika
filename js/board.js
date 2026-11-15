@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=490';
-import * as S from './store.js?v=490';
-import { renderOformit, oformitDraft } from './oformit.js?v=490';
-import { roomTotals, svcInfo } from './ocenka.js?v=490';
-import { smetaTotals, renderMaterial, renderPayForm, carousel, roomItems } from './zakaz.js?v=490';
-import { renderMeasurement } from './measurement.js?v=490';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=490';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=490';
-import { esc, toast, status, seg } from './ui.js?v=490';
-import { topbar, ORDER_STATUS } from './shared.js?v=490';
+import { actions, rerender, go } from './core.js?v=491';
+import * as S from './store.js?v=491';
+import { renderOformit, oformitDraft } from './oformit.js?v=491';
+import { roomTotals, svcInfo } from './ocenka.js?v=491';
+import { smetaTotals, renderMaterial, renderPayForm, carousel, roomItems } from './zakaz.js?v=491';
+import { renderMeasurement } from './measurement.js?v=491';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=491';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=491';
+import { esc, toast, status, seg } from './ui.js?v=491';
+import { topbar, ORDER_STATUS } from './shared.js?v=491';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -545,21 +545,33 @@ export function renderBoardOrder(no, view) {
   // Финансы — на весь заказ
   const fTot = orderSum(d, flowOf(no));
   const finBlock = block('Финансы', no, 'finance', `<div class="bd-total"><div><small>Получено</small><b>${fmt(pays)} ₽</b></div><div><small>Остаток</small><b>${fmt(Math.max(0, fTot - pays))} ₽</b></div></div>${(d.fin && d.fin.pays || []).map((x) => `<p class="bd-line"><b>${esc(x.kind || 'Оплата')} ${fmt(x.amount)} ₽</b><small>${esc(x.method || '')}${x.date ? ` · ${fmtISO(x.date)}` : ''}</small></p>`).join('')}`);
-  // Финансы: комнаты сверху + плитка «Итог» (как в смете). В комнате — стоимость и виды работ; в «Итог» — сводка и оплаты.
-  const finItems = [...roomItems(rooms), { key: 'total', title: 'Итог', sub: 'оплаты', label: 'Итог' }];
+  // Финансы — в оформлении сметы/материала: карусель комнат + «Итог»; строки работ o-tline, плашки o-bywork/o-grand
+  const FCHEV = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const WHEAD = '<div class="o-tline o-tline--h"><span>Работа</span><span>м²</span><span>₽/м²</span><span>Сумма</span></div>';
+  const wline = (l) => `<div class="o-tline"><span class="o-tline__n">${esc(l.name)}</span><span>${String(l.qty).replace('.', ',')}</span><span>${l.qty ? fmt(Math.round(l.sum / l.qty)) : ''}</span><b>${fmt(l.sum)} ₽</b></div>`;
+  const bywork = (lines, title) => `<section class="f-plate o-bywork"><p class="o-sec o-sec--in">${title}</p>${lines.length ? WHEAD + lines.map(wline).join('') : '<p class="mw-none">Работы пока не добавлены</p>'}</section>`;
+  const fgrand = (title, sum, sub) => `<section class="f-plate o-grand"><p class="o-grand__t">${title}</p><b class="o-grand__sum">${fmt(sum)} ₽</b><p class="o-grand__x">${sub}</p></section>`;
+  const uslu = (k) => `${k} ${k % 10 === 1 && k % 100 !== 11 ? 'услуга' : k % 10 >= 2 && k % 10 <= 4 && (k % 100 < 12 || k % 100 > 14) ? 'услуги' : 'услуг'}`;
+  const finItems = [...roomItems(rooms), { key: 'total', title: 'Итог', sub: 'заказ и оплаты', label: 'Итог' }];
   const finCur = (finRoomView === 'total' || rooms.find((r) => r.key === finRoomView)) ? finRoomView : ((rooms[0] && rooms[0].key) || 'total');
-  const finHead = carousel(finItems, finCur, '', 'bd-fin-room');
+  const finHead = rooms.length ? carousel(finItems, finCur, '', 'bd-fin-room') : '';
   let finBody;
-  if (finCur === 'total') {
-    finBody = `<section class="f-plate"><div class="bd-block__hd"><span>Сводка по заказу</span></div>
-      <div class="bd-total"><div><small>Стоимость</small><b>${fmt(fTot)} ₽</b></div><div><small>Получено</small><b>${fmt(pays)} ₽</b></div><div><small>Осталось</small><b>${fmt(Math.max(0, fTot - pays))} ₽</b></div></div>
-      ${(d.fin && d.fin.pays || []).map((x) => `<p class="bd-line"><b>${esc(x.kind || 'Оплата')} ${fmt(x.amount)} ₽</b><small>${esc(x.method || '')}${x.date ? ` · ${fmtISO(x.date)}` : ''}</small></p>`).join('') || '<p class="bd-note">Оплат пока нет</p>'}
-      <div class="f-btn-row bd-flbtns"><button type="button" class="f-btn f-btn--lit" data-action="z-pay-new">+ Оплата</button></div></section>`;
+  if (finCur === 'total' || !rooms.length) {
+    const foldRoom = (r) => { const t = roomTotals(r); const on = finOpen.has(r.key);
+      return `<section class="o-sroom${on ? ' is-open' : ''}" style="--rc:${r.color}"><button type="button" class="o-sroom__head" data-action="bd-finsum-toggle" data-key="${esc(r.key)}" aria-expanded="${on}">
+        <span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж · ${uslu(t.lines.length)}</small></span><span class="o-sroom__sum"><b>${fmt(t.total)} ₽</b><small>${shiftsText(t.hours)}</small></span><span class="o-sroom__chev">${FCHEV}</span></button>
+        <div class="o-sroom__list">${WHEAD}${t.lines.map(wline).join('')}</div></section>`; };
+    const PHEAD = '<div class="o-tline o-tline--h"><span>Оплата</span><span>Дата</span><span></span><span>Сумма</span></div>';
+    const payLines = (d.fin && d.fin.pays || []).map((x) => `<div class="o-tline"><span class="o-tline__n">${esc(x.kind || 'Оплата')} · ${esc(x.method || '')}</span><span>${x.date ? fmtISO(x.date) : ''}</span><span></span><b>${fmt(x.amount)} ₽</b></div>`).join('');
+    finBody = `<div class="o-stack"><p class="o-sec">Комнаты</p>${rooms.map(foldRoom).join('')}
+      ${fgrand('Итого по заказу', fTot, `${rooms.length} ${rooms.length === 1 ? 'комната' : rooms.length < 5 ? 'комнаты' : 'комнат'}`)}
+      <section class="f-plate o-bywork"><p class="o-sec o-sec--in">Оплаты</p>
+        <div class="summary-areas"><span>Получено<b>${fmt(pays)} ₽</b></span><span>Осталось<b>${fmt(Math.max(0, fTot - pays))} ₽</b></span></div>
+        ${payLines ? PHEAD + payLines : '<p class="mw-none">Оплат пока нет</p>'}</section>
+      <div class="f-btn-row bd-flbtns"><button type="button" class="f-btn f-btn--lit" data-action="z-pay-new">+ Оплата</button></div></div>`;
   } else {
-    const finR = rooms.find((r) => r.key === finCur); const finT = finR ? roomTotals(finR) : null;
-    finBody = finT ? `<section class="f-plate">
-      <div class="bd-total"><div><small>Стоимость комнаты</small><b>${fmt(finT.total)} ₽</b></div><div><small>Объём</small><b>${shiftsText(finT.hours)}</b></div></div>
-      ${finT.lines.map((l) => `<p class="bd-line bd-line--sum"><b>${esc(l.name)}</b><small>${String(l.qty).replace('.', ',')} м²</small><em>${fmt(l.sum)} ₽</em></p>`).join('')}</section>` : '<section class="f-plate"><p class="bd-note">Комнат нет</p></section>';
+    const finR = rooms.find((r) => r.key === finCur); const finT = roomTotals(finR);
+    finBody = `<div class="o-stack">${bywork(finT.lines, 'Работы по комнате')}${fgrand('Итого по комнате', finT.total, `${uslu(finT.lines.length)} · ${shiftsText(finT.hours)}`)}</div>`;
   }
   const finTab = (d.ui && d.ui.form === 'pay') ? renderPayForm(d) : `${finHead}${finBody}`;
   const viewBody = view === 'zam' ? zamView : view === 'mat' ? matTab : view === 'finance' ? finTab : infoView;
@@ -810,6 +822,7 @@ let homeDay = 0;
 let homeMonth = 0;
 let homeSel = '';
 let finRoomView = '';
+const finOpen = new Set();
 export function renderHome() {
   Object.keys(DEMO).forEach(seedOrder);
   homeSeed();
@@ -1138,6 +1151,7 @@ actions['home-ranks-close'] = () => { homeRanks = false; rankView = null; rerend
 actions['home-day'] = (el) => { homeDay = Number(el.dataset.off); rerender(); };
 actions['home-cal-m'] = (el) => { homeMonth += Number(el.dataset.d); rerender(); };
 actions['bd-fin-room'] = (el) => { finRoomView = el.dataset.key; rerender(); };
+actions['bd-finsum-toggle'] = (el) => { const k = el.dataset.key; if (finOpen.has(k)) finOpen.delete(k); else finOpen.add(k); rerender(); };
 actions['home-cal-day'] = (el) => { homeSel = el.dataset.date; rerender(); };
 actions['home-task'] = (el) => { const o = homeOrder(el.dataset.no); const t = (o.tasks || []).find((x) => x.id === el.dataset.id); if (!t) return;
   t.done = !t.done; t.doneToday = t.done ? iso(0) : ''; S.save(); rerender(); };
