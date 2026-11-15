@@ -2931,10 +2931,3 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 .g-cell.g-cell--work .g-cell__rooms .g-plus { font-weight: 600 !important; }
 .g-cell.g-cell--work { padding: 3px 1px 2px !important; }
 .g-cell.g-cell--work .g-cell__rooms .g-more { font-weight: 600 !important; }
-
-/* Главная: под карточкой дня — статус заказа и действие (сама карточка та же, что на доске) */
-.bd-ctl { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; padding: 0 2px; }
-.bd-ctl .bd-st { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font: 600 12px/1 var(--font-body); color: var(--ink); white-space: nowrap; }
-.bd-ctl .bd-st i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: none; }
-.bd-ctl .bd-act { flex: none; display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 12px; border-radius: 9px; background: rgba(214, 229, 194, 0.9); color: #16241b; font: 700 13px/1 var(--font-body); cursor: pointer; }
-.bd-ctl .bd-act svg { width: 13px; height: 13px; }
