@@ -2,10 +2,10 @@
 // Суть по образцу «Анализа финансов» Сбера: выбранный период, сравнение с прошлым, разбивка по категориям
 // с долями, тап по категории — список операций; цель (бюджет) на период и подсказки-выводы.
 // Данные прошлых периодов — примерные (генерируются детерминированно), пока нет настоящих.
-import { actions, rerender, val } from './core.js?v=521';
-import * as S from './store.js?v=521';
-import { esc, toast, ICON_MENU } from './ui.js?v=521';
-import { selectField, pickers } from './oformit.js?v=521';
+import { actions, rerender, val } from './core.js?v=522';
+import * as S from './store.js?v=522';
+import { esc, toast, ICON_MENU } from './ui.js?v=522';
+import { selectField, pickers } from './oformit.js?v=522';
 
 const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ARR = (d) => `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="${d === 'l' ? 'M15 5l-7 7 7 7' : 'M9 5l7 7-7 7'}" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;

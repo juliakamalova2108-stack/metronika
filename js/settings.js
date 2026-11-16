@@ -3,16 +3,14 @@
 // кнопки f-btn, верхние вкладки и нижняя панель f-nav / f-topnav / f-tab.
 // Три раздела внизу: Профиль · Работа · Система.
 
-import { actions, changes, rerender, go, val } from './core.js?v=521';
-import * as S from './store.js?v=521';
-import { esc, toast, ICON_MENU } from './ui.js?v=521';
-import { selectField, pickers } from './oformit.js?v=521';
-import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=521';
-import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=521';
-import { NOTIFY_KINDS } from './more.js?v=521';
-import { tape, connect as tapeConnect, disconnect as tapeOff, say as tapeSay, voiceName, nextVoice, voices } from './tape.js?v=521';
-
-const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="#edf0e7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+import { actions, changes, rerender, go, val } from './core.js?v=522';
+import * as S from './store.js?v=522';
+import { esc, toast, ICON_MENU } from './ui.js?v=522';
+import { selectField, pickers } from './oformit.js?v=522';
+import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=522';
+import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=522';
+import { NOTIFY_KINDS } from './more.js?v=522';
+import { tape, connect as tapeConnect, disconnect as tapeOff, say as tapeSay, voiceName, nextVoice, voices } from './tape.js?v=522';
 const TRASH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 7h15M10 4h4M6.5 7l.9 12a1.5 1.5 0 0 0 1.5 1.4h6.2a1.5 1.5 0 0 0 1.5-1.4l.9-12M10 11v5.5M14 11v5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const CAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
 const CITIES = ['Москва', 'Санкт-Петербург', 'Уфа', 'Казань', 'Екатеринбург', 'Новосибирск', 'Нижний Новгород', 'Самара', 'Челябинск', 'Омск', 'Ростов-на-Дону', 'Красноярск', 'Пермь', 'Воронеж', 'Волгоград', 'Краснодар', 'Тюмень', 'Саратов', 'Тольятти', 'Ижевск', 'Барнаул', 'Ульяновск', 'Иркутск', 'Хабаровск', 'Ярославль', 'Владивосток', 'Томск', 'Оренбург', 'Кемерово', 'Стерлитамак', 'Набережные Челны', 'Сочи'];
@@ -114,7 +112,6 @@ export function renderSettingsFig(start) {
     ${head}<div class="st2">${body}</div>
     <nav class="f-nav f-nav--otabs f-nav--txt" aria-label="Нижнее меню">
       <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}<span>Меню</span></button>
-      <button type="button" class="f-nav__tab f-nav__back" data-action="st-back" aria-label="Назад">${BACK}<span>Назад</span></button>
       ${G.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === group}" class="f-nav__tab${k === group ? ' is-on' : ''}" data-action="st2-group" data-k="${k}"><span>${t}</span></button>`).join('')}
     </nav>`;
 }
@@ -147,4 +144,3 @@ actions['rc-open'] = (el) => { roomPick = roomPick === el.dataset.name ? '' : el
 actions['rc-set'] = (el) => { set({ roomColors: { ...(S.me().settings.roomColors || {}), [el.dataset.name]: el.dataset.c } }); rerender(); };
 actions['rc-reset'] = () => { set({ roomColors: {} }); roomPick = ''; toast('Стандартные цвета возвращены'); rerender(); };
 actions['wk-copy'] = () => { const st = S.me().settings; const h = (st.dayHours || {})[1] || st.hours; const all = {}; WD.forEach(([d]) => { all[d] = { ...h }; }); set({ dayHours: all, hours: { ...h } }); toast('Часы применены ко всем дням'); rerender(); };
-actions['st-back'] = () => { if (history.length > 1) history.back(); else go('home'); };

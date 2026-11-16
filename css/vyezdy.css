@@ -2981,4 +2981,3 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 /* Текстовые вкладки навигации (Настройки, Статистика): метка в 1–2 строки, без обрезки. */
 .f-nav--txt .f-nav__tab { justify-content: center; min-width: 0; }
 .f-nav--txt .f-nav__tab span { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; word-break: break-word; line-height: 1.04; font-size: 9.5px; text-align: center; }
-.f-nav--txt .f-nav__back svg { width: 20px; height: 20px; }
