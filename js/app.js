@@ -1,20 +1,20 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=520';
-import * as S from './store.js?v=520';
-import { esc, ICONS, sheet, closeSheet, toast } from './ui.js?v=520';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=520';
-import { renderSettlements } from './shared.js?v=520';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=520';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=520';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=520';
-import { renderOformit, onLiveOformit } from './oformit.js?v=520';
-import { onLiveZakaz } from './zakaz.js?v=520';
-import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=520';
-import { renderStatsMaster } from './stats.js?v=520';
-import './kbd.js?v=520';
-import { renderSettingsFig } from './settings.js?v=520';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=520';
+import { actions, changes, setRenderer, rerender, route, go } from './core.js?v=521';
+import * as S from './store.js?v=521';
+import { esc, ICONS, sheet, closeSheet, toast, ICON_MENU } from './ui.js?v=521';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=521';
+import { renderSettlements } from './shared.js?v=521';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=521';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=521';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=521';
+import { renderOformit, onLiveOformit } from './oformit.js?v=521';
+import { onLiveZakaz } from './zakaz.js?v=521';
+import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=521';
+import { renderStatsMaster } from './stats.js?v=521';
+import './kbd.js?v=521';
+import { renderSettingsFig } from './settings.js?v=521';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=521';
 
 const VERSION = 'сборка ' + ((/[?&]v=([^&]+)/.exec(import.meta.url) || [])[1] || '?');
 
@@ -88,7 +88,6 @@ function tabbar(role, current) {
   }).join('');
 }
 
-const MENU_BARS = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 // Иконки пунктов меню (тонкая линия, currentColor)
 const MI = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const MENU_IC = {
@@ -161,7 +160,7 @@ function renderInner() {
   // Мастер: нижней панели нет — как на главной, одна плавающая кнопка «три полоски» без подписи.
   const noBar = role !== 'agent';
   document.body.classList.toggle('nobar', noBar);
-  if (noBar) { bar.hidden = true; bar.innerHTML = ''; if (!view.querySelector('.st-nav')) view.insertAdjacentHTML('beforeend', `<button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${MENU_BARS}</button>`); }
+  if (noBar) { bar.hidden = true; bar.innerHTML = ''; if (!view.querySelector('.st-nav')) view.insertAdjacentHTML('beforeend', `<button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`); }
   else { bar.hidden = false; bar.innerHTML = S.withCur(tabbar(role, name)); }
   if (!drawerEl.classList.contains('is-on')) drawerEl.innerHTML = drawer(role);
   const activeTab = view.querySelector('.tabs__item.is-active');

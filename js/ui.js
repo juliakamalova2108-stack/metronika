@@ -5,6 +5,8 @@ export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&a
 export const rub = (n) => (Math.round(n) || 0).toLocaleString('ru-RU').replace(/,/g, ' ') + ' ₽';
 export const m2 = (n) => String(n).replace('.', ',') + ' м²';
 export const num = (n) => String(n).replace('.', ',');
+// Значок «меню» (три полоски) — единственная запись на всё приложение.
+export const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 
 const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const WD = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
