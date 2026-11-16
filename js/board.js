@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=517';
-import * as S from './store.js?v=517';
-import { renderOformit, oformitDraft } from './oformit.js?v=517';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=517';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=517';
-import { renderMeasurement } from './measurement.js?v=517';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=517';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=517';
-import { esc, toast, status, seg } from './ui.js?v=517';
-import { topbar, ORDER_STATUS } from './shared.js?v=517';
+import { actions, rerender, go } from './core.js?v=518';
+import * as S from './store.js?v=518';
+import { renderOformit, oformitDraft } from './oformit.js?v=518';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=518';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=518';
+import { renderMeasurement } from './measurement.js?v=518';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=518';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=518';
+import { esc, toast, status, seg } from './ui.js?v=518';
+import { topbar, ORDER_STATUS } from './shared.js?v=518';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -954,7 +954,7 @@ export function renderHome() {
 
   // ── Главная: металлическая карта текущего ранга — сверху; под ней опыт, квадратура и путь до следующего ранга ──
   const meHtml = `<section class="h-hero2">
-    <p class="h-hi">${hello}, ${esc(fullName.split(' ')[0])}<small>${WDF[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</small></p>
+    <div class="h-hirow"><p class="h-hi">${hello}, ${esc(fullName.split(' ')[0])}<small>${WDF[now.getDay()]}, ${now.getDate()} ${MONG[now.getMonth()]}</small></p>%%BELL%%</div>
     ${S.get().homeCardMin ? `<div class="gc-mini gc--t${RANKS[ri][2]}" style="${gcVars(ri)}">
         <button type="button" class="gc-mini__main" data-action="home-ranks" aria-label="Открыть ранги"><span class="gc-mini__no">${no(ri)}</span><span class="gc-mini__t"><b>${esc(RANKS[ri][0])}</b><small>${TIERS[RANKS[ri][2] - 1]} · ${fmt(area)} м² · опыт ${expN}</small></span></button>
         <button type="button" class="gc-fold" data-action="home-card-fold" aria-label="Развернуть карточку" aria-expanded="false">${ic('<path d="M6 9l6 6 6-6"/>')}</button></div>`
@@ -966,11 +966,8 @@ export function renderHome() {
     ${nextR ? `<div class="h-next"><span>До ранга «${esc(nextR[0])}» — ещё ${nextR[1] - described} ${plural(nextR[1] - described, 'материал', 'материала', 'материалов')}</span><div class="h-rank__bar"><i style="width:${rankPct}%"></i></div></div>` : ''}
   </section>`;
 
-  // ── Шапка ──
-  const head = `<div class="h-bar"><span></span>
-      <span class="h-bar__r">%%BELL%%
-      <button type="button" class="h-icb h-new" data-action="go" data-to="oformit" aria-label="Новый заказ">${PLUS}<span>Заказ</span></button></span></div>
-    ${meHtml}`;
+  // ── Шапка: приветствие + колокольчик в одну строку (без пустой верхней полосы) ──
+  const head = meHtml;
 
   // Большие карточки-hero убраны с главной: главная — календарь, под ним карточки дня (тап → заказ).
 
@@ -1103,7 +1100,7 @@ export function renderHome() {
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     ${homeRanks ? ranksSheet() : ''}${homeNotif ? notifSheet() : ''}
     <div class="h-page">${head.replace('%%BELL%%', bellHtml)}${calHtml}</div>
-    <button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
+    <div class="h-fabs"><button type="button" class="h-menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button><button type="button" class="h-menu h-menu--new" data-action="go" data-to="oformit" aria-label="Новый заказ">${PLUS}</button></div>`;
 }
 let homeRanks = false;
 
