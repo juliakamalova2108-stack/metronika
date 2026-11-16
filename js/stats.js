@@ -1,7 +1,7 @@
 // Статистика мастера: 5 разделов — Финансы, Воронка, Объекты, Услуги, Время.
 // Содержимое разделов пока пустое (в разработке). Прежние расчёты и графики удалены.
-import { actions, rerender } from './core.js?v=523';
-import { ICON_MENU } from './ui.js?v=523';
+import { actions, rerender } from './core.js?v=524';
+import { ICON_MENU } from './ui.js?v=524';
 
 const TABS = [['fin', 'Финансы'], ['funnel', 'Воронка'], ['obj', 'Объекты'], ['serv', 'Услуги'], ['time', 'Время']];
 let tab = 'fin';

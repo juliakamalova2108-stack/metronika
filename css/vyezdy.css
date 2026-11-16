@@ -2418,7 +2418,9 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 .f-nav--otabs .f-nav__tab { position: relative; }
 .f-nav--otabs .f-nav__tab.is-on { background: transparent; color: #e6f2cc; }
 .f-nav--otabs .f-nav__tab.is-on::before { content: ''; position: absolute; inset: 0 9px; border-radius: 12px; background: rgba(214, 229, 194, 0.14); z-index: 0; }
-.f-nav--otabs .f-nav__tab > * { position: relative; z-index: 1; }
+/* Поднимаем только иконку и подпись над плашкой; точку-статус не трогаем (у неё своё position:absolute). */
+.f-nav--otabs .f-nav__tab > svg, .f-nav--otabs .f-nav__tab > span { position: relative; z-index: 1; }
+.f-nav--otabs .f-nav__dot { z-index: 2; }
 .f-nav--otabs .f-nav__tab.is-on svg path, .f-nav--otabs .f-nav__tab.is-on svg rect, .f-nav--otabs .f-nav__tab.is-on svg circle { stroke: #e6f2cc; }
 
 /* «Инфо»: комнаты оценки показаны полностью, без сворачивания */
