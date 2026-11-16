@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=522';
-import * as S from './store.js?v=522';
-import { renderOformit, oformitDraft } from './oformit.js?v=522';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=522';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=522';
-import { renderMeasurement } from './measurement.js?v=522';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=522';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=522';
-import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=522';
-import { topbar, ORDER_STATUS } from './shared.js?v=522';
+import { actions, rerender, go } from './core.js?v=523';
+import * as S from './store.js?v=523';
+import { renderOformit, oformitDraft } from './oformit.js?v=523';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=523';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=523';
+import { renderMeasurement } from './measurement.js?v=523';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=523';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=523';
+import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=523';
+import { topbar, ORDER_STATUS } from './shared.js?v=523';
 
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
 const STAGES = [['measure', 'Замер'], ['approval', 'Согласование'], ['queue', 'Очередь'], ['work', 'В работе'], ['done', 'Выполнено'], ['refused', 'Отказ']];
@@ -585,8 +585,9 @@ export function renderBoardOrder(no, view) {
   const IC_ROLL = ic('<rect x="4.5" y="4" width="10" height="16" rx="2"/><path d="M14.5 7.5H18a1.5 1.5 0 011.5 1.5v9a2 2 0 01-2 2"/>');
   const IC_COIN = ic('<circle cx="12" cy="12" r="8.3"/><path d="M10 8.5h3.2a1.9 1.9 0 010 3.8H10V16M10 12h4"/>');
   const topbar = `<div class="bd-obar"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="Назад">${BACKIC}</button><span>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</span></div>`;
-  const nTab = (v, to, label, icon) => `<button type="button" class="f-nav__tab${(view || '') === v ? ' is-on' : ''}${stTab === v ? ' has-act' : ''}" data-action="go" data-to="${to}">${icon}<span>${label}</span></button>`;
-  const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${nTab('', 'bd-info-' + no, 'Инф', INFO)}${nTab('zam', 'bd-zam-' + no, 'Замер', IC_RULER)}${nTab('mat', 'bd-mat-' + no, 'Материалы', IC_ROLL)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${chatBtn(no, d)}</nav>`;
+  const curV = (!view || view === 'info') ? 'info' : view;   // «Инф» активна и при пустом view, и при view='info'
+  const nTab = (v, to, label, icon) => `<button type="button" class="f-nav__tab${curV === v ? ' is-on' : ''}${stTab === v ? ' has-act' : ''}" data-action="go" data-to="${to}">${icon}<span>${label}</span></button>`;
+  const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${nTab('info', 'bd-info-' + no, 'Инф', INFO)}${nTab('zam', 'bd-zam-' + no, 'Замер', IC_RULER)}${nTab('mat', 'bd-mat-' + no, 'Материалы', IC_ROLL)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${chatBtn(no, d)}</nav>`;
   // Клиент — только во вкладке «Инф»; в остальных сверху лишь шапка с № и статусом
   const showClient = !view || view === 'info';
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${showClient ? clientCard : ''}${viewBody}${tabbar}`;
