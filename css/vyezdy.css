@@ -2417,7 +2417,8 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 /* Активная плашка вкладки — не на всю ширину, уже по бокам (вставка-пилюля). */
 .f-nav--otabs .f-nav__tab { position: relative; }
 .f-nav--otabs .f-nav__tab.is-on { background: transparent; color: #e6f2cc; }
-.f-nav--otabs .f-nav__tab.is-on::before { content: ''; position: absolute; inset: 0 6px; border-radius: 14px; background: rgba(214, 229, 194, 0.14); z-index: 0; }
+/* Активная вкладка — та же «формочка», что кнопка «Меню»: токены --ctl-* (фон, окаёмка, тень, скругление). */
+.f-nav--otabs .f-nav__tab.is-on::before { content: ''; position: absolute; inset: 0 2px; border-radius: var(--ctl-radius); background: var(--ctl-bg); border: var(--ctl-border); box-shadow: var(--ctl-shadow); -webkit-backdrop-filter: var(--ctl-blur); backdrop-filter: var(--ctl-blur); z-index: 0; }
 /* Поднимаем только иконку и подпись над плашкой; точку-статус не трогаем (у неё своё position:absolute). */
 .f-nav--otabs .f-nav__tab > svg, .f-nav--otabs .f-nav__tab > span { position: relative; z-index: 1; }
 .f-nav--otabs .f-nav__dot { z-index: 2; }
