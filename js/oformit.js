@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=514';
-import * as S from './store.js?v=514';
-import { CHANNELS } from './seed.js?v=514';
-import { esc, toast } from './ui.js?v=514';
-import { logEvent } from './zlog.js?v=514';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=514';
+import { actions, rerender, go } from './core.js?v=515';
+import * as S from './store.js?v=515';
+import { CHANNELS } from './seed.js?v=515';
+import { esc, toast } from './ui.js?v=515';
+import { logEvent } from './zlog.js?v=515';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=515';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=514';
-import { renderSchedule, scheduleState } from './grafik.js?v=514';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=515';
+import { renderSchedule, scheduleState } from './grafik.js?v=515';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -20,9 +20,11 @@ const SOURCES = CHANNELS.filter((c) => c !== 'Самостоятельно');
 // «Оформить заказ» (мастер сам себе): только начальный этап — канал, клиент, оценка, график.
 // По важности слева направо: Оценка, График, Клиент, Канал.
 // «Оформить заказ» — вся сущность заказа целиком: те же разделы, что в открытом заказе.
-const TABS = [['estimate', 'Оценка'], ['schedule', 'План'], ['client', 'Клиент'], ['channel', 'Источник'], ['smeta', 'Замер'], ['material', 'Материал'], ['chat', 'Чат'], ['tasks', 'Задачи'], ['finance', 'Финансы'], ['history', 'История']];
+// Регистрация нового заказа — только вводные 4 раздела. Замер/Материал/Финансы/Чат появляются при исполнении.
+const TABS = [['estimate', 'Оценка'], ['schedule', 'План'], ['client', 'Клиент'], ['channel', 'Источник']];
 // «Текущий заказ» — все вкладки секции «Выезды».
-const ALL_TABS = [['channel', 'Источник'], ['client', 'Клиент'], ['estimate', 'Оценка'], ['schedule', 'План'], ['material', 'Материал'], ['smeta', 'Смета'], ['chat', 'Чат'], ['tasks', 'Задачи'], ['finance', 'Финансы'], ['history', 'История']];
+// Старая Финансы убрана: в исполнении заказа своя Финансы (нижняя навигация). renderPayForm оставлен для формы «+Оплата».
+const ALL_TABS = [['channel', 'Источник'], ['client', 'Клиент'], ['estimate', 'Оценка'], ['schedule', 'План'], ['chat', 'Чат'], ['tasks', 'Задачи'], ['history', 'История']];
 export const pickers = Object.create(null);
 export const toggles = Object.create(null);
 
