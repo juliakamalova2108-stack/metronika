@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=513';
-import * as S from './store.js?v=513';
-import { renderOformit, oformitDraft } from './oformit.js?v=513';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=513';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=513';
-import { renderMeasurement } from './measurement.js?v=513';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=513';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=513';
-import { esc, toast, status, seg } from './ui.js?v=513';
-import { topbar, ORDER_STATUS } from './shared.js?v=513';
+import { actions, rerender, go } from './core.js?v=514';
+import * as S from './store.js?v=514';
+import { renderOformit, oformitDraft } from './oformit.js?v=514';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=514';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=514';
+import { renderMeasurement } from './measurement.js?v=514';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=514';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=514';
+import { esc, toast, status, seg } from './ui.js?v=514';
+import { topbar, ORDER_STATUS } from './shared.js?v=514';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -566,7 +566,10 @@ export function renderBoardOrder(no, view) {
     return `<div class="o-sroom is-open o-sroom--static" style="--rc:${r.color}"><div class="o-sroom__head">
       <span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж · ${t.lines.length} усл.</small></span><span class="o-sroom__sum"><b>${fmt(t.total)} ₽</b><small>${shiftsText(t.hours)}</small></span></div>
       <div class="o-sroom__list">${t.lines.map((l) => `<div class="o-line"><span class="o-line__n">${esc(l.name)}</span><span class="o-line__q">${String(l.qty).replace('.', ',')} м²</span><b class="o-line__s">${fmt(l.sum)} ₽</b></div>`).join('')}</div></div>`; }).join('');
-  const estOpen = block('Оценка <small class="bd-sub">(со слов клиента)</small>', no, 'estimate', `<div class="bd-rooms">${roomsOpen || '<p class="bd-note">Оценки пока нет</p>'}</div>`);
+  const estOpen = `<section class="f-plate bd-block bd-block--card" style="--c:${(r0cl && r0cl.color) || '#f59e0b'}">
+    <div class="h-hero__glow" aria-hidden="true"></div>
+    <div class="bd-block__hd"><span>Оценка <small class="bd-sub">(со слов клиента)</small></span>${edit(no, 'estimate')}</div>
+    <div class="bd-rooms">${roomsOpen || '<p class="bd-note">Оценки пока нет</p>'}</div></section>`;
   const infoView = `${f.st === 'refused' ? flow : ''}${estOpen}${sched}${chan}${sum}`;
   // Замеры — действие шага (на замере) + смета по комнатам
   let measComp = ''; try { measComp = renderMeasurement(d); } catch (e) { measComp = '<p class="bd-note">Замер недоступен</p>'; }
