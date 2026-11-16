@@ -126,6 +126,9 @@ body.fig .view { position: relative; z-index: 1; padding: 16px 16px 100px; displ
   font: 500 10px/12px var(--font-body); color: #a8bab2; text-align: center; }
 .f-nav__tab svg { width: 24px; height: 24px; flex: none; }
 .f-nav__tab.is-active { color: #edf0e7; }
+.f-nav__tab { position: relative; }
+.f-nav__dot { position: absolute; top: 6px; right: 18px; width: 7px; height: 7px; border-radius: 50%; background: #e3b341; }
+.f-nav__dot--ok { background: #7bd88f; }
 
 /* Индикатор «Редактирование»: как «Сохранено», только жёлтый (цвет статуса «Внимание»). */
 .f-btn--editing::after { background: #ffc247; box-shadow: 0 0 2px rgba(255, 194, 71, 0.55); }

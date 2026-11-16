@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=515';
-import * as S from './store.js?v=515';
-import { CHANNELS } from './seed.js?v=515';
-import { esc, toast } from './ui.js?v=515';
-import { logEvent } from './zlog.js?v=515';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=515';
+import { actions, rerender, go } from './core.js?v=516';
+import * as S from './store.js?v=516';
+import { CHANNELS } from './seed.js?v=516';
+import { esc, toast } from './ui.js?v=516';
+import { logEvent } from './zlog.js?v=516';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=516';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=515';
-import { renderSchedule, scheduleState } from './grafik.js?v=515';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=516';
+import { renderSchedule, scheduleState } from './grafik.js?v=516';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -133,9 +133,19 @@ export function renderOformit(mode = 'oformit', opts = {}) {
   const ready = mode === 'oformit' && !opts.only && ['estimate', 'schedule', 'client', 'channel'].every((k) => stateOf(k) === 'ok');
   const meas = d.sched && d.sched.mode === 'measure';
   const done = ready ? `<section class="f-plate bd-block bd-flow"><div class="bd-block__hd"><span>Всё сохранено</span></div><p class="bd-line"><b>${meas ? 'Оформить замер' : 'Оформить заказ'}</b><small>Заказ появится в «Заказах» на этапе «${meas ? 'Замер' : 'Очередь'}»</small></p><div class="f-btn-row bd-flbtns"><button type="button" class="f-btn f-btn--lit" data-action="f-create">${meas ? 'Оформить замер' : 'Оформить заказ'}</button></div></section>` : '';
+  // Нижнее меню регистрации — в том же стиле, что открытый заказ (f-nav--otabs: иконка + подпись).
+  const O_IC = {
+    estimate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.2"/><path d="M8.5 7.5h7M8.5 11.5h7M8.5 15.5h4"/></svg>',
+    schedule: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2.2"/><path d="M4 9.5h16M8.5 3v4M15.5 3v4"/></svg>',
+    client: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.4 3.1-5.5 7-5.5s7 2.1 7 5.5"/></svg>',
+    channel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/><path d="M12 4v10M8 10l4 4 4-4"/></svg>',
+  };
+  const otabs = tabs.map(([k, t]) => { const st = stateOf(k);
+    return `<button type="button" role="tab" aria-selected="${k === tab}" class="f-nav__tab${k === tab ? ' is-on' : ''}" data-action="f-tab" data-tab="${k}">${O_IC[k] || ''}<span>${t}</span>${st ? `<i class="f-nav__dot${st === 'ok' ? ' f-nav__dot--ok' : ''}"></i>` : ''}</button>`; }).join('');
+  const regNav = `<nav class="f-nav f-nav--otabs" aria-label="Разделы заказа" role="tablist"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${otabs}</nav>`;
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     ${done}${body}
-    ${nav(opts.only ? opts.navHtml || '' : tabsHtml, !opts.only && tabs.length > 4, opts.navRight || '')}`;
+    ${opts.only ? nav(opts.navHtml || '', false, opts.navRight || '') : regNav}`;
 }
 
 function markDirty(d) {
