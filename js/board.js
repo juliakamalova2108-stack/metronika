@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=533';
-import * as S from './store.js?v=533';
-import { renderOformit, oformitDraft } from './oformit.js?v=533';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=533';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=533';
-import { renderMeasurement } from './measurement.js?v=533';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=533';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=533';
-import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=533';
-import { topbar, ORDER_STATUS } from './shared.js?v=533';
+import { actions, rerender, go } from './core.js?v=534';
+import * as S from './store.js?v=534';
+import { renderOformit, oformitDraft } from './oformit.js?v=534';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=534';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=534';
+import { renderMeasurement } from './measurement.js?v=534';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=534';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=534';
+import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=534';
+import { topbar, ORDER_STATUS } from './shared.js?v=534';
 
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
 const STAGES = [['new', 'Новая'], ['measure', 'Замер'], ['approval', 'Согласование'], ['queue', 'Очередь'], ['work', 'В работе'], ['done', 'Выполнено'], ['refused', 'Отказ']];
@@ -100,9 +100,9 @@ export function renderBoard() {
   const stCol = { new: '#9fd15a', measure: '#3b82f6', approval: '#f59e0b', queue: '#19c39a', work: '#f0864f', done: '#2fd46f', refused: '#8a9a95' };
   const allNos = [...new Set([...Object.keys(DEMO), ...MY()])];
   const stCount = (k) => allNos.filter((no) => { const st = stOf(no); return st === k || (k === 'done' && st === 'closed'); }).length;
-  const tiles = STAGES.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === stage}" class="bd-stile${k === stage ? ' is-on' : ''}" style="--c:${stCol[k] || '#8a9a95'}" data-action="bd-stage" data-stage="${k}"><span class="bd-stile__n">${t}</span><span class="bd-stile__v">${stCount(k)}<small>зак.</small></span></button>`).join('');
+  const tiles = STAGES.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === stage}" class="o-pv${k === stage ? ' is-on' : ''}" style="--rc:${stCol[k] || '#8a9a95'}" data-action="bd-stage" data-stage="${k}"><b class="o-pv__n">${t}</b><span class="o-pv__m">${stCount(k)}<small> зак.</small></span></button>`).join('');
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
-    <nav class="bd-stages" aria-label="Этапы заказов" role="tablist">${tiles}</nav>
+    <div class="o-pvbar bd-stages" aria-label="Этапы заказов"><div class="o-pvs" role="tablist">${tiles}</div></div>
     <label class="f-input bd-search">${SEARCH}<input id="bd-q" type="search" placeholder="Телефон, имя или адрес…" value="${esc(query)}" data-live="bd-q"/></label>
     <div class="bd-list">${body}</div>
     <button type="button" class="h-menu bd-fab" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
