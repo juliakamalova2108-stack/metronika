@@ -3,14 +3,14 @@
 // кнопки f-btn, верхние вкладки и нижняя панель f-nav / f-topnav / f-tab.
 // Три раздела внизу: Профиль · Работа · Система.
 
-import { actions, changes, rerender, go, val } from './core.js?v=534';
-import * as S from './store.js?v=534';
-import { esc, toast, ICON_MENU } from './ui.js?v=534';
-import { selectField, pickers } from './oformit.js?v=534';
-import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=534';
-import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=534';
-import { NOTIFY_KINDS } from './more.js?v=534';
-import { tape, connect as tapeConnect, disconnect as tapeOff, say as tapeSay, voiceName, nextVoice, voices } from './tape.js?v=534';
+import { actions, changes, rerender, go, val } from './core.js?v=535';
+import * as S from './store.js?v=535';
+import { esc, toast, ICON_MENU } from './ui.js?v=535';
+import { selectField, pickers } from './oformit.js?v=535';
+import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=535';
+import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=535';
+import { NOTIFY_KINDS } from './more.js?v=535';
+import { tape, connect as tapeConnect, disconnect as tapeOff, say as tapeSay, voiceName, nextVoice, voices } from './tape.js?v=535';
 const TRASH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 7h15M10 4h4M6.5 7l.9 12a1.5 1.5 0 0 0 1.5 1.4h6.2a1.5 1.5 0 0 0 1.5-1.4l.9-12M10 11v5.5M14 11v5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const CAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
 const CITIES = ['Москва', 'Санкт-Петербург', 'Уфа', 'Казань', 'Екатеринбург', 'Новосибирск', 'Нижний Новгород', 'Самара', 'Челябинск', 'Омск', 'Ростов-на-Дону', 'Красноярск', 'Пермь', 'Воронеж', 'Волгоград', 'Краснодар', 'Тюмень', 'Саратов', 'Тольятти', 'Ижевск', 'Барнаул', 'Ульяновск', 'Иркутск', 'Хабаровск', 'Ярославль', 'Владивосток', 'Томск', 'Оренбург', 'Кемерово', 'Стерлитамак', 'Набережные Челны', 'Сочи'];
@@ -110,7 +110,7 @@ export function renderSettingsFig(start) {
   const body = group === 'profile' ? profile() : group === 'system' ? system() : workTab === 'rooms' ? rooms() : workTab === 'schedule' ? schedule() : services();
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     ${head}<div class="st2">${body}</div>
-    <nav class="f-nav f-nav--otabs f-nav--scroll" aria-label="Нижнее меню">
+    <nav class="f-nav f-nav--otabs" aria-label="Нижнее меню">
       <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open" aria-label="Меню">${ICON_MENU}<span>Меню</span></button>
       ${G.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === group}" class="f-nav__tab${k === group ? ' is-on' : ''}" data-action="st2-group" data-k="${k}"><span>${t}</span></button>`).join('')}
     </nav>`;
