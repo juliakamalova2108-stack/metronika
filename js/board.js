@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=524';
-import * as S from './store.js?v=524';
-import { renderOformit, oformitDraft } from './oformit.js?v=524';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=524';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=524';
-import { renderMeasurement } from './measurement.js?v=524';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=524';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=524';
-import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=524';
-import { topbar, ORDER_STATUS } from './shared.js?v=524';
+import { actions, rerender, go } from './core.js?v=525';
+import * as S from './store.js?v=525';
+import { renderOformit, oformitDraft } from './oformit.js?v=525';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=525';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=525';
+import { renderMeasurement } from './measurement.js?v=525';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=525';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=525';
+import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=525';
+import { topbar, ORDER_STATUS } from './shared.js?v=525';
 
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
 const STAGES = [['measure', 'Замер'], ['approval', 'Согласование'], ['queue', 'Очередь'], ['work', 'В работе'], ['done', 'Выполнено'], ['refused', 'Отказ']];
@@ -587,7 +587,7 @@ export function renderBoardOrder(no, view) {
   const topbar = `<div class="bd-obar"><button type="button" class="f-icon-btn bd-back" data-action="bd-back" aria-label="Назад">${BACKIC}</button><span>Заказ №${no} · ${FL_NAME[flowOf(no).st]}</span></div>`;
   const curV = (!view || view === 'info') ? 'info' : view;   // «Инф» активна и при пустом view, и при view='info'
   const nTab = (v, to, label, icon) => `<button type="button" class="f-nav__tab${curV === v ? ' is-on' : ''}${stTab === v ? ' has-act' : ''}" data-action="go" data-to="${to}">${icon}<span>${label}</span></button>`;
-  const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${nTab('info', 'bd-info-' + no, 'Инф', INFO)}${nTab('zam', 'bd-zam-' + no, 'Замер', IC_RULER)}${nTab('mat', 'bd-mat-' + no, 'Материалы', IC_ROLL)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${chatBtn(no, d)}</nav>`;
+  const tabbar = `<nav class="f-nav f-nav--otabs" aria-label="Заказ"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${nTab('info', 'bd-info-' + no, 'Инф', INFO)}${nTab('zam', 'bd-zam-' + no, 'Замер', IC_RULER)}${nTab('mat', 'bd-mat-' + no, 'Материал', IC_ROLL)}${nTab('finance', 'bd-finance-' + no, 'Финансы', IC_COIN)}${chatBtn(no, d)}</nav>`;
   // Клиент — только во вкладке «Инф»; в остальных сверху лишь шапка с № и статусом
   const showClient = !view || view === 'info';
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>${topbar}${showClient ? clientCard : ''}${viewBody}${tabbar}`;
