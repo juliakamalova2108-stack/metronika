@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=516';
-import * as S from './store.js?v=516';
-import { renderOformit, oformitDraft } from './oformit.js?v=516';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=516';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=516';
-import { renderMeasurement } from './measurement.js?v=516';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=516';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=516';
-import { esc, toast, status, seg } from './ui.js?v=516';
-import { topbar, ORDER_STATUS } from './shared.js?v=516';
+import { actions, rerender, go } from './core.js?v=517';
+import * as S from './store.js?v=517';
+import { renderOformit, oformitDraft } from './oformit.js?v=517';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=517';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=517';
+import { renderMeasurement } from './measurement.js?v=517';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=517';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=517';
+import { esc, toast, status, seg } from './ui.js?v=517';
+import { topbar, ORDER_STATUS } from './shared.js?v=517';
 
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -637,7 +637,7 @@ export function renderBoardEdit(no, t) {
   if (t === 'chat') { (dd.chat || []).forEach((m) => { m.read = true; }); S.save(); }
   const html = renderOformit('order', { only: t, navHtml, navRight: mid + (inRoom ? `<button type="button" class="f-nav__tab" data-action="vs-hub" data-no="${no}"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg><span>Итог</span></button>` + infoBtn(no) + chatBtn(no, dd) : ((flowOf(no).visit || {}).open && t !== 'chat' ? infoBtn(no) : '') + (t === 'chat' ? '<span class="f-nav__chat"></span>' : chatBtn(no, dd))) });
   // Вместо «Редактировать / Редактирование» — «Отмена»: правка уже включена.
-  return (inRoom ? roomPlate(no, vv, html) : html).replace('f-nav f-nav--tabs', 'f-nav f-nav--tabs').replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
+  return (inRoom ? roomPlate(no, vv, html) : html).replace(/<button[^>]*data-action="(?:f-edit|z-cl-edit|o-edit|g-edit)"[^>]*>[^<]*<\/button>/, `<button type="button" class="f-btn" data-action="bd-cancel" data-no="${no}">Отмена</button>`);
 }
 actions['bd-edit'] = (el) => { if (locked(el.dataset.no, el.dataset.tab)) return toast('Заказ завершён — правки закрыты'); startEdit = el.dataset.tab; go(`bd-edit-${el.dataset.no}-${el.dataset.tab}`); };
 actions['bd-to-order'] = (el) => { showParts = false; const no = el.dataset.no, f = flowOf(no), v = f.visit;
@@ -732,7 +732,7 @@ function renderBoardChat(no) {
   const AV_C = ['#5b5f8f', '#8a6a3f', '#4f7a8f'];
   const tile = (n, r) => `<span class="ch-part"><b>${esc(n)}</b><small>${esc(r)}</small></span>`;
   const mid = `<div class="bd-navslot"><div class="f-btn-row bd-vnext"><button type="button" class="f-btn f-btn--lit" data-action="bd-to-order" data-no="${no}">Закрыть</button></div></div>`;
-  const nav = `<nav class="f-nav f-nav--tabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${mid}<button type="button" class="f-nav__tab f-nav__chat is-active" aria-current="page" aria-label="Чат заказа">${CHAT}<span>Чат</span></button></nav>`;
+  const nav = `<nav class="f-nav f-nav--otabs" aria-label="Нижнее меню"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${mid}<button type="button" class="f-nav__tab f-nav__chat is-active" aria-current="page" aria-label="Чат заказа">${CHAT}<span>Чат</span></button></nav>`;
   if (showParts) {
     return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div><section class="f-plate ch-head"><p class="ch-t">Участники заказа</p>
       <p class="ch-x">${parts.length ? 'Все участники заказа доступны в этом чате.' : 'Заказ вы ведёте один — других участников нет.'}</p>

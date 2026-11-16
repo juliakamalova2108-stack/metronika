@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=516';
-import * as S from './store.js?v=516';
-import { CHANNELS } from './seed.js?v=516';
-import { esc, toast } from './ui.js?v=516';
-import { logEvent } from './zlog.js?v=516';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=516';
+import { actions, rerender, go } from './core.js?v=517';
+import * as S from './store.js?v=517';
+import { CHANNELS } from './seed.js?v=517';
+import { esc, toast } from './ui.js?v=517';
+import { logEvent } from './zlog.js?v=517';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=517';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=516';
-import { renderSchedule, scheduleState } from './grafik.js?v=516';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=517';
+import { renderSchedule, scheduleState } from './grafik.js?v=517';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="10" width="18" height="2" rx="1" fill="#A3AEBE"/><rect x="3" y="15" width="18" height="2" rx="1" fill="#A3AEBE"/></svg>';
@@ -93,10 +93,10 @@ function channelPlate(d) {
 }
 
 // Нижняя навигация «Оформить заказ» / «Текущий заказ»: «Меню» и вкладки разделов (листаются вбок, если не влезают).
-function nav(tabsHtml, many, right = '') {
-  return `<nav class="f-nav f-nav--tabs" aria-label="Нижнее меню">
-    <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>
-    ${tabsHtml ? `<div class="f-topnav f-botnav${many ? ' f-botnav--many' : ''}"><div class="f-topnav__track" role="tablist">${tabsHtml}</div></div>` : right ? '' : '<span class="f-nav__space"></span>'}${right}
+// Нижняя навигация правки раздела — в стиле открытого заказа (f-nav--otabs). Старый трек (f-topnav/f-tab) удалён.
+function nav(left, _many, right = '') {
+  return `<nav class="f-nav f-nav--otabs" aria-label="Нижнее меню">
+    <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${left || (right ? '' : '<span class="f-nav__space"></span>')}${right}
   </nav>`;
 }
 
@@ -128,7 +128,6 @@ export function renderOformit(mode = 'oformit', opts = {}) {
     return sections[k] && sections[k].state ? sections[k].state(d) : '';
   };
   if (opts.only) tab = keepTab;
-  const tabsHtml = tabs.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === tab}" class="f-tab${k === tab ? ' is-active' : ''}" data-action="f-tab" data-tab="${k}">${t}${((st) => (st ? `<i class="f-tab__dot${st === 'ok' ? ' f-tab__dot--ok' : ''}" aria-label="${st === 'ok' ? 'сохранено' : 'редактирование'}"></i>` : ''))(stateOf(k))}</button>`).join('');
   // Все 4 части сохранены → кнопка «Оформить замер / заказ»: заказ уходит в «Заказы» на свой этап.
   const ready = mode === 'oformit' && !opts.only && ['estimate', 'schedule', 'client', 'channel'].every((k) => stateOf(k) === 'ok');
   const meas = d.sched && d.sched.mode === 'measure';
