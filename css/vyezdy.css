@@ -2438,3 +2438,15 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 /* Прокручиваемая навигация: вкладки размером как в заказе (min 60px, растут под подпись),
    ряд листается вбок, «Меню» всегда на месте (sticky слева). */
 /* f-nav--scroll больше не нужен — поведение прокрутки встроено в сам f-nav--otabs. */
+/* Верхняя навигация этапов (экран «Заказы») — плитки с цветным glow и счётчиком, как карусель комнат. */
+.bd-stages { position: sticky; top: 0; z-index: 10; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; margin: 0 calc(-1 * var(--gutter)) 10px; padding: 4px var(--gutter) 10px; background: #16282a; }
+.bd-stages::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.bd-stile { position: relative; isolation: isolate; overflow: hidden; flex: 0 0 auto; min-width: 104px; height: 74px; padding: 9px 12px; border-radius: 16px; background: rgba(255, 255, 255, 0.045); border: 1px solid rgba(255, 255, 255, 0.06); display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; }
+.bd-stile::before { content: ''; position: absolute; z-index: -1; width: 64px; height: 64px; right: -16px; top: -18px; border-radius: 50%; background: var(--c); filter: blur(17px); opacity: .55; }
+.bd-stile__n { font: 600 13px/15px var(--font-body); color: rgba(237, 242, 232, 0.62); white-space: nowrap; }
+.bd-stile__v { font: 700 22px/1 var(--font-num); color: #edf2e8; }
+.bd-stile__v small { font: 500 11px/1 var(--font-body); color: rgba(237, 242, 232, 0.42); margin-left: 3px; }
+.bd-stile.is-on { background: rgba(214, 229, 194, 0.1); border-color: rgba(214, 229, 194, 0.5); }
+.bd-stile.is-on::before { opacity: .8; }
+.bd-stile.is-on .bd-stile__n { color: #edf2e8; }
+.bd-list { padding-bottom: 96px; }

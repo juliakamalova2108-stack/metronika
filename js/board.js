@@ -3,19 +3,19 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=532';
-import * as S from './store.js?v=532';
-import { renderOformit, oformitDraft } from './oformit.js?v=532';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=532';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=532';
-import { renderMeasurement } from './measurement.js?v=532';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=532';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=532';
-import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=532';
-import { topbar, ORDER_STATUS } from './shared.js?v=532';
+import { actions, rerender, go } from './core.js?v=533';
+import * as S from './store.js?v=533';
+import { renderOformit, oformitDraft } from './oformit.js?v=533';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=533';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=533';
+import { renderMeasurement } from './measurement.js?v=533';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=533';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=533';
+import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=533';
+import { topbar, ORDER_STATUS } from './shared.js?v=533';
 
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
-const STAGES = [['measure', 'Замер'], ['approval', 'Согласование'], ['queue', 'Очередь'], ['work', 'В работе'], ['done', 'Выполнено'], ['refused', 'Отказ']];
+const STAGES = [['new', 'Новая'], ['measure', 'Замер'], ['approval', 'Согласование'], ['queue', 'Очередь'], ['work', 'В работе'], ['done', 'Выполнено'], ['refused', 'Отказ']];
 const WD = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
 const MON = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 
@@ -96,22 +96,16 @@ export function renderBoard() {
       <span class="bd-foot"><span class="bd-room" style="--c:#7ee2a3">${FL_NAME[f.st]}<small>${f.st === 'measure' ? (mOff < 0 ? `замер просрочен на ${-mOff} дн.` : '') : f.st === 'approval' ? 'перезвонить' : f.st === 'closed' ? 'завершён' : ''}</small></span></span></button></div>`; }).join('');
   const body = rows.length || xcards ? xcards + rows.map(([off, k, n, t]) => card(off, k, n, t)).join('')
     : `<p class="bd-empty">${q ? 'Ничего не нашлось' : (STAGE_HELP[stage] || 'В этом этапе пока пусто')}</p>`;
-  // Нижнее меню Заказов — в стиле вкладок заказа (f-nav--otabs): этапы прямо вкладками с иконками.
-  const stIc = {
-    measure: ic('<path d="M3.5 15.5l12-12 4.5 4.5-12 12z"/><path d="M7 12l1.6 1.6M9.5 9.5l1.6 1.6M12 7l1.6 1.6"/>'),
-    approval: ic('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
-    queue: ic('<path d="M8 7h11M8 12h11M8 17h11"/><path d="M4 7h.01M4 12h.01M4 17h.01"/>'),
-    work: ic('<path d="M8 5l11 7-11 7z"/>'),
-    done: ic('<circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>'),
-    refused: ic('<circle cx="12" cy="12" r="8.5"/><path d="M9.3 9.3l5.4 5.4M14.7 9.3l-5.4 5.4"/>'),
-  };
-  const tabs = STAGES.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === stage}" class="f-nav__tab${k === stage ? ' is-on' : ''}" data-action="bd-stage" data-stage="${k}">${stIc[k] || ''}<span>${t}</span></button>`).join('');
+  // Верхняя навигация этапов — плитки с цветным glow и счётчиком заказов (как карусель комнат).
+  const stCol = { new: '#9fd15a', measure: '#3b82f6', approval: '#f59e0b', queue: '#19c39a', work: '#f0864f', done: '#2fd46f', refused: '#8a9a95' };
+  const allNos = [...new Set([...Object.keys(DEMO), ...MY()])];
+  const stCount = (k) => allNos.filter((no) => { const st = stOf(no); return st === k || (k === 'done' && st === 'closed'); }).length;
+  const tiles = STAGES.map(([k, t]) => `<button type="button" role="tab" aria-selected="${k === stage}" class="bd-stile${k === stage ? ' is-on' : ''}" style="--c:${stCol[k] || '#8a9a95'}" data-action="bd-stage" data-stage="${k}"><span class="bd-stile__n">${t}</span><span class="bd-stile__v">${stCount(k)}<small>зак.</small></span></button>`).join('');
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
+    <nav class="bd-stages" aria-label="Этапы заказов" role="tablist">${tiles}</nav>
     <label class="f-input bd-search">${SEARCH}<input id="bd-q" type="search" placeholder="Телефон, имя или адрес…" value="${esc(query)}" data-live="bd-q"/></label>
     <div class="bd-list">${body}</div>
-    <nav class="f-nav f-nav--otabs f-nav--scroll" aria-label="Этапы заказов" role="tablist">
-      <button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${tabs}
-    </nav>`;
+    <button type="button" class="h-menu bd-fab" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>`;
 }
 
 actions['bd-stage'] = (el) => { stage = el.dataset.stage; rerender(); window.scrollTo(0, 0); };
