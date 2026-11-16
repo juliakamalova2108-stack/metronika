@@ -2402,14 +2402,15 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 /* Экран заказа: верхняя панель «назад + №», активная нижняя вкладка */
 .bd-obar { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; }
 .bd-obar > span { font: 600 13px/1 var(--font-body); color: rgba(237, 242, 232, 0.7); }
-.f-nav--otabs { display: flex; gap: 2px; justify-content: space-between; }
+.f-nav--otabs { display: flex; gap: 2px; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -ms-overflow-style: none; }
+.f-nav--otabs::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .f-nav--otabs .f-nav__tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: var(--ctl-size); padding: 6px 2px; border: 0; border-radius: 12px; background: transparent; color: #9fb0ac; font: var(--nav-label); }
 .f-nav--otabs .f-nav__tab svg, .f-nav--otabs .f-nav__chat svg { width: var(--nav-icon); height: var(--nav-icon); }
 /* Активная плашка вкладки — не на всю ширину, уже по бокам (вставка-пилюля). */
 .f-nav--otabs .f-nav__tab { position: relative; }
 .f-nav--otabs .f-nav__tab.is-on { background: transparent; color: #e6f2cc; }
 /* Активная вкладка — та же «формочка», что кнопка «Меню»: токены --ctl-* (фон, окаёмка, тень, скругление). */
-.f-nav--otabs .f-nav__tab.is-on::before { content: ''; position: absolute; box-sizing: border-box; inset: 0 3px; border-radius: var(--ctl-radius); background: var(--ctl-bg); border: var(--ctl-border); box-shadow: var(--ctl-shadow); -webkit-backdrop-filter: var(--ctl-blur); backdrop-filter: var(--ctl-blur); z-index: 0; }
+.f-nav--otabs .f-nav__tab.is-on::before { content: ''; position: absolute; box-sizing: border-box; inset: 0 2px; border-radius: var(--ctl-radius); background: var(--ctl-bg); border: var(--ctl-border); box-shadow: var(--ctl-shadow); -webkit-backdrop-filter: var(--ctl-blur); backdrop-filter: var(--ctl-blur); z-index: 0; }
 /* Поднимаем только иконку и подпись над плашкой; точку-статус не трогаем (у неё своё position:absolute). */
 .f-nav--otabs .f-nav__tab > svg, .f-nav--otabs .f-nav__tab > span { position: relative; z-index: 1; }
 .f-nav--otabs .f-nav__dot { z-index: 2; }
@@ -2426,18 +2427,14 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 
 /* Заказ: шесть пунктов в ряд (Меню + 5 вкладок) — чуть компактнее */
 .f-nav--otabs { gap: 0; }
-.f-nav--otabs .f-nav__tab, .f-nav--otabs .f-nav__chat { flex: 1; min-width: 0; padding-left: 0; padding-right: 0; }
-.f-nav--otabs .f-nav__tab span, .f-nav--otabs .f-nav__chat span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.f-nav--otabs .f-nav__tab:not(.f-nav__menu), .f-nav--otabs .f-nav__chat { flex: 0 0 auto; min-width: var(--nav-tab-min); width: auto; padding-left: 6px; padding-right: 6px; }
+.f-nav--otabs .f-nav__tab span, .f-nav--otabs .f-nav__chat span { white-space: nowrap; overflow: visible; text-overflow: clip; max-width: 100%; }
 /* Кнопка «Меню» — единый вид (образец: кнопка на главной). Весь вид из --ctl-*; иконка из --nav-menu-icon. */
-.f-nav--otabs .f-nav__menu { flex: none; width: var(--ctl-size); min-width: var(--ctl-size); height: var(--ctl-size); min-height: var(--ctl-size); padding: 0; display: grid; place-items: center;
+.f-nav--otabs .f-nav__menu { flex: none; position: sticky; left: 0; z-index: 6; width: var(--ctl-size); min-width: var(--ctl-size); height: var(--ctl-size); min-height: var(--ctl-size); padding: 0; display: grid; place-items: center;
   border-radius: var(--ctl-radius); background: var(--ctl-bg); border: var(--ctl-border); box-shadow: var(--ctl-shadow); -webkit-backdrop-filter: var(--ctl-blur); backdrop-filter: var(--ctl-blur); color: #d6e5c2; }
 .f-nav--otabs .f-nav__menu span { display: none; }
 .f-nav--otabs .f-nav__menu svg { width: var(--nav-menu-icon); height: var(--nav-menu-icon); }
 /* Текстовые вкладки навигации (Настройки, Статистика): метка в 1–2 строки, без обрезки. */
 /* Прокручиваемая навигация: вкладки размером как в заказе (min 60px, растут под подпись),
    ряд листается вбок, «Меню» всегда на месте (sticky слева). */
-.f-nav--scroll { justify-content: flex-start; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -ms-overflow-style: none; }
-.f-nav--scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
-.f-nav--scroll .f-nav__menu { position: sticky; left: 0; z-index: 6; }
-.f-nav--scroll .f-nav__tab:not(.f-nav__menu), .f-nav--scroll .f-nav__chat { flex: 0 0 auto; min-width: var(--nav-tab-min); width: auto; padding-left: 6px; padding-right: 6px; }
-.f-nav--scroll .f-nav__tab span { white-space: nowrap; overflow: visible; text-overflow: clip; }
+/* f-nav--scroll больше не нужен — поведение прокрутки встроено в сам f-nav--otabs. */
