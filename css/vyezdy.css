@@ -4,10 +4,10 @@
 /* Единый фон — родной зеленоватый градиент. Вынесен на фиксированный задний слой body.fig::before:
    привязан к окну, поэтому не режется ни одним скролл-контейнером (вкладки, календарь и т.п.).
    Плоская заливка на body — страховка от шва. */
-body.fig { background: #162c33; }
+body.fig { background: #163029; }
 body.fig::before {
   content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background: linear-gradient(90deg, #162c33 0%, #2a3c43 48%, #203c3b 100%);
+  background: linear-gradient(90deg, #163029 0%, #294439 48%, #1e3b31 100%);
 }
 body.fig .app { position: relative; }
 /* Декоративные цветные пятна убраны — фон единый, без подмешивания цвета (свечения пластин не трогаем). */
