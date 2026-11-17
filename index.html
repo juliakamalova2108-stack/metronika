@@ -27,7 +27,7 @@
     // спрашиваем мимо кэша и подключаем CSS и app.js уже с актуальным номером. Так старая
     // оболочка не может подтянуть старый код. V — запасной номер, если version.txt недоступен.
     (function () {
-      var V = '550';
+      var V = '551';
       function boot(v) {
         ['css/app.css', 'css/vyezdy.css', 'css/measurement.css'].forEach(function (href) {
           var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href + '?v=' + v; document.head.appendChild(l);

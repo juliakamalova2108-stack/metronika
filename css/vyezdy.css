@@ -272,13 +272,15 @@ body.fig .view { position: relative; z-index: 1; padding: 16px 16px 100px; displ
 
 /* ================= График (секция «Выезды · 03 · График») ================= */
 .g-mode { height: 50px; }
-/* Бегунок «Замер / График» (вариант 3): тумблер по центру, подписи по бокам. */
-.g-mode--sw { display: flex; align-items: center; justify-content: center; gap: 16px; }
+/* Бегунок «Замер / График» (вариант 3): тумблер по центру, подписи по бокам.
+   Живёт ВНУТРИ блока «Без даты» (сверху), с разделителем. Цвет по режиму: Замер синий, График зелёный. */
+.g-todo__sw { display: flex; align-items: center; justify-content: center; gap: 16px; width: 100%; background: none; border: 0; cursor: pointer; padding: 2px 0 11px; margin-bottom: 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.09); }
 .g-sw__lbl { font: 700 16px/1 var(--font-body); color: rgba(237, 242, 232, 0.5); transition: color .15s; }
-.g-sw__lbl.is-on { color: #edf2e8; }
+.g-sw__lbl--m.is-on { color: #56a7e0; }
 .g-sw__lbl--r.is-on { color: #9fd15a; }
 .g-sw__tog { flex: none; position: relative; width: 60px; height: 32px; border-radius: 16px; background: rgba(0, 0, 0, 0.3); transition: background .2s; }
 .g-sw__tog i { position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; transition: transform .2s; }
+.g-sw__tog.is-measure { background: #56a7e0; }
 .g-sw__tog.is-on { background: #9fd15a; }
 .g-sw__tog.is-on i { transform: translateX(28px); }
 .g-todo {
