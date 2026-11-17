@@ -2014,3 +2014,15 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 /* f-nav--scroll больше не нужен — поведение прокрутки встроено в сам f-nav--otabs. */
 /* Экран «Заказы»: этапы — та же карусель-пластина, что у комнат (.o-pvbar/.o-pvs/.o-pv). */
 .bd-list { padding-bottom: 96px; }
+/* Регистрация-портянка: секции идут подряд; «липкие» элементы секций выключаем, чтобы не налезали. */
+.reg-sec { margin-bottom: 14px; }
+.reg-scroll .o-pvbar { position: static; margin-top: 0; }
+/* Регистрация: кнопки-исходы разговора (2×2), цвет по этапу «Заказов». Снизу место под плавающее «Меню». */
+.bd-outcome { margin-bottom: 92px; }
+.bd-outcome__row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+.bd-ocbtn { padding: 14px 10px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.05); color: #edf2e8; font: 700 14px/1 var(--font-body); cursor: pointer; text-align: center; }
+.bd-ocbtn:active { transform: translateY(1px); }
+.bd-ocbtn--measure { background: rgba(59, 130, 246, 0.16); border-color: rgba(59, 130, 246, 0.45); }
+.bd-ocbtn--approval { background: rgba(245, 158, 11, 0.16); border-color: rgba(245, 158, 11, 0.45); }
+.bd-ocbtn--queue { background: rgba(25, 195, 154, 0.16); border-color: rgba(25, 195, 154, 0.45); }
+.bd-ocbtn--refused { background: rgba(224, 110, 110, 0.16); border-color: rgba(224, 110, 110, 0.45); }

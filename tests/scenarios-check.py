@@ -48,12 +48,13 @@ for o in O:
     for w in ['undefined','NaN','Infinity','null','[object']:
         if w in p: bad['I6 мусор на странице'].append(f"{o['sc']}.{o['v']} №{o['no']} содержит {w}")
     if o['st']=='done' and o['exp']['done'] and fmt(o['exp']['done']) not in p: bad['I5 сумма не на странице done'].append(f"{o['sc']}.{o['v']} №{o['no']} ждали {fmt(o['exp']['done'])}; на странице {re.findall(r'\d[\d ]{3,} ₽',p)[:3]}")
-# stats income delta
+# stats income delta — только если статистика показывает «Доход» (разделы статистики пока пустые)
 def inc(t):
     m=re.search(r'Доход\n\s*([\d  ]+) ₽',norm(t)); return int(m.group(1).replace(' ','')) if m else None
 b=inc(sc['stats_base']); a=inc(sc['stats']); exp=sum(x['sum'] for x in log if x['kind']=='done')
-bad['I7 доход (инфо)'].append(f"база {b}, после {a}, дельта {None if b is None or a is None else a-b}, ждали {exp}")
-if b is not None and a is not None and a-b!=exp: bad['I7 доход НЕ СОШЁЛСЯ'].append(f"дельта {a-b} != {exp}")
+if b is not None and a is not None:
+    bad['I7 доход (инфо)'].append(f"база {b}, после {a}, дельта {a-b}, ждали {exp}")
+    if a-b!=exp: bad['I7 доход НЕ СОШЁЛСЯ'].append(f"дельта {a-b} != {exp}")
 lostexp=sum(1 for x in log if x['kind']=='lost')
 print('reload:',sc['reload'])
 for k,v in sorted(bad.items()): print(f"\n[{k}] {len(v)}"); [print('  ',x) for x in v[:8]]

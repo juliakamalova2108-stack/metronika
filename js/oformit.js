@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=537';
-import * as S from './store.js?v=537';
-import { CHANNELS } from './seed.js?v=537';
-import { esc, toast, ICON_MENU } from './ui.js?v=537';
-import { logEvent } from './zlog.js?v=537';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=537';
+import { actions, rerender, go } from './core.js?v=538';
+import * as S from './store.js?v=538';
+import { CHANNELS } from './seed.js?v=538';
+import { esc, toast, ICON_MENU } from './ui.js?v=538';
+import { logEvent } from './zlog.js?v=538';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=538';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=537';
-import { renderSchedule, scheduleState } from './grafik.js?v=537';
+import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=538';
+import { renderSchedule, scheduleState } from './grafik.js?v=538';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_BRIEFCASE = (c) => `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><g transform="translate(2.1 3.1)"><path d="M16.9 3.9H2.9C1.8 3.9.9 4.8.9 5.9v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-10c0-1.1-.9-2-2-2Z" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.9 3.9V.9h8v3M.9 8.9h18M7.9 8.9v3h4v-3" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
@@ -115,10 +115,14 @@ export function renderOformit(mode = 'oformit', opts = {}) {
   if (opts.only) tab = opts.only;
   const tabs = opts.only ? ALL_TABS.filter(([k]) => k === opts.only) : mode === 'oformit' ? TABS : ALL_TABS; // «Сущность» (бывш. «Оформить заказ») — все разделы, «Текущий заказ» — все разделы «Выездов»
   if (!tabs.some(([k]) => k === tab)) tab = tabs[0][0];
-  const body = tab === 'channel' ? channelPlate(d)
-    : tab === 'estimate' ? renderEstimate(d)
-      : tab === 'schedule' ? renderSchedule(d)
-        : sections[tab].render(d);
+  // Регистрация — одна «портянка»: все части подряд (Оценка → План → Клиент → Источник).
+  const isReg = mode === 'oformit' && !opts.only;
+  const body = isReg
+    ? `<div class="reg-scroll"><div class="reg-sec">${renderEstimate(d)}</div><div class="reg-sec">${renderSchedule(d)}</div><div class="reg-sec">${sections['client'].render(d)}</div><div class="reg-sec">${channelPlate(d)}</div></div>`
+    : tab === 'channel' ? channelPlate(d)
+      : tab === 'estimate' ? renderEstimate(d)
+        : tab === 'schedule' ? renderSchedule(d)
+          : sections[tab].render(d);
   // Точка у вкладки — как статус в карточке: жёлтая «редактирование», зелёная «сохранено».
   const stateOf = (k) => {
     if (k === 'channel') return d.dirty || (d.saved && d.editing) ? 'warn' : d.saved ? 'ok' : '';
@@ -127,10 +131,9 @@ export function renderOformit(mode = 'oformit', opts = {}) {
     return sections[k] && sections[k].state ? sections[k].state(d) : '';
   };
   if (opts.only) tab = keepTab;
-  // Все 4 части сохранены → кнопка «Оформить замер / заказ»: заказ уходит в «Заказы» на свой этап.
-  const ready = mode === 'oformit' && !opts.only && ['estimate', 'schedule', 'client', 'channel'].every((k) => stateOf(k) === 'ok');
-  const meas = d.sched && d.sched.mode === 'measure';
-  const done = ready ? `<section class="f-plate bd-block bd-flow"><div class="bd-block__hd"><span>Всё сохранено</span></div><p class="bd-line"><b>${meas ? 'Оформить замер' : 'Оформить заказ'}</b><small>Заказ появится в «Заказах» на этапе «${meas ? 'Замер' : 'Очередь'}»</small></p><div class="f-btn-row bd-flbtns"><button type="button" class="f-btn f-btn--lit" data-action="f-create">${meas ? 'Оформить замер' : 'Оформить заказ'}</button></div></section>` : '';
+  // Результат разговора: кнопка-исход создаёт заказ и отправляет его в соответствующий столбец «Заказов».
+  const OUTCOMES = [['measure', 'На замер'], ['approval', 'На согласование'], ['queue', 'В очередь'], ['refused', 'Отказ']];
+  const done = isReg ? `<section class="f-plate bd-block bd-outcome"><div class="bd-block__hd"><span>Результат разговора</span></div><div class="bd-outcome__row">${OUTCOMES.map(([k, t]) => `<button type="button" class="bd-ocbtn bd-ocbtn--${k}" data-action="f-create" data-stage="${k}">${t}</button>`).join('')}</div></section>` : '';
   // Нижнее меню регистрации — в том же стиле, что открытый заказ (f-nav--otabs: иконка + подпись).
   const O_IC = {
     estimate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.2"/><path d="M8.5 7.5h7M8.5 11.5h7M8.5 15.5h4"/></svg>',
@@ -142,8 +145,8 @@ export function renderOformit(mode = 'oformit', opts = {}) {
     return `<button type="button" role="tab" aria-selected="${k === tab}" class="f-nav__tab${k === tab ? ' is-on' : ''}" data-action="f-tab" data-tab="${k}">${O_IC[k] || ''}<span>${t}</span>${st ? `<i class="f-nav__dot${st === 'ok' ? ' f-nav__dot--ok' : ''}"></i>` : ''}</button>`; }).join('');
   const regNav = `<nav class="f-nav f-nav--otabs" aria-label="Разделы заказа" role="tablist"><button type="button" class="f-nav__tab f-nav__menu" data-action="menu-open">${ICON_MENU}<span>Меню</span></button>${otabs}</nav>`;
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
-    ${done}${body}
-    ${opts.only ? nav(opts.navHtml || '', false, opts.navRight || '') : regNav}`;
+    ${body}${done}
+    ${opts.only ? nav(opts.navHtml || '', false, opts.navRight || '') : isReg ? `<button type="button" class="h-menu bd-fab" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>` : regNav}`;
 }
 
 function markDirty(d) {
@@ -153,19 +156,22 @@ function markDirty(d) {
 }
 
 let creating = false;
-actions['f-create'] = () => {
+const STAGE_NAME = { measure: 'Замер', approval: 'Согласование', queue: 'Очередь', refused: 'Отказ' };
+actions['f-create'] = (el) => {
   // Двойное нажатие не создаёт второй (пустой) заказ: черновик уже ушёл, а замок держит повтор.
   if (creating) return;
   const st0 = S.get();
-  if (!st0.oformit || !st0.oformit[S.draftKey()] || !st0.oformit[S.draftKey()].saved) return;
+  if (!st0.oformit || !st0.oformit[S.draftKey()]) return;
   creating = true; setTimeout(() => { creating = false; }, 1200);
   const st = S.get(), d = draft();
   let n = 1000 + (st.myOrders || []).length + 21; while (st.oformit['ord-' + n]) n++;
   const no = String(n);
-  const o = JSON.parse(JSON.stringify(d)); o.flow = { st: d.sched && d.sched.mode === 'measure' ? 'measure' : 'queue', chk: {}, shift: {}, done: {}, day: 1 };
+  // Исход разговора задаёт этап, в столбец которого заказ попадёт в «Заказах».
+  const stage = (el && el.dataset.stage) || (d.sched && d.sched.mode === 'measure' ? 'measure' : 'queue');
+  const o = JSON.parse(JSON.stringify(d)); o.flow = { st: stage, chk: {}, shift: {}, done: {}, day: 1 };
   st.oformit['ord-' + no] = o; (st.myOrders = st.myOrders || []).push(no);
   delete st.oformit[S.draftKey()]; tab = 'estimate'; S.save();
-  toast(o.flow.st === 'measure' ? `Замер оформлен — заказ №${no}` : `Заказ №${no} оформлен`);
+  toast(`Заказ №${no} → «${STAGE_NAME[stage] || stage}»`);
   go('bd-order-' + no);
 };
 actions['f-tab'] = (el) => { tab = el.dataset.tab; open = ''; rerender(); };
