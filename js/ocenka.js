@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=548';
-import * as S from './store.js?v=548';
-import { SYSTEM_PRICE } from './seed.js?v=548';
-import { shiftsText, hoursFor } from './calc.js?v=548';
-import { esc, toast } from './ui.js?v=548';
-import { logEvent } from './zlog.js?v=548';
+import { actions, changes, rerender } from './core.js?v=549';
+import * as S from './store.js?v=549';
+import { SYSTEM_PRICE } from './seed.js?v=549';
+import { shiftsText, hoursFor } from './calc.js?v=549';
+import { esc, toast } from './ui.js?v=549';
+import { logEvent } from './zlog.js?v=549';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -281,8 +281,7 @@ function totalView(e) {
           <button type="button" class="o-grand__no" data-action="f-create" data-stage="refused">Отказ</button>
           <button type="button" class="o-grand__next" data-action="f-create" data-stage="queue">Далее</button>
         </div>` : ''}</section>
-    </div>
-    <div class="f-btn-row o-noprint"><button type="button" class="f-btn" data-action="o-pdf">Скачать PDF</button></div>`;
+    </div>`;
 }
 actions['o-sum-toggle'] = (el) => { const k = el.dataset.key; if (openSum.has(k)) openSum.delete(k); else openSum.add(k); rerender(); };
 
