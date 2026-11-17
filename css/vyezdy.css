@@ -4,14 +4,17 @@
 /* Единый фон — родной зеленоватый градиент. Вынесен на фиксированный задний слой body.fig::before:
    привязан к окну, поэтому не режется ни одним скролл-контейнером (вкладки, календарь и т.п.).
    Плоская заливка на body — страховка от шва. */
-body.fig { background: #163029; }
+body.fig { background: #162c33; }
 body.fig::before {
   content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background: linear-gradient(90deg, #163029 0%, #294439 48%, #1e3b31 100%);
+  background: linear-gradient(90deg, #162c33 0%, #2a3c43 48%, #203c3b 100%);
 }
 body.fig .app { position: relative; }
-/* Декоративные цветные пятна убраны — фон единый, без подмешивания цвета (свечения пластин не трогаем). */
-.fig-blobs { display: none; }
+/* Изначальные мягкие цветные пятна под матовым стеклом: зелёное и коричневатое — дают зеленоватый фон. */
+.fig-blobs { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.fig-blobs i { position: absolute; border-radius: 50%; filter: blur(70px); }
+.fig-blobs i:nth-child(1) { left: -230px; top: 120px; width: 510px; height: 540px; background: rgba(118, 155, 139, 0.28); }
+.fig-blobs i:nth-child(2) { left: 180px; top: 530px; width: 430px; height: 620px; background: rgba(142, 127, 113, 0.13); }
 body.fig .view { position: relative; z-index: 1; padding: 16px 16px 100px; display: flex; flex-direction: column; gap: 12px; }
 
 /* Верхняя навигация · цельный блок */

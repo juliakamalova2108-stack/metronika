@@ -1,6 +1,6 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go, afterRender } from './core.js?v=558';
+import { actions, changes, setRenderer, rerender, route, go, afterRender } from './core.js?v=559';
 
 // После перерисовки активная вкладка прокручиваемой навигации подматывается в видимую зону
 // (иначе при нажатии на подрезанную вкладку прокрутка сбрасывается и вкладка уезжает под край).
@@ -16,20 +16,20 @@ afterRender.push(() => {
 // Чтобы при ререндере того же экрана (напр. клик по тумблеру «Замер/График») не прыгало наверх,
 // сохраняем позицию скролл-контейнера .f-fill и возвращаем её, если экран не сменился.
 let lastScreen = null;
-import * as S from './store.js?v=558';
-import { esc, ICONS, sheet, closeSheet, toast, ICON_MENU } from './ui.js?v=558';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=558';
-import { renderSettlements } from './shared.js?v=558';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=558';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=558';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=558';
-import { renderOformit, onLiveOformit } from './oformit.js?v=558';
-import { onLiveZakaz } from './zakaz.js?v=558';
-import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=558';
-import { renderStatsMaster } from './stats.js?v=558';
-import './kbd.js?v=558';
-import { renderSettingsFig } from './settings.js?v=558';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=558';
+import * as S from './store.js?v=559';
+import { esc, ICONS, sheet, closeSheet, toast, ICON_MENU } from './ui.js?v=559';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=559';
+import { renderSettlements } from './shared.js?v=559';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=559';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=559';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=559';
+import { renderOformit, onLiveOformit } from './oformit.js?v=559';
+import { onLiveZakaz } from './zakaz.js?v=559';
+import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=559';
+import { renderStatsMaster } from './stats.js?v=559';
+import './kbd.js?v=559';
+import { renderSettingsFig } from './settings.js?v=559';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=559';
 
 const VERSION = 'сборка ' + ((/[?&]v=([^&]+)/.exec(import.meta.url) || [])[1] || '?');
 
