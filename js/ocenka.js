@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=554';
-import * as S from './store.js?v=554';
-import { SYSTEM_PRICE } from './seed.js?v=554';
-import { shiftsText, hoursFor } from './calc.js?v=554';
-import { esc, toast } from './ui.js?v=554';
-import { logEvent } from './zlog.js?v=554';
+import { actions, changes, rerender } from './core.js?v=555';
+import * as S from './store.js?v=555';
+import { SYSTEM_PRICE } from './seed.js?v=555';
+import { shiftsText, hoursFor } from './calc.js?v=555';
+import { esc, toast } from './ui.js?v=555';
+import { logEvent } from './zlog.js?v=555';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -286,8 +286,8 @@ function totalView(e) {
         ${rooms}
         ${grandRow}
         ${isReg ? `<div class="o-sumbtns">
-          <button type="button" class="o-grand__no" data-action="f-create" data-stage="refused">Отказ</button>
           <button type="button" class="o-grand__next" data-action="f-create" data-stage="queue">Далее</button>
+          <button type="button" class="o-grand__no" data-action="f-create" data-stage="refused">Отказ</button>
         </div>` : ''}
       </section>
     </div>`;
