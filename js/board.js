@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=539';
-import * as S from './store.js?v=539';
-import { renderOformit, oformitDraft } from './oformit.js?v=539';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=539';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=539';
-import { renderMeasurement } from './measurement.js?v=539';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=539';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=539';
-import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=539';
-import { topbar, ORDER_STATUS } from './shared.js?v=539';
+import { actions, rerender, go } from './core.js?v=540';
+import * as S from './store.js?v=540';
+import { renderOformit, oformitDraft, renderInfoStack } from './oformit.js?v=540';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=540';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=540';
+import { renderMeasurement } from './measurement.js?v=540';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=540';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=540';
+import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=540';
+import { topbar, ORDER_STATUS } from './shared.js?v=540';
 
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
 const STAGES = [['new', 'Новая'], ['measure', 'Замер'], ['approval', 'Согласование'], ['queue', 'Очередь'], ['work', 'В работе'], ['done', 'Выполнено'], ['refused', 'Отказ']];
@@ -528,7 +528,6 @@ export function renderBoardOrder(no, view) {
   syncRoom(d, rooms);   // единый выбор комнаты для всех вкладок, мягко, один раз за рендер
   const tot = rooms.reduce((a, r) => { const t = roomTotals(r); return { sum: a.sum + t.total, h: a.h + t.hours }; }, { sum: 0, h: 0 });
   const days = workDays(d);
-  const range = days.length ? `${days[0].date.getDate()} ${MONG[days[0].date.getMonth()]} — ${days[days.length - 1].date.getDate()} ${MONG[days[days.length - 1].date.getMonth()]}` : 'даты не назначены';
   const addr = [c.street, c.house && 'д. ' + c.house, c.flat && 'кв. ' + c.flat].filter(Boolean).join(', ');
   // Клиентская пластина (бывший «шильдик» выезда): иконка редактирования в углу, кнопки «Звонок» и «В путь».
   // Кнопки «Начать» и мастера выезда больше нет — мастер приезжает и работает через нижние вкладки.
@@ -549,21 +548,11 @@ export function renderBoardOrder(no, view) {
         <a class="bd-clround" href="tel:${esc(telDigits)}" aria-label="Позвонить клиенту">${PH}</a>
         <a class="bd-clround bd-clround--go" href="${mapRoute}" target="_blank" rel="noopener" aria-label="Проложить маршрут">${WAYIC}</a>
       </div></div></article>`;
-  const sched = block('План работ', no, 'schedule', days.length ? `<div class="bd-days">${days.map((x, i) => `<div class="bd-day"><span class="bd-day__d"><b>${x.date.getDate()}</b><small>${WD[x.date.getDay()]}</small></span><span class="bd-day__r">${x.parts.map((p) => `<span class="bd-room" style="--c:${p.r.color}">${esc(p.r.name)}${p.h < SHIFT_HOURS - 1e-6 ? `<small>${Math.round(p.h)} ч</small>` : ''}</span>`).join('')}</span><span class="bd-day__n">${i + 1}-й день</span></div>`).join('')}</div>` : '<p class="bd-note">Даты не назначены</p>');
-  const sum = block('Итог', no, '', `<div class="bd-total"><div><small>Стоимость</small><b>${fmt(orderSum(d, flowOf(no)))} ₽</b></div><div><small>Срок</small><b>${shiftsText(tot.h)}</b></div></div><p class="bd-range">${range}</p>`);
-  const chan = block('Источник', no, 'channel', `<p class="bd-line"><b>${esc(d.channel ? d.channel.source : '')}</b><small>${d.channel && d.channel.partner !== 'self' ? 'через партнёра' : 'самостоятельно'}</small></p>`);
   const f = flowOf(no);
   const flow = flowBlock(no, d, tot, days);
-  // Инф — всё, что вписали в начале; комнаты оценки раскрыты
-  const roomsOpen = rooms.map((r) => { const t = roomTotals(r);
-    return `<div class="o-sroom is-open o-sroom--static" style="--rc:${r.color}"><div class="o-sroom__head">
-      <span class="o-sroom__name"><b>${esc(r.name)}</b><small>${r.floor} этаж · ${t.lines.length} усл.</small></span><span class="o-sroom__sum"><b>${fmt(t.total)} ₽</b><small>${shiftsText(t.hours)}</small></span></div>
-      <div class="o-sroom__list">${t.lines.map((l) => `<div class="o-line"><span class="o-line__n">${esc(l.name)}</span><span class="o-line__q">${String(l.qty).replace('.', ',')} м²</span><b class="o-line__s">${fmt(l.sum)} ₽</b></div>`).join('')}</div></div>`; }).join('');
-  const estOpen = `<section class="f-plate bd-block bd-block--card" style="--c:${(r0cl && r0cl.color) || '#f59e0b'}">
-    <div class="h-hero__glow" aria-hidden="true"></div>
-    <div class="bd-block__hd"><span>Оценка <small class="bd-sub">(со слов клиента)</small></span>${edit(no, 'estimate')}</div>
-    <div class="bd-rooms">${roomsOpen || '<p class="bd-note">Оценки пока нет</p>'}</div></section>`;
-  const infoView = `${f.st === 'refused' ? flow : ''}${estOpen}${sched}${chan}${sum}`;
+  // «Инф» = та же единая сущность, что «Итог» в регистрации: редактируемая стопка разделов
+  // (Оценка → План → Клиент → Источник). Единственный источник — renderInfoStack: правим в одном месте.
+  const infoView = `${f.st === 'refused' ? flow : ''}${renderInfoStack(d)}`;
   // Замеры — действие шага (на замере) + смета по комнатам
   let measComp = ''; try { measComp = renderMeasurement(d); } catch (e) { measComp = '<p class="bd-note">Замер недоступен</p>'; }
   const zamView = `${['measure', 'approval'].includes(f.st) ? flow : ''}${measComp}`;
