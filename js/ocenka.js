@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=553';
-import * as S from './store.js?v=553';
-import { SYSTEM_PRICE } from './seed.js?v=553';
-import { shiftsText, hoursFor } from './calc.js?v=553';
-import { esc, toast } from './ui.js?v=553';
-import { logEvent } from './zlog.js?v=553';
+import { actions, changes, rerender } from './core.js?v=554';
+import * as S from './store.js?v=554';
+import { SYSTEM_PRICE } from './seed.js?v=554';
+import { shiftsText, hoursFor } from './calc.js?v=554';
+import { esc, toast } from './ui.js?v=554';
+import { logEvent } from './zlog.js?v=554';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -269,20 +269,26 @@ function totalView(e) {
   const total = lines.reduce((a, l) => a + l.sum, 0);
   const hours = lines.reduce((a, l) => a + l.hours, 0);
   const n = e.rooms.length;
-  // Итог оценки — ОДНА внешняя пластина, а на ней те же плашки: комнаты, «Итого по видам работ», «Общий итог».
+  // «Общий итог» — копия карточки комнаты: свёрнуто сумма, развернул → разбивка по видам работ (как внутри комнаты).
+  const openT = openSum.has('__total__');
+  const grandRow = `<section class="o-sroom o-grandrow${openT ? ' is-open' : ''}">
+      <button type="button" class="o-sroom__head" data-action="o-sum-toggle" data-key="__total__" aria-expanded="${openT}">
+        <span class="o-sroom__name"><b>Общий итог</b><small>${n} ${plural(n, 'комната', 'комнаты', 'комнат')}</small></span>
+        <span class="o-sroom__sum"><b>${fmt(total)} ₽</b><small>${shiftsText(hours)}</small></span>
+        <span class="o-sroom__chev">${SUM_CHEV}</span>
+      </button>
+      <div class="o-sroom__list">${sumHead}${lines.map(sumLine).join('')}</div></section>`;
+  // Итог оценки — одна внешняя пластина: комнаты + компактный «Общий итог» (раскрывается), снизу кнопки исхода.
   return `${carousel(e)}
     <div class="f-fill o-stack">
       <section class="o-sumcard">
-        <p class="o-sec o-sec--in">Комнаты</p>
+        <p class="o-sec o-sec--in">Итог</p>
         ${rooms}
-        <section class="f-plate o-bywork"><p class="o-sec o-sec--in">Итого по видам работ</p>${sumHead}${lines.map(sumLine).join('')}</section>
-        <section class="f-plate o-grand${isReg ? ' o-grand--act' : ''}">
-          <div class="o-grand__info"><p class="o-grand__t">Общий итог</p><b class="o-grand__sum">${fmt(total)} ₽</b>
-            <p class="o-grand__x">${shiftsText(hours)} · ${n} ${plural(n, 'комната', 'комнаты', 'комнат')}</p></div>
-          ${isReg ? `<div class="o-grand__act">
-            <button type="button" class="o-grand__no" data-action="f-create" data-stage="refused">Отказ</button>
-            <button type="button" class="o-grand__next" data-action="f-create" data-stage="queue">Далее</button>
-          </div>` : ''}</section>
+        ${grandRow}
+        ${isReg ? `<div class="o-sumbtns">
+          <button type="button" class="o-grand__no" data-action="f-create" data-stage="refused">Отказ</button>
+          <button type="button" class="o-grand__next" data-action="f-create" data-stage="queue">Далее</button>
+        </div>` : ''}
       </section>
     </div>`;
 }
