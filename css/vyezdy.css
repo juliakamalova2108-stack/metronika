@@ -597,11 +597,11 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .o-grand__sum { font: 700 32px/38px var(--font-num); color: #edf2e8; }
 .o-grand__x { margin: 0; font: 500 15px/20px var(--font-body); color: #d4deb8; }
 /* Решение после озвучивания цены: кнопки слева, итог справа. «Далее» зелёная, «Отказ» красная. */
-.o-grand--act { flex-direction: row; align-items: center; text-align: right; gap: 14px; }
-.o-grand__act { display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto; }
+.o-grand--act { flex-direction: row; align-items: center; text-align: left; gap: 14px; }
+.o-grand__act { display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto; width: 120px; }
 .o-grand__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.o-grand__next { padding: 16px 24px; border-radius: 14px; border: 0; background: #46b06c; color: #0c2016; font: 700 17px/1 var(--font-body); cursor: pointer; }
-.o-grand__no { padding: 12px 24px; border-radius: 14px; border: 1px solid rgba(224, 110, 110, 0.6); background: rgba(224, 110, 110, 0.18); color: #f2c2c2; font: 700 14px/1 var(--font-body); cursor: pointer; }
+.o-grand__next { padding: 15px; border-radius: 14px; border: 0; background: #46b06c; color: #0c2016; font: 700 16px/1 var(--font-body); cursor: pointer; }
+.o-grand__no { padding: 13px; border-radius: 14px; border: 1px solid rgba(224, 110, 110, 0.6); background: rgba(224, 110, 110, 0.18); color: #f2c2c2; font: 700 15px/1 var(--font-body); cursor: pointer; }
 .o-sec { margin: 0 4px -4px; font: 600 13px/16px var(--font-body); color: rgba(237, 242, 232, 0.7); text-transform: uppercase; letter-spacing: 0.06em; }
 .o-sec--in { margin: 0 0 4px; }
 /* Комната: отдельная плашка, слева полоса её цвета (как в «Графике»). */

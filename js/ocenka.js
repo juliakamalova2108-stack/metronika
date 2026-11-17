@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=547';
-import * as S from './store.js?v=547';
-import { SYSTEM_PRICE } from './seed.js?v=547';
-import { shiftsText, hoursFor } from './calc.js?v=547';
-import { esc, toast } from './ui.js?v=547';
-import { logEvent } from './zlog.js?v=547';
+import { actions, changes, rerender } from './core.js?v=548';
+import * as S from './store.js?v=548';
+import { SYSTEM_PRICE } from './seed.js?v=548';
+import { shiftsText, hoursFor } from './calc.js?v=548';
+import { esc, toast } from './ui.js?v=548';
+import { logEvent } from './zlog.js?v=548';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -275,12 +275,12 @@ function totalView(e) {
       ${rooms}
       <section class="f-plate o-bywork"><p class="o-sec o-sec--in">Итого по видам работ</p>${sumHead}${lines.map(sumLine).join('')}</section>
       <section class="f-plate o-grand${isReg ? ' o-grand--act' : ''}">
-        ${isReg ? `<div class="o-grand__act">
-          <button type="button" class="o-grand__next" data-action="f-create" data-stage="queue">Далее</button>
-          <button type="button" class="o-grand__no" data-action="f-create" data-stage="refused">Отказ</button>
-        </div>` : ''}
         <div class="o-grand__info"><p class="o-grand__t">Общий итог</p><b class="o-grand__sum">${fmt(total)} ₽</b>
-          <p class="o-grand__x">${shiftsText(hours)} · ${n} ${plural(n, 'комната', 'комнаты', 'комнат')}</p></div></section>
+          <p class="o-grand__x">${shiftsText(hours)} · ${n} ${plural(n, 'комната', 'комнаты', 'комнат')}</p></div>
+        ${isReg ? `<div class="o-grand__act">
+          <button type="button" class="o-grand__no" data-action="f-create" data-stage="refused">Отказ</button>
+          <button type="button" class="o-grand__next" data-action="f-create" data-stage="queue">Далее</button>
+        </div>` : ''}</section>
     </div>
     <div class="f-btn-row o-noprint"><button type="button" class="f-btn" data-action="o-pdf">Скачать PDF</button></div>`;
 }
