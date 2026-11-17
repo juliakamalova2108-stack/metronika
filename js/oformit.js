@@ -1,15 +1,15 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
 
-import { actions, rerender, go } from './core.js?v=540';
-import * as S from './store.js?v=540';
-import { CHANNELS } from './seed.js?v=540';
-import { esc, toast, ICON_MENU } from './ui.js?v=540';
-import { logEvent } from './zlog.js?v=540';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=540';
+import { actions, rerender, go } from './core.js?v=541';
+import * as S from './store.js?v=541';
+import { CHANNELS } from './seed.js?v=541';
+import { esc, toast, ICON_MENU } from './ui.js?v=541';
+import { logEvent } from './zlog.js?v=541';
+import { fcls, ferr, liveMark, showErrors } from './fld.js?v=541';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate } from './ocenka.js?v=540';
-import { renderSchedule, scheduleState } from './grafik.js?v=540';
+import { renderEstimate, estimateState, onLiveEstimate, estimateOnTotal } from './ocenka.js?v=541';
+import { renderSchedule, scheduleState } from './grafik.js?v=541';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_BRIEFCASE = (c) => `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><g transform="translate(2.1 3.1)"><path d="M16.9 3.9H2.9C1.8 3.9.9 4.8.9 5.9v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-10c0-1.1-.9-2-2-2Z" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.9 3.9V.9h8v3M.9 8.9h18M7.9 8.9v3h4v-3" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
@@ -107,13 +107,18 @@ export { draft as oformitDraft };
 const sections = Object.create(null);
 export function registerSection(key, render, state) { sections[key] = { render, state }; }
 
-// Единая сущность «Итог / Инф»: стопка разделов (Оценка → План → Клиент → Источник), редактируемая.
-// ОДИН источник для регистрации и для вкладки «Инф» заказа — правка в одном месте меняется везде.
+// Единая сущность «Итог / Инф» — ОДИН источник для регистрации и для вкладки «Инф» заказа.
+// Два шага:
+//   1) обычный вид комнат (e.view — комната): только Оценка (комнаты + расчёт), как раньше — без календаря и прочего;
+//   2) «Итог комнат» (нажата плитка «Итог», e.view==='total'): общая сумма + План + Клиент + Источник,
+//      там записываем клиента в календарь и вносим данные. В регистрации extra = кнопки исхода.
 // Каждый раздел несёт свой .f-one/.f-fill — снимаем их, скроллом управляет общий контейнер обёртки.
 const stripFOne = (h) => h.replace(/<i class="f-one" hidden><\/i>/g, '').replace(/ f-fill\b/g, '');
-export function renderInfoStack(d) {
-  return [renderEstimate(d), renderSchedule(d), sections['client'].render(d), channelPlate(d)]
+export function renderInfoStack(d, extra = '') {
+  if (!estimateOnTotal(d)) return renderEstimate(d); // шаг 1 — только комнаты + расчёт
+  const stacked = [renderEstimate(d), renderSchedule(d), sections['client'].render(d), channelPlate(d)]
     .map((sc) => `<div class="reg-sec">${stripFOne(sc)}</div>`).join('');
+  return `<i class="f-one" hidden></i><div class="o-wrap"><div class="o-stack f-fill reg-scroll">${stacked}${extra}</div></div>`;
 }
 
 // opts.only — показать один раздел (правка блока заказа с доски): без вкладок других разделов,
@@ -131,7 +136,8 @@ export function renderOformit(mode = 'oformit', opts = {}) {
   const outcomeBlock = `<section class="f-plate bd-block bd-outcome"><div class="bd-block__hd"><span>Результат разговора</span></div><div class="bd-outcome__row">${OUTCOMES.map(([k, t]) => `<button type="button" class="bd-ocbtn bd-ocbtn--${k}" data-action="f-create" data-stage="${k}">${t}</button>`).join('')}</div></section>`;
   let body;
   if (isReg) {
-    body = `<i class="f-one" hidden></i><div class="o-wrap"><div class="o-stack f-fill reg-scroll">${renderInfoStack(d)}${outcomeBlock}</div></div>`;
+    // Шаг 1 — чистые комнаты (renderInfoStack вернёт только оценку); шаг 2 — итог комнат + План/Клиент/Источник + кнопки исхода.
+    body = renderInfoStack(d, outcomeBlock);
   } else {
     body = tab === 'channel' ? channelPlate(d)
       : tab === 'estimate' ? renderEstimate(d)
