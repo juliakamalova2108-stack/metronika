@@ -1835,6 +1835,14 @@ button.h-bell { cursor: pointer; font: inherit; }
   padding: 0; border: 0; background: none; box-shadow: none;
   -webkit-backdrop-filter: none; backdrop-filter: none;
 }
+/* Блок «Без даты» (Замер/График) — той же ширины, что и календарь (до --cal-side от краёв). Фон/рамку сохраняем. */
+.g-screen > .g-todo { margin-left: calc(var(--cal-side) - var(--gutter)); margin-right: calc(var(--cal-side) - var(--gutter)); }
+/* Календарь «Плана» — в общую рамку (ширину не меняем): граница + лёгкая подложка, чтобы не сливался с фоном. */
+.g-screen > .g-plate {
+  padding: 8px 8px 10px; border: 1px solid rgba(204, 219, 207, 0.22); border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03); box-shadow: inset 0 1px 1.2px rgba(235, 242, 227, 0.12);
+}
+.g-screen > .g-plate > .g-plate__t { margin: 2px 4px 8px; }
 .g-screen > .g-plate > .g-plate__t,
 .g-screen > .g-plate > .f-status,
 .g-screen > .g-plate > .g-hint-s { padding-left: var(--cal-side); padding-right: var(--cal-side); }
