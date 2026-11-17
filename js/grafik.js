@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=551';
-import * as S from './store.js?v=551';
-import { SHIFT_HOURS } from './calc.js?v=551';
-import { esc, toast } from './ui.js?v=551';
-import { logEvent } from './zlog.js?v=551';
-import { estimateRooms, roomTotals } from './ocenka.js?v=551';
+import { actions, rerender } from './core.js?v=552';
+import * as S from './store.js?v=552';
+import { SHIFT_HOURS } from './calc.js?v=552';
+import { esc, toast } from './ui.js?v=552';
+import { logEvent } from './zlog.js?v=552';
+import { estimateRooms, roomTotals } from './ocenka.js?v=552';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -189,15 +189,6 @@ export function homeCalendarHtml(month, lay, meas, sel, today) {
   return calendarGrid({ month, lay, meas, today, dayAct: 'home-cal-day', monAct: 'home-cal-m', showWork: () => true, isSel: (date) => date === sel });
 }
 
-// «Очередь»: какие заказы уже стоят в графике и когда ближайший свободный день — чтобы назвать клиенту срок.
-function queueHtml(oi, lay) {
-  const today = S.todayISO();
-  let free = today; for (let i = 0; i < 400 && (lay[free] || []).length; i += 1) free = addDays(free, 1);
-  const dm = (x) => `${Number(x.slice(8))} ${MON_G[Number(x.slice(5, 7)) - 1].slice(0, 3)}`;
-  const rng = (o) => (o.to === o.from ? dm(o.from) : o.from.slice(0, 7) === o.to.slice(0, 7) ? `${Number(o.from.slice(8))}–${dm(o.to)}` : `${dm(o.from)} – ${dm(o.to)}`);
-  const rows = oi.orders.filter((o) => o.to >= today).map((o) => `<div class="h-vis" style="--c:${o.color}"><em class="g-queue__d">${rng(o)}</em><span class="h-vis__t"><b>${esc(o.n || 'Заказ')}</b><small>№${esc(o.no)}</small></span><span class="h-vis__d">${fmt(o.cost)} ₽</span></div>`).join('');
-  return `<section class="g-queue"><p class="g-queue__free">Ближайший свободный день: <b>${Number(free.slice(8))} ${MON_G[Number(free.slice(5, 7)) - 1]}</b></p>${rows ? `<p class="g-queue__t">Очередь</p><div class="h-list">${rows}</div>` : ''}</section>`;
-}
 export function renderSchedule(d) {
   const s = sch(d);
   if (d.schedHint && !d.schedHint.shown) { const f = [...d.schedHint.removed, ...d.schedHint.added].sort()[0]; if (f) s.month = f.slice(0, 7); d.schedHint.shown = true; }
@@ -227,7 +218,6 @@ export function renderSchedule(d) {
   return `<i class="f-one" hidden></i><div class="g-screen f-fill">
     ${todo}
     <section class="f-plate g-plate"><p class="g-plate__t">Запланированы</p>${d.schedHint && (d.schedHint.removed.length || d.schedHint.added.length) ? '<span class="g-hint-s">проверьте отмеченные дни</span>' : status}${calendar(s, rooms, lay, locked, d.schedHint)}</section>
-    ${queueHtml(oi, lay)}
     <div class="f-btn-row">
       <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="g-ok" ${!locked && !s.dirty && s.status !== 'editing' ? 'disabled' : ''}>ОК</button>
       ${s.status !== 'new' ? `<button type="button" class="f-btn${s.status === 'editing' ? ' f-btn--editing' : ''}" data-action="g-edit">${s.status === 'editing' ? 'Редактирование' : 'Редактировать'}</button>` : ''}

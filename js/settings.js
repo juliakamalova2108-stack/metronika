@@ -3,14 +3,14 @@
 // кнопки f-btn, верхние вкладки и нижняя панель f-nav / f-topnav / f-tab.
 // Три раздела внизу: Профиль · Работа · Система.
 
-import { actions, changes, rerender, go, val } from './core.js?v=551';
-import * as S from './store.js?v=551';
-import { esc, toast, ICON_MENU } from './ui.js?v=551';
-import { selectField, pickers } from './oformit.js?v=551';
-import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=551';
-import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=551';
-import { NOTIFY_KINDS } from './more.js?v=551';
-import { tape, connect as tapeConnect, disconnect as tapeOff, say as tapeSay, voiceName, nextVoice, voices } from './tape.js?v=551';
+import { actions, changes, rerender, go, val } from './core.js?v=552';
+import * as S from './store.js?v=552';
+import { esc, toast, ICON_MENU } from './ui.js?v=552';
+import { selectField, pickers } from './oformit.js?v=552';
+import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=552';
+import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=552';
+import { NOTIFY_KINDS } from './more.js?v=552';
+import { tape, connect as tapeConnect, disconnect as tapeOff, say as tapeSay, voiceName, nextVoice, voices } from './tape.js?v=552';
 const TRASH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.5 7h15M10 4h4M6.5 7l.9 12a1.5 1.5 0 0 0 1.5 1.4h6.2a1.5 1.5 0 0 0 1.5-1.4l.9-12M10 11v5.5M14 11v5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const CAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
 const CITIES = ['Москва', 'Санкт-Петербург', 'Уфа', 'Казань', 'Екатеринбург', 'Новосибирск', 'Нижний Новгород', 'Самара', 'Челябинск', 'Омск', 'Ростов-на-Дону', 'Красноярск', 'Пермь', 'Воронеж', 'Волгоград', 'Краснодар', 'Тюмень', 'Саратов', 'Тольятти', 'Ижевск', 'Барнаул', 'Ульяновск', 'Иркутск', 'Хабаровск', 'Ярославль', 'Владивосток', 'Томск', 'Оренбург', 'Кемерово', 'Стерлитамак', 'Набережные Челны', 'Сочи'];
