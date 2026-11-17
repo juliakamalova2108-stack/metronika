@@ -1,6 +1,6 @@
 // Оболочка прототипа: какие экраны есть у роли, нижняя панель, меню, обработка нажатий.
 
-import { actions, changes, setRenderer, rerender, route, go, afterRender } from './core.js?v=555';
+import { actions, changes, setRenderer, rerender, route, go, afterRender } from './core.js?v=556';
 
 // После перерисовки активная вкладка прокручиваемой навигации подматывается в видимую зону
 // (иначе при нажатии на подрезанную вкладку прокрутка сбрасывается и вкладка уезжает под край).
@@ -13,20 +13,23 @@ afterRender.push(() => {
     if (ar.left < nr.left - 1 || ar.right > nr.right + 1) a.scrollIntoView({ inline: 'center', block: 'nearest' });
   });
 });
-import * as S from './store.js?v=555';
-import { esc, ICONS, sheet, closeSheet, toast, ICON_MENU } from './ui.js?v=555';
-import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=555';
-import { renderSettlements } from './shared.js?v=555';
-import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=555';
-import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=555';
-import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=555';
-import { renderOformit, onLiveOformit } from './oformit.js?v=555';
-import { onLiveZakaz } from './zakaz.js?v=555';
-import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=555';
-import { renderStatsMaster } from './stats.js?v=555';
-import './kbd.js?v=555';
-import { renderSettingsFig } from './settings.js?v=555';
-import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=555';
+// Чтобы при ререндере того же экрана (напр. клик по тумблеру «Замер/График») не прыгало наверх,
+// сохраняем позицию скролл-контейнера .f-fill и возвращаем её, если экран не сменился.
+let lastScreen = null;
+import * as S from './store.js?v=556';
+import { esc, ICONS, sheet, closeSheet, toast, ICON_MENU } from './ui.js?v=556';
+import { renderAuth, isUnlocked, logout, submitForm, onSeg as onSegAuth } from './auth.js?v=556';
+import { renderSettlements } from './shared.js?v=556';
+import { renderNewOrder, renderAgentOrders, onSegAgent, onLive } from './agent.js?v=556';
+import { renderProOrders, renderProOrder, renderCurrentOrder, renderTrash, renderOwnNew, onSegPro, onLivePro, incomingCount } from './pro.js?v=556';
+import { renderOrder, onSegOrder, onSegSheet } from './order.js?v=556';
+import { renderOformit, onLiveOformit } from './oformit.js?v=556';
+import { onLiveZakaz } from './zakaz.js?v=556';
+import { renderBoard, sceneStart, onLiveBoard, renderBoardOrder, renderBoardEdit, renderHome, renderClients, renderGallery, onSegGallery } from './board.js?v=556';
+import { renderStatsMaster } from './stats.js?v=556';
+import './kbd.js?v=556';
+import { renderSettingsFig } from './settings.js?v=556';
+import { renderProfile, renderProfileTab, renderSettings, renderTeam, renderStats, renderCalls, renderForClient, onSegMore } from './more.js?v=556';
 
 const VERSION = 'сборка ' + ((/[?&]v=([^&]+)/.exec(import.meta.url) || [])[1] || '?');
 
@@ -161,7 +164,11 @@ function renderInner() {
     if (location.hash.slice(1) !== name) history.replaceState(null, '', '#' + name);
     html = screenFor(name, role);
   }
+  const prevFill = view.querySelector('.f-fill');
+  const keepScroll = (prevFill && name === lastScreen) ? prevFill.scrollTop : 0;
   view.innerHTML = S.withCur(html);
+  if (keepScroll) { const nf = view.querySelector('.f-fill'); if (nf) nf.scrollTop = keepScroll; }
+  lastScreen = name;
   // Экраны, перенесённые из Figma один в один, рисуют свою нижнюю навигацию.
   const fig = name === 'oformit' || name === 'home' || ((name === 'settings' || name === 'profile' || name === 'stats') && role !== 'agent') || ((name === 'current' || name === 'orders' || name.startsWith('bd-order-') || name.startsWith('bd-edit-') || name.startsWith('bd-visit-') || name.startsWith('bd-info-') || name.startsWith('bd-zam-') || name.startsWith('bd-mat-') || name.startsWith('bd-finance-')) && role !== 'agent');
   document.body.classList.toggle('fig', fig);
