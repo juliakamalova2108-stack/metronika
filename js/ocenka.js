@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=545';
-import * as S from './store.js?v=545';
-import { SYSTEM_PRICE } from './seed.js?v=545';
-import { shiftsText, hoursFor } from './calc.js?v=545';
-import { esc, toast } from './ui.js?v=545';
-import { logEvent } from './zlog.js?v=545';
+import { actions, changes, rerender } from './core.js?v=546';
+import * as S from './store.js?v=546';
+import { SYSTEM_PRICE } from './seed.js?v=546';
+import { shiftsText, hoursFor } from './calc.js?v=546';
+import { esc, toast } from './ui.js?v=546';
+import { logEvent } from './zlog.js?v=546';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -249,6 +249,8 @@ const SUM_CHEV = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path 
 const sumHead = '<div class="o-tline o-tline--h"><span>Работа</span><span>м²</span><span>₽/м²</span><span>Сумма</span></div>';
 const sumLine = (l) => `<div class="o-tline"><span class="o-tline__n">${esc(SHORT[l.id] || l.name)}</span><span>${numTxt(l.qty)}</span><span>${fmt(l.price)}</span><b>${fmt(l.sum)} ₽</b></div>`;
 function totalView(e) {
+  // Кнопки «Далее»/«Отказ» на «Общем итоге» — только при регистрации (не в открытом заказе ord-*).
+  const isReg = !String(S.draftKey()).startsWith('ord-');
   const rooms = e.rooms.map((r) => {
     const t = roomTotals(r);
     const on = openSum.has(r.key);
@@ -273,7 +275,11 @@ function totalView(e) {
       ${rooms}
       <section class="f-plate o-bywork"><p class="o-sec o-sec--in">Итого по видам работ</p>${sumHead}${lines.map(sumLine).join('')}</section>
       <section class="f-plate o-grand"><p class="o-grand__t">Общий итог</p><b class="o-grand__sum">${fmt(total)} ₽</b>
-        <p class="o-grand__x">${shiftsText(hours)} · ${n} ${plural(n, 'комната', 'комнаты', 'комнат')}</p></section>
+        <p class="o-grand__x">${shiftsText(hours)} · ${n} ${plural(n, 'комната', 'комнаты', 'комнат')}</p>
+        ${isReg ? `<div class="o-grand__act">
+          <button type="button" class="o-grand__next" data-action="f-create" data-stage="queue">Далее</button>
+          <button type="button" class="o-grand__no" data-action="f-create" data-stage="refused">Отказ</button>
+        </div>` : ''}</section>
     </div>
     <div class="f-btn-row o-noprint"><button type="button" class="f-btn" data-action="o-pdf">Скачать PDF</button></div>`;
 }

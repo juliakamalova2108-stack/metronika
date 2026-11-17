@@ -596,6 +596,10 @@ body.fig .view:not(:has(.f-one)) .o-list { max-height: none; overflow: visible; 
 .o-grand__t { margin: 0; font: 500 13px/16px var(--font-body); color: rgba(237, 242, 232, 0.75); text-transform: uppercase; letter-spacing: 0.06em; }
 .o-grand__sum { font: 700 32px/38px var(--font-num); color: #edf2e8; }
 .o-grand__x { margin: 0; font: 500 15px/20px var(--font-body); color: #d4deb8; }
+/* Кнопки решения после озвучивания цены: большая «Далее» + «Отказ» прямо на «Общем итоге». */
+.o-grand__act { display: flex; gap: 10px; width: 100%; margin-top: 14px; }
+.o-grand__next { flex: 1; padding: 15px; border-radius: 14px; border: 0; background: #e6f2cc; color: #162c33; font: 700 16px/1 var(--font-body); cursor: pointer; }
+.o-grand__no { flex: 0 0 auto; padding: 15px 22px; border-radius: 14px; border: 1px solid rgba(224, 110, 110, 0.5); background: rgba(224, 110, 110, 0.16); color: #f2cfcf; font: 700 15px/1 var(--font-body); cursor: pointer; }
 .o-sec { margin: 0 4px -4px; font: 600 13px/16px var(--font-body); color: rgba(237, 242, 232, 0.7); text-transform: uppercase; letter-spacing: 0.06em; }
 .o-sec--in { margin: 0 0 4px; }
 /* Комната: отдельная плашка, слева полоса её цвета (как в «Графике»). */
@@ -885,7 +889,7 @@ body.kb-docked .ch-head { padding-top: 12px; padding-bottom: 12px; }
 .o-pv__s { font: 600 12px/14px var(--font-num); opacity: .85; }
 .o-pv__ok { position: absolute; right: 8px; bottom: 8px; width: 16px; height: 16px; border-radius: 50%; background: #3c8f5f; display: grid; place-items: center; font: 700 10px/1 var(--font-body); font-style: normal; color: #fff; }
 .o-pv--sum .o-pv__m { font-size: 17px; }
-.o-pv.is-on { transform: translateY(-3px); background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.75); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--rc); }
+.o-pv.is-on { transform: translateY(-3px); background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.75); box-shadow: 0 0 0 2px var(--rc); }
 .o-pv.is-on::before { opacity: 1; }
 /* Шапка открытой комнаты: название и этаж слева, «+ работа» и калькулятор справа. */
 .o-rhead { display: flex; align-items: center; gap: 10px; margin: 0 2px 10px; padding-left: 10px; border-left: 4px solid var(--rc); }
