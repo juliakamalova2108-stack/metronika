@@ -2015,7 +2015,7 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 /* Экран «Заказы»: этапы — та же карусель-пластина, что у комнат (.o-pvbar/.o-pvs/.o-pv). */
 .bd-list { padding-bottom: 96px; }
 /* Регистрация-портянка: секции идут подряд; «липкие» элементы секций выключаем, чтобы не налезали. */
-.reg-sec { margin-bottom: 14px; }
+.reg-sec { margin: 0; }
 .reg-scroll .o-pvbar { position: static; margin-top: 0; }
 /* Регистрация: кнопки-исходы разговора (2×2), цвет по этапу «Заказов». Снизу место под плавающее «Меню». */
 .bd-outcome { margin-bottom: 92px; }
