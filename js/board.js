@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=560';
-import * as S from './store.js?v=560';
-import { renderOformit, oformitDraft, renderInfoStack } from './oformit.js?v=560';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=560';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=560';
-import { renderMeasurement } from './measurement.js?v=560';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=560';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=560';
-import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=560';
-import { topbar, ORDER_STATUS } from './shared.js?v=560';
+import { actions, rerender, go } from './core.js?v=561';
+import * as S from './store.js?v=561';
+import { renderOformit, oformitDraft, renderInfoStack } from './oformit.js?v=561';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=561';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=561';
+import { renderMeasurement } from './measurement.js?v=561';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=561';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=561';
+import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=561';
+import { topbar, ORDER_STATUS } from './shared.js?v=561';
 
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
 const STAGES = [['new', 'Новая'], ['measure', 'Замер'], ['approval', 'Согласование'], ['queue', 'Очередь'], ['work', 'В работе'], ['done', 'Выполнено'], ['refused', 'Отказ']];
