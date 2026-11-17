@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=549';
-import * as S from './store.js?v=549';
-import { SHIFT_HOURS } from './calc.js?v=549';
-import { esc, toast } from './ui.js?v=549';
-import { logEvent } from './zlog.js?v=549';
-import { estimateRooms, roomTotals } from './ocenka.js?v=549';
+import { actions, rerender } from './core.js?v=550';
+import * as S from './store.js?v=550';
+import { SHIFT_HOURS } from './calc.js?v=550';
+import { esc, toast } from './ui.js?v=550';
+import { logEvent } from './zlog.js?v=550';
+import { estimateRooms, roomTotals } from './ocenka.js?v=550';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -221,7 +221,7 @@ export function renderSchedule(d) {
   }
   const editing = s.dirty || s.status === 'editing';
   const status = editing ? '<span class="f-status f-status--warn g-status"><i></i>редактирование</span>' : locked ? '<span class="f-status f-status--ok g-status"><i></i>сохранено</span>' : '';
-  return `<i class="f-one" hidden></i><div class="g-screen f-fill"><button type="button" class="o-row g-mode" role="switch" aria-checked="${s.mode === 'measure'}" data-action="g-mode"><span class="o-row__name">Замеры</span><span class="o-tog${s.mode === 'measure' ? ' is-on' : ''}" aria-hidden="true"><i></i></span></button>
+  return `<i class="f-one" hidden></i><div class="g-screen f-fill"><button type="button" class="o-row g-mode g-mode--sw" role="switch" aria-checked="${s.mode !== 'measure'}" data-action="g-mode"><span class="g-sw__lbl${s.mode === 'measure' ? ' is-on' : ''}">Замер</span><span class="g-sw__tog${s.mode !== 'measure' ? ' is-on' : ''}" aria-hidden="true"><i></i></span><span class="g-sw__lbl g-sw__lbl--r${s.mode !== 'measure' ? ' is-on' : ''}">График</span></button>
     ${todo}
     <section class="f-plate g-plate"><p class="g-plate__t">Запланированы</p>${d.schedHint && (d.schedHint.removed.length || d.schedHint.added.length) ? '<span class="g-hint-s">проверьте отмеченные дни</span>' : status}${calendar(s, rooms, lay, locked, d.schedHint)}</section>
     ${queueHtml(oi, lay)}
