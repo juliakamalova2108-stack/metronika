@@ -1,14 +1,14 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // Разделы регистрации: Оценка, План, Клиент.
 
-import { actions, rerender, go } from './core.js?v=570';
-import * as S from './store.js?v=570';
-import { esc, toast, ICON_MENU } from './ui.js?v=570';
-import { logEvent } from './zlog.js?v=570';
-import { fcls, ferr } from './fld.js?v=570';
+import { actions, rerender, go } from './core.js?v=569';
+import * as S from './store.js?v=569';
+import { esc, toast, ICON_MENU } from './ui.js?v=569';
+import { logEvent } from './zlog.js?v=569';
+import { fcls, ferr } from './fld.js?v=569';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate, estimateOnTotal, estimateRooms, roomTotals } from './ocenka.js?v=570';
-import { renderSchedule, scheduleState, scheduleSummary } from './grafik.js?v=570';
+import { renderEstimate, estimateState, onLiveEstimate, estimateOnTotal, estimateRooms, roomTotals } from './ocenka.js?v=569';
+import { renderSchedule, scheduleState, scheduleSummary } from './grafik.js?v=569';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_BRIEFCASE = (c) => `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><g transform="translate(2.1 3.1)"><path d="M16.9 3.9H2.9C1.8 3.9.9 4.8.9 5.9v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-10c0-1.1-.9-2-2-2Z" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.9 3.9V.9h8v3M.9 8.9h18M7.9 8.9v3h4v-3" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
@@ -76,42 +76,20 @@ export function registerSection(key, render, state) { sections[key] = { render, 
 const stripFOne = (h) => h.replace(/<i class="f-one" hidden><\/i>/g, '').replace(/ f-fill\b/g, '');
 const REG_STEPS = ['estimate', 'schedule', 'client'];
 const REG_TITLE = { estimate: 'Итог', schedule: 'План', client: 'Клиент' };
-const REG_COLOR = { estimate: '#9fd15a', schedule: '#56a7e0', client: '#f59e0b' };
-const REG_ICON = {
-  estimate: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="14" height="14" rx="3"/><path d="M7 10h6M10 7v6"/></svg>',
-  schedule: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="13" rx="2.5"/><path d="M3 8.5h14M7 2v4M13 2v4"/></svg>',
-  client:   '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="7.5" r="3.5"/><path d="M3.5 17.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/></svg>'
-};
-function regCardInfo(d, key) {
+function regSummary(d, key) {
   if (key === 'estimate') {
     const rooms = estimateRooms(d);
     const total = rooms.reduce((a, r) => a + roomTotals(r).total, 0);
-    const names = rooms.map(r => r.name || 'Комната').join(', ');
-    return { main: `${total.toLocaleString('ru-RU')} ₽`, sub: `${rooms.length} комн. · ${names}` };
+    return `${total.toLocaleString('ru-RU')} ₽ · ${rooms.length} комн.`;
   }
-  if (key === 'schedule') {
-    const sum = scheduleSummary(d);
-    const mode = d.sched?.mode === 'measure' ? 'Замер' : 'График';
-    return { main: sum, sub: mode };
-  }
+  if (key === 'schedule') return scheduleSummary(d);
   const c = d.cl || {};
-  if (!c.name) return { main: 'не заполнен', sub: '' };
-  const parts = [c.phone, [c.street, c.house].filter(Boolean).join(' ')].filter(Boolean);
-  return { main: c.name, sub: parts.join(' · ') };
+  return c.name ? `${c.name}${c.phone ? ' · ' + c.phone : ''}` : 'не заполнен';
 }
-const regCard = (d, key) => {
-  const info = regCardInfo(d, key);
-  const color = REG_COLOR[key];
-  return `<section class="reg-card" style="--rc:${color}" data-action="reg-step" data-step="${key}" role="button" tabindex="0">
-    <span class="reg-card__icon">${REG_ICON[key]}</span>
-    <span class="reg-card__body">
-      <span class="reg-card__title">${REG_TITLE[key]}</span>
-      <span class="reg-card__main">${esc(info.main)}</span>
-      ${info.sub ? `<span class="reg-card__sub">${esc(info.sub)}</span>` : ''}
-    </span>
-    <span class="reg-card__chev">${CHEVRON}</span>
-  </section>`;
-};
+const regStrip = (d, key) => `<section class="reg-strip" data-action="reg-step" data-step="${key}" role="button" tabindex="0">
+    <span class="reg-strip__t">${REG_TITLE[key]}</span>
+    <span class="reg-strip__v">${esc(regSummary(d, key))}</span>
+    <span class="reg-strip__chev">${CHEVRON}</span></section>`;
 const regFooter = (key) => key === 'client'
   ? `<div class="reg-out">
       <button type="button" class="g-act g-act--next" data-action="f-create" data-stage="queue">В очередь</button>
@@ -129,27 +107,17 @@ export function renderInfoStack(d, extra = '') {
     return `<i class="f-one" hidden></i><div class="o-wrap"><div class="o-stack f-fill reg-scroll">${stacked}${extra}</div></div>`;
   }
   // Регистрация: гармошка шагов Итог → План → Клиент.
-  // Прогрессивное появление: regMax — самый дальний достигнутый шаг (0=Итог, 1=План, 2=Клиент).
   const step = REG_STEPS.includes(d.regStep) ? d.regStep : 'estimate';
-  const stepIdx = REG_STEPS.indexOf(step);
-  const maxIdx = typeof d.regMax === 'number' ? Math.max(d.regMax, stepIdx) : stepIdx;
-  if (d.regMax !== maxIdx) { d.regMax = maxIdx; S.save(); }
-  const visible = REG_STEPS.slice(0, maxIdx + 1);
   const full = { estimate: () => renderEstimate(d), schedule: () => renderSchedule(d), client: () => sections['client'].render(d) };
-  const stacked = visible.map((key) => key === step
+  const stacked = REG_STEPS.map((key) => key === step
     ? `<div class="reg-sec reg-sec--open">${stripFOne(full[key]())}${regFooter(key)}</div>`
-    : regCard(d, key)).join('');
+    : regStrip(d, key)).join('');
   return `<i class="f-one" hidden></i><div class="o-wrap"><div class="o-stack f-fill reg-scroll">${stacked}${extra}</div></div>`;
 }
-const regGoto = (step) => { const d = draft(); d.regStep = step; const i = REG_STEPS.indexOf(step);
-  if (typeof d.regMax !== 'number' || i > d.regMax) d.regMax = i;
-  S.save(); rerender();
+const regGoto = (step) => { const d = draft(); d.regStep = step; S.save(); rerender();
   requestAnimationFrame(() => { const el = document.querySelector('.reg-sec--open'); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'start', behavior: 'smooth' }); }); };
 actions['reg-step'] = (el) => regGoto(el.dataset.step);
-actions['reg-next'] = () => { const d = draft(); const i = REG_STEPS.indexOf(d.regStep || 'estimate');
-  const next = Math.min(i + 1, REG_STEPS.length - 1);
-  d.regMax = typeof d.regMax === 'number' ? Math.max(d.regMax, next) : next;
-  regGoto(REG_STEPS[next]); };
+actions['reg-next'] = () => { const i = REG_STEPS.indexOf(draft().regStep || 'estimate'); regGoto(REG_STEPS[Math.min(i + 1, REG_STEPS.length - 1)]); };
 
 // opts.only — показать один раздел (правка блока заказа с доски): без вкладок других разделов,
 // внизу вместо них opts.navHtml (например «← К заказу»).
