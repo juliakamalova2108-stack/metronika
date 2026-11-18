@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Клиент — 5 вариантов</title>
+<style>
+  :root{
+    --bg1:#162c33; --bg2:#2a3c43; --bg3:#203c3b;
+    --plate:rgba(255,255,255,.035);
+    --plate-bord:rgba(255,249,235,.22);
+    --field:#1c2c2d;
+    --field-bord:rgba(5,13,15,.75);
+    --ink:#edf0e7; --ink-dim:rgba(237,242,232,.55); --ink-mute:rgba(237,242,232,.4);
+    --green:#46b06c; --green2:#9fd15a; --blue:#56a7e0; --red:#e06e6e;
+    --ins: inset 0 -1.2px 1.4px rgba(217,237,207,.16), inset 0 1.5px 2px rgba(1,6,9,.55), inset 0 4px 10px rgba(1,8,10,.7);
+    --font: -apple-system, 'Inter', 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--font); color:var(--ink);
+    background:#13262c; padding:28px 20px 60px; -webkit-font-smoothing:antialiased;}
+  h1{font-size:19px; font-weight:800; margin-bottom:4px;}
+  .sub{color:var(--ink-dim); font-size:13px; margin-bottom:26px; max-width:760px; line-height:1.45;}
+  .grid{display:flex; flex-wrap:wrap; gap:26px; align-items:flex-start;}
+  .col{width:360px; flex:0 0 360px;}
+  .vhead{display:flex; align-items:baseline; gap:8px; margin-bottom:10px;}
+  .vnum{width:26px; height:26px; border-radius:8px; background:var(--green); color:#0c2016;
+    font-weight:800; font-size:14px; display:grid; place-items:center; flex:0 0 auto;}
+  .vname{font-weight:700; font-size:15px;}
+  .vdesc{color:var(--ink-mute); font-size:12px; margin:2px 0 12px 34px; line-height:1.4;}
+  /* телефонная рамка с фоном приложения */
+  .phone{ border-radius:26px; padding:16px; position:relative; overflow:hidden;
+    background:linear-gradient(90deg,var(--bg1) 0%, var(--bg2) 48%, var(--bg3) 100%);
+    box-shadow:0 10px 30px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.04);}
+  .phone::before{content:''; position:absolute; left:-120px; top:60px; width:280px; height:300px;
+    border-radius:50%; filter:blur(60px); background:rgba(118,155,139,.22); pointer-events:none;}
+  .plate{position:relative; background:var(--plate); border:1px solid var(--plate-bord);
+    border-radius:20px; padding:14px; display:flex; flex-direction:column; gap:10px;}
+  .ptitle{font-size:16px; font-weight:700;}
+  .status{display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--green2);
+    background:rgba(159,209,90,.12); padding:3px 9px; border-radius:20px; align-self:flex-start;}
+  .status i{width:7px;height:7px;border-radius:50%;background:var(--green2);display:block;}
+  .status--warn{color:#e9c46a; background:rgba(233,196,106,.12);} .status--warn i{background:#e9c46a;}
+  /* поле */
+  .field{display:flex; flex-direction:column; gap:5px;}
+  .lbl{font-size:12px; color:var(--ink-dim); padding-left:2px;}
+  .inp{ background:var(--field); border:.9px solid var(--field-bord); border-radius:12px;
+    padding:12px 13px; font-size:15px; color:var(--ink); box-shadow:var(--ins); min-height:44px;
+    display:flex; align-items:center; gap:8px;}
+  .inp.ph{color:var(--ink-mute);}
+  .row4{display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:7px;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:9px;}
+  .row3{display:grid; grid-template-columns:1.4fr .8fr .8fr; gap:9px;}
+  .area{min-height:64px; align-items:flex-start;}
+  .btns{display:flex; gap:9px; margin-top:2px;}
+  .btn{flex:1; padding:13px; border-radius:13px; border:0; font-weight:700; font-size:15px; text-align:center;}
+  .btn--save{background:var(--green); color:#0c2016;}
+  .btn--saved{background:rgba(70,176,108,.18); color:#bfe6cd; border:1px solid rgba(70,176,108,.5);}
+  .btn--ghost{flex:0 0 42%; background:rgba(255,255,255,.05); color:var(--ink-dim); border:1px solid rgba(255,255,255,.12);}
+  .ic{width:18px;height:18px;flex:0 0 auto;opacity:.7;}
+  .hint{font-size:11px;color:var(--ink-mute); padding-left:2px;}
+  /* сгруппированные под-плашки (вариант 2) */
+  .sub-plate{background:rgba(0,0,0,.14); border:1px solid rgba(255,255,255,.07); border-radius:14px; padding:12px; display:flex; flex-direction:column; gap:9px;}
+  .sub-cap{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-mute); font-weight:700;}
+  /* floating label (вариант 4) */
+  .ff{position:relative;}
+  .ff .inp{padding-top:20px; padding-bottom:8px;}
+  .ff .flbl{position:absolute; left:14px; top:7px; font-size:11px; color:var(--blue); pointer-events:none;}
+  /* сводка (вариант 5) */
+  .summary{display:flex; flex-direction:column; gap:3px;}
+  .sum-name{font-size:17px; font-weight:700;}
+  .sum-line{font-size:13px; color:var(--ink-dim);}
+  .chip-edit{align-self:flex-start; margin-top:6px; font-size:13px; color:var(--blue); background:rgba(86,167,224,.14);
+    border:1px solid rgba(86,167,224,.4); padding:7px 14px; border-radius:11px; font-weight:600;}
+  .divider{height:1px; background:rgba(255,255,255,.08); margin:2px 0;}
+  .seg{display:flex; background:rgba(0,0,0,.25); border-radius:11px; padding:3px; gap:3px;}
+  .seg b{flex:1; text-align:center; padding:9px 0; border-radius:9px; font-size:14px; font-weight:600; color:var(--ink-dim);}
+  .seg b.on{background:var(--field); color:var(--ink); box-shadow:var(--ins);}
+  .chev{margin-left:auto; opacity:.5;}
+</style>
+</head>
+<body>
+  <h1>Форма «Клиент» — 5 вариантов оформления</h1>
+  <p class="sub">Все в общем стиле приложения (тёмный фон, вдавленные поля, рамки как у календаря). Поля одинаковые во всех: Имя, Телефон, Адрес, Дом/Подъезд/Кв/Этаж, Время приезда, Комментарий. Отличается компоновка. Скажи номер — вставлю его в код формы.</p>
+  <div class="grid">
+
+    <!-- Вариант 1 -->
+    <div class="col">
+      <div class="vhead"><span class="vnum">1</span><span class="vname">Одна пластина, причёсанный список</span></div>
+      <div class="vdesc">Текущая логика, но аккуратнее: единый столбец, крупный телефон, адрес с подсказкой. Минимум изменений.</div>
+      <div class="phone"><div class="plate">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="ptitle">Клиент</span><span class="status--warn status"><i></i>редактирование</span></div>
+        <div class="field"><span class="lbl">Имя</span><div class="inp">Марина Кузнецова</div></div>
+        <div class="field"><span class="lbl">Телефон</span><div class="inp">+7 916 123-45-67</div></div>
+        <div class="field"><span class="lbl">Адрес</span><div class="inp">ул. Гагарина</div></div>
+        <div class="row4">
+          <div class="field"><span class="lbl">Дом</span><div class="inp">8</div></div>
+          <div class="field"><span class="lbl">Подъезд</span><div class="inp ph">—</div></div>
+          <div class="field"><span class="lbl">Кв</span><div class="inp">17</div></div>
+          <div class="field"><span class="lbl">Этаж</span><div class="inp">3</div></div>
+        </div>
+        <div class="field"><span class="lbl">Время приезда</span>
+          <div class="row2"><div class="inp">11<span class="chev">▾</span></div><div class="inp">00<span class="chev">▾</span></div></div></div>
+        <div class="field"><span class="lbl">Комментарий</span><div class="inp area ph">Код домофона, пожелания…</div></div>
+        <div class="btns"><div class="btn btn--save">Сохранить</div></div>
+      </div></div>
+    </div>
+
+    <!-- Вариант 2 -->
+    <div class="col">
+      <div class="vhead"><span class="vnum">2</span><span class="vname">Группы: Контакт · Адрес · Визит</span></div>
+      <div class="vdesc">Поля разбиты на три смысловые под-плашки. Легче читать и заполнять по шагам.</div>
+      <div class="phone"><div class="plate">
+        <span class="ptitle">Клиент</span>
+        <div class="sub-plate"><span class="sub-cap">Контакт</span>
+          <div class="field"><span class="lbl">Имя</span><div class="inp">Марина Кузнецова</div></div>
+          <div class="field"><span class="lbl">Телефон</span><div class="inp">+7 916 123-45-67</div></div>
+        </div>
+        <div class="sub-plate"><span class="sub-cap">Адрес</span>
+          <div class="field"><span class="lbl">Улица</span><div class="inp">ул. Гагарина</div></div>
+          <div class="row4">
+            <div class="field"><span class="lbl">Дом</span><div class="inp">8</div></div>
+            <div class="field"><span class="lbl">Под.</span><div class="inp ph">—</div></div>
+            <div class="field"><span class="lbl">Кв</span><div class="inp">17</div></div>
+            <div class="field"><span class="lbl">Эт.</span><div class="inp">3</div></div>
+          </div>
+        </div>
+        <div class="sub-plate"><span class="sub-cap">Визит</span>
+          <div class="field"><span class="lbl">Время приезда</span>
+            <div class="row2"><div class="inp">11<span class="chev">▾</span></div><div class="inp">00<span class="chev">▾</span></div></div></div>
+          <div class="field"><span class="lbl">Комментарий</span><div class="inp area ph">Код домофона…</div></div>
+        </div>
+        <div class="btns"><div class="btn btn--save">Сохранить</div></div>
+      </div></div>
+    </div>
+
+    <!-- Вариант 3 -->
+    <div class="col">
+      <div class="vhead"><span class="vnum">3</span><span class="vname">Компактный, две колонки</span></div>
+      <div class="vdesc">Имя+телефон и адрес в одну строку где можно. Экономит высоту — форма влезает без прокрутки.</div>
+      <div class="phone"><div class="plate">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="ptitle">Клиент</span><span class="status"><i></i>сохранено</span></div>
+        <div class="row2">
+          <div class="field"><span class="lbl">Имя</span><div class="inp">Марина</div></div>
+          <div class="field"><span class="lbl">Телефон</span><div class="inp">+7 916…67</div></div>
+        </div>
+        <div class="row3">
+          <div class="field"><span class="lbl">Улица</span><div class="inp">Гагарина</div></div>
+          <div class="field"><span class="lbl">Дом</span><div class="inp">8</div></div>
+          <div class="field"><span class="lbl">Кв</span><div class="inp">17</div></div>
+        </div>
+        <div class="row3">
+          <div class="field"><span class="lbl">Подъезд</span><div class="inp ph">—</div></div>
+          <div class="field"><span class="lbl">Этаж</span><div class="inp">3</div></div>
+          <div class="field"><span class="lbl">Время</span><div class="inp">11:00<span class="chev">▾</span></div></div>
+        </div>
+        <div class="field"><span class="lbl">Комментарий</span><div class="inp area ph">Код домофона…</div></div>
+        <div class="btns"><div class="btn btn--saved">Сохранено</div><div class="btn btn--ghost">Изменить</div></div>
+      </div></div>
+    </div>
+
+    <!-- Вариант 4 -->
+    <div class="col">
+      <div class="vhead"><span class="vnum">4</span><span class="vname">Плавающие подписи, крупные поля</span></div>
+      <div class="vdesc">Подпись внутри поля сверху (как в Material). Крупные тач-зоны, меньше визуального шума.</div>
+      <div class="phone"><div class="plate">
+        <span class="ptitle">Клиент</span>
+        <div class="ff"><span class="flbl">Имя</span><div class="inp">Марина Кузнецова</div></div>
+        <div class="ff"><span class="flbl">Телефон</span><div class="inp">+7 916 123-45-67</div></div>
+        <div class="ff"><span class="flbl">Адрес</span><div class="inp">ул. Гагарина</div></div>
+        <div class="row4">
+          <div class="ff"><span class="flbl">Дом</span><div class="inp">8</div></div>
+          <div class="ff"><span class="flbl">Под.</span><div class="inp ph">—</div></div>
+          <div class="ff"><span class="flbl">Кв</span><div class="inp">17</div></div>
+          <div class="ff"><span class="flbl">Эт.</span><div class="inp">3</div></div>
+        </div>
+        <div class="row2">
+          <div class="ff"><span class="flbl">Часы</span><div class="inp">11<span class="chev">▾</span></div></div>
+          <div class="ff"><span class="flbl">Минуты</span><div class="inp">00<span class="chev">▾</span></div></div>
+        </div>
+        <div class="ff"><span class="flbl">Комментарий</span><div class="inp area">&nbsp;</div></div>
+        <div class="btns"><div class="btn btn--save">Сохранить</div></div>
+      </div></div>
+    </div>
+
+    <!-- Вариант 5 -->
+    <div class="col">
+      <div class="vhead"><span class="vnum">5</span><span class="vname">Свёрнутая сводка + разворот</span></div>
+      <div class="vdesc">Сохранённый клиент — компактная карточка-итог одной строкой. «Изменить» разворачивает форму. Экономит место в «портянке» Итога.</div>
+      <div class="phone" style="display:flex;flex-direction:column;gap:12px">
+        <div class="plate">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span class="ptitle">Клиент</span><span class="status"><i></i>сохранено</span></div>
+          <div class="summary">
+            <span class="sum-name">Марина Кузнецова</span>
+            <span class="sum-line">+7 916 123-45-67</span>
+            <span class="sum-line">ул. Гагарина, д. 8, кв. 17, этаж 3</span>
+            <span class="sum-line">Приезд 11:00 · «Код домофона 17К»</span>
+          </div>
+          <div class="chip-edit">Изменить</div>
+        </div>
+        <div style="text-align:center;color:var(--ink-mute);font-size:12px">▼ при нажатии «Изменить» ▼</div>
+        <div class="plate">
+          <span class="ptitle">Клиент</span>
+          <div class="field"><span class="lbl">Имя</span><div class="inp">Марина Кузнецова</div></div>
+          <div class="field"><span class="lbl">Телефон</span><div class="inp">+7 916 123-45-67</div></div>
+          <div class="field"><span class="lbl">Адрес</span><div class="inp">ул. Гагарина</div></div>
+          <div class="row4">
+            <div class="field"><span class="lbl">Дом</span><div class="inp">8</div></div>
+            <div class="field"><span class="lbl">Под.</span><div class="inp ph">—</div></div>
+            <div class="field"><span class="lbl">Кв</span><div class="inp">17</div></div>
+            <div class="field"><span class="lbl">Эт.</span><div class="inp">3</div></div>
+          </div>
+          <div class="btns"><div class="btn btn--save">Сохранить</div><div class="btn btn--ghost">Отмена</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

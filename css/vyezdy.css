@@ -364,6 +364,9 @@ body.fig .view { padding-bottom: 170px; }
 .z-time .f-select__list { position: absolute; z-index: 10; top: 48.4px; left: -0.8px; right: -0.8px; box-shadow: 0 10px 18px rgba(1, 6, 8, 0.6), inset 0 -1px 1px rgba(191, 217, 199, 0.11), inset 0 3px 6px rgba(1, 6, 8, 0.58); }
 .z-time .f-select__win { max-height: 176px; }
 .z-client { gap: 12px; }
+/* Форма «Клиент» — вариант 2: группы Контакт / Адрес / Визит под-плашками. */
+.z-cl-group { display: flex; flex-direction: column; gap: 9px; padding: 12px; border-radius: 14px; background: rgba(0, 0, 0, 0.14); border: 1px solid rgba(255, 255, 255, 0.07); }
+.z-cl-cap { font: 700 11px/1 var(--font-body); text-transform: uppercase; letter-spacing: 0.06em; color: rgba(237, 242, 232, 0.4); }
 .z-dock { position: fixed; z-index: 15; left: 50%; transform: translateX(-50%); bottom: 96px; width: min(370px, calc(100% - 32px)); }
 .z-seg { display: flex; gap: 6px; padding: 4px; border-radius: 6px; border: 0.9px solid rgba(6, 18, 20, 0.78);
   background: linear-gradient(180deg, #accbc9 0%, #b4d3d0 28%, #bedcd6 100%);

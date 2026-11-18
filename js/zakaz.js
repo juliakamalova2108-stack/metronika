@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=566';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=567';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=566';
-import * as S from './store.js?v=566';
-import { WALLPAPER_TYPES } from './seed.js?v=566';
-import { esc, toast } from './ui.js?v=566';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=566';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=566';
-import { country } from './phonecodes.js?v=566';
-import { suggestAddress } from './address.js?v=566';
-import { suggesters } from './kbd.js?v=566';
-import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=566';
+import { actions, changes, rerender } from './core.js?v=567';
+import * as S from './store.js?v=567';
+import { WALLPAPER_TYPES } from './seed.js?v=567';
+import { esc, toast } from './ui.js?v=567';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=567';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=567';
+import { country } from './phonecodes.js?v=567';
+import { suggestAddress } from './address.js?v=567';
+import { suggesters } from './kbd.js?v=567';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=567';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -97,13 +97,19 @@ function renderClient(d) {
   const st = edit ? status('warn', 'редактирование') : c.saved ? status('ok', 'сохранено') : '';
   const o = (k, extra = {}) => ({ live: `z-cl:${k}`, ro, changed: clCh(c, k), err: e[k], ...extra });
   return `<i class="f-one" hidden></i><section class="f-plate z-client f-fill" aria-label="Клиент"><p class="z-title">Клиент</p>${st}
-    ${input('z-cl-name', 'Имя', c.name, o('name', { ph: 'Имя клиента' }))}
-    ${phoneField(c, ro, e)}
-    ${input('z-cl-street', 'Адрес', c.street, o('street', { ph: 'Улица, можно сразу с домом' })).replace('<input ', '<input data-suggest="addr" ')}
-    <div class="z-grid4">${input('z-cl-house', 'Дом', c.house, o('house', { mode: 'numeric' }))}${input('z-cl-entrance', 'Подъезд', c.entrance, o('entrance', { mode: 'numeric' }))}${input('z-cl-flat', 'Кв', c.flat, o('flat', { mode: 'numeric' }))}${input('z-cl-floor', 'Этаж', c.floor, o('floor', { mode: 'numeric' }))}</div>
-    <div class="f-field"><span class="f-field__label">Время приезда</span>
-      <div class="z-time">${selectField('cl-h', 'Часы', c.hour || '—', HOURS.map((h) => ({ value: h, label: h })), ro, { changed: clCh(c, 'hour') })}<b>:</b>${selectField('cl-m', 'Минуты', c.min || '—', MINS.map((m) => ({ value: m, label: m })), ro, { changed: clCh(c, 'min') })}</div></div>
-    ${area('z-cl-comment', 'Комментарий', c.comment, o('comment'))}
+    <div class="z-cl-group"><span class="z-cl-cap">Контакт</span>
+      ${input('z-cl-name', 'Имя', c.name, o('name', { ph: 'Имя клиента' }))}
+      ${phoneField(c, ro, e)}
+    </div>
+    <div class="z-cl-group"><span class="z-cl-cap">Адрес</span>
+      ${input('z-cl-street', 'Улица', c.street, o('street', { ph: 'Улица, можно сразу с домом' })).replace('<input ', '<input data-suggest="addr" ')}
+      <div class="z-grid4">${input('z-cl-house', 'Дом', c.house, o('house', { mode: 'numeric' }))}${input('z-cl-entrance', 'Подъезд', c.entrance, o('entrance', { mode: 'numeric' }))}${input('z-cl-flat', 'Кв', c.flat, o('flat', { mode: 'numeric' }))}${input('z-cl-floor', 'Этаж', c.floor, o('floor', { mode: 'numeric' }))}</div>
+    </div>
+    <div class="z-cl-group"><span class="z-cl-cap">Визит</span>
+      <div class="f-field"><span class="f-field__label">Время приезда</span>
+        <div class="z-time">${selectField('cl-h', 'Часы', c.hour || '—', HOURS.map((h) => ({ value: h, label: h })), ro, { changed: clCh(c, 'hour') })}<b>:</b>${selectField('cl-m', 'Минуты', c.min || '—', MINS.map((m) => ({ value: m, label: m })), ro, { changed: clCh(c, 'min') })}</div></div>
+      ${area('z-cl-comment', 'Комментарий', c.comment, o('comment'))}
+    </div>
     ${row(btn(ro ? 'Сохранено' : 'Сохранить', 'z-cl-save', { cls: ro ? 'f-btn--saved' : '' }), c.saved ? btn(edit ? 'Редактирование' : 'Редактировать', 'z-cl-edit', { cls: edit ? 'f-btn--editing' : '' }) : '')}
   </section>`;
 }
