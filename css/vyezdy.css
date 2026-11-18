@@ -438,7 +438,8 @@ body.fig .view { padding-bottom: 170px; }
 
 /* График — один экран без прокрутки: календарь сжимается под видимую высоту телефона. */
 body.fig .view:has(.g-screen) { padding-bottom: 0; }
-.g-screen { display: flex; flex-direction: column; gap: 8px; }
+.g-screen { display: flex; flex-direction: column; gap: 0; }
+.g-screen > .f-btn-row { margin-top: 8px; }
 .g-screen .g-mode { height: 44px; }
 .g-screen .g-todo { padding: 8px 10px; gap: 6px; }
 .g-screen .g-todo__x { margin-top: -4px; }
@@ -2069,6 +2070,7 @@ body.nobar #view::after { content: ''; display: block; height: 84px; }
 .bd-list { padding-bottom: 96px; }
 /* Регистрация-портянка: секции идут подряд; «липкие» элементы секций выключаем, чтобы не налезали. */
 .reg-sec { margin: 0; }
+.reg-sec:has(.g-screen) { margin-top: 12px; }
 /* Скролл-стопка оформления/«Инф» во всю ширину экрана: граница обрезки overflow совпадает с краем экрана,
    поэтому full-width элементы (карусель комнат −16px, календарь −11px) НЕ срезаются. Отступ разделов — padding внутри.
    Одно правило на обе зоны (комнаты сверху и календарь) и оба экрана (регистрация и «Инф» заказа). */
