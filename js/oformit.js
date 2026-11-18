@@ -1,14 +1,14 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
 // Разделы регистрации: Оценка, План, Клиент.
 
-import { actions, rerender, go } from './core.js?v=568';
-import * as S from './store.js?v=568';
-import { esc, toast, ICON_MENU } from './ui.js?v=568';
-import { logEvent } from './zlog.js?v=568';
-import { fcls, ferr } from './fld.js?v=568';
+import { actions, rerender, go } from './core.js?v=569';
+import * as S from './store.js?v=569';
+import { esc, toast, ICON_MENU } from './ui.js?v=569';
+import { logEvent } from './zlog.js?v=569';
+import { fcls, ferr } from './fld.js?v=569';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate, estimateOnTotal } from './ocenka.js?v=568';
-import { renderSchedule, scheduleState } from './grafik.js?v=568';
+import { renderEstimate, estimateState, onLiveEstimate, estimateOnTotal, estimateRooms, roomTotals } from './ocenka.js?v=569';
+import { renderSchedule, scheduleState, scheduleSummary } from './grafik.js?v=569';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_BRIEFCASE = (c) => `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><g transform="translate(2.1 3.1)"><path d="M16.9 3.9H2.9C1.8 3.9.9 4.8.9 5.9v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-10c0-1.1-.9-2-2-2Z" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.9 3.9V.9h8v3M.9 8.9h18M7.9 8.9v3h4v-3" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
@@ -69,16 +69,55 @@ export function registerSection(key, render, state) { sections[key] = { render, 
 // Единая сущность «Итог / Инф» — ОДИН источник для регистрации и для вкладки «Инф» заказа.
 // Два шага:
 //   1) обычный вид комнат (e.view — комната): только Оценка (комнаты + расчёт), как раньше — без календаря и прочего;
-//   2) «Итог комнат» (нажата плитка «Итог», e.view==='total'): общая сумма + План + Клиент,
-//      там записываем клиента в календарь и вносим данные. В регистрации extra = кнопки исхода.
+//   2) «Итог комнат» (нажата плитка «Итог», e.view==='total'): гармошка из трёх шагов — Итог → План → Клиент.
+//      Активен один шаг (развёрнут), остальные — узкие плашки-сводки. «Далее» переводит на следующий;
+//      на шаге «Клиент» вместо «Далее» — кнопки исхода (В очередь / Согласование / Отказ).
 // Каждый раздел несёт свой .f-one/.f-fill — снимаем их, скроллом управляет общий контейнер обёртки.
 const stripFOne = (h) => h.replace(/<i class="f-one" hidden><\/i>/g, '').replace(/ f-fill\b/g, '');
+const REG_STEPS = ['estimate', 'schedule', 'client'];
+const REG_TITLE = { estimate: 'Итог', schedule: 'План', client: 'Клиент' };
+function regSummary(d, key) {
+  if (key === 'estimate') {
+    const rooms = estimateRooms(d);
+    const total = rooms.reduce((a, r) => a + roomTotals(r).total, 0);
+    return `${total.toLocaleString('ru-RU')} ₽ · ${rooms.length} комн.`;
+  }
+  if (key === 'schedule') return scheduleSummary(d);
+  const c = d.cl || {};
+  return c.name ? `${c.name}${c.phone ? ' · ' + c.phone : ''}` : 'не заполнен';
+}
+const regStrip = (d, key) => `<section class="reg-strip" data-action="reg-step" data-step="${key}" role="button" tabindex="0">
+    <span class="reg-strip__t">${REG_TITLE[key]}</span>
+    <span class="reg-strip__v">${esc(regSummary(d, key))}</span>
+    <span class="reg-strip__chev">${CHEVRON}</span></section>`;
+const regFooter = (key) => key === 'client'
+  ? `<div class="reg-out">
+      <button type="button" class="g-act g-act--next" data-action="f-create" data-stage="queue">В очередь</button>
+      <button type="button" class="g-act g-act--soglas" data-action="f-create" data-stage="approval">Согласование</button>
+      <button type="button" class="g-act g-act--no" data-action="f-create" data-stage="refused">Отказ</button>
+    </div>`
+  : `<div class="reg-nav"><button type="button" class="o-grand__next reg-next" data-action="reg-next">Далее</button></div>`;
 export function renderInfoStack(d, extra = '') {
   if (!estimateOnTotal(d)) return renderEstimate(d); // шаг 1 — только комнаты + расчёт
-  const stacked = [renderEstimate(d), renderSchedule(d), sections['client'].render(d)]
-    .map((sc) => `<div class="reg-sec">${stripFOne(sc)}</div>`).join('');
+  const isReg = !String(S.draftKey()).startsWith('ord-');
+  // Открытый заказ («Инф»): просто стопка разделов без шагов-исходов (у Плана/Клиента свои ОК/Сохранить).
+  if (!isReg) {
+    const stacked = [renderEstimate(d), renderSchedule(d), sections['client'].render(d)]
+      .map((sc) => `<div class="reg-sec">${stripFOne(sc)}</div>`).join('');
+    return `<i class="f-one" hidden></i><div class="o-wrap"><div class="o-stack f-fill reg-scroll">${stacked}${extra}</div></div>`;
+  }
+  // Регистрация: гармошка шагов Итог → План → Клиент.
+  const step = REG_STEPS.includes(d.regStep) ? d.regStep : 'estimate';
+  const full = { estimate: () => renderEstimate(d), schedule: () => renderSchedule(d), client: () => sections['client'].render(d) };
+  const stacked = REG_STEPS.map((key) => key === step
+    ? `<div class="reg-sec reg-sec--open">${stripFOne(full[key]())}${regFooter(key)}</div>`
+    : regStrip(d, key)).join('');
   return `<i class="f-one" hidden></i><div class="o-wrap"><div class="o-stack f-fill reg-scroll">${stacked}${extra}</div></div>`;
 }
+const regGoto = (step) => { const d = draft(); d.regStep = step; S.save(); rerender();
+  requestAnimationFrame(() => { const el = document.querySelector('.reg-sec--open'); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'start', behavior: 'smooth' }); }); };
+actions['reg-step'] = (el) => regGoto(el.dataset.step);
+actions['reg-next'] = () => { const i = REG_STEPS.indexOf(draft().regStep || 'estimate'); regGoto(REG_STEPS[Math.min(i + 1, REG_STEPS.length - 1)]); };
 
 // opts.only — показать один раздел (правка блока заказа с доски): без вкладок других разделов,
 // внизу вместо них opts.navHtml (например «← К заказу»).

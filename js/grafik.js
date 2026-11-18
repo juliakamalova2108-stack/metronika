@@ -2,12 +2,12 @@
 // Комнаты из «Оценки» делятся на рабочие дни (смена 8 ч): выбрали комнату → нажали свободную дату →
 // её дни легли подряд. Переключатель «Замеры» — то же для выезда на замер (2 часа).
 
-import { actions, rerender } from './core.js?v=568';
-import * as S from './store.js?v=568';
-import { SHIFT_HOURS } from './calc.js?v=568';
-import { esc, toast } from './ui.js?v=568';
-import { logEvent } from './zlog.js?v=568';
-import { estimateRooms, roomTotals } from './ocenka.js?v=568';
+import { actions, rerender } from './core.js?v=569';
+import * as S from './store.js?v=569';
+import { SHIFT_HOURS } from './calc.js?v=569';
+import { esc, toast } from './ui.js?v=569';
+import { logEvent } from './zlog.js?v=569';
+import { estimateRooms, roomTotals } from './ocenka.js?v=569';
 
 const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 const DOW = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -23,6 +23,15 @@ function sch(d) {
 }
 export function scheduleState(d) { if (!d.sched) return ''; return scheduleDirty(d) ? 'warn' : d.sched.status === 'saved' ? 'ok' : ''; }
 export function scheduleDirty(d) { return !!d.sched && (d.sched.dirty || d.sched.status === 'editing'); }
+// Краткая сводка «Плана» для свёрнутой плашки шага.
+export function scheduleSummary(d) {
+  const s = d.sched; if (!s) return 'не заполнен';
+  const fmtD = (iso) => { const dt = new Date(iso + 'T12:00:00'); return `${dt.getDate()} ${MONTHS[dt.getMonth()].slice(0, 3).toLowerCase()}`; };
+  if (s.mode === 'measure') return s.measure ? `Замер · ${fmtD(s.measure)}` : 'Замер — дата не выбрана';
+  const days = [...new Set(Object.values(s.place || {}))].sort();
+  if (!days.length) return 'даты не назначены';
+  return days.length === 1 ? `График · ${fmtD(days[0])}` : `График · ${fmtD(days[0])} – ${fmtD(days[days.length - 1])}`;
+}
 
 // Дни работы комнаты: полные смены и остаток; стоимость дня — доля от стоимости комнаты.
 function roomDays(r) {
@@ -215,15 +224,10 @@ export function renderSchedule(d) {
   todo = todo.replace(/(<section class="g-todo[^"]*">)/, `$1${tog}`);
   const editing = s.dirty || s.status === 'editing';
   const status = editing ? '<span class="f-status f-status--warn g-status"><i></i>редактирование</span>' : locked ? '<span class="f-status f-status--ok g-status"><i></i>сохранено</span>' : '';
-  // В регистрации под календарём — пластина исхода (цвет рамки календаря, вплотную): «Далее / Согласование / Отказ».
+  // В регистрации кнопку шага («Далее») добавляет renderInfoStack — здесь футера нет.
   // В карточке заказа оставляем строку «ОК / Редактировать» для сохранения графика.
   const isReg = !String(S.draftKey()).startsWith('ord-');
-  const footer = isReg
-    ? `<section class="g-actbar">
-        <button type="button" class="g-act g-act--next" data-action="f-create" data-stage="queue">Далее</button>
-        <button type="button" class="g-act g-act--soglas" data-action="f-create" data-stage="approval">Согласование</button>
-        <button type="button" class="g-act g-act--no" data-action="f-create" data-stage="refused">Отказ</button>
-      </section>`
+  const footer = isReg ? ''
     : `<div class="f-btn-row">
         <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="g-ok" ${!locked && !s.dirty && s.status !== 'editing' ? 'disabled' : ''}>ОК</button>
         ${s.status !== 'new' ? `<button type="button" class="f-btn${s.status === 'editing' ? ' f-btn--editing' : ''}" data-action="g-edit">${s.status === 'editing' ? 'Редактирование' : 'Редактировать'}</button>` : ''}

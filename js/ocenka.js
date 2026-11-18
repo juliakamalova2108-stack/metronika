@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=568';
-import * as S from './store.js?v=568';
-import { SYSTEM_PRICE } from './seed.js?v=568';
-import { shiftsText, hoursFor } from './calc.js?v=568';
-import { esc, toast } from './ui.js?v=568';
-import { logEvent } from './zlog.js?v=568';
+import { actions, changes, rerender } from './core.js?v=569';
+import * as S from './store.js?v=569';
+import { SYSTEM_PRICE } from './seed.js?v=569';
+import { shiftsText, hoursFor } from './calc.js?v=569';
+import { esc, toast } from './ui.js?v=569';
+import { logEvent } from './zlog.js?v=569';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -249,8 +249,6 @@ const SUM_CHEV = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path 
 const sumHead = '<div class="o-tline o-tline--h"><span>Работа</span><span>м²</span><span>₽/м²</span><span>Сумма</span></div>';
 const sumLine = (l) => `<div class="o-tline"><span class="o-tline__n">${esc(SHORT[l.id] || l.name)}</span><span>${numTxt(l.qty)}</span><span>${fmt(l.price)}</span><b>${fmt(l.sum)} ₽</b></div>`;
 function totalView(e) {
-  // Кнопки «Далее»/«Отказ» на «Общем итоге» — только при регистрации (не в открытом заказе ord-*).
-  const isReg = !String(S.draftKey()).startsWith('ord-');
   const rooms = e.rooms.map((r) => {
     const t = roomTotals(r);
     const on = openSum.has(r.key);
@@ -278,17 +276,14 @@ function totalView(e) {
         <span class="o-sroom__chev">${SUM_CHEV}</span>
       </button>
       <div class="o-sroom__list">${sumHead}${lines.map(sumLine).join('')}</div></section>`;
-  // Итог оценки — одна внешняя пластина: комнаты + компактный «Общий итог» (раскрывается), снизу кнопки исхода.
+  // Итог оценки — одна внешняя пластина: комнаты + компактный «Общий итог» (раскрывается).
+  // Кнопки шага («Далее» / исход) добавляет renderInfoStack — здесь их нет.
   return `${carousel(e)}
     <div class="f-fill o-stack">
       <section class="o-sumcard">
         <p class="o-sec o-sec--in">Итог</p>
         ${rooms}
         ${grandRow}
-        ${isReg ? `<div class="o-sumbtns">
-          <button type="button" class="o-grand__next" data-action="f-create" data-stage="queue">Далее</button>
-          <button type="button" class="o-grand__no" data-action="f-create" data-stage="refused">Отказ</button>
-        </div>` : ''}
       </section>
     </div>`;
 }
