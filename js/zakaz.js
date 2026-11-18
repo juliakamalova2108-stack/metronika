@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=567';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=568';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=567';
-import * as S from './store.js?v=567';
-import { WALLPAPER_TYPES } from './seed.js?v=567';
-import { esc, toast } from './ui.js?v=567';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=567';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=567';
-import { country } from './phonecodes.js?v=567';
-import { suggestAddress } from './address.js?v=567';
-import { suggesters } from './kbd.js?v=567';
-import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=567';
+import { actions, changes, rerender } from './core.js?v=568';
+import * as S from './store.js?v=568';
+import { WALLPAPER_TYPES } from './seed.js?v=568';
+import { esc, toast } from './ui.js?v=568';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=568';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=568';
+import { country } from './phonecodes.js?v=568';
+import { suggestAddress } from './address.js?v=568';
+import { suggesters } from './kbd.js?v=568';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=568';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -96,7 +96,7 @@ function renderClient(d) {
   const edit = c.dirty || (c.saved && c.editing);
   const st = edit ? status('warn', 'редактирование') : c.saved ? status('ok', 'сохранено') : '';
   const o = (k, extra = {}) => ({ live: `z-cl:${k}`, ro, changed: clCh(c, k), err: e[k], ...extra });
-  return `<i class="f-one" hidden></i><section class="f-plate z-client f-fill" aria-label="Клиент"><p class="z-title">Клиент</p>${st}
+  return `<i class="f-one" hidden></i><section class="o-sumcard z-client f-fill" aria-label="Клиент"><p class="z-title">Клиент</p>${st}
     <div class="z-cl-group"><span class="z-cl-cap">Контакт</span>
       ${input('z-cl-name', 'Имя', c.name, o('name', { ph: 'Имя клиента' }))}
       ${phoneField(c, ro, e)}
