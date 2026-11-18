@@ -6,12 +6,13 @@
    Плоская заливка на body — страховка от шва. */
 body.fig { background: #162c33; }
 body.fig::before {
-  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
   background: linear-gradient(90deg, #162c33 0%, #2a3c43 48%, #203c3b 100%);
 }
 body.fig .app { position: relative; }
-/* Изначальные мягкие цветные пятна под матовым стеклом: зелёное и коричневатое — дают зеленоватый фон. */
-.fig-blobs { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+/* Мягкие цветные пятна — ЗА всем контентом (z-index: -1): тонируют только фон в промежутках,
+   на пластины не накладываются, поэтому не красят их зелёным. */
+.fig-blobs { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: -1; }
 .fig-blobs i { position: absolute; border-radius: 50%; filter: blur(70px); }
 .fig-blobs i:nth-child(1) { left: -230px; top: 120px; width: 510px; height: 540px; background: rgba(118, 155, 139, 0.28); }
 .fig-blobs i:nth-child(2) { left: 180px; top: 530px; width: 430px; height: 620px; background: rgba(142, 127, 113, 0.13); }
@@ -292,7 +293,7 @@ body.fig .view { position: relative; z-index: 1; padding: 16px 16px 100px; displ
 .g-sw__tog.is-on i { transform: translateX(28px); }
 .g-todo {
   display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 12px;
-  border: 0.9px solid rgba(5, 13, 15, 0.75); background: linear-gradient(180deg, #182829, #203030);
+  border: 0.9px solid rgba(5, 13, 15, 0.75); background: #1c2c2d;
   box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.16), inset 0 1.5px 2px rgba(1, 6, 9, 0.55), inset 0 4px 10px rgba(1, 8, 10, 0.7);
 }
 .g-todo__t { margin: 0; font: 500 16px/24px 'Inter', var(--font-body); color: #edf0f4; }
@@ -1840,7 +1841,7 @@ button.h-bell { cursor: pointer; font: inherit; }
 /* Календарь «Плана» — в общую рамку того же цвета, что блок «Без даты» (Замер/График) — единый набор. */
 .g-screen > .g-plate {
   padding: 8px 8px 10px; border: 0.9px solid rgba(5, 13, 15, 0.75); border-radius: 14px;
-  background: linear-gradient(180deg, #182829, #203030);
+  background: #1c2c2d;
   box-shadow: inset 0 -1.2px 1.4px rgba(217, 237, 207, 0.16), inset 0 1.5px 2px rgba(1, 6, 9, 0.55), inset 0 4px 10px rgba(1, 8, 10, 0.7);
 }
 .g-screen > .g-plate > .g-plate__t { margin: 2px 4px 8px; }
