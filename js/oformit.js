@@ -1,29 +1,23 @@
 // Вкладка мастера «Оформить заказ». Экраны один в один из секции «Выезды» в Figma:
-// раздел «00 · Канал» (кадры 3601:2 … 3601:871). Оценка и График — следующими разделами.
+// Разделы регистрации: Оценка, План, Клиент.
 
-import { actions, rerender, go } from './core.js?v=565';
-import * as S from './store.js?v=565';
-import { CHANNELS } from './seed.js?v=565';
-import { esc, toast, ICON_MENU } from './ui.js?v=565';
-import { logEvent } from './zlog.js?v=565';
-import { fcls, ferr, liveMark, showErrors } from './fld.js?v=565';
+import { actions, rerender, go } from './core.js?v=566';
+import * as S from './store.js?v=566';
+import { esc, toast, ICON_MENU } from './ui.js?v=566';
+import { logEvent } from './zlog.js?v=566';
+import { fcls, ferr } from './fld.js?v=566';
 export { logEvent };
-import { renderEstimate, estimateState, onLiveEstimate, estimateOnTotal } from './ocenka.js?v=565';
-import { renderSchedule, scheduleState } from './grafik.js?v=565';
+import { renderEstimate, estimateState, onLiveEstimate, estimateOnTotal } from './ocenka.js?v=566';
+import { renderSchedule, scheduleState } from './grafik.js?v=566';
 
 export const CHEVRON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 5.5L8 10.5L13 5.5" stroke="#EDF0E7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_BRIEFCASE = (c) => `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><g transform="translate(2.1 3.1)"><path d="M16.9 3.9H2.9C1.8 3.9.9 4.8.9 5.9v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-10c0-1.1-.9-2-2-2Z" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.9 3.9V.9h8v3M.9 8.9h18M7.9 8.9v3h4v-3" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
 
-// Источники заявки: 9 вариантов, в окне видно 4 («Прокрутка · 4 из 9»).
-const SOURCES = CHANNELS.filter((c) => c !== 'Самостоятельно');
-// «Оформить заказ» (мастер сам себе): только начальный этап — канал, клиент, оценка, график.
-// По важности слева направо: Оценка, График, Клиент, Канал.
-// «Оформить заказ» — вся сущность заказа целиком: те же разделы, что в открытом заказе.
-// Регистрация нового заказа — только вводные 4 раздела. Замер/Материал/Финансы/Чат появляются при исполнении.
-const TABS = [['estimate', 'Оценка'], ['schedule', 'План'], ['client', 'Клиент'], ['channel', 'Источник']];
+// Регистрация нового заказа — только вводные разделы. Замер/Материал/Финансы/Чат появляются при исполнении.
+// По важности слева направо: Оценка, План, Клиент.
+const TABS = [['estimate', 'Оценка'], ['schedule', 'План'], ['client', 'Клиент']];
 // «Текущий заказ» — все вкладки секции «Выезды».
-// Старая Финансы убрана: в исполнении заказа своя Финансы (нижняя навигация). renderPayForm оставлен для формы «+Оплата».
-const ALL_TABS = [['channel', 'Источник'], ['client', 'Клиент'], ['estimate', 'Оценка'], ['schedule', 'План'], ['chat', 'Чат'], ['tasks', 'Задачи'], ['history', 'История']];
+const ALL_TABS = [['client', 'Клиент'], ['estimate', 'Оценка'], ['schedule', 'План'], ['chat', 'Чат'], ['tasks', 'Задачи'], ['history', 'История']];
 export const pickers = Object.create(null);
 export const toggles = Object.create(null);
 
@@ -34,18 +28,9 @@ function draft() {
   const st = S.get();
   st.oformit = st.oformit || {};
   const id = S.draftKey();
-  if (!st.oformit[id]) st.oformit[id] = { channel: { source: 'Авито', partner: 'self', url: '', pct: 0 }, saved: false, dirty: false, editing: true };
+  if (!st.oformit[id]) st.oformit[id] = {};
   return st.oformit[id];
 }
-
-// Партнёры мастера: агенты, у которых он в партнёрах, и диспетчеры, в чьей он команде.
-function partners() {
-  const me = S.me();
-  const st = S.get();
-  const agents = st.partnerships.filter((p) => p.partnerId === me.id && p.status === 'active').map((p) => S.user(p.agentId));
-  return [...agents, ...S.dispatchersOf(me.id)].filter(Boolean);
-}
-const partnerName = (id) => (id === 'self' ? 'Самостоятельно' : (S.user(id) || {}).name || 'Самостоятельно');
 
 export function selectField(key, label, value, options, locked, st = {}) {
   if (open === key && !locked) {
@@ -63,32 +48,6 @@ export function selectField(key, label, value, options, locked, st = {}) {
     <div class="f-input f-input--list${fcls(st.changed, st.err)}" data-action="${locked ? '' : 'f-toggle'}" data-key="${key}" role="button" aria-haspopup="listbox" aria-expanded="false" tabindex="0">
       <span class="f-input__value">${st.vhtml || esc(value)}</span><span class="f-icon-btn">${CHEVRON}</span>
     </div>${ferr(st.err)}</div>`;
-}
-
-const CH_DEFAULT = { source: 'Авито', partner: 'self', url: '', pct: 0 };
-const chSnap = (d) => d.chSnap || CH_DEFAULT;
-const chChanged = (d, k) => d.editing && String(d.channel[k]) !== String(chSnap(d)[k]);
-function channelPlate(d) {
-  const c = d.channel;
-  const err = d.chErr || {};
-  const locked = !d.editing;
-  // Пока форма правится и не сохранена — один статус «редактирование» (жёлтый), без «не сохранено».
-  const reEdit = d.dirty || (d.saved && d.editing);
-  const statusHtml = reEdit ? '<span class="f-status f-status--warn"><i></i>редактирование</span>'
-    : d.saved ? '<span class="f-status f-status--ok"><i></i>сохранено</span>' : '';
-  return `<i class="f-one" hidden></i><section class="f-plate f-fill" aria-label="Канал">
-    ${selectField('source', 'Источник заявки', c.source, SOURCES.map((s) => ({ value: s, label: s })), locked, { changed: chChanged(d, 'source') })}
-    ${selectField('partner', 'Партнёр', partnerName(c.partner), [{ value: 'self', label: 'Самостоятельно' }, ...partners().map((p) => ({ value: p.id, label: p.name }))], locked, { changed: chChanged(d, 'partner') })}
-    <label class="f-field" for="f-url"><span class="f-field__label">Ссылка</span>
-      <span class="f-input${fcls(chChanged(d, 'url'), err.url)}"><input id="f-url" type="url" inputmode="url" placeholder="Вставьте ссылку" value="${esc(c.url)}" ${locked ? 'readonly' : ''} data-live="f-url"/></span>${ferr(err.url)}</label>
-    <label class="f-field" for="f-pct"><span class="f-field__label">Вознаграждение</span>
-      <span class="f-input${fcls(chChanged(d, 'pct'), err.pct)}"><input id="f-pct" inputmode="decimal" value="${esc(String(c.pct).replace('.', ','))} %" ${locked ? 'readonly' : ''} data-live="f-pct"/></span>${ferr(err.pct)}</label>
-    <div class="f-btn-row">
-      <button type="button" class="f-btn${locked ? ' f-btn--saved' : ''}" data-action="f-save">${locked ? 'Сохранено' : 'Сохранить'}</button>
-      ${d.saved ? `<button type="button" class="f-btn${reEdit ? ' f-btn--editing' : ''}" data-action="f-edit" aria-pressed="${reEdit}">${reEdit ? 'Редактирование' : 'Редактировать'}</button>` : ''}
-    </div>
-    ${statusHtml}
-  </section>`;
 }
 
 // Нижняя навигация «Оформить заказ» / «Текущий заказ»: «Меню» и вкладки разделов (листаются вбок, если не влезают).
@@ -110,13 +69,13 @@ export function registerSection(key, render, state) { sections[key] = { render, 
 // Единая сущность «Итог / Инф» — ОДИН источник для регистрации и для вкладки «Инф» заказа.
 // Два шага:
 //   1) обычный вид комнат (e.view — комната): только Оценка (комнаты + расчёт), как раньше — без календаря и прочего;
-//   2) «Итог комнат» (нажата плитка «Итог», e.view==='total'): общая сумма + План + Клиент + Источник,
+//   2) «Итог комнат» (нажата плитка «Итог», e.view==='total'): общая сумма + План + Клиент,
 //      там записываем клиента в календарь и вносим данные. В регистрации extra = кнопки исхода.
 // Каждый раздел несёт свой .f-one/.f-fill — снимаем их, скроллом управляет общий контейнер обёртки.
 const stripFOne = (h) => h.replace(/<i class="f-one" hidden><\/i>/g, '').replace(/ f-fill\b/g, '');
 export function renderInfoStack(d, extra = '') {
   if (!estimateOnTotal(d)) return renderEstimate(d); // шаг 1 — только комнаты + расчёт
-  const stacked = [renderEstimate(d), renderSchedule(d), sections['client'].render(d), channelPlate(d)]
+  const stacked = [renderEstimate(d), renderSchedule(d), sections['client'].render(d)]
     .map((sc) => `<div class="reg-sec">${stripFOne(sc)}</div>`).join('');
   return `<i class="f-one" hidden></i><div class="o-wrap"><div class="o-stack f-fill reg-scroll">${stacked}${extra}</div></div>`;
 }
@@ -129,23 +88,21 @@ export function renderOformit(mode = 'oformit', opts = {}) {
   if (opts.only) tab = opts.only;
   const tabs = opts.only ? ALL_TABS.filter(([k]) => k === opts.only) : mode === 'oformit' ? TABS : ALL_TABS; // «Сущность» (бывш. «Оформить заказ») — все разделы, «Текущий заказ» — все разделы «Выездов»
   if (!tabs.some(([k]) => k === tab)) tab = tabs[0][0];
-  // Регистрация — вкладка «Итог»: все разделы одной «портянкой» (Оценка → План → Клиент → Источник)
+  // Регистрация — вкладка «Итог»: все разделы одной «портянкой» (Оценка → План → Клиент)
   // и внизу кнопки исхода — всё в одном скролле (.o-wrap/.f-fill, как в открытом заказе).
   const isReg = mode === 'oformit' && !opts.only;
   let body;
   if (isReg) {
     // Шаг 1 — только комнаты + расчёт; шаг 2 — «Итог комнат»: на пластине «Общий итог» кнопки «Далее»/«Отказ»,
-    // ниже План/Клиент/Источник. Кнопки исхода теперь на самом «Общем итоге» (см. totalView), отдельного блока нет.
+    // ниже План/Клиент. Кнопки исхода — на пластине под календарём «Плана» (см. grafik.js).
     body = renderInfoStack(d);
   } else {
-    body = tab === 'channel' ? channelPlate(d)
-      : tab === 'estimate' ? renderEstimate(d)
-        : tab === 'schedule' ? renderSchedule(d)
-          : sections[tab].render(d);
+    body = tab === 'estimate' ? renderEstimate(d)
+      : tab === 'schedule' ? renderSchedule(d)
+        : sections[tab].render(d);
   }
   // Точка у вкладки — как статус в карточке: жёлтая «редактирование», зелёная «сохранено».
   const stateOf = (k) => {
-    if (k === 'channel') return d.dirty || (d.saved && d.editing) ? 'warn' : d.saved ? 'ok' : '';
     if (k === 'estimate') return estimateState(d);
     if (k === 'schedule') return scheduleState(d);
     return sections[k] && sections[k].state ? sections[k].state(d) : '';
@@ -156,7 +113,6 @@ export function renderOformit(mode = 'oformit', opts = {}) {
     estimate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.2"/><path d="M8.5 7.5h7M8.5 11.5h7M8.5 15.5h4"/></svg>',
     schedule: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2.2"/><path d="M4 9.5h16M8.5 3v4M15.5 3v4"/></svg>',
     client: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.4 3.1-5.5 7-5.5s7 2.1 7 5.5"/></svg>',
-    channel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/><path d="M12 4v10M8 10l4 4 4-4"/></svg>',
   };
   const otabs = tabs.map(([k, t]) => { const st = stateOf(k);
     return `<button type="button" role="tab" aria-selected="${k === tab}" class="f-nav__tab${k === tab ? ' is-on' : ''}" data-action="f-tab" data-tab="${k}">${O_IC[k] || ''}<span>${t}</span>${st ? `<i class="f-nav__dot${st === 'ok' ? ' f-nav__dot--ok' : ''}"></i>` : ''}</button>`; }).join('');
@@ -164,12 +120,6 @@ export function renderOformit(mode = 'oformit', opts = {}) {
   return `<div class="fig-blobs" aria-hidden="true"><i></i><i></i></div>
     ${body}
     ${opts.only ? nav(opts.navHtml || '', false, opts.navRight || '') : isReg ? `<button type="button" class="h-menu bd-fab" data-action="menu-open" aria-label="Меню">${ICON_MENU}</button>` : regNav}`;
-}
-
-function markDirty(d) {
-  if (!d.dirty) { d.dirty = true; S.save(); rerender(); return true; }
-  S.save();
-  return false;
 }
 
 let creating = false;
@@ -195,58 +145,17 @@ actions['f-tab'] = (el) => { tab = el.dataset.tab; open = ''; rerender(); };
 actions['f-toggle'] = (el) => {
   const d = draft();
   open = open === el.dataset.key ? '' : el.dataset.key;
-  // По макету «01 · источник раскрыт»: начали править — форма уже «не сохранено».
   const key = el.dataset.key;
-  if (open && (key === 'source' || key === 'partner')) { d.dirty = true; S.save(); }
   if (open && toggles[key]) toggles[key](d);
   rerender();
 };
 actions['f-pick'] = (el) => {
   const d = draft();
-  const k = el.dataset.key === 'source' ? 'source' : 'partner';
-  if (pickers[el.dataset.key]) { open = ''; pickers[el.dataset.key](el.dataset.value, d); S.save(); rerender(); return; }
-  if (d.channel[k] !== el.dataset.value) { d.channel[k] = el.dataset.value; d.dirty = true; }
-  if (k === 'partner' && d.chErr) delete d.chErr.pct;
-  open = '';
-  S.save();
-  rerender();
+  if (pickers[el.dataset.key]) { open = ''; pickers[el.dataset.key](el.dataset.value, d); S.save(); rerender(); }
 };
-actions['f-save'] = () => {
-  const d = draft();
-  if (!d.editing && !d.dirty) return;
-  const c = d.channel; const err = {};
-  if (c.url && !/^(https?:\/\/)?[^\s.]+\.[^\s]{2,}/i.test(c.url)) err.url = 'Похоже, это не ссылка';
-  if (c.partner !== 'self' && !(c.pct > 0)) err.pct = 'Укажите процент партнёру';
-  d.chErr = err;
-  if (Object.keys(err).length) { open = ''; S.save(); rerender(); showErrors(); return; }
-  d.chSnap = { ...c };
-  d.saved = true; d.dirty = false; d.editing = false; open = '';
-  setTimeout(() => document.dispatchEvent(new CustomEvent('section-saved', { detail: 'channel' })), 0);
-  logEvent(d, 'Сохранён канал', `${d.channel.source}${d.channel.partner !== 'self' ? ' · ' + partnerName(d.channel.partner) + ' · ' + d.channel.pct + ' %' : ''}`);
-  S.save(); rerender();
-};
-actions['f-edit'] = () => { const d = draft(); if (!d.saved) return; d.editing = true; S.save(); rerender(); };
 
 export function onLiveOformit(el) {
-  if (onLiveEstimate(el)) return true;
-  const k = el.dataset.live;
-  if (k !== 'f-url' && k !== 'f-pct') return false;
-  const d = draft();
-  if (k === 'f-url') d.channel.url = el.value.trim();
-  if (k === 'f-pct') {
-    const raw = el.value.replace(/[^\d,.]/g, '').replace(',', '.');
-    const v = parseFloat(raw);
-    d.channel.pct = Number.isFinite(v) ? Math.min(100, v) : 0;
-  }
-  const field = k === 'f-url' ? 'url' : 'pct';
-  if (d.chErr) delete d.chErr[field];
-  liveMark(el, chChanged(d, field));
-  const pos = el.selectionStart;
-  if (markDirty(d)) {
-    const again = document.getElementById(el.id);
-    if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch (e) { /* поле ссылки */ } }
-  }
-  return true;
+  return onLiveEstimate(el);
 }
 
 // Ползунок прокрутки списка: 4 строки в окне.
@@ -259,10 +168,6 @@ document.addEventListener('scroll', (ev) => {
   const h = thumb.offsetHeight;
   thumb.style.top = `${max > 0 ? (win.scrollTop / max) * (188 - h) : 0}px`;
 }, true);
-
-// «%» дописывается к числу: при фокусе убираем, при уходе возвращаем.
-document.addEventListener('focusin', (ev) => { if (ev.target.id !== 'f-pct' || ev.target.readOnly) return; ev.target.value = ev.target.value.replace(/\s*%$/, ''); if (ev.target.value === '0') ev.target.value = ''; });
-document.addEventListener('focusout', (ev) => { if (ev.target.id === 'f-pct') ev.target.value = `${ev.target.value.replace(/\s*%$/, '') || '0'} %`; });
 
 // Карусель комнат листается свайпом по всему экрану (кроме верхней и нижней навигации):
 // один свайп — одна комната. Срабатывает сразу, как только палец сдвинулся, не дожидаясь отпускания.

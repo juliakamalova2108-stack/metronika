@@ -1,18 +1,18 @@
-import { renderMeasurement, sheetTabs } from './measurement.js?v=565';
+import { renderMeasurement, sheetTabs } from './measurement.js?v=566';
 // «Текущий заказ» мастера: остальные разделы секции «Выезды» в Figma —
 // 01 Клиент, 04 Материал, 05 Смета, Чат, 07 Задачи, 08 Финансы, 09 История заказа.
 // Данные общие с «Оформить заказ»: комнаты и услуги — из «Оценки», даты — из «Графика».
 
-import { actions, changes, rerender } from './core.js?v=565';
-import * as S from './store.js?v=565';
-import { WALLPAPER_TYPES } from './seed.js?v=565';
-import { esc, toast } from './ui.js?v=565';
-import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=565';
-import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=565';
-import { country } from './phonecodes.js?v=565';
-import { suggestAddress } from './address.js?v=565';
-import { suggesters } from './kbd.js?v=565';
-import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=565';
+import { actions, changes, rerender } from './core.js?v=566';
+import * as S from './store.js?v=566';
+import { WALLPAPER_TYPES } from './seed.js?v=566';
+import { esc, toast } from './ui.js?v=566';
+import { fcls, ferr, liveMark, showErrors, phoneDigits, phoneFormat } from './fld.js?v=566';
+import { registerSection, selectField, pickers, toggles, logEvent, oformitDraft } from './oformit.js?v=566';
+import { country } from './phonecodes.js?v=566';
+import { suggestAddress } from './address.js?v=566';
+import { suggesters } from './kbd.js?v=566';
+import { measurementClosePick as measurementClosePickM, estimateRooms, roomTotals, svcInfo, SVC_LIST, svcList, materialStrip, materialRoomPicker, materialStart, materialAddRoom } from './ocenka.js?v=566';
 
 const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
 const fmt2 = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ');
@@ -427,7 +427,7 @@ function renderTasks(d) {
   const ui = d.ui || {};
   if (ui.form === 'task') {
     const f = ui.task;
-    const people = [S.me(), ...((d.channel && d.channel.partner !== 'self' && S.user(d.channel.partner)) ? [S.user(d.channel.partner)] : [])];
+    const people = [S.me()];
     return `<section class="f-plate"><p class="z-title">Новая задача</p>
       ${input('z-t-text', 'Что нужно сделать', f.text, { ph: 'Купить клей для обоев', live: 'z-t:text', changed: !!f.text, err: (ui.err || {}).text })}
       ${selectField('z-t-who', 'Ответственный', (S.user(f.who) || S.me()).name.split(' ')[0], people.map((u) => ({ value: u.id, label: u.name.split(' ')[0] })), false)}
@@ -467,13 +467,11 @@ function money(d) {
   const pasteIds = new Set(['paste-flizelin', 'paste-paper', 'paste-glass', 'paste-photo']);
   const pasteBase = useSmeta ? st.lines.filter((l) => pasteIds.has(l.id)).reduce((a, l) => a + l.sum, 0)
     : est.reduce((a, r) => a + roomTotals(r).lines.filter((l) => pasteIds.has(l.id)).reduce((x, l) => x + l.sum, 0), 0);
-  const ch = d.channel || { partner: 'self', pct: 0 };
-  const agent = ch.partner !== 'self' ? Math.round(pasteBase * (ch.pct || 0)) / 100 : 0;
   d.fin = d.fin || { pays: [], exps: [] };
   const own = d.fin.exps.reduce((a, e) => a + e.amount, 0);
   const paid = d.fin.pays.reduce((a, p) => a + p.amount, 0);
   const adv = d.fin.pays.filter((p) => p.kind === 'Аванс').reduce((a, p) => a + p.amount, 0);
-  return { by, income, pasteBase, agent, own, paid, adv, ch };
+  return { by, income, pasteBase, own, paid, adv };
 }
 const kv = (l, v, cls = '') => `<div class="z-kv${cls ? ' ' + cls : ''}"><span>${l}</span><b>${v}</b></div>`;
 export function renderPayForm(d) {
@@ -519,7 +517,7 @@ function renderHistory(d) {
       const u = S.user(e.who);
       const role = u && u.roles.includes('agent') ? 'Агент' : u && u.roles.includes('dispatcher') ? 'Диспетчер' : 'Мастер';
       return `${hd}<section class="f-plate z-ev"><small>${e.who === S.me().id ? 'Вы' : esc(u ? u.name.split(' ')[0] : '')} · ${role} · ${dt.toTimeString().slice(0, 5)}</small><b>${esc(e.action)}</b>${e.detail ? `<span>${esc(e.detail)}</span>` : ''}</section>`;
-    }).join('') : '<section class="f-plate"><p class="z-muted">Событий пока нет. Они появятся, когда вы сохраните канал, клиента, оценку, график, смету, задачи или оплаты.</p></section>'}`;
+    }).join('') : '<section class="f-plate"><p class="z-muted">Событий пока нет. Они появятся, когда вы сохраните клиента, оценку, график, смету, задачи или оплаты.</p></section>'}`;
 }
 
 // ---------- ввод без перерисовки ----------

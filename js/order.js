@@ -1,13 +1,13 @@
-// Карточка заказа — вкладки из секции «Выезды»: Канал, Клиент, Оценка, График, Материал, Смета, Чат, Задачи, Финансы, История.
+// Карточка заказа — вкладки из секции «Выезды»: Передача, Клиент, Оценка, График, Материал, Смета, Чат, Задачи, Финансы, История.
 // Одна карточка для всех ролей: ведущий (мастер или диспетчер) редактирует всё, мастер от диспетчера — свои комнаты,
 // агент смотрит заказ целиком и пишет в чат.
 
-import { actions, changes, rerender, go, val, numVal } from './core.js?v=565';
-import * as S from './store.js?v=565';
-import { SERVICES, UNIT, CHANNELS, EXPENSE_CATS, DEMO_BARCODES, DEMO_DEVICE, WALLPAPER_TYPES } from './seed.js?v=565';
-import { shiftsText, wallArea, penalty as penaltyRule, commissionAmount } from './calc.js?v=565';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=565';
-import { topbar, typeName, orderStatus, prelimBlock, historyBlock } from './shared.js?v=565';
+import { actions, changes, rerender, go, val, numVal } from './core.js?v=566';
+import * as S from './store.js?v=566';
+import { SERVICES, UNIT, EXPENSE_CATS, DEMO_BARCODES, DEMO_DEVICE, WALLPAPER_TYPES } from './seed.js?v=566';
+import { shiftsText, wallArea, penalty as penaltyRule, commissionAmount } from './calc.js?v=566';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=566';
+import { topbar, typeName, orderStatus, prelimBlock, historyBlock } from './shared.js?v=566';
 
 let tab = 'channel';
 let lastId = '';
@@ -45,7 +45,7 @@ const TABS = {
   master: ['channel', 'client', 'estimate', 'schedule', 'material', 'smeta', 'chat', 'tasks', 'finance', 'history'],
   agent: ['channel', 'client', 'estimate', 'schedule', 'material', 'smeta', 'chat', 'history'],
 };
-const TAB_NAMES = { channel: 'Источник', client: 'Клиент', estimate: 'Оценка', schedule: 'План', material: 'Материал', smeta: 'Смета', chat: 'Чат', tasks: 'Задачи', finance: 'Финансы', history: 'История' };
+const TAB_NAMES = { channel: 'Передача', client: 'Клиент', estimate: 'Оценка', schedule: 'План', material: 'Материал', smeta: 'Смета', chat: 'Чат', tasks: 'Задачи', finance: 'Финансы', history: 'История' };
 
 function roomPicker(o, me, rooms) {
   if (!rooms.length) return '';
@@ -59,18 +59,9 @@ function tabChannel(o, me, mode) {
   const links = S.linksOf(o.id);
   const up = links.filter((l) => l.toId === me.id).slice(-1)[0];
   const parts = [];
-  if (mode === 'lead' && !o.prelim && !links.some((l) => l.toId === me.id)) {
-    parts.push(`<section class="plate">
-      <div class="plate__head"><h2 class="plate__title">Канал</h2></div>
-      ${select({ id: 'ch-source', label: 'Источник заявки', value: o.channel.source, options: CHANNELS.map((c) => ({ value: c, label: c })) })}
-      ${field({ id: 'ch-detail', label: 'Уточнение', value: o.channel.detail, placeholder: 'Например, объявление «Поклейка обоев»' })}
-      ${field({ id: 'ch-url', label: 'Ссылка', value: o.channel.url, placeholder: 'Вставьте ссылку', type: 'url' })}
-      ${isFinal(o) ? '' : btnRow([{ label: 'Сохранить', action: 'ch-save', data: `data-id="${o.id}"`, primary: true }])}
-    </section>`);
-  } else {
-    parts.push(`<section class="plate"><h2 class="plate__title">Канал</h2>
-      ${kv('Источник', esc(o.channel.source))}${o.channel.detail ? kv('Уточнение', esc(o.channel.detail)) : ''}
-      ${up ? kv('Кто передал', esc(S.displayName(me, up.fromId, o.id))) + kv('Вознаграждение', `${num(up.pct)}% · зафиксировано`) : ''}
+  if (up) {
+    parts.push(`<section class="plate"><h2 class="plate__title">Передача</h2>
+      ${kv('Кто передал', esc(S.displayName(me, up.fromId, o.id)))}${kv('Вознаграждение', `${num(up.pct)}% · зафиксировано`)}
     </section>`);
   }
   // Звенья, которые видит этот человек: свои входящие и исходящие.
@@ -436,7 +427,6 @@ export function openOrderTab(id, t) { lastId = id; tab = t; roomSel = ''; }
 // ================= действия =================
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 
-actions['ch-save'] = (el) => { S.updateChannel(el.dataset.id, { source: val('ch-source'), detail: val('ch-detail'), url: val('ch-url') }); toast('Канал сохранён'); rerender(); };
 
 actions['cl-save'] = (el) => {
   const phone = val('cl-phone').replace(/\D/g, '').slice(-10);

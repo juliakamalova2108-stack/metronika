@@ -31,9 +31,6 @@ export const UNIT = { m2: 'м²', m: 'пог. м' };
 
 export const ROOM_NAMES = ['Спальня', 'Гостиная', 'Кухня', 'Коридор', 'Детская', 'Прихожая', 'Кабинет', 'Гардеробная', 'Столовая', 'Санузел', 'Балкон', 'Кладовая', 'Постирочная'];
 
-// Источники заявки — как во вкладке «Канал» макета.
-export const CHANNELS = ['Авито', 'Сайт', 'Социальные сети', 'Поиск в интернете', 'Рекомендация', 'Другой интернет-ресурс', 'Визитка', 'Торговая точка', 'Смежники', 'Самостоятельно'];
-
 export const EXPENSE_CATS = ['Покупка материала', 'Авто', 'Реклама', 'Инструмент', 'Прочее'];
 
 export const DEMO_CODE = '1234';
@@ -103,7 +100,7 @@ export function makeSeed() {
   const orders = [
     {
       id: 'o-1031', no: 1031, createdAt: stamp(-9), createdBy: 'u-sergey', leadId: 'u-sergey', status: 'work',
-      channel: { source: 'Авито', detail: '', url: '' }, materialType: 'flizelin', priceOwnerId: 'u-sergey', priceSnap: snapS,
+      materialType: 'flizelin', priceOwnerId: 'u-sergey', priceSnap: snapS,
       client: { name: 'Марина Кузнецова', phone: '9161234567', street: 'ул. Гагарина', house: '8', entrance: '1', flat: '17', floor: '3', comment: 'Домофон 17К' },
       arrival: `${isoDay(-6)}T11:00`, prelim: null,
       rooms: [
@@ -125,7 +122,7 @@ export function makeSeed() {
     },
     {
       id: 'o-1027', no: 1027, createdAt: stamp(-25), createdBy: 'u-sergey', leadId: 'u-sergey', status: 'closed', closedAt: stamp(-12),
-      channel: { source: 'Рекомендация', detail: '', url: '' }, materialType: 'vinyl', priceOwnerId: 'u-sergey', priceSnap: snapS,
+      materialType: 'vinyl', priceOwnerId: 'u-sergey', priceSnap: snapS,
       client: { name: 'Олег Смирнов', phone: '9031112233', street: 'пр. Мира', house: '41', entrance: '', flat: '88', floor: '9', comment: '' },
       arrival: `${isoDay(-22)}T10:00`, prelim: null,
       rooms: [{ id: 'r1', floor: 1, name: 'Гостиная', est: [{ svc: 'paste', qty: 42 }], start: isoDay(-15), end: isoDay(-14), assignee: 'u-sergey', done: true,
@@ -171,7 +168,7 @@ export function makeSeed() {
     settlements: [],
     credits: [{ orderId: 'o-1027', masterId: 'u-sergey', m2: 46.3, at: stamp(-12) }],
     events: [
-      { orderId: 'o-1031', actorId: 'u-sergey', role: 'master', action: 'Создан заказ', detail: 'Источник: Авито', at: stamp(-9) },
+      { orderId: 'o-1031', actorId: 'u-sergey', role: 'master', action: 'Создан заказ', detail: '', at: stamp(-9) },
       { orderId: 'o-1031', actorId: 'u-sergey', role: 'master', action: 'Замер снят', detail: 'Рулетка ' + DEMO_DEVICE, at: stamp(-6, 12) },
       { orderId: 'o-1031', actorId: 'u-sergey', role: 'master', action: 'Получен аванс', detail: '10 000 ₽ · Перевод', at: stamp(-5) },
       { orderId: 'o-1027', actorId: 'u-sergey', role: 'master', action: 'Заказ закрыт', detail: 'В рейтинг зачтено 46,3 м²', at: stamp(-12) },

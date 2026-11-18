@@ -1,12 +1,12 @@
 // Мастер и диспетчер: канбан заказов, входящие предложения, новый свой заказ, корзина, текущий заказ.
 
-import { actions, changes, rerender, go, val } from './core.js?v=565';
-import * as S from './store.js?v=565';
-import { prelimCost, commissionAmount, shiftsText } from './calc.js?v=565';
-import { SERVICES, UNIT, CHANNELS, WALLPAPER_TYPES } from './seed.js?v=565';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=565';
-import { topbar, orderStatus, typeName } from './shared.js?v=565';
-import { renderOrder, openOrderTab } from './order.js?v=565';
+import { actions, changes, rerender, go, val } from './core.js?v=566';
+import * as S from './store.js?v=566';
+import { prelimCost, commissionAmount, shiftsText } from './calc.js?v=566';
+import { SERVICES, UNIT, WALLPAPER_TYPES } from './seed.js?v=566';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=566';
+import { topbar, orderStatus, typeName } from './shared.js?v=566';
+import { renderOrder, openOrderTab } from './order.js?v=566';
 
 let column = null;
 let columnFor = '';
@@ -179,7 +179,6 @@ actions['trash-forever-do'] = (el) => { S.deleteForever(el.dataset.id); closeShe
 let draft = null;
 const freshDraft = () => ({
   step: 1, floor: 1, rooms: [], room: '', materialType: 'flizelin',
-  source: 'Авито', detail: '', url: '',
   client: { name: '', phone: '', street: '', house: '', entrance: '', flat: '', floor: '', comment: '' },
   date: '', hour: '10', minute: '00', errors: {},
 });
@@ -235,12 +234,6 @@ function ownClient() {
   const hours = Array.from({ length: 13 }, (_, i) => String(8 + i).padStart(2, '0'));
   const dup = c.phone.replace(/\D/g, '').length >= 10 && c.street && c.house ? S.findDuplicate({ ...c, phone: c.phone.replace(/\D/g, '').slice(-10) }) : null;
   return `<section class="plate">
-    <h2 class="plate__title">Канал</h2>
-    ${select({ id: 'own-source', label: 'Источник заявки', value: draft.source, options: CHANNELS.map((x) => ({ value: x, label: x })) })}
-    ${field({ id: 'own-detail', label: 'Уточнение', value: draft.detail, placeholder: 'Например, объявление «Поклейка обоев»' })}
-    ${field({ id: 'own-url', label: 'Ссылка', value: draft.url, type: 'url', placeholder: 'Вставьте ссылку' })}
-  </section>
-  <section class="plate">
     <h2 class="plate__title">Клиент</h2>
     ${field({ id: 'own-name', label: 'Имя', value: c.name, error: e.name })}
     ${field({ id: 'own-phone', label: 'Телефон', value: c.phone, type: 'tel', inputmode: 'tel', placeholder: '+7', error: e.phone })}
@@ -270,7 +263,6 @@ export function renderOwnNew() {
 
 function readOwnClient() {
   if (!document.getElementById('own-name')) return;
-  draft.source = val('own-source'); draft.detail = val('own-detail'); draft.url = val('own-url');
   Object.assign(draft.client, { name: val('own-name'), phone: val('own-phone'), street: val('own-street'), house: val('own-house'), entrance: val('own-entrance'), flat: val('own-flat'), floor: val('own-cfloor'), comment: val('own-comment') });
   draft.date = val('own-date'); draft.hour = val('own-hour'); draft.minute = val('own-minute');
 }
@@ -331,7 +323,7 @@ actions['own-save'] = (el) => {
   if (Object.keys(e).length) { rerender(); toast('Проверьте поля, отмеченные красным'); return; }
   const o = S.createOwnOrder({
     rooms: draft.rooms.map((r) => ({ floor: r.floor, name: r.name, est: r.est })), branch: el.dataset.branch,
-    source: draft.source, detail: draft.detail, url: draft.url, client: { ...c, phone },
+    client: { ...c, phone },
     date: draft.date, time: `${draft.hour}:${draft.minute}`, materialType: draft.materialType,
   });
   draft = null;

@@ -1,12 +1,12 @@
 // Профиль, настройки, команда диспетчера, статистика, бренд-зона, звонки и материалы агента для клиента.
 
-import { actions, changes, rerender, go, val } from './core.js?v=565';
-import * as S from './store.js?v=565';
-import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=565';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=565';
-import { topbar, typeName, renderSettlements } from './shared.js?v=565';
-import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=565';
-import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=565';
+import { actions, changes, rerender, go, val } from './core.js?v=566';
+import * as S from './store.js?v=566';
+import { WALLPAPER_TYPES, SERVICES, UNIT, ROOM_NAMES, SYSTEM_PRICE } from './seed.js?v=566';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, phoneRu, sheet, closeSheet, toast, ICONS } from './ui.js?v=566';
+import { topbar, typeName, renderSettlements } from './shared.js?v=566';
+import { ROOMS, roomColor, svcList, defaultSvcList } from './ocenka.js?v=566';
+import { COUNTRIES, SOON, withFlag, countryHtml } from './phonecodes.js?v=566';
 
 const numOf = (s) => { const n = parseFloat(String(s).replace(',', '.').replace(/\s/g, '')); return Number.isFinite(n) ? n : NaN; };
 const navRow = (to, label, icon, note = '') => `<button type="button" class="well card-btn nav-row" data-action="go" data-to="${to}"><span class="nav-row__icon">${ICONS[icon] || ''}</span><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ''}</span><span class="nav-row__chev">${ICONS.chevron}</span></button>`;
@@ -345,8 +345,6 @@ export function renderStats() {
     const inc = st.settlements.filter((s) => s.payeeId === me.id && s.status !== 'cancelled');
     const earned = inc.filter((s) => ['due', 'paid', 'received'].includes(s.status) && inRange(s.dueAt, r)).reduce((a, s) => a + s.amount, 0);
     const expected = inc.filter((s) => s.status === 'estimate').reduce((a, s) => a + s.amount, 0);
-    const byCh = {};
-    created.forEach((o) => { byCh[o.channel.detail || o.channel.source] = (byCh[o.channel.detail || o.channel.source] || 0) + 1; });
     const byP = {};
     created.forEach((o) => { const l = S.linksOf(o.id).filter((x) => x.fromId === me.id).slice(-1)[0]; if (l) byP[S.user(l.toId).name] = (byP[S.user(l.toId).name] || 0) + 1; });
     body = `<section class="plate"><div class="tiles">
@@ -354,7 +352,6 @@ export function renderStats() {
         <div class="tile"><span>Закрыто</span><b>${closed.length}</b></div><div class="tile"><span>Конверсия</span><b>${created.length ? Math.round((accepted.length / created.length) * 100) : 0}%</b></div>
       </div></section>
       <section class="plate">${kv('Начислено за период', rub(earned), true)}${kv('Ожидается по текущим заказам', rub(expected))}<p class="small">Комиссии и неустойки, которые вам должны исполнители.</p></section>
-      <section class="plate"><h2 class="plate__title">Откуда клиенты</h2>${Object.keys(byCh).length ? bars(Object.entries(byCh).map(([k, v]) => [k, v])) : '<p class="empty">Нет заявок за период</p>'}</section>
       <section class="plate"><h2 class="plate__title">Кому передавали</h2>${Object.keys(byP).length ? bars(Object.entries(byP).map(([k, v]) => [k, v])) : '<p class="empty">Нет заявок за период</p>'}</section>`;
   } else {
     const all = st.orders.filter((o) => o.leadId === me.id || o.rooms.some((x) => x.assignee === me.id) || S.linksOf(o.id).some((l) => l.toId === me.id && ['accepted', 'done'].includes(l.status)));
@@ -365,8 +362,6 @@ export function renderStats() {
     const got = st.settlements.filter((s) => s.payeeId === me.id && ['due', 'paid', 'received'].includes(s.status) && inRange(s.dueAt, r)).reduce((a, s) => a + s.amount, 0);
     const m2 = st.credits.filter((c) => c.masterId === me.id && inRange(c.at, r)).reduce((a, c) => a + c.m2, 0);
     const created = all.filter((o) => o.leadId === me.id && inRange(o.createdAt, r));
-    const byCh = {};
-    created.forEach((o) => { byCh[o.channel.source] = (byCh[o.channel.source] || 0) + 1; });
     const now = new Date();
     const months = Array.from({ length: 6 }, (_, i) => new Date(now.getFullYear(), now.getMonth() - 5 + i, 1));
     const perMonth = months.map((m) => all.filter((o) => o.status === 'closed' && inRange(o.closedAt, [m, new Date(m.getFullYear(), m.getMonth() + 1, 1)])).reduce((a, o) => a + proIncome(o, me), 0));
@@ -381,7 +376,6 @@ export function renderStats() {
         ${kv('Чистый заработок', rub(income - exp - paid + got), true)}
       </section>
       <section class="plate"><h2 class="plate__title">Выручка по месяцам</h2>${chart(perMonth, months.map((m) => MONTHS[m.getMonth()]))}</section>
-      <section class="plate"><h2 class="plate__title">Каналы новых заказов</h2>${Object.keys(byCh).length ? bars(Object.entries(byCh).map(([k, v]) => [k, v])) : '<p class="empty">Нет новых заказов за период</p>'}</section>
       ${S.hasRole(me, 'dispatcher') ? `<section class="plate"><h2 class="plate__title">Мастера команды</h2>${bars(S.teamOf(me.id).map((m) => { const v = st.credits.filter((c) => c.masterId === m.id && inRange(c.at, r)).reduce((a, c) => a + c.m2, 0); return [m.name, v, `${num(Math.round(v * 10) / 10)} м²`]; }))}</section>` : ''}`;
   }
   const tabs = isAgent ? '' : seg('stat-tab', [{ value: 'stats', label: 'Статистика' }, { value: 'fin', label: 'Финансы' }], statTab);

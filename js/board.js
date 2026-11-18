@@ -3,16 +3,16 @@
 // внизу ярлык комнаты (полоска цвета комнаты) и линия смен: пройденные — точки, текущая — капсула.
 // Пока показ на примерных заказах (даты от сегодняшнего дня), позже — из настоящих заказов.
 
-import { actions, rerender, go } from './core.js?v=565';
-import * as S from './store.js?v=565';
-import { renderOformit, oformitDraft, renderInfoStack } from './oformit.js?v=565';
-import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=565';
-import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=565';
-import { renderMeasurement } from './measurement.js?v=565';
-import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=565';
-import { SHIFT_HOURS, shiftsText } from './calc.js?v=565';
-import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=565';
-import { topbar, ORDER_STATUS } from './shared.js?v=565';
+import { actions, rerender, go } from './core.js?v=566';
+import * as S from './store.js?v=566';
+import { renderOformit, oformitDraft, renderInfoStack } from './oformit.js?v=566';
+import { roomTotals, svcInfo, SHORT } from './ocenka.js?v=566';
+import { smetaTotals, renderMaterial, renderPayForm } from './zakaz.js?v=566';
+import { renderMeasurement } from './measurement.js?v=566';
+import { bookedDays, homeLayout, homeCalendarHtml, setQueueProvider } from './grafik.js?v=566';
+import { SHIFT_HOURS, shiftsText } from './calc.js?v=566';
+import { esc, toast, status, seg, ICON_MENU } from './ui.js?v=566';
+import { topbar, ORDER_STATUS } from './shared.js?v=566';
 
 const SEARCH = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#edf0e7" stroke-width="1.8"/><path d="M16 16l4 4" stroke="#edf0e7" stroke-width="1.8" stroke-linecap="round"/></svg>';
 const STAGES = [['new', 'Новая'], ['measure', 'Замер'], ['approval', 'Согласование'], ['queue', 'Очередь'], ['work', 'В работе'], ['done', 'Выполнено'], ['refused', 'Отказ']];
@@ -146,7 +146,6 @@ function seedOrder(no) {
   if (no === '004') { place[rooms[1].key] = iso(3); place[rooms[2].key] = iso(3); }
   const d0 = dayOf(x.days[0]);
   st.oformit[key] = {
-    channel: { source: x.src, partner: 'self', url: '', pct: 0 }, saved: true, dirty: false, editing: false,
     cl, est: { rooms, view: rooms[0] ? rooms[0].key : '', floor: 1, confirm: null },
     sched: { mode: x.meas != null ? 'measure' : 'rooms', sel: '', picks: [], place, measure: x.meas != null ? iso(x.meas) : '', month: `${d0.getFullYear()}-${pad(d0.getMonth() + 1)}`, status: 'saved', dirty: false },
   };
@@ -551,7 +550,7 @@ export function renderBoardOrder(no, view) {
   const f = flowOf(no);
   const flow = flowBlock(no, d, tot, days);
   // «Инф» = та же единая сущность, что «Итог» в регистрации: редактируемая стопка разделов
-  // (Оценка → План → Клиент → Источник). Единственный источник — renderInfoStack: правим в одном месте.
+  // (Оценка → План → Клиент). Единственный источник — renderInfoStack: правим в одном месте.
   const infoView = `${f.st === 'refused' ? flow : ''}${renderInfoStack(d)}`;
   // Замеры — действие шага (на замере) + смета по комнатам
   let measComp = ''; try { measComp = renderMeasurement(d); } catch (e) { measComp = '<p class="bd-note">Замер недоступен</p>'; }
@@ -583,15 +582,14 @@ const infoBtn = (no) => `<button type="button" class="f-nav__tab" data-action="g
 const unread = (d) => (d.chat || []).filter((m) => m.who !== S.me().id && !m.read).length;
 const chatBtn = (no, d) => { const n = unread(d); return `<button type="button" class="f-nav__tab f-nav__chat" data-action="bd-edit" data-no="${no}" data-tab="chat" aria-label="Чат заказа">${CHAT}${n ? `<b class="f-nav__badge">${n}</b>` : ''}<span>Чат</span></button>`; };
 // Правка блока — только этот раздел (та же форма, что при оформлении), без вкладок других разделов.
-const TAB_T = { client: 'Клиент', estimate: 'Оценка', schedule: 'План', channel: 'Источник', material: 'Материал', smeta: 'Замер', chat: 'Чат', tasks: 'Задачи', finance: 'Финансы', history: 'История' };
+const TAB_T = { client: 'Клиент', estimate: 'Оценка', schedule: 'План', material: 'Материал', smeta: 'Замер', chat: 'Чат', tasks: 'Задачи', finance: 'Финансы', history: 'История' };
 // «Изменить» сразу включает правку раздела — «Редактировать» нажимать не нужно.
 let startEdit = '';
 // Снимок раздела до правки: «Отмена» возвращает его, «Сохранить» без изменений — «Без изменений».
 let editSnap = null;
-const PART = { channel: ['channel', 'saved', 'editing', 'dirty', 'chSnap', 'chErr'], client: ['cl'], schedule: ['sched'], estimate: ['est'] };
+const PART = { client: ['cl'], schedule: ['sched'], estimate: ['est'] };
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
 function essence(d, t) {
-  if (t === 'channel') return JSON.stringify(d.channel);
   if (t === 'client') { const c = d.cl || {}; return JSON.stringify(['name', 'phone', 'street', 'house', 'entrance', 'flat', 'floor', 'hour', 'min', 'comment'].map((k) => c[k] || '')); }
   if (t === 'schedule') return JSON.stringify([(d.sched || {}).place, (d.sched || {}).measure]);
   if (t === 'estimate') return JSON.stringify(((d.est || {}).rooms || []).map((r) => [r.key, r.name, r.floor, r.svcs.map((x) => [x.id, Number(x.qty)])]));
@@ -599,7 +597,6 @@ function essence(d, t) {
 }
 function beginEdit(d, t) {
   editSnap = PART[t] ? { t, data: Object.fromEntries(PART[t].map((k) => [k, clone(d[k])])), essence: essence(d, t) } : null;
-  if (t === 'channel' && d.saved) d.editing = true;
   if (t === 'client' && d.cl && d.cl.saved) d.cl.editing = true;
   if (t === 'schedule' && d.sched && d.sched.status === 'saved') d.sched.status = 'editing';
   if (t === 'estimate' && d.est) d.est.rooms.forEach((r) => { if (r.status === 'saved') r.status = 'editing'; });
@@ -1126,15 +1123,15 @@ export function renderClients() {
     const paid = o.fin ? o.fin.pays.reduce((a, p) => a + p.amount, 0) : 0;
     const offs = QUEUE.filter(([, key]) => key && R[key].c.no === no).map(([off]) => off);
     const stage = x.meas != null ? 'measure' : offs.some((f) => f <= 0) && offs.some((f) => f >= 0) ? 'work' : 'queue';
-    add(digits(x.ph), { name: c.n, phone: c.ph, addr: c.a, src: x.src }, { no, stage, sum, paid, act: `data-action="bd-open" data-no="${no}"` }); });
+    add(digits(x.ph), { name: c.n, phone: c.ph, addr: c.a }, { no, stage, sum, paid, act: `data-action="bd-open" data-no="${no}"` }); });
   // заказы, оформленные мастером через форму «Оформить»
   MY().forEach((no) => { const o = S.get().oformit['ord-' + no]; if (!o || !o.cl) return; const cl = o.cl;
     const sum = orderSum(o, o.flow);
-    add(digits(cl.phone), { name: cl.name || 'Клиент', phone: cl.phone || '', addr: [cl.street, cl.house && 'д. ' + cl.house, cl.flat && 'кв. ' + cl.flat].filter(Boolean).join(', '), src: (o.channel || {}).source || '' },
+    add(digits(cl.phone), { name: cl.name || 'Клиент', phone: cl.phone || '', addr: [cl.street, cl.house && 'д. ' + cl.house, cl.flat && 'кв. ' + cl.flat].filter(Boolean).join(', ') },
       { no, stage: flowOf(no).st, sum, paid: o.fin ? o.fin.pays.reduce((a, p) => a + p.amount, 0) : 0, act: `data-action="bd-open" data-no="${no}"` }); });
   // заказы из базы (ведёт мастер)
   S.get().orders.filter((o) => !o.trashed && o.leadId === meId).forEach((o) => { const c = o.client;
-    add(digits(c.phone), { name: c.name, phone: `+7 ${c.phone}`, addr: [c.street, c.house].filter(Boolean).join(', ') + (c.flat ? `, кв. ${c.flat}` : ''), src: o.channel.source },
+    add(digits(c.phone), { name: c.name, phone: `+7 ${c.phone}`, addr: [c.street, c.house].filter(Boolean).join(', ') + (c.flat ? `, кв. ${c.flat}` : '') },
       { no: String(o.no), stage: o.status, sum: 0, paid: 0, act: `data-action="go" data-to="p-order-${o.id}"` }); });
   const q = clientQ.trim().toLowerCase();
   const list = [...map.values()].filter((c) => !q || `${c.name} ${c.phone} ${c.addr}`.toLowerCase().includes(q)).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
@@ -1143,7 +1140,7 @@ export function renderClients() {
       <div class="cl-card__hd"><span class="cl-av">${esc(c.name.split(' ').map((w) => w[0] || '').slice(0, 2).join(''))}</span>
         <span class="cl-card__who"><b>${esc(c.name)}</b><small>${esc(c.addr)}</small></span>
         <a class="icon-btn cl-call" href="tel:${esc(String(c.phone).replace(/[^+\d]/g, ''))}" aria-label="Позвонить">${HI.call}</a></div>
-      <div class="cl-card__meta"><span>${esc(c.phone)}</span><span>${esc(c.src || '')}</span>${tot ? `<span>всего ${fmt(tot)} ₽</span>` : ''}</div>
+      <div class="cl-card__meta"><span>${esc(c.phone)}</span>${tot ? `<span>всего ${fmt(tot)} ₽</span>` : ''}</div>
       <div class="cl-orders">${c.orders.map((o) => { const [k, t] = ORDER_STATUS[o.stage] || ['idle', o.stage];
         return `<button type="button" class="cl-ord" ${o.act}><b>Заказ №${esc(o.no)}</b>${status(k, t)}<span class="cl-ord__sum">${o.sum ? `${fmt(o.sum)} ₽` : ''}</span><span class="cl-ord__go">›</span></button>`; }).join('')}</div></article>`; };
   return `${topbar('Клиенты')}

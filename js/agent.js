@@ -1,12 +1,12 @@
 // Сценарий агента: сканер обоев → расчёт → исполнитель, дата и процент → клиент → передача заказа.
 // Плюс «Мои заявки» и повторная передача отклонённого или сорванного заказа.
 
-import { actions, rerender, go, val, numVal } from './core.js?v=565';
-import * as S from './store.js?v=565';
-import { SYSTEM_PRICE, WALLPAPER_TYPES, DEMO_BARCODES } from './seed.js?v=565';
-import { areaFromRolls, rollsFromRoom, prelimCost, commissionAmount } from './calc.js?v=565';
-import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, weekdayShort, dayNum, sheet, closeSheet, toast, ICONS } from './ui.js?v=565';
-import { topbar, typeName, orderStatus, prelimBlock, clientBlock, historyBlock } from './shared.js?v=565';
+import { actions, rerender, go, val, numVal } from './core.js?v=566';
+import * as S from './store.js?v=566';
+import { SYSTEM_PRICE, WALLPAPER_TYPES, DEMO_BARCODES } from './seed.js?v=566';
+import { areaFromRolls, rollsFromRoom, prelimCost, commissionAmount } from './calc.js?v=566';
+import { esc, rub, num, kv, status, field, select, btnRow, seg, dateRu, dateTimeRu, weekdayShort, dayNum, sheet, closeSheet, toast, ICONS } from './ui.js?v=566';
+import { topbar, typeName, orderStatus, prelimBlock, clientBlock, historyBlock } from './shared.js?v=566';
 
 const STEPS = ['Материал', 'Расчёт', 'Исполнитель', 'Клиент', 'Проверка'];
 
@@ -15,7 +15,7 @@ function freshDraft() {
     step: 0, barcode: '', scan: null, newMat: null,
     mode: 'rolls', rolls: 10, height: 2.7, walls: [4, 3, 4, 3], openings: [{ kind: 'window', w: 1.2, h: 1.4 }, { kind: 'door', w: 0.8, h: 2.0 }],
     partnerId: '', date: '', hour: '10', minute: '00', pct: 5,
-    channel: 'shop', client: { name: '', phone: '', street: '', house: '', entrance: '', flat: '', floor: '', comment: '' },
+    client: { name: '', phone: '', street: '', house: '', entrance: '', flat: '', floor: '', comment: '' },
     errors: {},
   };
 }
@@ -227,7 +227,6 @@ function stepClient() {
     </div>
     ${e.house ? '<p class="field__error">Укажите номер дома</p>' : ''}
     <label class="field" for="k-comment"><span class="field__label">Комментарий</span><span class="field__box"><textarea id="k-comment" placeholder="Например, код домофона">${esc(c.comment)}</textarea></span></label>
-    <div class="field"><span class="field__label">Откуда клиент</span>${seg('channel', [{ value: 'shop', label: 'Торговая точка' }, { value: 'card', label: 'Визитка (промокод)' }], d.channel)}</div>
   </section>
   ${btnRow([{ label: 'Назад', action: 'step-prev' }, { label: 'Дальше', action: 'step-next', primary: true }])}`;
 }
@@ -328,7 +327,6 @@ actions['newmat-save'] = () => {
 
 export function onSegAgent(name, value) {
   if (name === 'calc-mode') { readCalcInputs(); d.mode = value; rerender(); return true; }
-  if (name === 'channel') { readClient(); d.channel = value; rerender(); return true; }
   return false;
 }
 
@@ -409,7 +407,7 @@ actions['submit-order'] = () => {
     walls: d.mode === 'room' ? d.walls.slice() : null, openings: d.mode === 'room' ? d.openings.slice() : null,
     areaMin: c.min, areaMax: c.max, areaMid: c.mid,
     partnerId: d.partnerId, arrival: `${d.date}T${d.hour}:${d.minute}`, pct: d.pct,
-    channel: d.channel, client: { ...d.client, phone: d.client.phone.replace(/\D/g, '').slice(-10) },
+    client: { ...d.client, phone: d.client.phone.replace(/\D/g, '').slice(-10) },
   });
   const p = S.user(d.partnerId);
   d = freshDraft();

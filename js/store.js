@@ -1,8 +1,8 @@
 // Данные прототипа и все действия над ними. Хранятся только в этом браузере (localStorage).
 // Модель повторяет «Скелет системы»: заказ → звенья передачи → начисления; комнаты → стены → смета.
 
-import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=565';
-import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=565';
+import { makeSeed, DEMO_REVIEWS, SYSTEM_PRICE, SERVICES, defaultSettings, isoDay, DEMO_DEVICE } from './seed.js?v=566';
+import { commissionAmount, penalty, wallArea, serviceQtyFromWalls, hoursFor, finalCommissionBase, REPLACEMENT_FOUND_FEE, round2 } from './calc.js?v=566';
 
 const KEY = 'metronika-prototype-v2';
 // Пока в приложении только роль мастера; остальные роли остаются в коде, но не показываются. Вернуть — поставить false.
@@ -359,7 +359,6 @@ export function createAgentOrder(d) {
   const prelimBase = Math.round(d.areaMid * price);
   const o = baseOrder({
     id, no, createdAt: nowStamp(), createdBy: agent.id, leadId: null, status: 'offered',
-    channel: { source: 'Партнёр', detail: d.channel === 'card' ? 'Визитка (промокод)' : 'Торговая точка', url: '' },
     client: { ...d.client }, arrival: d.arrival, materialType: d.material.type, priceOwnerId: partner.id, priceSnap: null,
     prelim: {
       authorId: agent.id, mode: d.mode, barcode: d.material.barcode, rolls: d.rolls, height: d.height, walls: d.walls || null, openings: d.openings || null,
@@ -395,14 +394,14 @@ export function createOwnOrder(d) {
   const status = d.branch === 'measure' ? 'measure' : d.branch === 'queue' ? 'queue' : 'approval';
   const o = baseOrder({
     id, no, createdAt: nowStamp(), createdBy: u.id, leadId: u.id, status,
-    channel: { source: d.source, detail: d.detail || '', url: d.url || '' }, client: { ...d.client },
+    client: { ...d.client },
     arrival: d.date ? `${d.date}T${d.time || '10:00'}` : '', materialType: d.materialType || 'flizelin', priceOwnerId: u.id, priceSnap: priceSnapshotFor(u.id),
     prelim: null, rooms, duplicateOf: (findDuplicate(d.client) || {}).id || null,
   });
   if (d.branch === 'measure' && d.date) o.visits.push({ id: uid('v'), type: 'measure', date: d.date, time: d.time || '10:00', roomIds: null, masterId: u.id, geo: null });
   state.orders.push(o);
   const est = estimateOf(o);
-  logEvent(id, u.id, roleKey(u), 'Создан заказ', `Источник: ${d.source}. Оценка ${rubText(est.total)}`);
+  logEvent(id, u.id, roleKey(u), 'Создан заказ', `Оценка ${rubText(est.total)}`);
   logEvent(id, u.id, roleKey(u), status === 'measure' ? 'Записан на замер' : status === 'queue' ? 'Поставлен в очередь' : 'Отправлен на согласование', d.date ? dateWords(`${d.date}T${d.time || '10:00'}`) : '');
   save();
   return o;
@@ -567,7 +566,6 @@ export function updateClient(orderId, client, arrival) {
   }
   touch(o, 'Сохранены данные клиента', 'Контакты и адрес заказа');
 }
-export function updateChannel(orderId, ch) { const o = order(orderId); o.channel = { ...o.channel, ...ch }; touch(o, 'Изменён канал', ch.source || ''); }
 
 export function addRooms(orderId, floor, names) {
   const o = order(orderId);

@@ -2,12 +2,12 @@
 // «+» → выбрали комнату (она встаёт в полосу и открывается) → работы → объёмы → «Сохранить» → «+» следующая.
 // Комнаты сверху — карточки-превью «стекло», между ними можно листать свайпом.
 
-import { actions, changes, rerender } from './core.js?v=565';
-import * as S from './store.js?v=565';
-import { SYSTEM_PRICE } from './seed.js?v=565';
-import { shiftsText, hoursFor } from './calc.js?v=565';
-import { esc, toast } from './ui.js?v=565';
-import { logEvent } from './zlog.js?v=565';
+import { actions, changes, rerender } from './core.js?v=566';
+import * as S from './store.js?v=566';
+import { SYSTEM_PRICE } from './seed.js?v=566';
+import { shiftsText, hoursFor } from './calc.js?v=566';
+import { esc, toast } from './ui.js?v=566';
+import { logEvent } from './zlog.js?v=566';
 
 // Комнаты и цвета меток — как в макете «02 · Выбор комнат».
 export const ROOMS = [
@@ -89,7 +89,7 @@ export function estimateState(d) {
 export function estimateDirty(d) { const e = d.est; return !!e && e.rooms.some((r) => r.status === 'editing' || (r.status === 'new' && r.svcs.length)); }
 export function estimateRooms(d) { return (d.est && d.est.rooms) || []; }
 // Мы в «Итоге комнат» (нажата плитка «Итог»): есть комнаты и вид === 'total'.
-// По этому флагу под итогом показываем План/Клиент/Источник; в обычном виде комнат — только оценка.
+// По этому флагу под итогом показываем План/Клиент; в обычном виде комнат — только оценка.
 export const estimateOnTotal = (d) => !!(d.est && (d.est.rooms || []).length && d.est.view === 'total');
 
 // ---------- карусель комнат ----------
